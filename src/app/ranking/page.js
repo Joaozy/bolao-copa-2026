@@ -64,6 +64,9 @@ export default function Ranking() {
         console.log('⚡ Atualização de pontos detectada!')
         fetchData()
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'special_bets' }, () => {
+        fetchData()
+      })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [selectedCompId, selectedRound])
@@ -87,7 +90,8 @@ export default function Ranking() {
     }
 
     if (selectedRound === 'Geral') {
-        // --- MODO GERAL (Usa a View do Banco - Já soma Extras + Jogos) ---
+        // --- MODO GERAL (Usa a View do Banco) ---
+        // A view 'leaderboard' já soma jogos + extras e tem as colunas qtd_cv, qtd_vsg, qtd_av
         const { data, error } = await supabase
             .from('leaderboard')
             .select('*')
@@ -95,6 +99,8 @@ export default function Ranking() {
             .order('total_pontos', { ascending: false })
             .order('qtd_cv', { ascending: false })
             .order('qtd_vsg', { ascending: false })
+            .order('qtd_av', { ascending: false })
+            .order('nome_exibicao', { ascending: true })
         
         if (!error) setUsers(data || [])
         setLoading(false)
@@ -177,12 +183,14 @@ export default function Ranking() {
             }
         })
 
-        // 5. Ordena (Pontos > CV > VSG)
-        rankingRodada.sort((a, b) => 
-            b.total_pontos - a.total_pontos || 
-            b.qtd_cv - a.qtd_cv || 
-            b.qtd_vsg - a.qtd_vsg
-        )
+        // 5. Ordena (Pontos > CV > VSG > AV > Nome)
+        rankingRodada.sort((a, b) => {
+             if (b.total_pontos !== a.total_pontos) return b.total_pontos - a.total_pontos
+             if (b.qtd_cv !== a.qtd_cv) return b.qtd_cv - a.qtd_cv
+             if (b.qtd_vsg !== a.qtd_vsg) return b.qtd_vsg - a.qtd_vsg
+             if (b.qtd_av !== a.qtd_av) return b.qtd_av - a.qtd_av
+             return (a.nome_exibicao || "").localeCompare(b.nome_exibicao || "")
+        })
         
         setUsers(rankingRodada)
         setLoading(false)
@@ -219,7 +227,7 @@ export default function Ranking() {
         setUserBets(gamesData || [])
 
         // 2. Busca Palpites EXTRAS
-        // Busca manual para evitar problemas de join
+        // Trazemos tudo desse usuário e filtramos no JS para garantir segurança do prazo
         const { data: rawSpecialBets } = await supabase
             .from('special_bets')
             .select(`
@@ -250,7 +258,7 @@ export default function Ranking() {
             const rulesMap = {}
             rules?.forEach(r => rulesMap[r.id] = r)
 
-            // Filtra e monta objeto final
+            // FILTRAGEM SEGURA
             const visibleSpecials = rawSpecialBets.map(bet => {
                 const rule = rulesMap[bet.special_rule_id]
                 if (!rule) return null // Regra não é dessa competição
@@ -258,7 +266,9 @@ export default function Ranking() {
                 // Regra de Ouro: Só mostra se prazo passou (evita cola)
                 if (!rule.deadline) return null 
                 const deadline = new Date(rule.deadline)
-                if (agora <= deadline) return null 
+                const passouDoPrazo = agora.getTime() > deadline.getTime()
+                
+                if (!passouDoPrazo) return null 
 
                 return {
                     picked_value: bet.picked_value,
@@ -334,7 +344,7 @@ export default function Ranking() {
               <th className="p-3 text-center">#</th>
               <th className="p-3">Participante</th>
               <th className="p-3 text-center text-yellow-400" title="Cravada (Placar Exato)">CV</th>
-              <th className="p-3 text-center text-blue-400" title="Vitória+Saldo/Gols">VSG</th>
+              <th className="p-3 text-center text-blue-400" title="Vitória + Saldo/Gols">VSG</th>
               <th className="p-3 text-center text-green-400" title="Apenas Vitória">AV</th>
               <th className="p-3 text-center font-bold text-white text-lg">Pts</th>
             </tr>
@@ -376,7 +386,7 @@ export default function Ranking() {
             ) : (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-gray-500">
-                  {users.length === 0 ? "Nenhum participante inscrito nesta competição." : "Nenhum participante encontrado."}
+                  {users.length === 0 ? "Nenhum participante encontrado." : "Nenhum participante com esse nome."}
                 </td>
               </tr>
             )}
@@ -405,7 +415,7 @@ export default function Ranking() {
                 <div>
                   <h3 className="font-bold text-white">{selectedUser.nome_exibicao || 'Anônimo'}</h3>
                   <p className="text-xs text-gray-400">
-                    {selectedRound === 'Geral' ? 'Histórico Completo' : selectedRound}
+                    {selectedRound === 'Geral' ? 'Histórico Geral' : selectedRound}
                   </p>
                 </div>
               </div>
