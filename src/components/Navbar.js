@@ -11,16 +11,15 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
+    // Apenas busca a sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
     
+    // Atualiza o estado visual (botões de Entrar/Sair) se houver mudanças, mas NÃO faz redirect
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (!session && pathname !== '/login') {
-         router.push('/login')
-      }
     })
     return () => subscription.unsubscribe()
-  }, [pathname, router])
+  }, []) // Removidos pathname e router das dependências
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

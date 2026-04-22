@@ -358,13 +358,18 @@ export default function Home() {
           }
         })
         if (updates.length > 0) {
-          await supabase.from('bets').upsert(updates, { onConflict: 'user_id, game_id' })
-          toast.success('Jogos salvos com sucesso!')
-          setGamePredictions(prev => {
-            const next = {...prev}
-            updates.forEach(u => next[u.game_id].isEditing = false)
-            return next
-          })
+          const { error } = await supabase.from('bets').upsert(updates, { onConflict: 'user_id, game_id' })
+          
+          if (error) {
+            toast.error(error.message)
+          } else {
+            toast.success('Jogos salvos com sucesso!')
+            setGamePredictions(prev => {
+              const next = {...prev}
+              updates.forEach(u => next[u.game_id].isEditing = false)
+              return next
+            })
+          }
         }
       }
 
@@ -389,9 +394,14 @@ export default function Home() {
         })
         
         if (specialUpdates.length > 0) {
-          await supabase.from('special_bets').upsert(specialUpdates, { onConflict: 'user_id, special_rule_id' })
-          toast.success('Palpites extras salvos!')
-          loadCompetitionData() 
+          const { error } = await supabase.from('special_bets').upsert(specialUpdates, { onConflict: 'user_id, special_rule_id' })
+          
+          if (error) {
+            toast.error(error.message)
+          } else {
+            toast.success('Palpites extras salvos!')
+            loadCompetitionData() 
+          }
         } else if (Object.keys(specialBets).length > 0) {
            toast.error('O prazo para alguns palpites já encerrou.')
         }
