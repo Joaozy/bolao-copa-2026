@@ -75,13 +75,13 @@ export default function Ranking() {
   const fetchData = async () => {
     setLoading(true)
     
-    // A. Busca Rodadas disponíveis (Se estiver no modo Geral, atualiza o dropdown)
+    // A. Busca Rodadas disponíveis
     if (selectedRound === 'Geral') {
         const { data: games } = await supabase
             .from('games')
             .select('round')
             .eq('competition_id', selectedCompId)
-            .neq('round', null)
+            .not('round', 'is', null)
         
         if (games) {
             const uniqueRounds = [...new Set(games.map(g => g.round))].sort()
@@ -91,7 +91,6 @@ export default function Ranking() {
 
     if (selectedRound === 'Geral') {
         // --- MODO GERAL (Usa a View do Banco) ---
-        // A view 'leaderboard' já soma jogos + extras e tem as colunas qtd_cv, qtd_vsg, qtd_av
         const { data, error } = await supabase
             .from('leaderboard')
             .select('*')
@@ -108,20 +107,28 @@ export default function Ranking() {
     } else {
         // --- MODO RODADA ESPECÍFICA (Cálculo Manual) ---
         
-        // 1. Busca inscritos da competição
-        const { data: enrolledUsers } = await supabase
+        // 1. Busca inscritos da competição de forma segura
+        const { data: enrolls } = await supabase
             .from('enrollments')
-            .select('user_id, profiles(nickname, full_name, email, avatar_url)')
+            .select('user_id')
             .eq('competition_id', selectedCompId)
 
-        if (!enrolledUsers || enrolledUsers.length === 0) {
+        if (!enrolls || enrolls.length === 0) {
             setUsers([])
             setLoading(false)
             return
         }
 
+        const userIds = enrolls.map(e => e.user_id)
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, nickname, full_name, email, avatar_url')
+            .in('id', userIds)
+            
+        const profilesMap = {}
+        profiles?.forEach(p => profilesMap[p.id] = p)
+
         // 2. Busca apostas APENAS dessa rodada
-        // Precisamos do placar do jogo também para calcular os critérios CV/VSG/AV
         const { data: bets } = await supabase
             .from('bets')
             .select(`
@@ -129,11 +136,10 @@ export default function Ranking() {
                 user_id, 
                 guess_score_a, 
                 guess_score_b,
-                game:games!inner(competition_id, round, score_a, score_b)
+                games!inner(competition_id, round, score_a, score_b)
             `)
-            .eq('game.competition_id', selectedCompId)
-            .eq('game.round', selectedRound)
-            .not('points_awarded', 'is', null)
+            .eq('games.competition_id', selectedCompId)
+            .eq('games.round', selectedRound)
 
         // 3. Calcula os pontos na memória
         const stats = {}
@@ -143,11 +149,10 @@ export default function Ranking() {
             
             stats[uid].total += (bet.points_awarded || 0)
             
-            // Lógica de Critérios baseada no PLACAR (igual ao SQL)
             const pA = bet.guess_score_a
             const pB = bet.guess_score_b
-            const rA = bet.game.score_a
-            const rB = bet.game.score_b
+            const rA = bet.games.score_a
+            const rB = bet.games.score_b
 
             if (pA !== null && rA !== null) {
                 // Cravada (CV)
@@ -168,9 +173,9 @@ export default function Ranking() {
         })
 
         // 4. Monta a lista final mesclando Inscritos + Pontos
-        const rankingRodada = enrolledUsers.map(enroll => {
+        const rankingRodada = enrolls.map(enroll => {
             const uid = enroll.user_id
-            const p = enroll.profiles || {}
+            const p = profilesMap[uid] || {}
             return {
                 user_id: uid,
                 nome_exibicao: p.nickname || p.full_name || p.email || 'Anônimo',
@@ -213,33 +218,28 @@ export default function Ranking() {
           .from('bets')
           .select(`
             guess_score_a, guess_score_b, points_awarded,
-            game:games!inner(
+            games!inner(
               competition_id, round, start_time, score_a, score_b,
               team_a:teams!team_a_id(name, badge_url, flag_code),
               team_b:teams!team_b_id(name, badge_url, flag_code)
             )
           `)
           .eq('user_id', user.user_id)
-          .eq('game.competition_id', selectedCompId)
-          .lt('game.start_time', agora.toISOString()) 
-          .order('game(start_time)', { ascending: false })
+          .eq('games.competition_id', selectedCompId)
+          .lt('games.start_time', agora.toISOString()) 
+          .order('games(start_time)', { ascending: false })
         
         setUserBets(gamesData || [])
 
         // 2. Busca Palpites EXTRAS
-        // Trazemos tudo desse usuário e filtramos no JS para garantir segurança do prazo
         const { data: rawSpecialBets } = await supabase
             .from('special_bets')
             .select(`
-                picked_value,
-                points_awarded,
-                picked_team_id,
-                special_rule_id
+                picked_value, points_awarded, picked_team_id, special_rule_id
             `)
             .eq('user_id', user.user_id)
 
         if (rawSpecialBets && rawSpecialBets.length > 0) {
-            // Busca as regras para filtrar
             const ruleIds = rawSpecialBets.map(b => b.special_rule_id)
             const { data: rules } = await supabase
                 .from('special_rules')
@@ -247,7 +247,6 @@ export default function Ranking() {
                 .in('id', ruleIds)
                 .eq('competition_id', selectedCompId)
 
-            // Busca os times citados
             const teamIds = rawSpecialBets.map(b => b.picked_team_id).filter(Boolean)
             let teamsMap = {}
             if (teamIds.length > 0) {
@@ -258,12 +257,9 @@ export default function Ranking() {
             const rulesMap = {}
             rules?.forEach(r => rulesMap[r.id] = r)
 
-            // FILTRAGEM SEGURA
             const visibleSpecials = rawSpecialBets.map(bet => {
                 const rule = rulesMap[bet.special_rule_id]
-                if (!rule) return null // Regra não é dessa competição
-
-                // Regra de Ouro: Só mostra se prazo passou (evita cola)
+                if (!rule) return null 
                 if (!rule.deadline) return null 
                 const deadline = new Date(rule.deadline)
                 const passouDoPrazo = agora.getTime() > deadline.getTime()
@@ -449,11 +445,11 @@ export default function Ranking() {
                     userBets.length > 0 ? userBets.map((bet, idx) => (
                       <div key={idx} className="bg-gray-800 p-3 rounded-lg border border-gray-700 flex justify-between items-center shadow-sm">
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="font-bold text-gray-300 w-8 text-right truncate">{bet.game.team_a.name.slice(0,3).toUpperCase()}</span>
+                          <span className="font-bold text-gray-300 w-8 text-right truncate">{bet.games.team_a.name.slice(0,3).toUpperCase()}</span>
                           <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_a}</span>
                           <span className="text-gray-600">x</span>
                           <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_b}</span>
-                          <span className="font-bold text-gray-300 w-8 truncate">{bet.game.team_b.name.slice(0,3).toUpperCase()}</span>
+                          <span className="font-bold text-gray-300 w-8 truncate">{bet.games.team_b.name.slice(0,3).toUpperCase()}</span>
                         </div>
                         <div className="text-right">
                           {bet.points_awarded !== null ? (
@@ -465,7 +461,7 @@ export default function Ranking() {
                               +{bet.points_awarded} pts
                             </span>
                           ) : <span className="text-xs text-gray-500">...</span>}
-                          <div className="text-[9px] text-gray-600 mt-1">{bet.game.score_a}x{bet.game.score_b}</div>
+                          <div className="text-[9px] text-gray-600 mt-1">{bet.games.score_a}x{bet.games.score_b}</div>
                         </div>
                       </div>
                     )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite visível (jogos futuros são ocultos).</div>

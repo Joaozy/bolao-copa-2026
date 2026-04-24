@@ -256,7 +256,25 @@ export default function Admin() {
   }
   const handleSaveTeam = async (e) => { e.preventDefault(); const q = editingTeamId ? supabase.from('teams').update(teamForm).eq('id', editingTeamId) : supabase.from('teams').insert(teamForm); await q; fetchAllData(); setEditingTeamId(null) }
   const handleEditTeam = (t) => { setTeamForm(t); setEditingTeamId(t.id); window.scrollTo(0,0) }
-  const handleSaveGame = async (e) => { e.preventDefault(); setLoading(true); const p = { ...gameForm, team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b) }; const q = editingGameId ? supabase.from('games').update(p).eq('id', editingGameId) : supabase.from('games').insert(p); await q; fetchAllData(); setEditingGameId(null); setLoading(false); alert('Salvo') }
+  const handleSaveGame = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const p = { ...gameForm, team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b) };
+    const q = editingGameId ? supabase.from('games').update(p).eq('id', editingGameId) : supabase.from('games').insert(p);
+    
+    const { error } = await q;
+    if (error) {
+      alert(error.message);
+    } else {
+      // ESTA É A LINHA MÁGICA: Força o banco a recalcular todos os palpites agora!
+      await supabase.rpc('calculate_points');
+      
+      fetchAllData();
+      setEditingGameId(null);
+      alert('Placar Salvo e Ranking Atualizado!');
+    }
+    setLoading(false);
+  }
   const handleEditGame = (g) => { const d = new Date(g.start_time); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); setGameForm({ competition_id:g.competition_id, round:g.round, team_a:g.team_a_id, team_b:g.team_b_id, start_time: d.toISOString().slice(0,16), score_a:g.score_a??'', score_b:g.score_b??'', status_short:g.status_short||'', elapsed:g.elapsed||'' }); setEditingGameId(g.id); changeTab('games'); window.scrollTo(0,0) }
   const handleDeleteGame = async (id) => { if(confirm('Apagar?')) { await supabase.from('bets').delete().eq('game_id', id); await supabase.from('games').delete().eq('id', id); fetchAllData() } }
   const handleCancelEditGame = () => { setGameForm({competition_id:'', round:'', team_a:'', team_b:'', start_time:'', score_a:'', score_b:'', status_short:'', elapsed:''}); setEditingGameId(null) }

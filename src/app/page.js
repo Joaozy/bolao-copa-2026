@@ -34,7 +34,7 @@ const TeamSelect = ({ teams, value, onChange, placeholder, disabled }) => (
 )
 
 // Componente Inteligente para Palpites Especiais (Com Trava de Prazo)
-const SpecialBetCard = ({ rule, bet, teams, onUpdate }) => {
+const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
   // Estado para Artilheiro (Filtro de Time)
   const [filterTeamId, setFilterTeamId] = useState('')
   const [players, setPlayers] = useState([])
@@ -99,7 +99,10 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate }) => {
             {/* BOTÃO: Só permite editar se NÃO EXPIRADO */}
             {!isEditing && !isExpired && (
               <button 
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  if (!session) return toast.error('Faça login para palpitar!')
+                  setIsEditing(true)
+                }}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition shadow"
                 title="Editar Palpite"
               >
@@ -120,13 +123,13 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate }) => {
            {/* 1. Filtra Time */}
            <select 
              className={`w-full p-3 rounded border outline-none text-sm transition
-               ${!isEditing 
+               ${(!isEditing || !session)
                  ? 'bg-gray-900 border-gray-700 text-gray-500 cursor-not-allowed' 
                  : 'bg-gray-900 border-gray-600 text-gray-300 focus:border-blue-400'}
              `}
              value={filterTeamId}
              onChange={e => setFilterTeamId(e.target.value)}
-             disabled={!isEditing}
+             disabled={!isEditing || !session}
            >
              <option value="">1º Selecione o Time...</option>
              {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -135,13 +138,13 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate }) => {
            {/* 2. Seleciona Jogador */}
            <select 
              className={`w-full p-3 rounded border outline-none transition
-               ${!isEditing 
+               ${(!isEditing || !session)
                  ? 'bg-gray-900 border-gray-700 text-gray-400 cursor-not-allowed font-bold' 
                  : 'bg-gray-700 border-gray-600 text-white focus:border-yellow-400'}
              `}
              value={bet?.value || ''}
              onChange={e => onUpdate(rule.id, 'value', e.target.value)}
-             disabled={!isEditing || (!filterTeamId && !bet?.value)} 
+             disabled={!isEditing || (!filterTeamId && !bet?.value) || !session} 
            >
              <option value="">{loadingPlayers ? 'Carregando...' : '2º Selecione o Jogador...'}</option>
              {/* Mostra valor salvo mesmo sem lista carregada */}
@@ -156,7 +159,7 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate }) => {
             placeholder="Selecione o Time..." 
             value={bet?.teamId} 
             onChange={val => onUpdate(rule.id, 'teamId', val)}
-            disabled={!isEditing}
+            disabled={!isEditing || !session}
         />
       )}
     </div>
@@ -329,16 +332,20 @@ export default function Home() {
 
   // --- HANDLERS JOGOS ---
   const handleGameChange = (gameId, field, value) => {
-    setGamePredictions(prev => ({ ...prev, [gameId]: { ...prev[gameId], [field]: value } }))
+    if (!session) return toast.error('Faça login para palpitar!')
+    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), [field]: value } }))
     setHasChanges(true)
   }
+  
   const toggleEdit = (gameId) => {
-    setGamePredictions(prev => ({ ...prev, [gameId]: { ...prev[gameId], isEditing: !prev[gameId].isEditing } }))
+    if (!session) return toast.error('Faça login para palpitar!')
+    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), isEditing: !(prev[gameId]?.isEditing) } }))
   }
 
   // --- HANDLERS EXTRAS ---
   const handleSpecialChange = (ruleId, field, value) => {
-    setSpecialBets(prev => ({ ...prev, [ruleId]: { ...prev[ruleId], [field]: value } }))
+    if (!session) return toast.error('Faça login para palpitar!')
+    setSpecialBets(prev => ({ ...prev, [ruleId]: { ...(prev[ruleId] || {}), [field]: value } }))
     setHasChanges(true)
   }
 
@@ -516,6 +523,7 @@ export default function Home() {
                       bet={specialBets[rule.id]}
                       teams={competitionTeams} 
                       onUpdate={handleSpecialChange}
+                      session={session}
                     />
                 ))
             ) : (
