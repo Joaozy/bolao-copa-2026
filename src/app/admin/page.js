@@ -212,7 +212,48 @@ export default function Admin() {
   const handleSaveComp = async (e) => { e.preventDefault(); const q = editingCompId ? supabase.from('competitions').update(compForm).eq('id', editingCompId) : supabase.from('competitions').insert(compForm); const {error} = await q; if(error) alert(error.message); else { alert('Salvo'); setCompForm({name:'',slug:'',type:'pontos_corridos',entry_fee:50,is_active:true}); setEditingCompId(null); fetchAllData() } }
   const handleEditComp = (c) => { setCompForm(c); setEditingCompId(c.id); changeTab('competitions') }
   const handleToggleCompStatus = async (c) => { await supabase.from('competitions').update({is_active:!c.is_active}).eq('id',c.id); fetchAllData() }
-  const handleDeleteComp = async (id) => { if(confirm('Apagar tudo?')) { setLoading(true); try { const g = (await supabase.from('games').select('id').eq('competition_id', id)).data.map(i=>i.id); if(g.length) { await supabase.from('bets').delete().in('game_id', g); await supabase.from('games').delete().eq('competition_id', id) } await supabase.from('enrollments').delete().eq('competition_id', id); await supabase.from('competitions').delete().eq('id', id); alert('Excluído'); fetchAllData() } catch(e){alert(e.message)} finally{setLoading(false)} } }
+  const handleDeleteComp = async (id) => {
+    if(confirm('Tem certeza que deseja apagar TUDO desta competição? (Ação irreversível)')) {
+      setLoading(true);
+      try {
+        // 1. Apaga jogos e palpites nos jogos
+        const { data: gData } = await supabase.from('games').select('id').eq('competition_id', id);
+        const gIds = gData?.map(i => i.id) || [];
+        if(gIds.length) {
+          await supabase.from('bets').delete().in('game_id', gIds);
+          await supabase.from('games').delete().eq('competition_id', id);
+        }
+
+        // 2. Apaga regras especiais e palpites extras
+        const { data: srData } = await supabase.from('special_rules').select('id').eq('competition_id', id);
+        const srIds = srData?.map(i => i.id) || [];
+        if (srIds.length) {
+           await supabase.from('special_bets').delete().in('special_rule_id', srIds);
+           await supabase.from('special_rules').delete().eq('competition_id', id);
+        }
+
+        // 3. Apaga as outras dependências
+        await supabase.from('enrollments').delete().eq('competition_id', id);
+        await supabase.from('prize_rules').delete().eq('competition_id', id);
+        await supabase.from('round_settings').delete().eq('competition_id', id);
+        await supabase.from('standings').delete().eq('competition_id', id);
+
+        // 4. Finalmente tenta apagar a competição e CAPTURA O ERRO
+        const { error } = await supabase.from('competitions').delete().eq('id', id);
+
+        if (error) {
+            throw error; // Força o código a pular para o bloco "catch" abaixo
+        }
+
+        alert('Competição excluída com sucesso!');
+        fetchAllData();
+      } catch(e) {
+        alert('Erro ao excluir: ' + e.message); // Agora sim, mostra o motivo se falhar
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
   const handleSaveTeam = async (e) => { e.preventDefault(); const q = editingTeamId ? supabase.from('teams').update(teamForm).eq('id', editingTeamId) : supabase.from('teams').insert(teamForm); await q; fetchAllData(); setEditingTeamId(null) }
   const handleEditTeam = (t) => { setTeamForm(t); setEditingTeamId(t.id); window.scrollTo(0,0) }
   const handleSaveGame = async (e) => { e.preventDefault(); setLoading(true); const p = { ...gameForm, team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b) }; const q = editingGameId ? supabase.from('games').update(p).eq('id', editingGameId) : supabase.from('games').insert(p); await q; fetchAllData(); setEditingGameId(null); setLoading(false); alert('Salvo') }
