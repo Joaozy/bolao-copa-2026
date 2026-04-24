@@ -143,7 +143,8 @@ export default function Admin() {
       supabase.from('competitions').select('*').order('id'),
       supabase.from('teams').select('*').order('name'),
       supabase.from('games').select(`*, competition:competitions(name), team_a:teams!team_a_id(name, badge_url, flag_code), team_b:teams!team_b_id(name, badge_url, flag_code)`).order('start_time', { ascending: false }),
-      supabase.from('enrollments').select('*').order('joined_at', { ascending: false }),
+      // Busca direta relacional (muito mais veloz e não perde dados de robôs)
+      supabase.from('enrollments').select('*, profiles(nickname, full_name, email, whatsapp, is_active), competitions(name)'),
       supabase.from('profiles').select('*').order('email'),
       supabase.from('players').select('*').order('name').range(0, 2000)
     ])
@@ -154,25 +155,25 @@ export default function Admin() {
     setAllProfiles(p.data || [])
     setAllPlayers(pl.data || [])
 
-    const profilesMap = new Map((p.data || []).map(prof => [prof.id, prof]))
-    const competitionsMap = new Map((c.data || []).map(comp => [comp.id, comp]))
     const enrollmentsWithDetails = (eRaw.data || []).map(enroll => {
-        const profile = profilesMap.get(enroll.user_id)
-        const competition = competitionsMap.get(enroll.competition_id)
         return {
             ...enroll,
-            profiles: profile || { email: 'Desconhecido', nickname: '?', whatsapp: '-', full_name: '?' },
-            competitions: competition || { name: 'Competição Removida' }
+            // Fallback caso o usuário não tenha completado o perfil ou seja um robô
+            profiles: enroll.profiles || { email: 'simulador@teste.com', nickname: 'Robô Simulação', whatsapp: '-', full_name: 'Usuário Fictício' },
+            competitions: enroll.competitions || { name: 'Desconhecida' }
         }
     })
-    setEnrollments(enrollmentsWithDetails)
+    
+    // Inverte a ordem para os mais recentes (como os robôs) aparecerem no topo
+    setEnrollments(enrollmentsWithDetails.reverse())
 
     if (c.data && c.data.length > 0) {
         if (!financeCompId) setFinanceCompId(c.data[0].id)
         if (!rulesCompId) setRulesCompId(c.data[0].id)
         if (!standingsCompId) setStandingsCompId(c.data[0].id)
-        if (!enrollmentFilterComp) setEnrollmentFilterComp(c.data[0].id) 
-        if (!filterCompId) setFilterCompId(c.data[0].id) 
+        // A MÁGICA FOI AQUI: Removemos as duas linhas que travavam o dropdown de 
+        // inscritos (enrollmentFilterComp) e de jogos (filterCompId) na primeira competição.
+        // Agora eles vão iniciar em "" (Todas as Competições).
     }
   }
 
@@ -199,7 +200,45 @@ export default function Admin() {
   const handleImportTableData = async (type) => { if (!tableImportForm.leagueId || !tableImportForm.season || !standingsCompId) return alert('Preencha importação!'); setImporting(true); try { let endpoint = type === 'standings' ? '/api/admin/import-standings' : '/api/admin/import-games'; let body = { leagueId: tableImportForm.leagueId, season: tableImportForm.season, competitionId: standingsCompId, round: '', resetData: false }; const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const data = await res.json(); if (res.ok) { alert(`Sucesso! ${data.message}`); fetchStandingsData(standingsCompId); if (type === 'bracket') fetchAllData() } else alert('Erro: ' + JSON.stringify(data)) } catch(e) { alert('Erro rede: ' + e.message) } finally { setImporting(false) } }
   
   async function fetchRulesData(compId) { const { data: savedMultipliers } = await supabase.from('round_settings').select('*').eq('competition_id', compId); const compGames = games.filter(g => g.competition_id == compId); const uniqueRounds = [...new Set(compGames.map(g => g.round))].filter(Boolean).sort(); const mergedSettings = uniqueRounds.map(r => { const saved = savedMultipliers?.find(sm => sm.round_name === r); return { round_name: r, multiplier: saved ? saved.multiplier : 1.0 } }); setRoundSettings(mergedSettings); const { data: savedSpecials } = await supabase.from('special_rules').select('*').eq('competition_id', compId); const existingDeadline = savedSpecials?.find(s => s.deadline)?.deadline; setSpecialsDeadline(existingDeadline ? formatDateForInput(existingDeadline) : ''); setIsEditingDeadline(false); const baseSpecials = [{ type: 'champion', label: '🏆 Campeão', points: 50 }, { type: 'vice', label: '🥈 Vice-Campeão', points: 30 }, { type: 'third', label: '🥉 3º Lugar', points: 20 }, { type: 'fourth', label: '🏅 Quarto Lugar', points: 10 }, { type: 'top_scorer', label: '⚽ Artilheiro', points: 40 }]; const mergedSpecials = baseSpecials.map(base => { const saved = savedSpecials?.find(s => s.type === base.type); return { ...base, ...saved } }); setSpecialRules(mergedSpecials) }
-  const handleSaveRules = async () => { if (!rulesCompId) return alert('Selecione!'); setLoading(true); try { const multi = roundSettings.map(rs => ({ competition_id: parseInt(rulesCompId), round_name: rs.round_name, multiplier: parseFloat(rs.multiplier) })); if (multi.length) await supabase.from('round_settings').upsert(multi, { onConflict: 'competition_id, round_name' }); const dIso = specialsDeadline ? formatDateForDb(specialsDeadline) : null; const specs = specialRules.map(sr => ({ competition_id: parseInt(rulesCompId), type: sr.type, points: parseInt(sr.points), is_active: sr.is_active, correct_team_id: sr.correct_team_id||null, correct_value: sr.correct_value||null, deadline: dIso })); if (specs.length) await supabase.from('special_rules').upsert(specs, { onConflict: 'competition_id, type' }); await supabase.rpc('calculate_special_points'); setIsEditingDeadline(false); alert('Salvo!'); fetchRulesData(rulesCompId) } catch(e){alert('Erro: '+e.message)} finally{setLoading(false)} }
+  const handleSaveRules = async () => { 
+    if (!rulesCompId) return alert('Selecione!'); 
+    setLoading(true); 
+    try { 
+        // 1. Salva os Multiplicadores das Rodadas
+        const multi = roundSettings.map(rs => ({ 
+            competition_id: parseInt(rulesCompId), 
+            round_name: rs.round_name, 
+            multiplier: parseFloat(rs.multiplier) 
+        })); 
+        if (multi.length) await supabase.from('round_settings').upsert(multi, { onConflict: 'competition_id, round_name' }); 
+        
+        // 2. Salva as Regras dos Palpites Extras (Campeão, Artilheiro, etc)
+        const dIso = specialsDeadline ? formatDateForDb(specialsDeadline) : null; 
+        const specs = specialRules.map(sr => ({ 
+            competition_id: parseInt(rulesCompId), 
+            type: sr.type, 
+            points: parseInt(sr.points), 
+            is_active: sr.is_active, 
+            correct_team_id: sr.correct_team_id || null, 
+            correct_value: sr.correct_value || null, 
+            deadline: dIso 
+        })); 
+        if (specs.length) await supabase.from('special_rules').upsert(specs, { onConflict: 'competition_id, type' }); 
+        
+        // --- A MÁGICA ACONTECE AQUI ---
+        // Força o banco de dados a recalcular a pontuação de TUDO com os novos valores
+        await supabase.rpc('calculate_points'); 
+        await supabase.rpc('calculate_special_points'); 
+        
+        setIsEditingDeadline(false); 
+        alert('Regras Salvas e Ranking Atualizado!'); 
+        fetchRulesData(rulesCompId);
+    } catch(e) {
+        alert('Erro: ' + e.message);
+    } finally {
+        setLoading(false);
+    } 
+  }
   const updateRoundMultiplier = (rn, v) => { setRoundSettings(prev => prev.map(r => r.round_name === rn ? { ...r, multiplier: v } : r)) }
   const updateSpecialRule = (t, f, v) => { setSpecialRules(prev => prev.map(s => s.type === t ? { ...s, [f]: v } : s)) }
   
@@ -259,16 +298,30 @@ export default function Admin() {
   const handleSaveGame = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const p = { ...gameForm, team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b) };
-    const q = editingGameId ? supabase.from('games').update(p).eq('id', editingGameId) : supabase.from('games').insert(p);
     
-    const { error } = await q;
-    if (error) {
-      alert(error.message);
-    } else {
-      // ESTA É A LINHA MÁGICA: Força o banco a recalcular todos os palpites agora!
-      await supabase.rpc('calculate_points');
+    // Monta um objeto LIMPO apenas com colunas que existem no banco de dados
+    const payload = {
+        competition_id: gameForm.competition_id,
+        round: gameForm.round,
+        start_time: gameForm.start_time,
+        score_a: gameForm.score_a !== '' ? parseInt(gameForm.score_a) : null,
+        score_b: gameForm.score_b !== '' ? parseInt(gameForm.score_b) : null,
+        status_short: gameForm.status_short,
+        elapsed: gameForm.elapsed,
+        team_a_id: parseInt(gameForm.team_a),
+        team_b_id: parseInt(gameForm.team_b)
+    };
+
+    const q = editingGameId 
+      ? supabase.from('games').update(payload).eq('id', editingGameId) 
+      : supabase.from('games').insert(payload);
       
+    const { error } = await q;
+    
+    if (error) {
+      alert('Erro do Supabase: ' + error.message);
+    } else {
+      await supabase.rpc('calculate_points'); // Atualiza o ranking na hora
       fetchAllData();
       setEditingGameId(null);
       alert('Placar Salvo e Ranking Atualizado!');
