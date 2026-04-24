@@ -11,6 +11,13 @@ const RULE_LABELS = {
   top_scorer: '⚽ Artilheiro'
 }
 
+// Função inteligente para abreviar nomes de times (Ignora "Time", "Clube", etc)
+function formatTeamName(name) {
+    if(!name) return '---'
+    const cleanName = name.replace(/^(Time|Clube|Sociedade|Associação|Atletico|Atlético)\s/i, '')
+    return cleanName.slice(0, 3).toUpperCase()
+}
+
 export default function Ranking() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -61,7 +68,6 @@ export default function Ranking() {
     const channel = supabase
       .channel('realtime_ranking')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bets' }, () => {
-        console.log('⚡ Atualização de pontos detectada!')
         fetchData()
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'special_bets' }, () => {
@@ -155,17 +161,13 @@ export default function Ranking() {
             const rB = bet.games.score_b
 
             if (pA !== null && rA !== null) {
-                // Cravada (CV)
                 if (pA === rA && pB === rB) {
                     stats[uid].cv++ 
                 } 
-                // Acertou Vencedor/Empate
                 else if (Math.sign(pA - pB) === Math.sign(rA - rB)) {
-                    // Vitória + Saldo (VSG)
                     if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) {
                         stats[uid].vsg++
                     } else {
-                        // Apenas Vitória (AV)
                         stats[uid].av++
                     }
                 }
@@ -260,6 +262,8 @@ export default function Ranking() {
             const visibleSpecials = rawSpecialBets.map(bet => {
                 const rule = rulesMap[bet.special_rule_id]
                 if (!rule) return null 
+                
+                // SISTEMA ANTI-COLA: Só exibe se o prazo já passou
                 if (!rule.deadline) return null 
                 const deadline = new Date(rule.deadline)
                 const passouDoPrazo = agora.getTime() > deadline.getTime()
@@ -435,7 +439,7 @@ export default function Ranking() {
             </div>
 
             {/* CONTEÚDO SCROLLÁVEL */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900/30">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900/30">
               {loadingBets ? (
                 <div className="text-center py-8 text-gray-500">Carregando palpites...</div>
               ) : (
@@ -443,26 +447,43 @@ export default function Ranking() {
                   {/* LISTA DE JOGOS */}
                   {modalTab === 'games' && (
                     userBets.length > 0 ? userBets.map((bet, idx) => (
-                      <div key={idx} className="bg-gray-800 p-3 rounded-lg border border-gray-700 flex justify-between items-center shadow-sm">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-bold text-gray-300 w-8 text-right truncate">{bet.games.team_a.name.slice(0,3).toUpperCase()}</span>
-                          <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_a}</span>
-                          <span className="text-gray-600">x</span>
-                          <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_b}</span>
-                          <span className="font-bold text-gray-300 w-8 truncate">{bet.games.team_b.name.slice(0,3).toUpperCase()}</span>
+                      <div key={idx} className="bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col shadow-sm">
+                        
+                        <div className="flex justify-between items-center w-full mb-2">
+                           <div className="flex items-center gap-2 text-sm">
+                             <span className="font-bold text-gray-300 w-10 text-right truncate" title={bet.games.team_a.name}>
+                               {formatTeamName(bet.games.team_a.name)}
+                             </span>
+                             <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_a}</span>
+                             <span className="text-gray-600">x</span>
+                             <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_b}</span>
+                             <span className="font-bold text-gray-300 w-10 truncate" title={bet.games.team_b.name}>
+                               {formatTeamName(bet.games.team_b.name)}
+                             </span>
+                           </div>
+                           
+                           <div className="text-right">
+                             {bet.points_awarded !== null ? (
+                               <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm
+                                 ${bet.points_awarded === 10 ? 'bg-yellow-500 text-black' : 
+                                   bet.points_awarded >= 5 ? 'bg-green-600 text-white' : 
+                                   'bg-red-900/50 text-red-400 border border-red-900/50'}
+                               `}>
+                                 +{bet.points_awarded} pts
+                               </span>
+                             ) : <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Aguardando</span>}
+                           </div>
                         </div>
-                        <div className="text-right">
-                          {bet.points_awarded !== null ? (
-                            <span className={`text-xs font-bold px-2 py-1 rounded 
-                              ${bet.points_awarded === 10 ? 'bg-yellow-500 text-black' : 
-                                bet.points_awarded >= 5 ? 'bg-green-600 text-white' : 
-                                'bg-red-900/50 text-red-200'}
-                            `}>
-                              +{bet.points_awarded} pts
-                            </span>
-                          ) : <span className="text-xs text-gray-500">...</span>}
-                          <div className="text-[9px] text-gray-600 mt-1">{bet.games.score_a}x{bet.games.score_b}</div>
-                        </div>
+
+                        {/* Placar Real em Destaque */}
+                        {bet.games.score_a !== null && (
+                           <div className="mt-1 bg-gray-900/80 rounded py-1.5 px-3 flex items-center justify-between border border-gray-700/50">
+                              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Placar Real:</span>
+                              <span className="text-sm font-bold text-white font-mono tracking-widest bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
+                                 {bet.games.score_a} <span className="text-gray-500 font-sans text-xs mx-1">x</span> {bet.games.score_b}
+                              </span>
+                           </div>
+                        )}
                       </div>
                     )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite visível (jogos futuros são ocultos).</div>
                   )}
@@ -477,16 +498,20 @@ export default function Ranking() {
                             </div>
                             <div className="font-bold text-white text-sm mt-1 flex items-center gap-2">
                                 {sBet.picked_team && (
-                                    <img src={sBet.picked_team.badge_url} className="w-5 h-5 object-contain" />
+                                    <img src={sBet.picked_team.badge_url} alt="" className="w-5 h-5 object-contain" />
                                 )}
                                 {sBet.picked_team?.name || sBet.picked_value}
                             </div>
                         </div>
                         
                         <div className="text-right">
-                           {sBet.points_awarded && sBet.points_awarded > 0 ? (
+                           {sBet.points_awarded !== null && sBet.points_awarded > 0 ? (
                                 <span className="text-xs font-bold px-2 py-1 rounded bg-yellow-500 text-black shadow-lg">
                                     +{sBet.points_awarded} pts
+                                </span>
+                           ) : sBet.points_awarded === 0 ? (
+                                <span className="text-xs font-bold px-2 py-1 rounded bg-red-900/50 text-red-400 border border-red-900/50">
+                                    0 pts
                                 </span>
                            ) : (
                                <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">
@@ -496,7 +521,7 @@ export default function Ranking() {
                         </div>
                       </div>
                     )) : <div className="text-center py-8 text-gray-500 text-sm">
-                        Nenhum palpite extra visível (ou prazo ainda não venceu).
+                        Nenhum palpite extra visível (ou o prazo ainda não encerrou).
                     </div>
                   )}
                 </>
@@ -504,7 +529,7 @@ export default function Ranking() {
             </div>
             
             <div className="p-3 bg-gray-700/50 text-center border-t border-gray-700">
-              <button onClick={() => setSelectedUser(null)} className="text-sm text-blue-300 hover:text-white">Fechar</button>
+              <button onClick={() => setSelectedUser(null)} className="text-sm text-blue-300 hover:text-white font-bold tracking-wide uppercase">Fechar</button>
             </div>
           </div>
         </div>
