@@ -11,7 +11,6 @@ export async function GET() {
   )
 
   try {
-    console.log('⏰ Iniciando verificação de alertas...')
     const MINUTOS_ANTECEDENCIA = 30 
     const agora = new Date()
     
@@ -19,17 +18,14 @@ export async function GET() {
     const { data: todosJogos } = await supabase
       .from('games')
       .select('id, competition_id, team_a:teams!team_a_id(name), team_b:teams!team_b_id(name), start_time')
-      .gt('start_time', new Date(agora.getTime() - 10 * 60000).toISOString()) // Pega jogos de até 10min atrás por segurança
+      .gt('start_time', new Date(agora.getTime() - 10 * 60000).toISOString())
       .order('start_time', { ascending: true })
       .limit(10)
 
-    // Filtra no JavaScript para evitar erro de fuso do banco
     const jogosProximos = todosJogos?.filter(jogo => {
       const jogoData = new Date(jogo.start_time)
       const diffMilissegundos = jogoData.getTime() - agora.getTime()
       const diffMinutos = diffMilissegundos / 60000
-      
-      // Retorna true se o jogo começa nos próximos 30 minutos
       return diffMinutos > 0 && diffMinutos <= MINUTOS_ANTECEDENCIA
     }) || []
 
@@ -42,27 +38,51 @@ export async function GET() {
     }
 
     const relatorio = []
+    const debug_steps = [] // <-- NOSSO RASTREADOR
 
     for (const jogo of jogosProximos) {
-      const { data: inscritos } = await supabase
+      let passoDeDebug = {
+        jogo_id: jogo.id,
+        competition_id: jogo.competition_id
+      }
+
+      // PASSO A: Busca inscritos
+      const { data: inscritos, error: erroInscritos } = await supabase
         .from('enrollments')
         .select('user_id, profiles!inner(id, nickname, whatsapp, is_active)')
         .eq('competition_id', jogo.competition_id)
         .eq('is_paid', true)
 
-      if (!inscritos || inscritos.length === 0) continue;
+      passoDeDebug.erro_consulta_inscritos = erroInscritos
+      passoDeDebug.total_inscritos_encontrados = inscritos ? inscritos.length : 0
+      passoDeDebug.inscritos_bruto = inscritos // Mostra exatamente o que o banco devolveu
 
-      const { data: palpitesFeitos } = await supabase
+      if (!inscritos || inscritos.length === 0) {
+        debug_steps.push(passoDeDebug)
+        continue;
+      }
+
+      // PASSO B: Busca palpites feitos
+      const { data: palpitesFeitos, error: erroPalpites } = await supabase
         .from('bets')
         .select('user_id')
         .eq('game_id', jogo.id)
 
-      const idsQuePalpitaram = palpitesFeitos.map(p => p.user_id)
-      
+      const idsQuePalpitaram = palpitesFeitos ? palpitesFeitos.map(p => p.user_id) : []
+      passoDeDebug.erro_consulta_palpites = erroPalpites
+      passoDeDebug.total_palpites_encontrados = idsQuePalpitaram.length
+      passoDeDebug.ids_que_palpitaram = idsQuePalpitaram
+
+      // PASSO C: Filtra os esquecidos
       const esquecidos = inscritos
         .map(i => i.profiles)
         .filter(p => p.is_active === true && p.whatsapp && !idsQuePalpitaram.includes(p.id))
 
+      passoDeDebug.esquecidos_apos_filtro = esquecidos
+
+      debug_steps.push(passoDeDebug)
+
+      // Executa o envio
       for (const usuario of esquecidos) {
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
@@ -109,7 +129,11 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ sucesso: true, esquecidos_notificados: relatorio })
+    return NextResponse.json({ 
+      sucesso: true, 
+      esquecidos_notificados: relatorio,
+      debug_steps: debug_steps // O RASTREADOR VAI CUSPIR TUDO AQUI
+    })
 
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
