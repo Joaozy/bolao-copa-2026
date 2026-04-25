@@ -3,13 +3,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
-// Função auxiliar para bandeiras
 function getFlagEmoji(countryCode) {
   if (!countryCode) return '🏳️'
   return countryCode.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))
 }
 
-// Helpers de Data
 const formatDateForInput = (isoString) => {
   if (!isoString) return ''
   const date = new Date(isoString)
@@ -30,7 +28,6 @@ const formatDateForDisplay = (isoString) => {
   })
 }
 
-// Componente de Escudo Inteligente
 const TeamBadge = ({ team }) => {
   const [imgSrc, setImgSrc] = useState(team?.badge_url)
   useEffect(() => { setImgSrc(team?.badge_url) }, [team?.badge_url])
@@ -47,8 +44,6 @@ const TeamBadge = ({ team }) => {
 }
 
 export default function Admin() {
-  const MEU_EMAIL = 'SEU_EMAIL_AQUI@GMAIL.COM' 
-
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('competitions')
   const [syncing, setSyncing] = useState(false)
@@ -62,60 +57,45 @@ export default function Admin() {
   const [allProfiles, setAllProfiles] = useState([]) 
   const [allPlayers, setAllPlayers] = useState([]) 
 
-  // DADOS FINANCEIROS
+  // FINANCEIRO E REGRAS
   const [financeCompId, setFinanceCompId] = useState('')
   const [entryFee, setEntryFee] = useState('0')
   const [prizeRules, setPrizeRules] = useState([])
-
-  // DADOS DE REGRAS
   const [rulesCompId, setRulesCompId] = useState('')
   const [roundSettings, setRoundSettings] = useState([]) 
   const [specialRules, setSpecialRules] = useState([])
   const [specialsDeadline, setSpecialsDeadline] = useState('')
   const [isEditingDeadline, setIsEditingDeadline] = useState(false)
+  
+  // O SEGREDO DO ARTILHEIRO AQUI:
   const [scorerTeamFilter, setScorerTeamFilter] = useState('')
 
-  // DADOS TABELA
+  // TABELAS E IMPORTAÇÃO
   const [standingsCompId, setStandingsCompId] = useState('')
   const [standings, setStandings] = useState([])
   const [tableImportForm, setTableImportForm] = useState({ leagueId: '71', season: '2025' })
   const [standingsForm, setStandingsForm] = useState({ team_id: '', group_name: 'Grupo A', points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_diff: 0 })
-
-  // FILTROS
   const [filterCompId, setFilterCompId] = useState('')
   const [enrollmentFilterComp, setEnrollmentFilterComp] = useState('')
   const [userSearch, setUserSearch] = useState('')
 
-  // ESTADOS DE EDIÇÃO
+  // ESTADOS FORMULÁRIOS
   const [editingCompId, setEditingCompId] = useState(null)
   const [editingTeamId, setEditingTeamId] = useState(null)
   const [editingGameId, setEditingGameId] = useState(null)
-
-  // FORMULÁRIOS
   const [compForm, setCompForm] = useState({ name: '', slug: '', type: 'pontos_corridos', entry_fee: 50, is_active: true })
   const [teamForm, setTeamForm] = useState({ name: '', flag_code: '' })
   const [gameForm, setGameForm] = useState({ competition_id: '', round: '', team_a: '', team_b: '', start_time: '', score_a: '', score_b: '', status_short: '', elapsed: '' })
   const [enrollForm, setEnrollForm] = useState({ user_id: '', competition_id: '' })
-  
-  // IMPORTAÇÃO
   const [availableRounds, setAvailableRounds] = useState([]) 
   const [fetchingRounds, setFetchingRounds] = useState(false)
   const [importPlayerTeamId, setImportPlayerTeamId] = useState('') 
   const [importForm, setImportForm] = useState({ leagueId: '71', season: '2025', round: '', competitionId: '', resetData: false })
 
-  const router = useRouter()
-
   useEffect(() => {
     const savedTab = localStorage.getItem('adminActiveTab')
     if (savedTab) setActiveTab(savedTab)
-
-    async function init() {
-      try {
-        await fetchAllData()
-      } catch (error) { console.error(error) } 
-      finally { setLoading(false) }
-    }
-    init()
+    fetchAllData().finally(() => setLoading(false))
   }, [])
 
   const changeTab = (tab) => {
@@ -123,33 +103,47 @@ export default function Admin() {
     localStorage.setItem('adminActiveTab', tab)
   }
 
+  // EFEITO MÁGICO PARA BUSCAR ARTILHEIROS DINAMICAMENTE
+  useEffect(() => {
+    if (scorerTeamFilter) {
+        supabase.from('players').select('*').eq('team_id', scorerTeamFilter).order('name')
+            .then(({ data }) => setAllPlayers(data || []))
+    } else {
+        supabase.from('players').select('*').limit(500).order('name')
+            .then(({ data }) => setAllPlayers(data || []))
+    }
+  }, [scorerTeamFilter])
+
   useEffect(() => { if (activeTab === 'finance' && financeCompId) fetchFinanceData(financeCompId) }, [financeCompId, activeTab])
   useEffect(() => { if (activeTab === 'rules' && rulesCompId) fetchRulesData(rulesCompId) }, [rulesCompId, activeTab])
   useEffect(() => { if (activeTab === 'standings' && standingsCompId) fetchStandingsData(standingsCompId) }, [standingsCompId, activeTab])
 
+  // BUSCA DE DADOS À PROVA DE FALHAS (Não esconde os robôs)
   async function fetchAllData() {
-    const [c, t, g, eRaw, p, pl] = await Promise.all([
+    const [c, t, g, eRaw, pRaw] = await Promise.all([
       supabase.from('competitions').select('*').order('id'),
       supabase.from('teams').select('*').order('name'),
       supabase.from('games').select(`*, competition:competitions(name), team_a:teams!team_a_id(name, badge_url, flag_code), team_b:teams!team_b_id(name, badge_url, flag_code)`).order('start_time', { ascending: false }),
-      supabase.from('enrollments').select('*, profiles(nickname, full_name, email, whatsapp, is_active), competitions(name)'),
-      supabase.from('profiles').select('*').order('email'),
-      supabase.from('players').select('*').order('name').range(0, 2000)
+      supabase.from('enrollments').select('*'), // Busca pura sem joins perigosos
+      supabase.from('profiles').select('*').order('email')
     ])
     
     setCompetitions(c.data || [])
     setTeams(t.data || [])
     setGames(g.data || [])
-    setAllProfiles(p.data || [])
-    setAllPlayers(pl.data || [])
+    setAllProfiles(pRaw.data || [])
 
-    const enrollmentsWithDetails = (eRaw.data || []).map(enroll => {
-        return {
-            ...enroll,
-            profiles: enroll.profiles || { email: 'simulador@teste.com', nickname: 'Robô Simulação', whatsapp: '-', full_name: 'Usuário Fictício' },
-            competitions: enroll.competitions || { name: 'Desconhecida' }
-        }
-    })
+    // Cruzamento manual para garantir que todos apareçam
+    const profilesMap = {}
+    pRaw.data?.forEach(p => profilesMap[p.id] = p)
+    const compsMap = {}
+    c.data?.forEach(comp => compsMap[comp.id] = comp)
+
+    const enrollmentsWithDetails = (eRaw.data || []).map(enroll => ({
+        ...enroll,
+        profiles: profilesMap[enroll.user_id] || { email: 'simulador@teste.com', nickname: 'Robô Fictício', whatsapp: '-', is_active: true },
+        competitions: compsMap[enroll.competition_id] || { name: 'Desconhecida' }
+    }))
     
     setEnrollments(enrollmentsWithDetails.reverse())
 
@@ -160,7 +154,6 @@ export default function Admin() {
     }
   }
 
-  // --- FILTROS DE DADOS ---
   const filteredEnrollments = enrollments.filter(e => {
     const matchesComp = !enrollmentFilterComp || (e.competition_id && e.competition_id.toString() === enrollmentFilterComp.toString())
     const searchLower = userSearch.toLowerCase()
@@ -170,16 +163,9 @@ export default function Admin() {
   })
 
   const filteredGames = games.filter(g => !filterCompId || g.competition_id == filterCompId)
-  
   const competitionTeams = teams.filter(t => !rulesCompId ? false : games.some(g => g.competition_id == rulesCompId && (g.team_a_id === t.id || g.team_b_id === t.id)))
 
-  // --- FUNÇÕES CRUD ---
-  const fetchStandingsData = async (compId) => { const { data } = await supabase.from('standings').select('*, teams(*)').eq('competition_id', compId).order('group_name', {ascending:true}).order('position', {ascending:true}); setStandings(data || []) }
-  const handleSaveStanding = async (e) => { e.preventDefault(); if (!standingsCompId || !standingsForm.team_id) return alert('Preencha os dados!'); const payload = { ...standingsForm, competition_id: standingsCompId }; const { error } = await supabase.from('standings').upsert(payload, { onConflict: 'competition_id, team_id' }); if (error) alert('Erro: ' + error.message); else { alert('Time salvo!'); fetchStandingsData(standingsCompId); setStandingsForm(prev => ({ ...prev, team_id: '', points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_diff: 0 })) } }
-  const handleDeleteStanding = async (id) => { if(!confirm('Remover?')) return; await supabase.from('standings').delete().eq('id', id); fetchStandingsData(standingsCompId) }
-  const handleClearTable = async () => { if (!standingsCompId) return alert('Selecione uma competição!'); if (!confirm('ATENÇÃO: Apagar tabela toda?')) return; setLoading(true); try { const { error } = await supabase.from('standings').delete().eq('competition_id', standingsCompId); if (error) throw error; alert('Limpa!'); fetchStandingsData(standingsCompId) } catch (error) { alert('Erro: ' + error.message) } finally { setLoading(false) } }
-  const handleImportTableData = async (type) => { if (!tableImportForm.leagueId || !tableImportForm.season || !standingsCompId) return alert('Preencha importação!'); setImporting(true); try { let endpoint = type === 'standings' ? '/api/admin/import-standings' : '/api/admin/import-games'; let body = { leagueId: tableImportForm.leagueId, season: tableImportForm.season, competitionId: standingsCompId, round: '', resetData: false }; const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const data = await res.json(); if (res.ok) { alert(`Sucesso! ${data.message}`); fetchStandingsData(standingsCompId); if (type === 'bracket') fetchAllData() } else alert('Erro: ' + JSON.stringify(data)) } catch(e) { alert('Erro rede: ' + e.message) } finally { setImporting(false) } }
-  
+  // FUNÇÕES REGRAS EXTRAS (Corrigindo o Bug do NULL)
   async function fetchRulesData(compId) { 
     const { data: savedMultipliers } = await supabase.from('round_settings').select('*').eq('competition_id', compId); 
     const compGames = games.filter(g => g.competition_id == compId); 
@@ -205,13 +191,15 @@ export default function Admin() {
         if (multi.length) await supabase.from('round_settings').upsert(multi, { onConflict: 'competition_id, round_name' }); 
         
         const dIso = specialsDeadline ? formatDateForDb(specialsDeadline) : null; 
+        
+        // CORREÇÃO CRÍTICA AQUI: Garante conversão de String para Int perfeita no Gabarito
         const specs = specialRules.map(sr => ({ 
             competition_id: parseInt(rulesCompId), 
             type: sr.type, 
             points: parseInt(sr.points), 
             is_active: sr.is_active, 
-            correct_team_id: sr.correct_team_id ? parseInt(sr.correct_team_id) : null, // GARANTE INTEIRO NO BANCO!
-            correct_value: sr.correct_value || null, 
+            correct_team_id: (sr.correct_team_id && String(sr.correct_team_id).trim() !== '') ? parseInt(sr.correct_team_id) : null, 
+            correct_value: (sr.correct_value && String(sr.correct_value).trim() !== '') ? sr.correct_value : null, 
             deadline: dIso 
         })); 
         
@@ -232,13 +220,20 @@ export default function Admin() {
   
   const updateRoundMultiplier = (rn, v) => { setRoundSettings(prev => prev.map(r => r.round_name === rn ? { ...r, multiplier: v } : r)) }
   const updateSpecialRule = (t, f, v) => { setSpecialRules(prev => prev.map(s => s.type === t ? { ...s, [f]: v } : s)) }
-  
+
+  // RESTANTE DAS FUNÇÕES
+  const fetchStandingsData = async (compId) => { const { data } = await supabase.from('standings').select('*, teams(*)').eq('competition_id', compId).order('group_name', {ascending:true}).order('position', {ascending:true}); setStandings(data || []) }
+  const handleSaveStanding = async (e) => { e.preventDefault(); if (!standingsCompId || !standingsForm.team_id) return alert('Preencha os dados!'); const payload = { ...standingsForm, competition_id: standingsCompId }; const { error } = await supabase.from('standings').upsert(payload, { onConflict: 'competition_id, team_id' }); if (error) alert('Erro: ' + error.message); else { alert('Time salvo!'); fetchStandingsData(standingsCompId); setStandingsForm(prev => ({ ...prev, team_id: '', points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_diff: 0 })) } }
+  const handleDeleteStanding = async (id) => { if(!confirm('Remover?')) return; await supabase.from('standings').delete().eq('id', id); fetchStandingsData(standingsCompId) }
+  const handleClearTable = async () => { if (!standingsCompId) return alert('Selecione uma competição!'); if (!confirm('ATENÇÃO: Apagar tabela toda?')) return; setLoading(true); try { const { error } = await supabase.from('standings').delete().eq('competition_id', standingsCompId); if (error) throw error; alert('Limpa!'); fetchStandingsData(standingsCompId) } catch (error) { alert('Erro: ' + error.message) } finally { setLoading(false) } }
+  const handleImportTableData = async (type) => { if (!tableImportForm.leagueId || !tableImportForm.season || !standingsCompId) return alert('Preencha importação!'); setImporting(true); try { let endpoint = type === 'standings' ? '/api/admin/import-standings' : '/api/admin/import-games'; let body = { leagueId: tableImportForm.leagueId, season: tableImportForm.season, competitionId: standingsCompId, round: '', resetData: false }; const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const data = await res.json(); if (res.ok) { alert(`Sucesso! ${data.message}`); fetchStandingsData(standingsCompId); if (type === 'bracket') fetchAllData() } else alert('Erro: ' + JSON.stringify(data)) } catch(e) { alert('Erro rede: ' + e.message) } finally { setImporting(false) } }
+
   async function fetchFinanceData(c) { const { data: comp } = await supabase.from('competitions').select('entry_fee').eq('id', c).single(); if (comp) setEntryFee(comp.entry_fee); const { data: rules } = await supabase.from('prize_rules').select('*').eq('competition_id', c).order('position', { ascending: true }); setPrizeRules(rules || []) }
   const handleSaveConfig = async () => { if (!financeCompId) return; setLoading(true); try { await supabase.from('competitions').update({ entry_fee: entryFee }).eq('id', financeCompId); await supabase.from('prize_rules').delete().eq('competition_id', financeCompId); const rs = prizeRules.map(r => ({ competition_id: parseInt(financeCompId), position: parseInt(r.position), percentage: parseFloat(r.percentage||0), fixed_value: parseFloat(r.fixed_value||0) })); if (rs.length) await supabase.from('prize_rules').insert(rs); alert('Salvo!'); fetchAllData() } catch(e){alert(e.message)} finally{setLoading(false)} }
   const addPrizeRule = () => setPrizeRules([...prizeRules, { position: prizeRules.length + 1, percentage: 0, fixed_value: 0 }])
   const removePrizeRule = (i) => setPrizeRules(prizeRules.filter((_, idx) => idx !== i).map((r, idx) => ({ ...r, position: idx + 1 })))
   const updatePrizeRule = (i, f, v) => { const n = [...prizeRules]; n[i][f] = v; setPrizeRules(n) }
-  
+
   const handleSaveComp = async (e) => { e.preventDefault(); const q = editingCompId ? supabase.from('competitions').update(compForm).eq('id', editingCompId) : supabase.from('competitions').insert(compForm); const {error} = await q; if(error) alert(error.message); else { alert('Salvo'); setCompForm({name:'',slug:'',type:'pontos_corridos',entry_fee:50,is_active:true}); setEditingCompId(null); fetchAllData() } }
   const handleEditComp = (c) => { setCompForm(c); setEditingCompId(c.id); changeTab('competitions') }
   const handleToggleCompStatus = async (c) => { await supabase.from('competitions').update({is_active:!c.is_active}).eq('id',c.id); fetchAllData() }
@@ -253,29 +248,21 @@ export default function Admin() {
           await supabase.from('bets').delete().in('game_id', gIds);
           await supabase.from('games').delete().eq('competition_id', id);
         }
-
         const { data: srData } = await supabase.from('special_rules').select('id').eq('competition_id', id);
         const srIds = srData?.map(i => i.id) || [];
         if (srIds.length) {
            await supabase.from('special_bets').delete().in('special_rule_id', srIds);
            await supabase.from('special_rules').delete().eq('competition_id', id);
         }
-
         await supabase.from('enrollments').delete().eq('competition_id', id);
         await supabase.from('prize_rules').delete().eq('competition_id', id);
         await supabase.from('round_settings').delete().eq('competition_id', id);
         await supabase.from('standings').delete().eq('competition_id', id);
-
         const { error } = await supabase.from('competitions').delete().eq('id', id);
         if (error) throw error; 
-
         alert('Competição excluída com sucesso!');
         fetchAllData();
-      } catch(e) {
-        alert('Erro ao excluir: ' + e.message); 
-      } finally {
-        setLoading(false);
-      }
+      } catch(e) { alert('Erro ao excluir: ' + e.message); } finally { setLoading(false); }
     }
   }
 
@@ -285,32 +272,18 @@ export default function Admin() {
   const handleSaveGame = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     const payload = {
-        competition_id: gameForm.competition_id,
-        round: gameForm.round,
-        start_time: gameForm.start_time,
+        competition_id: gameForm.competition_id, round: gameForm.round, start_time: gameForm.start_time,
         score_a: gameForm.score_a !== '' ? parseInt(gameForm.score_a) : null,
         score_b: gameForm.score_b !== '' ? parseInt(gameForm.score_b) : null,
-        status_short: gameForm.status_short,
-        elapsed: gameForm.elapsed,
-        team_a_id: parseInt(gameForm.team_a),
-        team_b_id: parseInt(gameForm.team_b)
+        status_short: gameForm.status_short, elapsed: gameForm.elapsed,
+        team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b)
     };
-
-    const q = editingGameId 
-      ? supabase.from('games').update(payload).eq('id', editingGameId) 
-      : supabase.from('games').insert(payload);
-      
+    const q = editingGameId ? supabase.from('games').update(payload).eq('id', editingGameId) : supabase.from('games').insert(payload);
     const { error } = await q;
-    
-    if (error) {
-      alert('Erro do Supabase: ' + error.message);
-    } else {
+    if (error) { alert('Erro do Supabase: ' + error.message); } else {
       await supabase.rpc('calculate_points'); 
-      fetchAllData();
-      setEditingGameId(null);
-      alert('Placar Salvo e Ranking Atualizado!');
+      fetchAllData(); setEditingGameId(null); alert('Placar Salvo e Ranking Atualizado!');
     }
     setLoading(false);
   }
@@ -327,7 +300,6 @@ export default function Admin() {
   const handleImportPlayers = async (e) => { e.preventDefault(); if(!importForm.competitionId) return; if(!confirm('Importar jogadores?')) return; setImporting(true); try{ const r = await fetch('/api/admin/import-players', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leagueId:importForm.leagueId, season:importForm.season, competitionId:importForm.competitionId, specificTeamId:importPlayerTeamId})}); const d = await r.json(); alert(d.message) } catch(e){alert(e.message)} finally{setImporting(false)} }
   const handleSyncUsers = async () => { setSyncing(true); await fetch('/api/admin/sync-users', {method:'POST'}); fetchAllData(); setSyncing(false); alert('OK') }
   
-  // Helpers para o render da aba Tabelas
   const getGamesForComp = (compId) => games.filter(g => g.competition_id == compId)
 
   if (loading) return <div className="text-white p-10 text-center">Carregando Painel V2...</div>
