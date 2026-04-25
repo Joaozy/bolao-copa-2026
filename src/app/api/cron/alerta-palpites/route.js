@@ -12,7 +12,6 @@ export async function GET() {
 
   try {
     console.log('⏰ Iniciando verificação de alertas...')
-
     const MINUTOS_ANTECEDENCIA = 30 
     const agora = new Date()
     const limiteTempo = new Date(agora.getTime() + MINUTOS_ANTECEDENCIA * 60 * 1000)
@@ -52,7 +51,6 @@ export async function GET() {
       for (const usuario of esquecidos) {
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
-
         const mensagem = `⚠️ *ALERTA DE BOLÃO* ⚠️\n\nEi ${usuario.nickname || 'Campeão'}! 🏃‍♂️💨\n\nO jogo *${jogo.team_a.name} x ${jogo.team_b.name}* começa em menos de 30 minutos e você ainda não palpitou!\n\nCorre lá: https://bolao-copa-final.vercel.app/`
 
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
@@ -65,9 +63,7 @@ export async function GET() {
         if (zapiInstanceId && zapiToken) {
             try {
                 const headers = { 'Content-Type': 'application/json' }
-                if (zapiClientToken) {
-                    headers['Client-Token'] = zapiClientToken
-                }
+                if (zapiClientToken) headers['Client-Token'] = zapiClientToken
 
                 const response = await fetch(`https://api.z-api.io/instances/${zapiInstanceId}/token/${zapiToken}/send-text`, {
                     method: 'POST',
