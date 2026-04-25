@@ -13,12 +13,10 @@ export async function GET() {
   try {
     console.log('⏰ Iniciando verificação de alertas...')
 
-    // Janela de 30 minutos cravados
     const MINUTOS_ANTECEDENCIA = 30 
     const agora = new Date()
     const limiteTempo = new Date(agora.getTime() + MINUTOS_ANTECEDENCIA * 60 * 1000)
 
-    // 1. Busca jogos nesse intervalo de tempo
     const { data: jogosProximos } = await supabase
       .from('games')
       .select('id, competition_id, team_a:teams!team_a_id(name), team_b:teams!team_b_id(name), start_time')
@@ -32,7 +30,6 @@ export async function GET() {
     const relatorio = []
 
     for (const jogo of jogosProximos) {
-      // 2. Busca quem está inscrito E pago nesta competição específica
       const { data: inscritos } = await supabase
         .from('enrollments')
         .select('user_id, profiles!inner(id, nickname, whatsapp, is_active)')
@@ -41,7 +38,6 @@ export async function GET() {
 
       if (!inscritos || inscritos.length === 0) continue;
 
-      // 3. Busca quem JÁ FEZ o palpite para este jogo
       const { data: palpitesFeitos } = await supabase
         .from('bets')
         .select('user_id')
@@ -49,30 +45,25 @@ export async function GET() {
 
       const idsQuePalpitaram = palpitesFeitos.map(p => p.user_id)
       
-      // 4. Filtra os esquecidos (Contas ativas, com WhatsApp preenchido, e que NÃO estão na lista de quem já palpitou)
       const esquecidos = inscritos
         .map(i => i.profiles)
         .filter(p => p.is_active === true && p.whatsapp && !idsQuePalpitaram.includes(p.id))
 
       for (const usuario of esquecidos) {
-        // Formatação limpa do número de telefone
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
 
-        // Mensagem Personalizada
         const mensagem = `⚠️ *ALERTA DE BOLÃO* ⚠️\n\nEi ${usuario.nickname || 'Campeão'}! 🏃‍♂️💨\n\nO jogo *${jogo.team_a.name} x ${jogo.team_b.name}* começa em menos de 30 minutos e você ainda não palpitou!\n\nCorre lá: https://bolao-copa-final.vercel.app/`
 
-        // Integração Segura com Z-API
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
         const zapiToken = process.env.ZAPI_TOKEN
-        const zapiClientToken = process.env.ZAPI_CLIENT_TOKEN // Totalmente Opcional
+        const zapiClientToken = process.env.ZAPI_CLIENT_TOKEN 
         
         let resultadoEnvio = "Não configurado"
         let erroDetalhado = null
 
         if (zapiInstanceId && zapiToken) {
             try {
-                // Monta os Headers dinamicamente (com ou sem o Client-Token de segurança)
                 const headers = { 'Content-Type': 'application/json' }
                 if (zapiClientToken) {
                     headers['Client-Token'] = zapiClientToken
