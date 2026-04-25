@@ -14,16 +14,31 @@ export async function GET() {
     console.log('⏰ Iniciando verificação de alertas...')
     const MINUTOS_ANTECEDENCIA = 30 
     const agora = new Date()
-    const limiteTempo = new Date(agora.getTime() + MINUTOS_ANTECEDENCIA * 60 * 1000)
-
-    const { data: jogosProximos } = await supabase
+    
+    // 1. Busca jogos que ainda não começaram
+    const { data: todosJogos } = await supabase
       .from('games')
       .select('id, competition_id, team_a:teams!team_a_id(name), team_b:teams!team_b_id(name), start_time')
-      .gt('start_time', agora.toISOString())
-      .lt('start_time', limiteTempo.toISOString())
+      .gt('start_time', new Date(agora.getTime() - 10 * 60000).toISOString()) // Pega jogos de até 10min atrás por segurança
+      .order('start_time', { ascending: true })
+      .limit(10)
 
-    if (!jogosProximos || jogosProximos.length === 0) {
-      return NextResponse.json({ message: `Nenhum jogo começando nos próximos ${MINUTOS_ANTECEDENCIA} min.` })
+    // Filtra no JavaScript para evitar erro de fuso do banco
+    const jogosProximos = todosJogos?.filter(jogo => {
+      const jogoData = new Date(jogo.start_time)
+      const diffMilissegundos = jogoData.getTime() - agora.getTime()
+      const diffMinutos = diffMilissegundos / 60000
+      
+      // Retorna true se o jogo começa nos próximos 30 minutos
+      return diffMinutos > 0 && diffMinutos <= MINUTOS_ANTECEDENCIA
+    }) || []
+
+    if (jogosProximos.length === 0) {
+      return NextResponse.json({ 
+        message: "Nenhum jogo na janela de 30min.", 
+        debug_agora: agora.toISOString(),
+        proximos_jogos_encontrados: todosJogos?.map(j => ({ nome: j.team_a.name, hora: j.start_time }))
+      })
     }
 
     const relatorio = []
