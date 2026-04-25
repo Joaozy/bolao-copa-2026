@@ -13,12 +13,12 @@ export async function GET() {
   try {
     console.log('⏰ Iniciando verificação de alertas...')
 
-    // Janela de 30 minutos
+    // Janela de 30 minutos cravados
     const MINUTOS_ANTECEDENCIA = 30 
     const agora = new Date()
     const limiteTempo = new Date(agora.getTime() + MINUTOS_ANTECEDENCIA * 60 * 1000)
 
-    // 1. Busca jogos nesse intervalo
+    // 1. Busca jogos nesse intervalo de tempo
     const { data: jogosProximos } = await supabase
       .from('games')
       .select('id, competition_id, team_a:teams!team_a_id(name), team_b:teams!team_b_id(name), start_time')
@@ -49,42 +49,61 @@ export async function GET() {
 
       const idsQuePalpitaram = palpitesFeitos.map(p => p.user_id)
       
-      // 4. Filtra os esquecidos (Ativos, com WhatsApp, e que não palpitaram)
+      // 4. Filtra os esquecidos (Contas ativas, com WhatsApp preenchido, e que NÃO estão na lista de quem já palpitou)
       const esquecidos = inscritos
         .map(i => i.profiles)
-        .filter(p => p.is_active && p.whatsapp && !idsQuePalpitaram.includes(p.id))
+        .filter(p => p.is_active === true && p.whatsapp && !idsQuePalpitaram.includes(p.id))
 
       for (const usuario of esquecidos) {
+        // Formatação limpa do número de telefone
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
 
+        // Mensagem Personalizada
         const mensagem = `⚠️ *ALERTA DE BOLÃO* ⚠️\n\nEi ${usuario.nickname || 'Campeão'}! 🏃‍♂️💨\n\nO jogo *${jogo.team_a.name} x ${jogo.team_b.name}* começa em menos de 30 minutos e você ainda não palpitou!\n\nCorre lá: https://bolao-copa-final.vercel.app/`
 
-        // Integração Z-API
+        // Integração Segura com Z-API
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
         const zapiToken = process.env.ZAPI_TOKEN
-        const zapiClientToken = process.env.ZAPI_CLIENT_TOKEN
+        const zapiClientToken = process.env.ZAPI_CLIENT_TOKEN // Totalmente Opcional
         
         let resultadoEnvio = "Não configurado"
         let erroDetalhado = null
 
-        if (zapiInstanceId && zapiToken && zapiClientToken) {
+        if (zapiInstanceId && zapiToken) {
             try {
+                // Monta os Headers dinamicamente (com ou sem o Client-Token de segurança)
+                const headers = { 'Content-Type': 'application/json' }
+                if (zapiClientToken) {
+                    headers['Client-Token'] = zapiClientToken
+                }
+
                 const response = await fetch(`https://api.z-api.io/instances/${zapiInstanceId}/token/${zapiToken}/send-text`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Client-Token': zapiClientToken },
+                    headers: headers,
                     body: JSON.stringify({ phone: telefoneFinal, message: mensagem })
                 })
                 
                 const responseData = await response.json()
-                if (response.ok) resultadoEnvio = "SUCESSO Z-API"
-                else { resultadoEnvio = "ERRO Z-API"; erroDetalhado = responseData }
+                if (response.ok) {
+                    resultadoEnvio = "SUCESSO Z-API"
+                } else { 
+                    resultadoEnvio = "ERRO Z-API"
+                    erroDetalhado = responseData 
+                }
             } catch (err) {
-                resultadoEnvio = "ERRO DE REDE"; erroDetalhado = err.message
+                resultadoEnvio = "ERRO DE REDE"
+                erroDetalhado = err.message
             }
         }
         
-        relatorio.push({ usuario: usuario.nickname, telefone_usado: telefoneFinal, jogo: `${jogo.team_a.name} x ${jogo.team_b.name}`, status: resultadoEnvio, detalhes: erroDetalhado })
+        relatorio.push({ 
+            usuario: usuario.nickname, 
+            telefone_usado: telefoneFinal, 
+            jogo: `${jogo.team_a.name} x ${jogo.team_b.name}`, 
+            status: resultadoEnvio, 
+            detalhes: erroDetalhado 
+        })
       }
     }
 
