@@ -16,7 +16,8 @@ export default function Perfil() {
     full_name: '',
     nickname: '',
     whatsapp: '',
-    avatar_url: ''
+    avatar_url: '',
+    notify_results: false // NOVO CAMPO AQUI
   })
 
   const [myEnrollments, setMyEnrollments] = useState([])
@@ -42,7 +43,8 @@ export default function Perfil() {
         full_name: profile.full_name || '',
         nickname: profile.nickname || '',
         whatsapp: profile.whatsapp || '',
-        avatar_url: profile.avatar_url || ''
+        avatar_url: profile.avatar_url || '',
+        notify_results: profile.notify_results || false // PUXANDO DO BANCO
       })
       if (!profile.nickname) { setIsNewUser(true); setIsEditing(true) }
     }
@@ -99,7 +101,16 @@ export default function Perfil() {
         const { data } = supabase.storage.from('avatars').getPublicUrl(fileName)
         publicUrl = data.publicUrl
       }
-      const { error } = await supabase.from('profiles').update({ full_name: formData.full_name, nickname: formData.nickname, whatsapp: formData.whatsapp, avatar_url: publicUrl }).eq('id', user.id)
+      
+      // SALVANDO A PREFERÊNCIA DE NOTIFICAÇÃO NO BANCO
+      const { error } = await supabase.from('profiles').update({ 
+        full_name: formData.full_name, 
+        nickname: formData.nickname, 
+        whatsapp: formData.whatsapp, 
+        avatar_url: publicUrl,
+        notify_results: formData.notify_results 
+      }).eq('id', user.id)
+      
       if (error) throw error
       toast.success('Perfil salvo!')
       setIsEditing(false); setIsNewUser(false)
@@ -120,6 +131,22 @@ export default function Perfil() {
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">Apelido</label><input disabled={!isEditing} className={inputClass} value={formData.nickname} onChange={e => setFormData({...formData, nickname: e.target.value})} placeholder="Ex: João Gol" /></div>
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">Nome Completo</label><input disabled={!isEditing} className={inputClass} value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} placeholder="Ex: João da Silva" /></div>
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">WhatsApp</label><input disabled={!isEditing} className={inputClass} value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} placeholder="(00) 00000-0000" type="tel" /></div>
+          
+          {/* NOVO CAMPO: CHECKBOX DE NOTIFICAÇÕES */}
+          <div className="flex items-center mt-4 p-3 bg-gray-900/50 rounded-lg border border-gray-700">
+            <input 
+              type="checkbox" 
+              id="notify_results" 
+              disabled={!isEditing}
+              checked={formData.notify_results}
+              onChange={e => setFormData({...formData, notify_results: e.target.checked})}
+              className={`w-5 h-5 rounded border-gray-600 ${isEditing ? 'cursor-pointer accent-green-500' : 'cursor-not-allowed opacity-50'}`}
+            />
+            <label htmlFor="notify_results" className={`ml-3 text-sm ${isEditing ? 'text-gray-200 cursor-pointer' : 'text-gray-500 cursor-not-allowed'}`}>
+              Receber meu resultado no WhatsApp ao fim de cada jogo
+            </label>
+          </div>
+
           {isEditing && <button onClick={handleSave} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg mt-4 shadow-lg">{saving ? 'Salvando...' : 'Salvar Alterações'}</button>}
         </div>
       </div>
@@ -136,7 +163,6 @@ export default function Perfil() {
                                 <span className="bg-green-900/40 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">PAGO ✅</span>
                             ) : (
                                 <>
-                                    {/* CORREÇÃO AQUI: Passamos o ID da competição na URL */}
                                     <button onClick={() => router.push(`/pagamento?competitionId=${enroll.competition_id}`)} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-lg border border-red-400">PAGAR 💳</button>
                                     <button onClick={() => handleUnsubscribe(enroll.id, enroll.competitions?.name)} className="text-xs text-gray-500 hover:text-red-400 underline">Desistir</button>
                                 </>
