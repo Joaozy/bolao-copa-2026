@@ -269,15 +269,21 @@ export default function Admin() {
   const handleSaveTeam = async (e) => { e.preventDefault(); const q = editingTeamId ? supabase.from('teams').update(teamForm).eq('id', editingTeamId) : supabase.from('teams').insert(teamForm); await q; fetchAllData(); setEditingTeamId(null) }
   const handleEditTeam = (t) => { setTeamForm(t); setEditingTeamId(t.id); window.scrollTo(0,0) }
   
+  // SOLUÇÃO DO BUG: Convertendo empty strings ("") para NULL no banco de dados.
   const handleSaveGame = async (e) => {
     e.preventDefault();
     setLoading(true);
     const payload = {
-        competition_id: gameForm.competition_id, round: gameForm.round, start_time: gameForm.start_time,
-        score_a: gameForm.score_a !== '' ? parseInt(gameForm.score_a) : null,
-        score_b: gameForm.score_b !== '' ? parseInt(gameForm.score_b) : null,
-        status_short: gameForm.status_short, elapsed: gameForm.elapsed,
-        team_a_id: parseInt(gameForm.team_a), team_b_id: parseInt(gameForm.team_b)
+        competition_id: gameForm.competition_id, 
+        round: gameForm.round, 
+        start_time: gameForm.start_time,
+        // Aqui está a correção: Valida se está em branco, e envia null pro banco se for verdade
+        score_a: gameForm.score_a === '' || gameForm.score_a === null ? null : parseInt(gameForm.score_a),
+        score_b: gameForm.score_b === '' || gameForm.score_b === null ? null : parseInt(gameForm.score_b),
+        status_short: gameForm.status_short, 
+        elapsed: gameForm.elapsed === '' || gameForm.elapsed === null ? null : parseInt(gameForm.elapsed),
+        team_a_id: parseInt(gameForm.team_a), 
+        team_b_id: parseInt(gameForm.team_b)
     };
     const q = editingGameId ? supabase.from('games').update(payload).eq('id', editingGameId) : supabase.from('games').insert(payload);
     const { error } = await q;
