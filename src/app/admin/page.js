@@ -165,7 +165,7 @@ export default function Admin() {
   const filteredGames = games.filter(g => !filterCompId || g.competition_id == filterCompId)
   const competitionTeams = teams.filter(t => !rulesCompId ? false : games.some(g => g.competition_id == rulesCompId && (g.team_a_id === t.id || g.team_b_id === t.id)))
 
-  // FUNÇÕES REGRAS EXTRAS (Corrigindo o Bug do NULL)
+  // FUNÇÕES REGRAS EXTRAS
   async function fetchRulesData(compId) { 
     const { data: savedMultipliers } = await supabase.from('round_settings').select('*').eq('competition_id', compId); 
     const compGames = games.filter(g => g.competition_id == compId); 
@@ -192,7 +192,6 @@ export default function Admin() {
         
         const dIso = specialsDeadline ? formatDateForDb(specialsDeadline) : null; 
         
-        // CORREÇÃO CRÍTICA AQUI: Garante conversão de String para Int perfeita no Gabarito
         const specs = specialRules.map(sr => ({ 
             competition_id: parseInt(rulesCompId), 
             type: sr.type, 
@@ -269,15 +268,16 @@ export default function Admin() {
   const handleSaveTeam = async (e) => { e.preventDefault(); const q = editingTeamId ? supabase.from('teams').update(teamForm).eq('id', editingTeamId) : supabase.from('teams').insert(teamForm); await q; fetchAllData(); setEditingTeamId(null) }
   const handleEditTeam = (t) => { setTeamForm(t); setEditingTeamId(t.id); window.scrollTo(0,0) }
   
-  // SOLUÇÃO DO BUG: Convertendo empty strings ("") para NULL no banco de dados.
+  // CORREÇÃO APLICADA AQUI: Limpa o formulário corretamente após o salvamento, 
+  // mantendo apenas a competição, rodada e data para facilitar a digitação em lote.
   const handleSaveGame = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     const payload = {
         competition_id: gameForm.competition_id, 
         round: gameForm.round, 
         start_time: gameForm.start_time,
-        // Aqui está a correção: Valida se está em branco, e envia null pro banco se for verdade
         score_a: gameForm.score_a === '' || gameForm.score_a === null ? null : parseInt(gameForm.score_a),
         score_b: gameForm.score_b === '' || gameForm.score_b === null ? null : parseInt(gameForm.score_b),
         status_short: gameForm.status_short, 
@@ -285,11 +285,31 @@ export default function Admin() {
         team_a_id: parseInt(gameForm.team_a), 
         team_b_id: parseInt(gameForm.team_b)
     };
+    
     const q = editingGameId ? supabase.from('games').update(payload).eq('id', editingGameId) : supabase.from('games').insert(payload);
     const { error } = await q;
-    if (error) { alert('Erro do Supabase: ' + error.message); } else {
-      await supabase.rpc('calculate_points'); 
-      fetchAllData(); setEditingGameId(null); alert('Placar Salvo e Ranking Atualizado!');
+    
+    if (error) { 
+        alert('Erro do Supabase: ' + error.message); 
+    } else {
+        await supabase.rpc('calculate_points'); 
+        fetchAllData(); 
+        
+        // A MÁGICA ACONTECE AQUI: Fazemos a faxina dos times e dos placares
+        setGameForm({ 
+            competition_id: gameForm.competition_id, 
+            round: gameForm.round, 
+            start_time: gameForm.start_time, 
+            team_a: '', 
+            team_b: '', 
+            score_a: '', 
+            score_b: '', 
+            status_short: '', 
+            elapsed: '' 
+        });
+        
+        setEditingGameId(null); 
+        alert('Placar Salvo e Ranking Atualizado!');
     }
     setLoading(false);
   }
