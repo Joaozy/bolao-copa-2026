@@ -56,6 +56,10 @@ export default function Admin() {
   const [enrollments, setEnrollments] = useState([]) 
   const [allProfiles, setAllProfiles] = useState([]) 
   const [allPlayers, setAllPlayers] = useState([]) 
+  
+  // DADOS MARKETING (Banners e Patrocinadores)
+  const [banners, setBanners] = useState([])
+  const [sponsors, setSponsors] = useState([])
 
   // FINANCEIRO E REGRAS
   const [financeCompId, setFinanceCompId] = useState('')
@@ -83,10 +87,17 @@ export default function Admin() {
   const [editingCompId, setEditingCompId] = useState(null)
   const [editingTeamId, setEditingTeamId] = useState(null)
   const [editingGameId, setEditingGameId] = useState(null)
+  const [editingBannerId, setEditingBannerId] = useState(null)
+  const [editingSponsorId, setEditingSponsorId] = useState(null)
+
   const [compForm, setCompForm] = useState({ name: '', slug: '', type: 'pontos_corridos', entry_fee: 50, is_active: true })
   const [teamForm, setTeamForm] = useState({ name: '', flag_code: '' })
   const [gameForm, setGameForm] = useState({ competition_id: '', round: '', team_a: '', team_b: '', start_time: '', score_a: '', score_b: '', status_short: '', elapsed: '' })
   const [enrollForm, setEnrollForm] = useState({ user_id: '', competition_id: '' })
+  
+  const [bannerForm, setBannerForm] = useState({ image_url: '', link_url: '', is_active: true, order_index: 0 })
+  const [sponsorForm, setSponsorForm] = useState({ name: '', logo_url: '', description: '', contact_info: '', is_active: true, order_index: 0 })
+
   const [availableRounds, setAvailableRounds] = useState([]) 
   const [fetchingRounds, setFetchingRounds] = useState(false)
   const [importPlayerTeamId, setImportPlayerTeamId] = useState('') 
@@ -118,22 +129,25 @@ export default function Admin() {
   useEffect(() => { if (activeTab === 'rules' && rulesCompId) fetchRulesData(rulesCompId) }, [rulesCompId, activeTab])
   useEffect(() => { if (activeTab === 'standings' && standingsCompId) fetchStandingsData(standingsCompId) }, [standingsCompId, activeTab])
 
-  // BUSCA DE DADOS À PROVA DE FALHAS (Não esconde os robôs)
+  // BUSCA DE DADOS
   async function fetchAllData() {
-    const [c, t, g, eRaw, pRaw] = await Promise.all([
+    const [c, t, g, eRaw, pRaw, b, s] = await Promise.all([
       supabase.from('competitions').select('*').order('id'),
       supabase.from('teams').select('*').order('name'),
       supabase.from('games').select(`*, competition:competitions(name), team_a:teams!team_a_id(name, badge_url, flag_code), team_b:teams!team_b_id(name, badge_url, flag_code)`).order('start_time', { ascending: false }),
-      supabase.from('enrollments').select('*'), // Busca pura sem joins perigosos
-      supabase.from('profiles').select('*').order('email')
+      supabase.from('enrollments').select('*'), 
+      supabase.from('profiles').select('*').order('email'),
+      supabase.from('banners').select('*').order('order_index'),
+      supabase.from('sponsors').select('*').order('order_index')
     ])
     
     setCompetitions(c.data || [])
     setTeams(t.data || [])
     setGames(g.data || [])
     setAllProfiles(pRaw.data || [])
+    setBanners(b.data || [])
+    setSponsors(s.data || [])
 
-    // Cruzamento manual para garantir que todos apareçam
     const profilesMap = {}
     pRaw.data?.forEach(p => profilesMap[p.id] = p)
     const compsMap = {}
@@ -268,12 +282,9 @@ export default function Admin() {
   const handleSaveTeam = async (e) => { e.preventDefault(); const q = editingTeamId ? supabase.from('teams').update(teamForm).eq('id', editingTeamId) : supabase.from('teams').insert(teamForm); await q; fetchAllData(); setEditingTeamId(null) }
   const handleEditTeam = (t) => { setTeamForm(t); setEditingTeamId(t.id); window.scrollTo(0,0) }
   
-  // CORREÇÃO APLICADA AQUI: Limpa o formulário corretamente após o salvamento, 
-  // mantendo apenas a competição, rodada e data para facilitar a digitação em lote.
   const handleSaveGame = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     const payload = {
         competition_id: gameForm.competition_id, 
         round: gameForm.round, 
@@ -285,29 +296,14 @@ export default function Admin() {
         team_a_id: parseInt(gameForm.team_a), 
         team_b_id: parseInt(gameForm.team_b)
     };
-    
     const q = editingGameId ? supabase.from('games').update(payload).eq('id', editingGameId) : supabase.from('games').insert(payload);
     const { error } = await q;
-    
     if (error) { 
         alert('Erro do Supabase: ' + error.message); 
     } else {
         await supabase.rpc('calculate_points'); 
         fetchAllData(); 
-        
-        // A MÁGICA ACONTECE AQUI: Fazemos a faxina dos times e dos placares
-        setGameForm({ 
-            competition_id: gameForm.competition_id, 
-            round: gameForm.round, 
-            start_time: gameForm.start_time, 
-            team_a: '', 
-            team_b: '', 
-            score_a: '', 
-            score_b: '', 
-            status_short: '', 
-            elapsed: '' 
-        });
-        
+        setGameForm({ competition_id: gameForm.competition_id, round: gameForm.round, start_time: gameForm.start_time, team_a: '', team_b: '', score_a: '', score_b: '', status_short: '', elapsed: '' });
         setEditingGameId(null); 
         alert('Placar Salvo e Ranking Atualizado!');
     }
@@ -328,6 +324,30 @@ export default function Admin() {
   
   const getGamesForComp = (compId) => games.filter(g => g.competition_id == compId)
 
+  // --- NOVAS FUNÇÕES PARA MARKETING (BANNERS E PATROCINADORES) ---
+  const handleSaveBanner = async (e) => {
+    e.preventDefault()
+    const payload = { ...bannerForm, order_index: parseInt(bannerForm.order_index) }
+    const q = editingBannerId ? supabase.from('banners').update(payload).eq('id', editingBannerId) : supabase.from('banners').insert(payload)
+    const { error } = await q
+    if (error) alert(error.message)
+    else { alert('Banner salvo!'); setBannerForm({ image_url: '', link_url: '', is_active: true, order_index: 0 }); setEditingBannerId(null); fetchAllData() }
+  }
+  const handleEditBanner = (b) => { setBannerForm(b); setEditingBannerId(b.id); window.scrollTo(0,0) }
+  const handleDeleteBanner = async (id) => { if(confirm('Apagar banner?')) { await supabase.from('banners').delete().eq('id', id); fetchAllData() } }
+
+  const handleSaveSponsor = async (e) => {
+    e.preventDefault()
+    const payload = { ...sponsorForm, order_index: parseInt(sponsorForm.order_index) }
+    const q = editingSponsorId ? supabase.from('sponsors').update(payload).eq('id', editingSponsorId) : supabase.from('sponsors').insert(payload)
+    const { error } = await q
+    if (error) alert(error.message)
+    else { alert('Patrocinador salvo!'); setSponsorForm({ name: '', logo_url: '', description: '', contact_info: '', is_active: true, order_index: 0 }); setEditingSponsorId(null); fetchAllData() }
+  }
+  const handleEditSponsor = (s) => { setSponsorForm(s); setEditingSponsorId(s.id); window.scrollTo(0,0) }
+  const handleDeleteSponsor = async (id) => { if(confirm('Apagar patrocinador?')) { await supabase.from('sponsors').delete().eq('id', id); fetchAllData() } }
+
+
   if (loading) return <div className="text-white p-10 text-center">Carregando Painel V2...</div>
 
   return (
@@ -338,13 +358,14 @@ export default function Admin() {
       </div>
 
       <div className="flex overflow-x-auto gap-2 mb-6 border-b border-gray-700 pb-1">
-        {['competitions', 'standings', 'finance', 'rules', 'import', 'games', 'users', 'teams'].map(tab => (
-            <button key={tab} onClick={() => changeTab(tab)} className={`px-4 py-2 font-bold rounded-t capitalize ${activeTab === tab ? 'bg-blue-800 text-white' : 'text-gray-400 hover:text-white'}`}>
-                {tab === 'finance' ? '💰 Financeiro' : tab === 'rules' ? '⚙️ Regras' : tab === 'users' ? 'Inscritos' : tab === 'standings' ? '📊 Tabelas' : tab}
+        {['competitions', 'standings', 'finance', 'rules', 'import', 'games', 'users', 'teams', 'banners', 'sponsors'].map(tab => (
+            <button key={tab} onClick={() => changeTab(tab)} className={`px-4 py-2 font-bold rounded-t capitalize whitespace-nowrap ${activeTab === tab ? 'bg-blue-800 text-white' : 'text-gray-400 hover:text-white'}`}>
+                {tab === 'finance' ? '💰 Financeiro' : tab === 'rules' ? '⚙️ Regras' : tab === 'users' ? 'Inscritos' : tab === 'standings' ? '📊 Tabelas' : tab === 'banners' ? '🖼️ Banners' : tab === 'sponsors' ? '🤝 Parceiros' : tab}
             </button>
         ))}
       </div>
 
+      {/* --- ABAS ANTIGAS MANTIDAS INTACTAS --- */}
       {activeTab === 'standings' && (
         <div className="space-y-6">
             <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
@@ -372,7 +393,6 @@ export default function Admin() {
         </div>
       )}
 
-      {/* --- OUTRAS ABAS --- */}
       {activeTab === 'competitions' && (<div className="space-y-4"><form onSubmit={handleSaveComp} className="bg-gray-800 p-4 rounded border border-gray-700 flex gap-4"><input placeholder="Nome" className="flex-1 p-2 bg-gray-900 rounded text-white" value={compForm.name} onChange={e => setCompForm({...compForm, name: e.target.value})} /><button className="bg-green-600 px-4 rounded font-bold text-white">Salvar</button></form>{competitions.map(c => <div key={c.id} className="bg-gray-800 p-4 rounded flex justify-between items-center border border-gray-700"><div><div className="font-bold text-lg flex items-center gap-2">{c.name} {!c.is_active && <span className="text-[10px] bg-red-900 px-2 rounded">OCULTA</span>}</div><div className="text-xs text-gray-500">{c.slug} • R$ {c.entry_fee}</div></div><div className="flex gap-2"><button onClick={() => handleToggleCompStatus(c)} className={`text-xs border px-3 py-1 rounded font-bold ${c.is_active ? 'border-gray-600 text-gray-400' : 'border-green-600 text-green-400'}`}>{c.is_active ? 'Ocultar' : 'Mostrar'}</button><button onClick={() => handleEditComp(c)} className="bg-gray-700 px-3 py-1 rounded text-sm">✏️</button><button onClick={() => handleDeleteComp(c.id)} className="bg-red-900/30 text-red-400 border border-red-900 px-3 py-1 rounded text-sm">🗑️</button></div></div>)}</div>)}
       
       {activeTab === 'finance' && (<div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl mb-12"><h2 className="text-2xl font-bold mb-6 text-yellow-400 flex items-center gap-2">💰 Configuração Financeira</h2><div className="mb-6 p-4 bg-gray-900 rounded border border-gray-600"><label className="block text-sm text-gray-400 mb-2">Selecione o campeonato:</label><select className="w-full p-3 bg-gray-800 rounded border border-gray-500 text-white font-bold" value={financeCompId} onChange={(e) => setFinanceCompId(e.target.value)}><option value="" disabled>Selecione...</option>{competitions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>{financeCompId && (<div className="flex flex-col md:flex-row gap-8"><div className="w-full md:w-1/3"><label className="block text-sm text-gray-400 mb-2">Valor da Inscrição (R$)</label><input type="number" className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-yellow-400 text-xl font-bold text-white" value={entryFee} onChange={(e) => setEntryFee(e.target.value)} /></div><div className="w-full md:w-2/3"><label className="block text-sm text-gray-400 mb-2">Prêmios</label><div className="space-y-3">{prizeRules.map((rule, index) => (<div key={index} className="flex items-center gap-4 bg-gray-700/50 p-3 rounded"><span className="font-bold text-yellow-400 w-8 text-lg">{rule.position}º</span><div className="flex-1"><input type="number" className="w-full p-2 bg-gray-900 rounded border border-gray-600" value={rule.percentage} onChange={(e) => updatePrizeRule(index, 'percentage', e.target.value)} placeholder="%" /></div><span className="text-gray-400 text-sm font-bold">OU</span><div className="flex-1"><input type="number" className="w-full p-2 bg-gray-900 rounded border border-gray-600" value={rule.fixed_value} onChange={(e) => updatePrizeRule(index, 'fixed_value', e.target.value)} placeholder="R$" /></div><button onClick={() => removePrizeRule(index)} className="text-red-400 text-xs font-bold uppercase">Remover</button></div>))}</div><div className="mt-4 flex gap-4"><button onClick={addPrizeRule} className="bg-gray-700 px-4 py-2 rounded text-sm font-bold">+ Posição</button><button onClick={handleSaveConfig} className="bg-green-600 px-6 py-2 rounded text-sm font-bold ml-auto">💾 Salvar Config</button></div></div></div>)}</div>)}
@@ -386,6 +406,112 @@ export default function Admin() {
       {activeTab === 'users' && (<div className="space-y-6"><div className="grid md:grid-cols-2 gap-6"><div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg"><h3 className="text-lg font-bold mb-4 text-blue-300">⚙️ Sincronização & Busca</h3><div className="flex gap-2 mb-4"><button onClick={handleSyncUsers} disabled={syncing} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow text-sm whitespace-nowrap flex-1">{syncing?'...':'🔄 Sincronizar Base'}</button></div><div><label className="text-xs text-gray-400 mb-1 block">Buscar usuário (Global):</label><input placeholder="Nome, Apelido ou Email..." className="w-full p-3 bg-gray-900 rounded border border-gray-600 text-white text-sm" value={userSearch} onChange={e => setUserSearch(e.target.value)} /></div></div><div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg"><h3 className="text-lg font-bold mb-4 text-green-400">📝 Nova Inscrição</h3><div className="space-y-3"><select className="w-full p-2 bg-gray-900 rounded text-white border border-gray-600 text-sm" onChange={e => setEnrollForm({...enrollForm, user_id: e.target.value})}><option value="">Selecione Usuário...</option>{allProfiles.map(p => <option key={p.id} value={p.id}>{p.nickname || p.email}</option>)}</select><select className="w-full p-2 bg-gray-900 rounded text-white border border-gray-600 text-sm" onChange={e => setEnrollForm({...enrollForm, competition_id: e.target.value})}><option value="">Selecione Competição...</option>{competitions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select><button onClick={handleManualEnroll} className="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-bold text-sm text-white shadow">+ Inscrever Agora</button></div></div></div><div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl"><div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4"><h2 className="text-2xl font-bold text-white flex items-center gap-2">📋 Lista de Inscritos <span className="text-sm bg-gray-700 px-2 py-1 rounded text-gray-300">{filteredEnrollments.length}</span></h2><div className="flex items-center gap-2"><label className="text-sm text-gray-400 font-bold">Filtrar:</label><select className="bg-gray-900 border border-gray-600 p-2 rounded text-white text-sm min-w-[200px]" value={enrollmentFilterComp} onChange={e => setEnrollmentFilterComp(e.target.value)}><option value="">Todas as Competições</option>{competitions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div><div className="overflow-x-auto rounded-lg border border-gray-700"><table className="w-full text-left"><thead className="bg-gray-900 text-gray-400 text-xs uppercase font-bold tracking-wider"><tr><th className="p-4">Participante</th><th className="p-4">Competição</th><th className="p-4 text-center">Pagamento</th><th className="p-4 text-center">Visibilidade</th><th className="p-4 text-center">Ações</th></tr></thead><tbody className="divide-y divide-gray-700 bg-gray-800/50">{filteredEnrollments.length > 0 ? (filteredEnrollments.map(e => (<tr key={e.id} className="hover:bg-gray-700/50 transition"><td className="p-4"><div className="font-bold text-white text-sm">{e.profiles?.nickname || e.profiles?.full_name || 'Sem nome'}</div><div className="text-xs text-gray-500">{e.profiles?.email}</div><div className="text-xs text-gray-500">{e.profiles?.whatsapp || '-'}</div></td><td className="p-4"><span className="text-xs font-bold bg-gray-700 px-2 py-1 rounded text-yellow-200 border border-yellow-500/20">{e.competitions?.name}</span></td><td className="p-4 text-center"><button onClick={() => toggleEnrollmentPaid(e.id, e.is_paid)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide transition shadow-sm w-28 border ${e.is_paid ? 'bg-green-500/20 text-green-400 border-green-500 hover:bg-green-500 hover:text-black' : 'bg-red-500/10 text-red-400 border-red-500 hover:bg-red-500 hover:text-white'}`}>{e.is_paid ? 'Pago' : 'Pendente'}</button></td><td className="p-4 text-center"><button onClick={() => toggleActive(e.user_id, e.profiles?.is_active)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide transition shadow-sm w-28 border ${e.profiles?.is_active ? 'bg-blue-600/20 text-blue-400 border-blue-500 hover:bg-blue-600 hover:text-white' : 'bg-gray-700 text-gray-500 border-gray-600 hover:bg-gray-600 hover:text-gray-300'}`}>{e.profiles?.is_active ? 'Visível' : 'Oculto'}</button></td><td className="p-4 text-center"><button onClick={() => handleDeleteEnrollment(e.id)} className="text-red-500 hover:bg-red-900/30 p-2 rounded" title="Remover Inscrição">🗑️</button></td></tr>))) : <tr><td colSpan="5" className="p-12 text-center text-gray-500 italic">Nenhum inscrito encontrado com os filtros atuais.</td></tr>}</tbody></table></div></div></div>)}
       
       {activeTab === 'teams' && (<div className="bg-gray-800 p-6 rounded-xl border border-gray-700"><h3 className="text-xl font-bold mb-4 text-white">Gerenciar Times</h3><form onSubmit={handleSaveTeam} className="flex gap-4 mb-6"><input className="p-3 bg-gray-900 rounded border border-gray-600 flex-1 text-white" placeholder="Nome" value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} /><input className="p-3 bg-gray-900 rounded border border-gray-600 w-24 uppercase text-white" placeholder="Sigla" maxLength={2} value={teamForm.flag_code} onChange={e => setTeamForm({...teamForm, flag_code: e.target.value.toUpperCase()})} /><button className="bg-blue-600 px-6 rounded font-bold text-white">Salvar</button></form><div className="grid grid-cols-2 md:grid-cols-4 gap-2">{teams.map(t => (<button key={t.id} onClick={() => handleEditTeam(t)} className="bg-gray-900 p-2 rounded text-left text-sm hover:bg-gray-700 flex items-center gap-2 truncate text-white"><TeamBadge team={t} /> {t.name}</button>))}</div></div>)}
+
+      {/* --- NOVAS ABAS DE MARKETING --- */}
+      {activeTab === 'banners' && (
+        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h3 className="text-xl font-bold mb-4 text-blue-400">Gerenciar Banners Rotativos</h3>
+            <form onSubmit={handleSaveBanner} className="flex flex-col gap-4 mb-8 bg-gray-900 p-4 rounded border border-gray-600">
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <label className="text-xs text-gray-400 block mb-1">URL da Imagem (Horizontal)</label>
+                        <input className="w-full p-2 bg-gray-800 rounded text-white" value={bannerForm.image_url} onChange={e => setBannerForm({...bannerForm, image_url: e.target.value})} required />
+                    </div>
+                    <div className="flex-1">
+                        <label className="text-xs text-gray-400 block mb-1">Link de Destino (Opcional)</label>
+                        <input className="w-full p-2 bg-gray-800 rounded text-white" value={bannerForm.link_url} onChange={e => setBannerForm({...bannerForm, link_url: e.target.value})} placeholder="https://..." />
+                    </div>
+                </div>
+                <div className="flex gap-4 items-end">
+                    <div>
+                        <label className="text-xs text-gray-400 block mb-1">Ordem</label>
+                        <input type="number" className="w-20 p-2 bg-gray-800 rounded text-white text-center" value={bannerForm.order_index} onChange={e => setBannerForm({...bannerForm, order_index: e.target.value})} />
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <input type="checkbox" checked={bannerForm.is_active} onChange={e => setBannerForm({...bannerForm, is_active: e.target.checked})} />
+                        <span className="text-sm">Ativo</span>
+                    </div>
+                    <button className="bg-blue-600 px-6 py-2 rounded font-bold text-white ml-auto">Salvar Banner</button>
+                </div>
+            </form>
+            
+            <div className="grid gap-4">
+                {banners.map(b => (
+                    <div key={b.id} className={`flex items-center gap-4 bg-gray-900 p-3 rounded border ${b.is_active ? 'border-gray-600' : 'border-red-900 opacity-50'}`}>
+                        <div className="w-10 h-10 bg-gray-800 rounded flex items-center justify-center font-bold">{b.order_index}</div>
+                        <img src={b.image_url} alt="Banner" className="h-16 w-48 object-cover rounded" />
+                        <div className="flex-1 text-sm text-gray-400 truncate">{b.link_url || 'Sem link'}</div>
+                        <div className="flex gap-2">
+                            <button onClick={() => handleEditBanner(b)} className="bg-gray-700 p-2 rounded">✏️</button>
+                            <button onClick={() => handleDeleteBanner(b.id)} className="bg-red-900/30 text-red-500 p-2 rounded">🗑️</button>
+                        </div>
+                    </div>
+                ))}
+                {banners.length === 0 && <p className="text-gray-500 italic">Nenhum banner cadastrado.</p>}
+            </div>
+        </div>
+      )}
+
+      {activeTab === 'sponsors' && (
+        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h3 className="text-xl font-bold mb-4 text-purple-400">Gerenciar Parceiros / Patrocinadores</h3>
+            <form onSubmit={handleSaveSponsor} className="flex flex-col gap-4 mb-8 bg-gray-900 p-4 rounded border border-gray-600">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-xs text-gray-400 block mb-1">Nome do Parceiro</label>
+                        <input className="w-full p-2 bg-gray-800 rounded text-white" value={sponsorForm.name} onChange={e => setSponsorForm({...sponsorForm, name: e.target.value})} required />
+                    </div>
+                    <div>
+                        <label className="text-xs text-gray-400 block mb-1">URL da Logo (Quadrada/Redonda)</label>
+                        <input className="w-full p-2 bg-gray-800 rounded text-white" value={sponsorForm.logo_url} onChange={e => setSponsorForm({...sponsorForm, logo_url: e.target.value})} />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className="text-xs text-gray-400 block mb-1">Descrição / História / Prêmio Oferecido</label>
+                        <textarea className="w-full p-2 bg-gray-800 rounded text-white h-24" value={sponsorForm.description} onChange={e => setSponsorForm({...sponsorForm, description: e.target.value})} placeholder="Escreva sobre o parceiro ou insira a URL de uma imagem no formato feed do Instagram..." />
+                    </div>
+                    <div>
+                        <label className="text-xs text-gray-400 block mb-1">Contato (Instagram / WhatsApp / Link)</label>
+                        <input className="w-full p-2 bg-gray-800 rounded text-white" value={sponsorForm.contact_info} onChange={e => setSponsorForm({...sponsorForm, contact_info: e.target.value})} />
+                    </div>
+                    <div className="flex items-end justify-between">
+                        <div>
+                            <label className="text-xs text-gray-400 block mb-1">Ordem na Aba</label>
+                            <input type="number" className="w-20 p-2 bg-gray-800 rounded text-white text-center" value={sponsorForm.order_index} onChange={e => setSponsorForm({...sponsorForm, order_index: e.target.value})} />
+                        </div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <input type="checkbox" checked={sponsorForm.is_active} onChange={e => setSponsorForm({...sponsorForm, is_active: e.target.checked})} />
+                            <span className="text-sm">Ativo</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex justify-end mt-2">
+                    <button className="bg-purple-600 px-8 py-2 rounded font-bold text-white">Salvar Parceiro</button>
+                </div>
+            </form>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+                {sponsors.map(s => (
+                    <div key={s.id} className={`flex items-start gap-4 bg-gray-900 p-4 rounded border ${s.is_active ? 'border-gray-600' : 'border-red-900 opacity-50'}`}>
+                        {s.logo_url ? (
+                            <img src={s.logo_url} alt={s.name} className="w-16 h-16 object-cover rounded-full border-2 border-gray-700 bg-white" />
+                        ) : (
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-xl">🤝</div>
+                        )}
+                        <div className="flex-1">
+                            <div className="font-bold text-lg">{s.name}</div>
+                            <div className="text-xs text-purple-400 mb-2">{s.contact_info}</div>
+                            <div className="text-sm text-gray-400 line-clamp-2">{s.description}</div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <button onClick={() => handleEditSponsor(s)} className="bg-gray-700 p-2 rounded">✏️</button>
+                            <button onClick={() => handleDeleteSponsor(s.id)} className="bg-red-900/30 text-red-500 p-2 rounded">🗑️</button>
+                        </div>
+                    </div>
+                ))}
+                {sponsors.length === 0 && <p className="text-gray-500 italic col-span-2">Nenhum parceiro cadastrado.</p>}
+            </div>
+        </div>
+      )}
 
     </div>
   )
