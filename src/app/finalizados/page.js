@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import GameCard from '../../components/GameCard'
+import SponsorBanner from '../../components/SponsorBanner'
 
 export default function Calendario() {
   const [games, setGames] = useState([])
@@ -116,13 +117,16 @@ export default function Calendario() {
     <div className="p-4 pb-24 flex flex-col items-center min-h-screen bg-gray-900 text-white">
       <h1 className="text-3xl font-bold text-yellow-400 mb-6 mt-4 text-center">📅 Calendário de Jogos</h1>
 
-      <div className="w-full max-w-md mb-4 overflow-x-auto no-scrollbar">
-        <div className="flex space-x-2 pb-2">
+      <div className="w-full max-w-4xl mb-4 overflow-x-auto no-scrollbar">
+        <div className="flex justify-center space-x-2 pb-2 min-w-max">
           {competitions.map(comp => (
             <button key={comp.id} onClick={() => setSelectedCompId(comp.id)} className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${selectedCompId === comp.id ? 'bg-yellow-500 text-black shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>{comp.name}</button>
           ))}
         </div>
       </div>
+      
+      {/* BANNER AQUI */}
+      <SponsorBanner />
 
       <div className="w-full max-w-md flex justify-between items-end mb-4 px-1">
           <h2 className="text-xl font-bold text-gray-300">Jogos</h2>
