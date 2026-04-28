@@ -37,30 +37,33 @@ export default function SponsorBanner() {
   const currentBanner = banners[currentIndex]
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-6 rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-gray-900 relative h-24 sm:h-32 md:h-40">
+    // Altura ajustada: h-20 no mobile, h-24 no tablet, h-28 no PC (Fica sempre como uma faixa)
+    <div className="w-full max-w-4xl mx-auto mb-6 rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-gray-900 relative h-20 sm:h-24 md:h-28 flex items-center justify-center">
       {currentBanner.link_url ? (
-        <a href={currentBanner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+        <a href={currentBanner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full flex items-center justify-center">
           <img 
             src={currentBanner.image_url} 
             alt="Patrocinador do Bolão" 
-            className="w-full h-full object-cover transition-opacity duration-500"
+            /* object-contain faz a mágica de caber tudo sem cortar. max-h-full garante que não estoure */
+            className="max-w-full max-h-full object-contain transition-opacity duration-500"
           />
         </a>
       ) : (
         <img 
           src={currentBanner.image_url} 
           alt="Patrocinador do Bolão" 
-          className="w-full h-full object-cover transition-opacity duration-500"
+          /* object-contain faz a mágica de caber tudo sem cortar. max-h-full garante que não estoure */
+          className="max-w-full max-h-full object-contain transition-opacity duration-500"
         />
       )}
       
-      {/* Pontinhos de navegação (Dots) */}
+      {/* Pontinhos de navegação (Dots) - Ajustados para ficar discretos */}
       {banners.length > 1 && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+        <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1.5">
           {banners.map((_, idx) => (
             <div 
               key={idx} 
-              className={`w-2 h-2 rounded-full transition-colors ${idx === currentIndex ? 'bg-yellow-400' : 'bg-white/50'}`}
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-yellow-400' : 'bg-gray-500/50'}`}
             />
           ))}
         </div>
