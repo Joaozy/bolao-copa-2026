@@ -34,7 +34,7 @@ export default function Navbar() {
     { name: '📊 Tabelas', path: '/tabelas' }, // <--- NOVO ITEM
     { name: '🏆 Ranking', path: '/ranking' },
     { name: '👤 Perfil', path: '/perfil' },
-    { name: '📰 Notícias', path: '/noticias' },
+    { name: '🤝 Parceiros', path: '/noticias' },
     { name: '📜 Regras', path: '/regras' },
     { name: '🎁 Premiações', path: '/premiacoes' },
     { name: '📞 Contato', path: '/contato' },
