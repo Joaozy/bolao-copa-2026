@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import Link from 'next/link'
 import GameCard from '../components/GameCard'
+import SponsorBanner from '../components/SponsorBanner'
 import toast from 'react-hot-toast'
 
 // Títulos traduzidos para os tipos de regra
@@ -458,6 +459,9 @@ export default function Home() {
               <p className="text-green-400 text-xs font-bold">✅ Você está participando!</p>
             </div>
           )}
+          
+          {/* BANNER DE PATROCINADORES */}
+          <SponsorBanner />
 
           {/* Seletor de Modo */}
           <div className="flex bg-gray-800 p-1 rounded-xl">
