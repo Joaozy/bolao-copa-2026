@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import SponsorBanner from '../../components/SponsorBanner'
 
 export default function Tabelas() {
   const [loading, setLoading] = useState(true)
@@ -282,12 +283,12 @@ export default function Tabelas() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col items-center">
+    <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col items-center pb-24">
       
       <h1 className="text-3xl font-bold text-yellow-400 mb-6 mt-4 text-center">📊 Dados Oficiais</h1>
 
       {/* SELETOR DE COMPETIÇÃO */}
-      <div className="w-full max-w-4xl mb-8 overflow-x-auto no-scrollbar">
+      <div className="w-full max-w-4xl mb-4 overflow-x-auto no-scrollbar">
         <div className="flex justify-center space-x-2 pb-2 min-w-max">
           {competitions.map(comp => (
             <button
@@ -304,6 +305,9 @@ export default function Tabelas() {
           ))}
         </div>
       </div>
+      
+      {/* BANNER AQUI */}
+      <SponsorBanner />
 
       {loading ? (
         <div className="text-white text-center p-10 animate-pulse">Carregando dados...</div>

@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import SponsorBanner from '../../components/SponsorBanner'
 
 // Mapeamento de títulos para exibir bonito no modal
 const RULE_LABELS = {
@@ -293,7 +294,7 @@ export default function Ranking() {
   )
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-2 md:p-4 flex flex-col items-center">
+    <main className="min-h-screen bg-gray-900 text-white p-2 md:p-4 flex flex-col items-center pb-24">
       
       <div className="flex flex-col items-center mb-6 mt-4 text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">🏆 Classificação</h1>
@@ -317,6 +318,9 @@ export default function Ranking() {
           ))}
         </div>
       </div>
+      
+      {/* BANNER AQUI */}
+      <SponsorBanner />
 
       <div className="w-full max-w-3xl flex flex-col md:flex-row gap-3 mb-4">
         <select 
