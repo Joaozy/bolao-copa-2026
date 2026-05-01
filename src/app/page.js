@@ -36,27 +36,21 @@ const TeamSelect = ({ teams, value, onChange, placeholder, disabled }) => (
 
 // Componente Inteligente para Palpites Especiais (Com Trava de Prazo)
 const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
-  // Estado para Artilheiro (Filtro de Time)
   const [filterTeamId, setFilterTeamId] = useState('')
   const [players, setPlayers] = useState([])
   const [loadingPlayers, setLoadingPlayers] = useState(false)
   
-  // VERIFICA SE O PRAZO JÁ PASSOU
   const deadlineDate = rule.deadline ? new Date(rule.deadline) : null
   const isExpired = deadlineDate && new Date() > deadlineDate
 
   const hasBet = !!(bet?.value || bet?.teamId)
   
-  // Se expirou, força modo leitura (isEditing = false)
-  // Se não expirou e não tem aposta, começa aberto. Se tem aposta, começa fechado.
   const [isEditing, setIsEditing] = useState(!hasBet && !isExpired)
 
-  // Garante que feche se o tempo passar com a tela aberta
   useEffect(() => {
     if (isExpired) setIsEditing(false)
   }, [isExpired])
 
-  // Carrega jogadores quando seleciona um time no filtro do artilheiro
   useEffect(() => {
     if (rule.type === 'top_scorer' && filterTeamId) {
       async function fetchPlayers() {
@@ -73,7 +67,6 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
 
   const title = RULE_TITLES[rule.type] || rule.label || rule.type
   
-  // Formata data para exibir (ajuste de fuso horário simples para exibição)
   const deadlineText = deadlineDate 
     ? deadlineDate.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) 
     : ''
@@ -97,7 +90,6 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
                 {rule.points} pts
             </span>
             
-            {/* BOTÃO: Só permite editar se NÃO EXPIRADO */}
             {!isEditing && !isExpired && (
               <button 
                 onClick={() => {
@@ -111,17 +103,14 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
               </button>
             )}
             
-            {/* Ícone de Cadeado se Expirado */}
             {isExpired && (
                 <span className="text-xl" title="Apostas Encerradas">🔒</span>
             )}
           </div>
       </div>
       
-      {/* SELETOR DE ARTILHEIRO */}
       {rule.type === 'top_scorer' ? (
         <div className="space-y-3">
-           {/* 1. Filtra Time */}
            <select 
              className={`w-full p-3 rounded border outline-none text-sm transition
                ${(!isEditing || !session)
@@ -136,7 +125,6 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
              {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
            </select>
 
-           {/* 2. Seleciona Jogador */}
            <select 
              className={`w-full p-3 rounded border outline-none transition
                ${(!isEditing || !session)
@@ -148,13 +136,11 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
              disabled={!isEditing || (!filterTeamId && !bet?.value) || !session} 
            >
              <option value="">{loadingPlayers ? 'Carregando...' : '2º Selecione o Jogador...'}</option>
-             {/* Mostra valor salvo mesmo sem lista carregada */}
              {bet?.value && !players.find(p => p.name === bet.value) && <option value={bet.value}>{bet.value}</option>}
              {players.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
            </select>
         </div>
       ) : (
-        // SELETOR PADRÃO
         <TeamSelect 
             teams={teams} 
             placeholder="Selecione o Time..." 
@@ -198,10 +184,7 @@ export default function Home() {
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
 
-      // Busca competições ativas
       const { data: comps } = await supabase.from('competitions').select('*').eq('is_active', true).order('id')
-      
-      // Busca todos os times (para o select de campeão)
       const { data: allTeams } = await supabase.from('teams').select('*').order('name')
       setTeams(allTeams || [])
 
@@ -224,13 +207,11 @@ export default function Home() {
   async function loadCompetitionData() {
     setLoading(true)
     
-    // A. Verifica Pagamento
     if (session) {
       const { data: enroll } = await supabase.from('enrollments').select('is_paid').eq('user_id', session.user.id).eq('competition_id', selectedCompId).single()
       setIsPaid(enroll?.is_paid || false)
     }
 
-    // B. Filtra Times da Competição
     const { data: compGames } = await supabase
         .from('games')
         .select('team_a_id, team_b_id')
@@ -250,7 +231,6 @@ export default function Home() {
 
     const agora = new Date().toISOString()
 
-    // C. Busca Jogos Futuros
     const { data: allGames } = await supabase
       .from('games')
       .select(`*, team_a:teams!team_a_id(*), team_b:teams!team_b_id(*)`)
@@ -260,19 +240,15 @@ export default function Home() {
       .order('start_time', { ascending: true })
 
     if (allGames) {
-      // Organiza Rodadas
       const uniqueRounds = [...new Set(allGames.map(g => g.round))].filter(Boolean)
       setRounds(uniqueRounds)
       
-      // Define rodada inicial (a primeira disponível)
       const currentRound = uniqueRounds.length > 0 ? uniqueRounds[0] : ''
       setSelectedRound(currentRound)
       
-      // Filtra jogos e carrega palpites
       filterAndLoadGames(allGames, currentRound)
     }
 
-    // D. Busca Regras Especiais (Extras)
     const { data: rules } = await supabase
       .from('special_rules')
       .select('*')
@@ -319,7 +295,6 @@ export default function Home() {
     }
   }
 
-  // Efeito ao trocar rodada manual
   useEffect(() => {
     if (!selectedCompId || !selectedRound) return
     const fetchAgain = async () => {
@@ -356,7 +331,6 @@ export default function Home() {
     setSaving(true)
 
     try {
-      // 1. Salva Jogos
       if (activeTab === 'games') {
         const updates = []
         games.forEach(g => {
@@ -381,13 +355,11 @@ export default function Home() {
         }
       }
 
-      // 2. Salva Extras
       if (activeTab === 'specials') {
         const specialUpdates = []
         const agora = new Date()
         
         specialRules.forEach(r => {
-          // Bloqueia salvamento se prazo expirou (Segurança Extra no Front)
           if (r.deadline && new Date(r.deadline) < agora) return
 
           const sb = specialBets[r.id]
@@ -446,8 +418,11 @@ export default function Home() {
         </div>
       </div>
 
+      {/* BANNER AQUI FORA DA TRAVA DE LOGIN */}
+      <SponsorBanner />
+
       {session && (
-        <div className="w-full max-w-md mb-6">
+        <div className="w-full max-w-md mb-6 mt-2">
            {/* Status */}
            {!isPaid ? (
             <div className="bg-red-900/30 border border-red-500/50 p-3 rounded-lg mb-4 flex justify-between items-center animate-pulse">
@@ -459,9 +434,6 @@ export default function Home() {
               <p className="text-green-400 text-xs font-bold">✅ Você está participando!</p>
             </div>
           )}
-          
-          {/* BANNER DE PATROCINADORES */}
-          <SponsorBanner />
 
           {/* Seletor de Modo */}
           <div className="flex bg-gray-800 p-1 rounded-xl">
@@ -481,8 +453,19 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- CONTEÚDO: JOGOS --- */}
-      {activeTab === 'games' && (
+      {/* Se o usuário não tiver login, mostra um aviso amigável */}
+      {!session && (
+        <div className="w-full max-w-md mt-6 bg-gray-800/80 p-6 rounded-xl border border-gray-700 text-center">
+            <h2 className="text-xl font-bold text-yellow-400 mb-2">Bem-vindo ao Bolão!</h2>
+            <p className="text-sm text-gray-400 mb-4">Para fazer seus palpites e concorrer aos prêmios, você precisa estar logado.</p>
+            <Link href="/auth/login" className="inline-block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition">
+                Fazer Login / Cadastrar
+            </Link>
+        </div>
+      )}
+
+      {/* --- CONTEÚDO: JOGOS (SÓ MOSTRA SE LOGADO) --- */}
+      {session && activeTab === 'games' && (
         <>
             {rounds.length > 0 && (
                 <div className="w-full max-w-md mb-6 flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-800 no-scrollbar">
@@ -516,8 +499,8 @@ export default function Home() {
         </>
       )}
 
-      {/* --- CONTEÚDO: EXTRAS --- */}
-      {activeTab === 'specials' && (
+      {/* --- CONTEÚDO: EXTRAS (SÓ MOSTRA SE LOGADO) --- */}
+      {session && activeTab === 'specials' && (
         <div className="w-full max-w-md space-y-4">
             {specialRules.length > 0 ? (
                 specialRules.map(rule => (
