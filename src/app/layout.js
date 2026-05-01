@@ -15,14 +15,24 @@ export const viewport = {
 export const metadata = {
   title: 'Bolão Copa 2026 🇧🇷',
   description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
+  
+  // ---> NOVO: Link para o arquivo que criamos
+  manifest: '/manifest.json',
+  
+  // ---> NOVO: Ícones para a tela inicial (Especialmente iPhone)
+  icons: {
+    icon: '/icon-512.png',
+    apple: '/icon-512.png', // O iPhone procura especificamente por isso
+  },
+
   openGraph: {
     title: 'Bolão Copa 2026 🇧🇷',
     description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
-    url: 'https://seu-link-da-vercel.vercel.app', // COLOQUE SEU LINK REAL AQUI
+    url: 'https://seu-link-da-vercel.vercel.app', 
     siteName: 'Bolão Copa 2026',
     images: [
       {
-        url: '/og-bolao.png', // Nome da imagem que você colocou na pasta public
+        url: '/og-bolao.jpg', 
         width: 1200,
         height: 630,
         alt: 'Logo Oficial do Bolão Copa 2026',
@@ -35,7 +45,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Bolão Copa 2026 🇧🇷',
     description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
-    images: ['/og-bolao.png'],
+    images: ['/og-bolao.jpg'],
   },
 }
 
