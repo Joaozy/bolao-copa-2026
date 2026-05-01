@@ -12,7 +12,7 @@ export default function Perfil() {
   const [isNewUser, setIsNewUser] = useState(false)
   
   const [user, setUser] = useState(null)
-  const [userEmail, setUserEmail] = useState('') // Guardar o e-mail para exibir
+  const [userEmail, setUserEmail] = useState('') 
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -22,8 +22,9 @@ export default function Perfil() {
     notify_results: false 
   })
 
-  // Estados para troca de senha logado
+  // NOVOS ESTADOS: Senha Atual incluída!
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
@@ -51,7 +52,7 @@ export default function Perfil() {
     
     const currentUser = session.user
     setUser(currentUser)
-    setUserEmail(currentUser.email) // Puxa o e-mail de acesso
+    setUserEmail(currentUser.email) 
 
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
 
@@ -133,21 +134,37 @@ export default function Perfil() {
     } catch (error) { toast.error('Erro: ' + error.message) } finally { setSaving(false) }
   }
 
+  // --- FUNÇÃO BLINDADA PARA TROCA DE SENHA ---
   const handlePasswordChange = async () => {
-    if (newPassword !== confirmPassword) return toast.error('As senhas não coincidem.')
-    if (newPassword.length < 6) return toast.error('A senha precisa de no mínimo 6 caracteres.')
+    if (!currentPassword) return toast.error('Digite sua senha atual.')
+    if (newPassword !== confirmPassword) return toast.error('As novas senhas não coincidem.')
+    if (newPassword.length < 6) return toast.error('A nova senha precisa de no mínimo 6 caracteres.')
     
     setSavingPassword(true)
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword })
-      if (error) throw error
+      // 1º Passo: Validar a senha atual fazendo um login silencioso
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: userEmail,
+        password: currentPassword
+      })
+
+      if (verifyError) {
+        throw new Error('A senha atual está incorreta.')
+      }
+
+      // 2º Passo: Se a senha atual bater, atualiza para a nova senha
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+      if (updateError) throw updateError
       
-      toast.success('Senha alterada com sucesso!')
+      toast.success('Senha alterada com sucesso! 🔐')
+      
+      // Limpa a tela
       setIsChangingPassword(false)
+      setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
     } catch (error) {
-      toast.error('Erro: ' + error.message)
+      toast.error(error.message)
     } finally {
       setSavingPassword(false)
     }
@@ -165,7 +182,6 @@ export default function Perfil() {
         <div className="flex flex-col items-center mb-6"><div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-700 bg-gray-900 relative">{formData.avatar_url ? <img src={formData.avatar_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>}</div>{isEditing && <label className="mt-2 text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded cursor-pointer transition">📷 Alterar Foto<input type="file" accept="image/*" onChange={handleImageChange} className="hidden" /></label>}</div>
         
         <div className="space-y-4">
-          {/* CAMPO DE E-MAIL TRAVADO */}
           <div>
             <label className="block text-xs text-gray-500 mb-1 ml-1 flex items-center gap-1">Email de Cadastro 🔒</label>
             <input disabled className="w-full p-3 rounded bg-gray-900 border border-transparent text-gray-500 cursor-not-allowed" value={userEmail} />
@@ -192,7 +208,7 @@ export default function Perfil() {
           {isEditing && <button onClick={handleSave} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg mt-4 shadow-lg">{saving ? 'Salvando...' : 'Salvar Alterações'}</button>}
         </div>
 
-        {/* --- SEÇÃO DE TROCA DE SENHA --- */}
+        {/* --- SEÇÃO DE TROCA DE SENHA BLINDADA --- */}
         {!isNewUser && (
             <div className="mt-8 pt-6 border-t border-gray-700">
                 {!isChangingPassword ? (
@@ -204,18 +220,26 @@ export default function Perfil() {
                     </button>
                 ) : (
                     <div className="space-y-4 animate-fade-in bg-gray-900/80 p-4 rounded-xl border border-gray-700 mt-2">
-                        <h3 className="font-bold text-sm text-yellow-400">Criar Nova Senha</h3>
+                        <h3 className="font-bold text-sm text-yellow-400">Mudança de Senha de Segurança</h3>
+                        
                         <div>
-                            <input type="password" placeholder="Nova senha" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm" />
+                            <label className="block text-xs text-gray-500 mb-1 ml-1">Senha Atual</label>
+                            <input type="password" placeholder="Digite a senha antiga" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-red-900/50 focus:border-red-500 text-white outline-none text-sm" />
                         </div>
-                        <div>
-                            <input type="password" placeholder="Confirme a nova senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm" />
+
+                        <div className="pt-2 border-t border-gray-700 mt-2">
+                            <label className="block text-xs text-gray-500 mb-1 ml-1 mt-2">Nova Senha</label>
+                            <input type="password" placeholder="Nova senha" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm mb-3" />
+                            
+                            <label className="block text-xs text-gray-500 mb-1 ml-1">Confirme a Nova Senha</label>
+                            <input type="password" placeholder="Repita a nova senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm" />
                         </div>
+
                         <div className="flex gap-2 pt-2">
                             <button onClick={handlePasswordChange} disabled={savingPassword} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded text-sm transition shadow">
-                                {savingPassword ? '...' : 'Salvar Senha'}
+                                {savingPassword ? 'Verificando...' : 'Salvar Senha'}
                             </button>
-                            <button onClick={() => { setIsChangingPassword(false); setNewPassword(''); setConfirmPassword(''); }} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded text-sm transition">
+                            <button onClick={() => { setIsChangingPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded text-sm transition">
                                 Cancelar
                             </button>
                         </div>

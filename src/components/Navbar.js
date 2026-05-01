@@ -11,20 +11,23 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
-    // Busca a sessão inicial com o await correto
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
     }
     getSession()
     
-    // Atualiza o estado visual se o usuário deslogar ou logar em outra aba
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
+      
+      // A MÁGICA AQUI: O Radar de Recuperação de Senha
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push('/reset-password')
+      }
     })
     
     return () => subscription.unsubscribe()
-  }, []) 
+  }, [router])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
