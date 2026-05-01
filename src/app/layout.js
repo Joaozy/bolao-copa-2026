@@ -22,7 +22,7 @@ export const metadata = {
     siteName: 'Bolão Copa 2026',
     images: [
       {
-        url: '/og-bolao.jpg', // Nome da imagem que você colocou na pasta public
+        url: '/og-bolao.png', // Nome da imagem que você colocou na pasta public
         width: 1200,
         height: 630,
         alt: 'Logo Oficial do Bolão Copa 2026',
@@ -35,7 +35,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Bolão Copa 2026 🇧🇷',
     description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
-    images: ['/og-bolao.jpg'],
+    images: ['/og-bolao.png'],
   },
 }
 
