@@ -12,13 +12,21 @@ export default function Perfil() {
   const [isNewUser, setIsNewUser] = useState(false)
   
   const [user, setUser] = useState(null)
+  const [userEmail, setUserEmail] = useState('') // Guardar o e-mail para exibir
+
   const [formData, setFormData] = useState({
     full_name: '',
     nickname: '',
     whatsapp: '',
     avatar_url: '',
-    notify_results: false
+    notify_results: false 
   })
+
+  // Estados para troca de senha logado
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [savingPassword, setSavingPassword] = useState(false)
 
   const [myEnrollments, setMyEnrollments] = useState([])
   const [availableComps, setAvailableComps] = useState([])
@@ -34,7 +42,6 @@ export default function Perfil() {
   async function loadData() {
     setLoading(true)
     
-    // CORREÇÃO AQUI: Busca a sessão de forma segura e espera ela carregar
     const { data: { session } } = await supabase.auth.getSession()
     
     if (!session || !session.user) { 
@@ -44,6 +51,7 @@ export default function Perfil() {
     
     const currentUser = session.user
     setUser(currentUser)
+    setUserEmail(currentUser.email) // Puxa o e-mail de acesso
 
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
 
@@ -53,7 +61,7 @@ export default function Perfil() {
         nickname: profile.nickname || '',
         whatsapp: profile.whatsapp || '',
         avatar_url: profile.avatar_url || '',
-        notify_results: profile.notify_results || false
+        notify_results: profile.notify_results || false 
       })
       if (!profile.nickname) { setIsNewUser(true); setIsEditing(true) }
     }
@@ -125,6 +133,26 @@ export default function Perfil() {
     } catch (error) { toast.error('Erro: ' + error.message) } finally { setSaving(false) }
   }
 
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) return toast.error('As senhas não coincidem.')
+    if (newPassword.length < 6) return toast.error('A senha precisa de no mínimo 6 caracteres.')
+    
+    setSavingPassword(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      
+      toast.success('Senha alterada com sucesso!')
+      setIsChangingPassword(false)
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error) {
+      toast.error('Erro: ' + error.message)
+    } finally {
+      setSavingPassword(false)
+    }
+  }
+
   if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Carregando...</div>
   const inputClass = `w-full p-3 rounded border outline-none transition ${isEditing ? 'bg-gray-700 border-gray-600 focus:border-yellow-400 text-white' : 'bg-gray-900 border-transparent text-gray-400 cursor-not-allowed'}`
 
@@ -135,7 +163,14 @@ export default function Perfil() {
       <div className="w-full max-w-md bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg mb-8">
         <div className="flex justify-between items-center mb-6"><h1 className="text-2xl font-bold text-white">{isNewUser ? 'Finalizar Cadastro' : 'Meus Dados'}</h1>{!isNewUser && <button onClick={() => setIsEditing(!isEditing)} className="text-sm text-blue-400 hover:text-blue-300 font-bold">{isEditing ? 'Cancelar' : '✏️ Editar'}</button>}</div>
         <div className="flex flex-col items-center mb-6"><div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-700 bg-gray-900 relative">{formData.avatar_url ? <img src={formData.avatar_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>}</div>{isEditing && <label className="mt-2 text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded cursor-pointer transition">📷 Alterar Foto<input type="file" accept="image/*" onChange={handleImageChange} className="hidden" /></label>}</div>
+        
         <div className="space-y-4">
+          {/* CAMPO DE E-MAIL TRAVADO */}
+          <div>
+            <label className="block text-xs text-gray-500 mb-1 ml-1 flex items-center gap-1">Email de Cadastro 🔒</label>
+            <input disabled className="w-full p-3 rounded bg-gray-900 border border-transparent text-gray-500 cursor-not-allowed" value={userEmail} />
+          </div>
+
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">Apelido</label><input disabled={!isEditing} className={inputClass} value={formData.nickname} onChange={e => setFormData({...formData, nickname: e.target.value})} placeholder="Ex: João Gol" /></div>
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">Nome Completo</label><input disabled={!isEditing} className={inputClass} value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} placeholder="Ex: João da Silva" /></div>
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">WhatsApp</label><input disabled={!isEditing} className={inputClass} value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} placeholder="(00) 00000-0000" type="tel" /></div>
@@ -156,6 +191,38 @@ export default function Perfil() {
 
           {isEditing && <button onClick={handleSave} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg mt-4 shadow-lg">{saving ? 'Salvando...' : 'Salvar Alterações'}</button>}
         </div>
+
+        {/* --- SEÇÃO DE TROCA DE SENHA --- */}
+        {!isNewUser && (
+            <div className="mt-8 pt-6 border-t border-gray-700">
+                {!isChangingPassword ? (
+                    <button 
+                        onClick={() => setIsChangingPassword(true)} 
+                        className="text-sm text-yellow-400 hover:text-yellow-300 font-bold transition flex items-center gap-2"
+                    >
+                        🔑 Alterar minha senha
+                    </button>
+                ) : (
+                    <div className="space-y-4 animate-fade-in bg-gray-900/80 p-4 rounded-xl border border-gray-700 mt-2">
+                        <h3 className="font-bold text-sm text-yellow-400">Criar Nova Senha</h3>
+                        <div>
+                            <input type="password" placeholder="Nova senha" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm" />
+                        </div>
+                        <div>
+                            <input type="password" placeholder="Confirme a nova senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full p-3 rounded bg-gray-800 border border-gray-600 focus:border-yellow-400 text-white outline-none text-sm" />
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                            <button onClick={handlePasswordChange} disabled={savingPassword} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded text-sm transition shadow">
+                                {savingPassword ? '...' : 'Salvar Senha'}
+                            </button>
+                            <button onClick={() => { setIsChangingPassword(false); setNewPassword(''); setConfirmPassword(''); }} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded text-sm transition">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
       </div>
 
       {!isNewUser && (
