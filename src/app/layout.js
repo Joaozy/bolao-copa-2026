@@ -13,9 +13,30 @@ export const viewport = {
 
 // Metadados do site (Título, Descrição e Ícone do App)
 export const metadata = {
-  title: 'Bolão Copa 2026',
-  description: 'O melhor bolão do mundo',
-  manifest: '/manifest.json', // Link essencial para o PWA
+  title: 'Bolão Copa 2026 🇧🇷',
+  description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
+  openGraph: {
+    title: 'Bolão Copa 2026 🇧🇷',
+    description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
+    url: 'https://seu-link-da-vercel.vercel.app', // COLOQUE SEU LINK REAL AQUI
+    siteName: 'Bolão Copa 2026',
+    images: [
+      {
+        url: '/og-bolao.jpg', // Nome da imagem que você colocou na pasta public
+        width: 1200,
+        height: 630,
+        alt: 'Logo Oficial do Bolão Copa 2026',
+      },
+    ],
+    locale: 'pt_BR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bolão Copa 2026 🇧🇷',
+    description: 'Faça seus palpites, acompanhe o ranking em tempo real e concorra a prêmios incríveis!',
+    images: ['/og-bolao.jpg'],
+  },
 }
 
 export default function RootLayout({ children }) {
