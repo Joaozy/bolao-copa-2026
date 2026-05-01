@@ -34,8 +34,8 @@ const TeamSelect = ({ teams, value, onChange, placeholder, disabled }) => (
   </select>
 )
 
-// Componente Inteligente para Palpites Especiais (Com Trava de Prazo)
-const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
+// Componente Inteligente para Palpites Especiais (Com Trava de Prazo e Inscrição)
+const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => {
   const [filterTeamId, setFilterTeamId] = useState('')
   const [players, setPlayers] = useState([])
   const [loadingPlayers, setLoadingPlayers] = useState(false)
@@ -94,6 +94,7 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
               <button 
                 onClick={() => {
                   if (!session) return toast.error('Faça login para palpitar!')
+                  if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
                   setIsEditing(true)
                 }}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition shadow"
@@ -113,13 +114,13 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
         <div className="space-y-3">
            <select 
              className={`w-full p-3 rounded border outline-none text-sm transition
-               ${(!isEditing || !session)
+               ${(!isEditing || !session || !isEnrolled)
                  ? 'bg-gray-900 border-gray-700 text-gray-500 cursor-not-allowed' 
                  : 'bg-gray-900 border-gray-600 text-gray-300 focus:border-blue-400'}
              `}
              value={filterTeamId}
              onChange={e => setFilterTeamId(e.target.value)}
-             disabled={!isEditing || !session}
+             disabled={!isEditing || !session || !isEnrolled}
            >
              <option value="">1º Selecione o Time...</option>
              {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -127,13 +128,13 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
 
            <select 
              className={`w-full p-3 rounded border outline-none transition
-               ${(!isEditing || !session)
+               ${(!isEditing || !session || !isEnrolled)
                  ? 'bg-gray-900 border-gray-700 text-gray-400 cursor-not-allowed font-bold' 
                  : 'bg-gray-700 border-gray-600 text-white focus:border-yellow-400'}
              `}
              value={bet?.value || ''}
              onChange={e => onUpdate(rule.id, 'value', e.target.value)}
-             disabled={!isEditing || (!filterTeamId && !bet?.value) || !session} 
+             disabled={!isEditing || (!filterTeamId && !bet?.value) || !session || !isEnrolled} 
            >
              <option value="">{loadingPlayers ? 'Carregando...' : '2º Selecione o Jogador...'}</option>
              {bet?.value && !players.find(p => p.name === bet.value) && <option value={bet.value}>{bet.value}</option>}
@@ -146,7 +147,7 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session }) => {
             placeholder="Selecione o Time..." 
             value={bet?.teamId} 
             onChange={val => onUpdate(rule.id, 'teamId', val)}
-            disabled={!isEditing || !session}
+            disabled={!isEditing || !session || !isEnrolled}
         />
       )}
     </div>
@@ -158,10 +159,13 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   
-  // NAVEGAÇÃO
+  // NAVEGAÇÃO E STATUS
   const [competitions, setCompetitions] = useState([])
   const [selectedCompId, setSelectedCompId] = useState(null)
   const [activeTab, setActiveTab] = useState('games') 
+  const [isEnrolled, setIsEnrolled] = useState(false) // NOVA TRAVA AQUI
+  const [isPaid, setIsPaid] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
   
   // DADOS DE JOGOS
   const [rounds, setRounds] = useState([])
@@ -174,9 +178,6 @@ export default function Home() {
   const [competitionTeams, setCompetitionTeams] = useState([]) 
   const [specialRules, setSpecialRules] = useState([])
   const [specialBets, setSpecialBets] = useState({}) 
-
-  const [isPaid, setIsPaid] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
 
   // 1. INICIALIZAÇÃO
   useEffect(() => {
@@ -207,9 +208,24 @@ export default function Home() {
   async function loadCompetitionData() {
     setLoading(true)
     
+    // VERIFICA SE ESTÁ INSCRITO E PAGO
     if (session) {
-      const { data: enroll } = await supabase.from('enrollments').select('is_paid').eq('user_id', session.user.id).eq('competition_id', selectedCompId).single()
-      setIsPaid(enroll?.is_paid || false)
+      const { data: enroll } = await supabase.from('enrollments')
+        .select('is_paid')
+        .eq('user_id', session.user.id)
+        .eq('competition_id', selectedCompId)
+        .maybeSingle() // maybeSingle não dá erro se não achar (quando não está inscrito)
+
+      if (enroll) {
+        setIsEnrolled(true)
+        setIsPaid(enroll.is_paid || false)
+      } else {
+        setIsEnrolled(false)
+        setIsPaid(false)
+      }
+    } else {
+      setIsEnrolled(false)
+      setIsPaid(false)
     }
 
     const { data: compGames } = await supabase
@@ -306,21 +322,27 @@ export default function Home() {
   }, [selectedRound])
 
 
-  // --- HANDLERS JOGOS ---
+  // --- HANDLERS JOGOS COM TRAVA ---
   const handleGameChange = (gameId, field, value) => {
     if (!session) return toast.error('Faça login para palpitar!')
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    
     setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), [field]: value } }))
     setHasChanges(true)
   }
   
   const toggleEdit = (gameId) => {
     if (!session) return toast.error('Faça login para palpitar!')
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    
     setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), isEditing: !(prev[gameId]?.isEditing) } }))
   }
 
-  // --- HANDLERS EXTRAS ---
+  // --- HANDLERS EXTRAS COM TRAVA ---
   const handleSpecialChange = (ruleId, field, value) => {
     if (!session) return toast.error('Faça login para palpitar!')
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    
     setSpecialBets(prev => ({ ...prev, [ruleId]: { ...(prev[ruleId] || {}), [field]: value } }))
     setHasChanges(true)
   }
@@ -328,6 +350,7 @@ export default function Home() {
   // --- SALVAR TUDO ---
   const handleSave = async () => {
     if (!session) return toast.error('Faça login!')
+    if (!isEnrolled) return toast.error('Você não está inscrito!')
     setSaving(true)
 
     try {
@@ -423,11 +446,19 @@ export default function Home() {
 
       {session && (
         <div className="w-full max-w-md mb-6 mt-2">
-           {/* Status */}
-           {!isPaid ? (
-            <div className="bg-red-900/30 border border-red-500/50 p-3 rounded-lg mb-4 flex justify-between items-center animate-pulse">
-              <span className="text-red-200 text-xs font-bold">⚠️ Inscrição Pendente</span>
-              <Link href="/perfil" className="bg-red-600 hover:bg-red-500 text-white font-bold py-1 px-3 rounded text-xs">Resolver</Link>
+           {/* STATUS DE INSCRIÇÃO/PAGAMENTO */}
+           {!isEnrolled ? (
+            <div className="bg-red-900/30 border border-red-500/50 p-4 rounded-xl mb-4 flex flex-col items-center text-center animate-pulse shadow-lg">
+              <span className="text-red-400 font-bold mb-2 text-lg">❌ Inscrição Pendente</span>
+              <p className="text-sm text-red-200 mb-4 px-2">Você ainda não está participando deste bolão. Inscreva-se agora para liberar seus palpites!</p>
+              <Link href="/perfil" className="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-8 rounded-full text-sm shadow-lg transition transform hover:scale-105">
+                Fazer Inscrição
+              </Link>
+            </div>
+          ) : !isPaid ? (
+            <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-lg mb-4 flex justify-between items-center animate-pulse shadow-md">
+              <span className="text-yellow-400 text-xs font-bold">⚠️ Pagamento Pendente</span>
+              <Link href={`/pagamento?competitionId=${selectedCompId}`} className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold py-1.5 px-4 rounded-md text-xs transition">Resolver</Link>
             </div>
           ) : (
             <div className="bg-green-900/20 border border-green-500/30 p-2 rounded-lg text-center mb-4">
@@ -458,14 +489,13 @@ export default function Home() {
         <div className="w-full max-w-md mt-6 bg-gray-800/80 p-6 rounded-xl border border-gray-700 text-center shadow-lg">
             <h2 className="text-xl font-bold text-yellow-400 mb-2">Bem-vindo ao Bolão!</h2>
             <p className="text-sm text-gray-400 mb-6">Para fazer seus palpites e concorrer aos prêmios incríveis, você precisa estar logado na sua conta.</p>
-            {/* CORREÇÃO DO LINK AQUI */}
             <Link href="/login" className="inline-block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
                 Fazer Login / Cadastrar
             </Link>
         </div>
       )}
 
-      {/* --- CONTEÚDO: JOGOS (SÓ MOSTRA SE LOGADO) --- */}
+      {/* --- CONTEÚDO: JOGOS (MOSTRA SE LOGADO - MAS BLOQUEIA SE NÃO INSCRITO) --- */}
       {session && activeTab === 'games' && (
         <>
             {rounds.length > 0 && (
@@ -478,17 +508,18 @@ export default function Home() {
                 </div>
             )}
 
-            <div className="w-full max-w-md flex flex-col gap-4">
+            <div className={`w-full max-w-md flex flex-col gap-4 ${!isEnrolled ? 'opacity-80' : ''}`}>
                 {games.length > 0 ? (
                 games.map(game => (
-                    <GameCard 
-                    key={game.id} 
-                    game={game} 
-                    values={gamePredictions[game.id]}
-                    isEditing={gamePredictions[game.id]?.isEditing}
-                    onChange={handleGameChange}
-                    onToggleEdit={toggleEdit}
-                    />
+                    <div key={game.id} onClick={() => !isEnrolled && toast.error('Acesse seu perfil e faça a inscrição primeiro!')}>
+                        <GameCard 
+                        game={game} 
+                        values={gamePredictions[game.id]}
+                        isEditing={gamePredictions[game.id]?.isEditing}
+                        onChange={isEnrolled ? handleGameChange : () => {}}
+                        onToggleEdit={isEnrolled ? toggleEdit : () => toast.error('Acesse seu perfil e faça a inscrição primeiro!')}
+                        />
+                    </div>
                 ))
                 ) : (
                 <div className="text-center py-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-500">
@@ -500,9 +531,9 @@ export default function Home() {
         </>
       )}
 
-      {/* --- CONTEÚDO: EXTRAS (SÓ MOSTRA SE LOGADO) --- */}
+      {/* --- CONTEÚDO: EXTRAS (MOSTRA SE LOGADO - MAS BLOQUEIA SE NÃO INSCRITO) --- */}
       {session && activeTab === 'specials' && (
-        <div className="w-full max-w-md space-y-4">
+        <div className={`w-full max-w-md space-y-4 ${!isEnrolled ? 'opacity-80' : ''}`}>
             {specialRules.length > 0 ? (
                 specialRules.map(rule => (
                     <SpecialBetCard 
@@ -512,6 +543,7 @@ export default function Home() {
                       teams={competitionTeams} 
                       onUpdate={handleSpecialChange}
                       session={session}
+                      isEnrolled={isEnrolled}
                     />
                 ))
             ) : (
@@ -520,8 +552,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* BOTÃO FLUTUANTE */}
-      {session && hasChanges && (
+      {/* BOTÃO FLUTUANTE DE SALVAR (SÓ APARECE SE INSCRITO E SE HOUVER MUDANÇAS) */}
+      {session && isEnrolled && hasChanges && (
         <div className="fixed bottom-6 left-0 w-full flex justify-center px-4 z-40">
           <button 
             onClick={handleSave}
