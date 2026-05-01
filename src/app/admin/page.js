@@ -104,9 +104,23 @@ export default function Admin() {
   const [importForm, setImportForm] = useState({ leagueId: '71', season: '2025', round: '', competitionId: '', resetData: false })
 
   useEffect(() => {
-    const savedTab = localStorage.getItem('adminActiveTab')
-    if (savedTab) setActiveTab(savedTab)
-    fetchAllData().finally(() => setLoading(false))
+    async function checkAdminAccess() {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Verifica se está logado E se o email é EXATAMENTE o seu
+      if (!session || session.user.email !== 'eng.joaofrancisco@outlook.com') {
+        alert('Acesso negado. Área restrita à administração.')
+        window.location.href = '/' // Expulsa o intruso para a página inicial
+        return
+      }
+
+      // Se for você, o fluxo normal continua
+      const savedTab = localStorage.getItem('adminActiveTab')
+      if (savedTab) setActiveTab(savedTab)
+      fetchAllData().finally(() => setLoading(false))
+    }
+    
+    checkAdminAccess()
   }, [])
 
   const changeTab = (tab) => {

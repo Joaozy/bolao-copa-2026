@@ -17,7 +17,7 @@ export default function Perfil() {
     nickname: '',
     whatsapp: '',
     avatar_url: '',
-    notify_results: false // NOVO CAMPO AQUI
+    notify_results: false
   })
 
   const [myEnrollments, setMyEnrollments] = useState([])
@@ -32,11 +32,20 @@ export default function Perfil() {
   }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-    setUser(user)
+    setLoading(true)
+    
+    // CORREÇÃO AQUI: Busca a sessão de forma segura e espera ela carregar
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session || !session.user) { 
+        router.push('/login'); 
+        return; 
+    }
+    
+    const currentUser = session.user
+    setUser(currentUser)
 
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
 
     if (profile) {
       setFormData({
@@ -44,12 +53,12 @@ export default function Perfil() {
         nickname: profile.nickname || '',
         whatsapp: profile.whatsapp || '',
         avatar_url: profile.avatar_url || '',
-        notify_results: profile.notify_results || false // PUXANDO DO BANCO
+        notify_results: profile.notify_results || false
       })
       if (!profile.nickname) { setIsNewUser(true); setIsEditing(true) }
     }
 
-    const { data: enrolls } = await supabase.from('enrollments').select('*, competitions(*)').eq('user_id', user.id).order('joined_at', { ascending: false })
+    const { data: enrolls } = await supabase.from('enrollments').select('*, competitions(*)').eq('user_id', currentUser.id).order('joined_at', { ascending: false })
     setMyEnrollments(enrolls || [])
 
     const { data: comps } = await supabase.from('competitions').select('*').eq('is_active', true).order('id')
@@ -102,7 +111,6 @@ export default function Perfil() {
         publicUrl = data.publicUrl
       }
       
-      // SALVANDO A PREFERÊNCIA DE NOTIFICAÇÃO NO BANCO
       const { error } = await supabase.from('profiles').update({ 
         full_name: formData.full_name, 
         nickname: formData.nickname, 
@@ -132,7 +140,6 @@ export default function Perfil() {
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">Nome Completo</label><input disabled={!isEditing} className={inputClass} value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} placeholder="Ex: João da Silva" /></div>
           <div><label className="block text-xs text-gray-500 mb-1 ml-1">WhatsApp</label><input disabled={!isEditing} className={inputClass} value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} placeholder="(00) 00000-0000" type="tel" /></div>
           
-          {/* NOVO CAMPO: CHECKBOX DE NOTIFICAÇÕES */}
           <div className="flex items-center mt-4 p-3 bg-gray-900/50 rounded-lg border border-gray-700">
             <input 
               type="checkbox" 
