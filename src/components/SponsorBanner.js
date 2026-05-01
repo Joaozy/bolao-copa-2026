@@ -5,6 +5,10 @@ import { supabase } from '../lib/supabaseClient'
 export default function SponsorBanner() {
   const [banners, setBanners] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  
+  // Estados para capturar o deslize (swipe) no celular
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
 
   useEffect(() => {
     async function fetchBanners() {
@@ -19,22 +23,55 @@ export default function SponsorBanner() {
     fetchBanners()
   }, [])
 
+  // O cronômetro agora "escuta" o currentIndex, assim ele reseta se o usuário deslizar manualmente
   useEffect(() => {
     if (banners.length <= 1) return
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length)
-    }, 5000) // Troca a cada 5 segundos
+    }, 5000)
 
     return () => clearInterval(interval)
-  }, [banners.length])
+  }, [banners.length, currentIndex])
 
   if (banners.length === 0) return null
 
+  // --- Funções de Touch (Deslizar) ---
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const minSwipeDistance = 50 // Distância mínima para considerar um deslize
+
+    if (distance > minSwipeDistance) {
+      // Deslizou para a esquerda (Avançar)
+      setCurrentIndex((prev) => (prev + 1) % banners.length)
+    }
+
+    if (distance < -minSwipeDistance) {
+      // Deslizou para a direita (Voltar)
+      setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length)
+    }
+
+    // Reseta os valores após o movimento
+    setTouchStart(0)
+    setTouchEnd(0)
+  }
+
   return (
-    <div className="w-full max-w-4xl mx-auto mb-6 rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-gray-900 relative h-20 sm:h-24 md:h-28 flex items-center justify-center">
-      
-      {/* Aqui fazemos o "Crossfade": Empilhamos todos os banners e controlamos a opacidade */}
+    <div 
+      className="w-full max-w-4xl mx-auto mb-6 rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-gray-900 relative h-20 sm:h-24 md:h-28 flex items-center justify-center cursor-pointer"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {banners.map((banner, index) => {
         const isActive = index === currentIndex;
         
@@ -62,13 +99,11 @@ export default function SponsorBanner() {
         )
       })}
       
-      {/* Pontinhos de navegação (Dots) - Modernizados */}
       {banners.length > 1 && (
         <div className="absolute bottom-1.5 left-0 right-0 flex justify-center gap-1.5 z-20">
           {banners.map((_, idx) => (
             <div 
               key={idx} 
-              // Se estiver ativo, ele fica mais largo e amarelo. Se inativo, fica redondinho e cinza.
               className={`h-1.5 rounded-full transition-all duration-500 ease-in-out ${idx === currentIndex ? 'w-4 bg-yellow-400' : 'w-1.5 bg-gray-400/60'}`}
             />
           ))}

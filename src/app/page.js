@@ -455,10 +455,11 @@ export default function Home() {
 
       {/* Se o usuário não tiver login, mostra um aviso amigável */}
       {!session && (
-        <div className="w-full max-w-md mt-6 bg-gray-800/80 p-6 rounded-xl border border-gray-700 text-center">
+        <div className="w-full max-w-md mt-6 bg-gray-800/80 p-6 rounded-xl border border-gray-700 text-center shadow-lg">
             <h2 className="text-xl font-bold text-yellow-400 mb-2">Bem-vindo ao Bolão!</h2>
-            <p className="text-sm text-gray-400 mb-4">Para fazer seus palpites e concorrer aos prêmios, você precisa estar logado.</p>
-            <Link href="/auth/login" className="inline-block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition">
+            <p className="text-sm text-gray-400 mb-6">Para fazer seus palpites e concorrer aos prêmios incríveis, você precisa estar logado na sua conta.</p>
+            {/* CORREÇÃO DO LINK AQUI */}
+            <Link href="/login" className="inline-block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
                 Fazer Login / Cadastrar
             </Link>
         </div>

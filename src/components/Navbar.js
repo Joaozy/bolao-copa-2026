@@ -11,15 +11,20 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
-    // Apenas busca a sessão inicial
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
+    // Busca a sessão inicial com o await correto
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+    }
+    getSession()
     
-    // Atualiza o estado visual (botões de Entrar/Sair) se houver mudanças, mas NÃO faz redirect
+    // Atualiza o estado visual se o usuário deslogar ou logar em outra aba
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
     })
+    
     return () => subscription.unsubscribe()
-  }, []) // Removidos pathname e router das dependências
+  }, []) 
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -31,7 +36,7 @@ export default function Navbar() {
   const menuItems = [
     { name: '⚽ Palpitar', path: '/' },
     { name: '📅 Calendário', path: '/finalizados' },
-    { name: '📊 Tabelas', path: '/tabelas' }, // <--- NOVO ITEM
+    { name: '📊 Tabelas', path: '/tabelas' },
     { name: '🏆 Ranking', path: '/ranking' },
     { name: '👤 Perfil', path: '/perfil' },
     { name: '🤝 Parceiros', path: '/noticias' },
@@ -79,7 +84,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* MENU MOBILE */}
+          {/* MENU MOBILE (Botão Hambúrguer) */}
           <div className="flex items-center lg:hidden">
             <button 
               onClick={() => setIsOpen(!isOpen)}
@@ -107,13 +112,23 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-             {session && (
+            
+            {/* LÓGICA CORRIGIDA: Se tem sessão mostra Sair, se não tem mostra Entrar */}
+            {session ? (
               <button 
                 onClick={handleLogout}
-                className="w-full text-left block px-3 py-3 text-red-400 hover:bg-gray-700 font-bold"
+                className="w-full text-left block px-3 py-3 mt-4 text-red-400 border border-red-900/50 bg-red-900/20 rounded-md font-bold transition hover:bg-red-900/40"
               >
                 🚪 Sair da Conta
               </button>
+            ) : (
+              <Link 
+                href="/login" 
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-3 mt-4 text-center text-black bg-yellow-500 hover:bg-yellow-600 rounded-md font-bold transition shadow-lg"
+              >
+                🔑 Fazer Login / Entrar
+              </Link>
             )}
           </div>
         </div>
