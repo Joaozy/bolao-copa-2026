@@ -1,12 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 export default function Login() {
   const [loading, setLoading] = useState(false)
-  // 'login', 'register' ou 'forgot'
   const [authMode, setAuthMode] = useState('login') 
   const router = useRouter()
 
@@ -16,6 +15,28 @@ export default function Login() {
   const [fullName, setFullName] = useState('')
   const [nickname, setNickname] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
+
+  // --- VIGIA DE SESSÃO (NOVO) ---
+  // Se o usuário já estiver logado (ou acabar de logar), chuta ele para a página principal
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.push('/')
+        router.refresh()
+      }
+    }
+    checkUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || session) {
+        router.push('/')
+        router.refresh()
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
 
   // --- LOGIN COM GOOGLE ---
   const handleSocialLogin = async (provider) => {
@@ -47,7 +68,8 @@ export default function Login() {
 
         if (error) throw error
         toast.success('Bem-vindo de volta!')
-        router.push('/perfil')
+        router.push('/') // Força a ida para a principal
+        router.refresh()
 
       } else if (authMode === 'register') {
         // CRIAR CONTA
@@ -75,8 +97,9 @@ export default function Login() {
 
           if (profileError) console.error('Erro perfil:', profileError)
           
-          toast.success('Conta criada! Complete seu perfil.')
-          router.push('/perfil')
+          toast.success('Conta criada! Bem-vindo!')
+          router.push('/') // Joga para a principal
+          router.refresh()
         }
       } else if (authMode === 'forgot') {
         // RECUPERAR SENHA
@@ -92,7 +115,7 @@ export default function Login() {
         if (error) throw error
 
         toast.success('Email de recuperação enviado! Verifique sua caixa de entrada (e o spam).', { duration: 6000 })
-        setAuthMode('login') // Volta pra tela de login
+        setAuthMode('login') 
       }
 
     } catch (error) {
@@ -104,9 +127,8 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
-      <div className="w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+      <div className="w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden animate-fade-in">
         
-        {/* ABAS DO TOPO (SÓ APARECE SE NÃO ESTIVER NO ESQUECI SENHA) */}
         {authMode !== 'forgot' && (
             <div className="flex text-center font-bold">
             <button 
@@ -141,6 +163,7 @@ export default function Login() {
             <>
                 <div className="flex gap-4 mb-6">
                 <button 
+                    type="button"
                     onClick={() => handleSocialLogin('google')}
                     className="w-full bg-white hover:bg-gray-100 text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition shadow-md"
                 >
@@ -189,7 +212,6 @@ export default function Login() {
                 </div>
             )}
 
-            {/* BOTÃO DE ESQUECI A SENHA PEQUENININHO */}
             {authMode === 'login' && (
                 <div className="text-right -mt-2">
                     <button 
@@ -218,7 +240,6 @@ export default function Login() {
               )}
             </button>
 
-            {/* VOLTAR PARA O LOGIN QUANDO ESTIVER NO ESQUECI SENHA */}
             {authMode === 'forgot' && (
                 <button 
                     type="button" 
