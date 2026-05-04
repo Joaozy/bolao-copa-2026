@@ -72,16 +72,19 @@ export default function Regras() {
                 <span>Fase de Grupos</span><strong className="text-yellow-400">x1</strong>
               </div>
               <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex justify-between">
-                <span>16-avos e Oitavas</span><strong className="text-yellow-400">x2</strong>
+                <span>16-avos</span><strong className="text-yellow-400">x2</strong>
               </div>
               <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex justify-between">
-                <span>Quartas de Final</span><strong className="text-yellow-400">x3</strong>
+                <span>Oitavas</span><strong className="text-yellow-400">x3</strong>
               </div>
               <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex justify-between">
-                <span>Semifinal</span><strong className="text-yellow-400">x4</strong>
+                <span>Quartas de Final</span><strong className="text-yellow-400">x4</strong>
+              </div>
+              <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex justify-between">
+                <span>Semifinal e 3º Lugar</span><strong className="text-yellow-400">x5</strong>
               </div>
               <div className="bg-gray-900 p-3 rounded-lg border border-yellow-500/50 flex justify-between col-span-2">
-                <span className="font-bold">Final e 3º Lugar</span><strong className="text-yellow-400 font-bold">x5</strong>
+                <span className="font-bold">Final</span><strong className="text-yellow-400 font-bold">x8</strong>
               </div>
             </div>
           </section>
@@ -95,9 +98,11 @@ export default function Regras() {
               Esses palpites devem ser feitos antes do início do torneio. A pontuação será somada ao seu ranking final após o último jogo da Copa.
             </p>
             <ul className="space-y-3 text-sm text-gray-300">
-              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Campeão</span> <strong className="text-green-400">50 pts</strong></li>
-              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Vice-Campeão</span> <strong className="text-green-400">30 pts</strong></li>
-              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Artilheiro</span> <strong className="text-green-400">20 pts</strong></li>
+              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Campeão</span> <strong className="text-green-400">60 pts</strong></li>
+              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Vice-Campeão</span> <strong className="text-green-400">40 pts</strong></li>
+              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Terceiro Lugar</span> <strong className="text-green-400">30 pts</strong></li>
+              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Quarto Lugar</span> <strong className="text-green-400">20 pts</strong></li>
+              <li className="flex justify-between border-b border-gray-700 pb-2"><span>Acertar o Artilheiro</span> <strong className="text-green-400">50 pts</strong></li>
             </ul>
           </section>
 
@@ -113,7 +118,7 @@ export default function Regras() {
               <li>Maior número de <strong>Placares Exatos</strong> (Na Mosca).</li>
               <li>Maior número de pontos nos <strong>Palpites Extras</strong>.</li>
               <li>Maior número de acertos de <strong>Vencedor</strong>.</li>
-              <li><strong>Data de Confirmação:</strong> Quem pagou a inscrição primeiro leva a vantagem!</li>
+              <li><strong>Empatado em Tudo:</strong> Divide o Premio!</li>
             </ol>
           </section>
 
