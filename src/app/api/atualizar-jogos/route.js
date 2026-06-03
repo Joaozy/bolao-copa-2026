@@ -11,12 +11,15 @@ export async function GET() {
   )
 
   try {
+
+    const dataLimite = new Date(new Date().getTime() + 30 * 60000).toISOString();
     // 1. Busca jogos monitorados (com API ID e não finalizados)
     const { data: jogosPendentes } = await supabase
       .from('games')
       .select('*')
       .not('api_id', 'is', null) 
       .eq('is_finished', false)
+      .lte('data_jogo', dataLimite)
 
     if (!jogosPendentes || jogosPendentes.length === 0) {
       return NextResponse.json({ message: 'Nenhum jogo ao vivo monitorado no momento.' })
