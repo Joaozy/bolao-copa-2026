@@ -33,26 +33,36 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Competição não informada' }, { status: 400 })
     }
 
-    // 3. SEGURANÇA: Busca o valor da inscrição no banco de dados
+    // 3. SEGURANÇA: Busca o valor da inscrição e o prazo no banco de dados
     // Nunca confie no valor enviado pelo frontend, o usuário pode alterar.
     const { data: comp } = await supabase
         .from('competitions')
-        .select('entry_fee, name')
+        .select('entry_fee, name, prazo_inscricao') // <-- ADICIONADO prazo_inscricao
         .eq('id', competitionId)
         .single()
     
     if (!comp) {
         return NextResponse.json({ error: 'Competição inválida ou não encontrada' }, { status: 404 })
     }
+
+    // --- NOVA TRAVA DE SEGURANÇA AQUI ---
+    if (comp.prazo_inscricao && new Date() > new Date(comp.prazo_inscricao)) {
+        return NextResponse.json(
+          { error: 'O prazo para inscrições e pagamentos já foi encerrado!' }, 
+          { status: 403 }
+        )
+    }
+    // ------------------------------------
     
-    const valorReal = parseFloat(comp.entry_fee)
+    const valorBase = parseFloat(comp.entry_fee)
+    const valorComTaxaPix = valorBase + (valorBase * 0.005)
 
     // 4. Cria a preferência de pagamento no Mercado Pago
     const payment = new Payment(client);
     
     const paymentData = {
       body: {
-        transaction_amount: valorReal,
+        transaction_amount: Number(valorComTaxaPix.toFixed(2)),
         description: `Inscrição: ${comp.name}`,
         payment_method_id: 'pix',
         payer: {

@@ -163,7 +163,7 @@ export default function Home() {
   const [competitions, setCompetitions] = useState([])
   const [selectedCompId, setSelectedCompId] = useState(null)
   const [activeTab, setActiveTab] = useState('games') 
-  const [isEnrolled, setIsEnrolled] = useState(false) // NOVA TRAVA AQUI
+  const [isEnrolled, setIsEnrolled] = useState(false)
   const [isPaid, setIsPaid] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   
@@ -214,7 +214,7 @@ export default function Home() {
         .select('is_paid')
         .eq('user_id', session.user.id)
         .eq('competition_id', selectedCompId)
-        .maybeSingle() // maybeSingle não dá erro se não achar (quando não está inscrito)
+        .maybeSingle()
 
       if (enroll) {
         setIsEnrolled(true)
@@ -417,6 +417,11 @@ export default function Home() {
     }
   }
 
+  // --- NOVA LÓGICA DE PRAZO ANTES DO RETURN ---
+  const currentComp = competitions.find(c => c.id === selectedCompId);
+  const prazoInscricao = currentComp?.prazo_inscricao ? new Date(currentComp.prazo_inscricao) : null;
+  const isInscricoesEncerradas = prazoInscricao ? new Date() > prazoInscricao : false;
+
   if (loading) return <div className="text-white text-center p-10">Carregando...</div>
 
   return (
@@ -446,19 +451,37 @@ export default function Home() {
 
       {session && (
         <div className="w-full max-w-md mb-6 mt-2">
-           {/* STATUS DE INSCRIÇÃO/PAGAMENTO */}
+           {/* STATUS DE INSCRIÇÃO/PAGAMENTO ATUALIZADO COM TRAVA DE PRAZO */}
            {!isEnrolled ? (
-            <div className="bg-red-900/30 border border-red-500/50 p-4 rounded-xl mb-4 flex flex-col items-center text-center animate-pulse shadow-lg">
-              <span className="text-red-400 font-bold mb-2 text-lg">❌ Inscrição Pendente</span>
-              <p className="text-sm text-red-200 mb-4 px-2">Você ainda não está participando deste bolão. Inscreva-se agora para liberar seus palpites!</p>
-              <Link href="/perfil" className="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-8 rounded-full text-sm shadow-lg transition transform hover:scale-105">
-                Fazer Inscrição
-              </Link>
+            <div className={`border p-4 rounded-xl mb-4 flex flex-col items-center text-center shadow-lg ${isInscricoesEncerradas ? 'bg-gray-800 border-gray-600' : 'bg-red-900/30 border-red-500/50 animate-pulse'}`}>
+              <span className={`${isInscricoesEncerradas ? 'text-gray-400' : 'text-red-400'} font-bold mb-2 text-lg`}>
+                {isInscricoesEncerradas ? '🔒 Inscrições Encerradas' : '❌ Inscrição Pendente'}
+              </span>
+              
+              {isInscricoesEncerradas ? (
+                <p className="text-sm text-gray-300 font-bold mb-2 px-2">O prazo limite para participar do bolão terminou no dia 10/06 às 16h.</p>
+              ) : (
+                <>
+                  <p className="text-sm text-red-200 mb-4 px-2">Você ainda não está participando deste bolão. Inscreva-se agora para liberar seus palpites!</p>
+                  <Link href="/perfil" className="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-8 rounded-full text-sm shadow-lg transition transform hover:scale-105">
+                    Fazer Inscrição
+                  </Link>
+                </>
+              )}
             </div>
           ) : !isPaid ? (
-            <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-lg mb-4 flex justify-between items-center animate-pulse shadow-md">
-              <span className="text-yellow-400 text-xs font-bold">⚠️ Pagamento Pendente</span>
-              <Link href={`/pagamento?competitionId=${selectedCompId}`} className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold py-1.5 px-4 rounded-md text-xs transition">Resolver</Link>
+            <div className={`p-3 rounded-lg mb-4 flex justify-between items-center shadow-md border ${isInscricoesEncerradas ? 'bg-gray-800 border-gray-600' : 'bg-yellow-900/20 border-yellow-500/30 animate-pulse'}`}>
+              <span className={`${isInscricoesEncerradas ? 'text-gray-400' : 'text-yellow-400'} text-xs font-bold`}>
+                {isInscricoesEncerradas ? '🔒 Prazo de Pagamento Encerrado' : '⚠️ Pagamento Pendente'}
+              </span>
+              
+              {isInscricoesEncerradas ? (
+                <span className="text-red-400 text-xs font-bold">Encerrado</span>
+              ) : (
+                <Link href={`/pagamento?competitionId=${selectedCompId}`} className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold py-1.5 px-4 rounded-md text-xs transition">
+                  Resolver
+                </Link>
+              )}
             </div>
           ) : (
             <div className="bg-green-900/20 border border-green-500/30 p-2 rounded-lg text-center mb-4">
