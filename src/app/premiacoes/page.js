@@ -1,118 +1,122 @@
 'use client'
-import Link from 'next/link'
+import React from 'react'
 
-export default function Premiacao() {
+export default function Premiacoes() {
   return (
-    <main className="min-h-screen flex flex-col items-center bg-gray-900 text-white p-4 pb-24">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-gray-900 text-white p-4 pb-32 flex flex-col items-center">
+      <div className="w-full max-w-md space-y-6">
         
-        <div className="flex items-center mb-6 mt-2">
-          <Link href="/perfil" className="text-gray-400 hover:text-white mr-4 transition">
-            ← Voltar
-          </Link>
-          <h1 className="text-2xl font-bold text-yellow-400">Premiações 🎁</h1>
-        </div>
-
-        <div className="space-y-4">
-          
-          {/* PRÊMIO PRINCIPAL (DINHEIRO) */}
-          <div className="bg-gray-800 p-6 rounded-2xl border border-yellow-500 shadow-lg shadow-yellow-900/20 text-center relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 opacity-10 text-8xl">💰</div>
-            <h2 className="text-yellow-400 font-black text-2xl mb-1">1º LUGAR</h2>
-            <p className="text-gray-300 text-sm mb-3 font-medium uppercase tracking-wider">Campeão do Bolão</p>
-            <div className="text-4xl font-black text-white">Mais de R$ 1.000,00</div>
-            <p className="text-xs text-gray-500 mt-2">Valor em dinheiro direto na conta! (O valor total pode aumentar conforme o número de inscritos).</p>
-          </div>
-
-          <div className="flex items-center justify-center gap-4 py-4">
-            <div className="h-px bg-gray-700 flex-1"></div>
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Prêmios Extras & Sorteios</span>
-            <div className="h-px bg-gray-700 flex-1"></div>
-          </div>
-
-          <p className="text-sm text-center text-gray-400 mb-4 px-2">
-            Além do prêmio em dinheiro, os participantes vão concorrer a uma chuva de prêmios fornecidos pelos nossos parceiros oficiais!
-          </p>
-
-          {/* AVISO SOBRE A DISTRIBUIÇÃO */}
-          <div className="bg-yellow-900/30 border border-yellow-600/50 p-4 rounded-xl mb-6 text-center shadow-lg">
-            <p className="text-xs text-yellow-300 font-medium leading-relaxed">
-               ⚠️ <strong className="font-bold">Atenção:</strong> A forma exata de distribuição dos prêmios abaixo (como posição no ranking de extras, sorteios ou metas) será definida e anunciada em breve para todos os inscritos!
+        {/* CABEÇALHO */}
+        <div className="text-center space-y-3 mt-4">
+          <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+            🏆 PREMIAÇÃO OFICIAL
+          </h1>
+          <h2 className="text-lg font-bold text-gray-300">BOLÃO DA COPA 2026 ⚽</h2>
+          <div className="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-xl shadow-lg mt-4">
+            <p className="text-sm text-yellow-200/90 italic leading-relaxed">
+              Com base em 50 inscritos, nossa premiação vai distribuir <strong className="text-yellow-400">R$ 2.500,00 em dinheiro</strong> e dezenas de prêmios dos nossos parceiros. Tem prêmio até o último jogo da Copa!
             </p>
           </div>
+        </div>
 
-          {/* LISTA DE PRÊMIOS EXTRAS (GRID MODERNO) */}
-          <div className="grid grid-cols-1 gap-3 mb-8">
+        {/* PÓDIO PRINCIPAL */}
+        <section className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-xl">
+          <div className="bg-gradient-to-r from-yellow-600 to-yellow-500 p-3 text-center">
+            <h3 className="font-black text-black text-lg tracking-wide uppercase">💰 Pódio Principal</h3>
+            <p className="text-black/80 text-xs font-bold uppercase">(Ranking Geral)</p>
+          </div>
+          <div className="p-4 space-y-3">
+            {[
+              { pos: '1º Lugar (Campeão)', prize: 'R$ 1.000,00 + 1 Cupom Multiviagens (R$ 1.000 OFF)', color: 'text-yellow-400', icon: '🏆' },
+              { pos: '2º Lugar', prize: 'R$ 600,00 + 1 Cupom Multiviagens', color: 'text-gray-300', icon: '🥈' },
+              { pos: '3º Lugar', prize: 'R$ 400,00 + 1 Cupom Multiviagens', color: 'text-orange-400', icon: '🥉' },
+              { pos: '4º Lugar', prize: 'R$ 250,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '5º Lugar', prize: 'R$ 150,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '6º Lugar', prize: 'R$ 100,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-3 bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 hover:bg-gray-700 transition">
+                <div className="text-2xl mt-1">{item.icon}</div>
+                <div>
+                  <div className={`font-bold ${item.color}`}>{item.pos}</div>
+                  <div className="text-sm text-gray-300 leading-tight">{item.prize}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* PÉ QUENTE DA SELEÇÃO */}
+        <section className="bg-gradient-to-br from-green-900/40 to-yellow-900/20 rounded-2xl border border-green-500/30 overflow-hidden shadow-xl relative">
+          <div className="p-4 space-y-2">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">🇧🇷</span>
+              <h3 className="font-black text-green-400 text-lg uppercase">Pé Quente da Seleção</h3>
+            </div>
+            <p className="text-xs text-gray-400 leading-tight">Quem somar mais pontos analisando APENAS os jogos do Brasil na Copa.</p>
+            <div className="mt-3 bg-green-900/30 border border-green-500/20 p-3 rounded-lg flex items-center gap-3">
+              <span className="text-xl">🥩</span>
+              <p className="text-sm font-bold text-yellow-100">Prêmio: 1 Kit Churrasco <span className="text-green-300 text-xs block font-normal">(Mota Supermercado)</span></p>
+            </div>
+          </div>
+        </section>
+
+        {/* PRÊMIOS POR FASE */}
+        <section className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-xl">
+          <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+            <h3 className="font-black text-white text-lg tracking-wide uppercase">🎯 Prêmios por Fase</h3>
+            <p className="text-blue-200 text-xs font-bold uppercase">(Tiros Curtos)</p>
+          </div>
+          <div className="p-4 space-y-4">
             
-            <div className="bg-gray-800 p-4 rounded-xl border border-gray-600 flex items-center gap-4">
-              <div className="bg-red-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">✈️</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">8x Vouchers de R$ 1.000,00 OFF</h3>
-                <p className="text-xs text-gray-400">Em pacotes de viagem da Multiviagens (você + acompanhante)</p>
-              </div>
+            {/* Rodadas */}
+            <div className="space-y-2 border-b border-gray-700 pb-4">
+              <div className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor da 1ª Rodada:</strong> <span className="text-gray-300">1 Voucher Lavagem Detalhada (Tubarão StudioCar)</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor da 2ª Rodada:</strong> <span className="text-gray-300">1 Voucher de R$ 50 (Rei Beach)</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor da 3ª Rodada:</strong> <span className="text-gray-300">1 Voucher de R$ 100 (Paraíso das Flores)</span></p></div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex items-center gap-4">
-              <div className="bg-blue-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">🦈</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">2x Lavagens Detalhadas</h3>
-                <p className="text-xs text-gray-400">Tubarão StudioCar</p>
-              </div>
+            {/* Fase de Grupos */}
+            <div className="space-y-2 border-b border-gray-700 pb-4">
+              <div className="flex items-start gap-2"><span className="text-purple-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor GERAL da Fase de Grupos:</strong> <span className="text-gray-300">1 Kit Churrasco (Esquina da Carne) + 1 Cupom Multiviagens</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-purple-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Segundo Geral da Fase de Grupos:</strong> <span className="text-gray-300">Cupom de R$ 50 no Rei da Sopa</span></p></div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex items-center gap-4">
-              <div className="bg-pink-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">🌸</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">2x Vouchers de R$ 100,00</h3>
-                <p className="text-xs text-gray-400">Em compras no Paraíso das Flores</p>
-              </div>
+            {/* Mata Mata */}
+            <div className="space-y-2 border-b border-gray-700 pb-4">
+              <div className="flex items-start gap-2"><span className="text-red-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor das Oitavas:</strong> <span className="text-gray-300">1 Fardo de Heineken (Padre Cícero Delicatessen)</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-red-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor das Quartas:</strong> <span className="text-gray-300">1 Voucher Lavagem Detalhada</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-red-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor das Semis e Finais:</strong> <span className="text-gray-300">1 Voucher de R$ 100 (Paraíso das Flores)</span></p></div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex items-center gap-4">
-              <div className="bg-orange-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">🍲</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">2x Vouchers de R$ 50,00</h3>
-                <p className="text-xs text-gray-400">Consumo no Rei da Sopa e Rei Beach</p>
-              </div>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex items-center gap-4">
-              <div className="bg-green-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">⚡</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">R$ 500,00 em Créditos</h3>
-                <p className="text-xs text-gray-400">Para recarga de carro elétrico na GOTEC</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-                <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex-1 flex flex-col items-center text-center justify-center gap-2">
-                <span className="text-2xl">🥩</span>
-                <div>
-                    <h3 className="font-bold text-white text-xs leading-tight mb-1">1 Kit Churrasco Completo</h3>
-                    <p className="text-[10px] text-gray-400 leading-tight">Mota Supermercado</p>
-                </div>
-                </div>
-
-                <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex-1 flex flex-col items-center text-center justify-center gap-2">
-                <span className="text-2xl">🍖</span>
-                <div>
-                    <h3 className="font-bold text-white text-xs leading-tight mb-1">1 Kit Churrasco Premium</h3>
-                    <p className="text-[10px] text-gray-400 leading-tight">Esquina da Carne</p>
-                </div>
-                </div>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-xl border border-yellow-600/30 flex items-center gap-4">
-              <div className="bg-yellow-900/50 w-12 h-12 flex items-center justify-center rounded-full text-2xl flex-shrink-0">💎</div>
-              <div>
-                <h3 className="font-bold text-white text-sm">1 Brinde Especial e Exclusivo</h3>
-                <p className="text-xs text-gray-400">Kataryne Batalha Joias</p>
-              </div>
+            {/* Geral Mata Mata e Extras */}
+            <div className="space-y-2">
+              <div className="flex items-start gap-2"><span className="text-yellow-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Melhor GERAL do Mata Mata:</strong> <span className="text-gray-300">1 FD Heineken + 1 Cupom Multiviagens</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-yellow-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Segundo melhor geral do Mata Mata:</strong> <span className="text-gray-300">1 brinde Kataryne batalha</span></p></div>
+              <div className="flex items-start gap-2"><span className="text-green-400 mt-0.5">●</span><p className="text-sm"><strong className="text-white">Maior Pontuador - Aba Extras:</strong> <span className="text-gray-300">R$ 500 em recarga para carro elétrico (GOTEC)</span></p></div>
             </div>
 
           </div>
+        </section>
 
+        {/* CRITÉRIOS DE DESEMPATE */}
+        <section className="bg-gray-800/80 rounded-2xl border border-gray-700 p-5 shadow-lg">
+          <div className="flex items-center gap-2 mb-3 border-b border-gray-700 pb-2">
+            <span className="text-xl">⚖️</span>
+            <h3 className="font-bold text-gray-200">Critérios de Desempate</h3>
+          </div>
+          <p className="text-xs text-gray-400 mb-3 italic">Para os prêmios de Fases/Rodadas. Caso duas ou mais pessoas empatem nos pontos daquela rodada específica, o desempate será:</p>
+          <ul className="space-y-2 text-sm text-gray-300">
+            <li className="flex items-start gap-2"><span className="text-gray-500">1.</span> Maior número de placares exatos cravados na rodada.</li>
+            <li className="flex items-start gap-2"><span className="text-gray-500">2.</span> Maior número de acertos de vencedor na rodada.</li>
+            <li className="flex items-start gap-2"><span className="text-gray-500">3.</span> Quem estiver em uma posição melhor no Ranking Geral do bolão.</li>
+            <li className="flex items-start gap-2"><span className="text-gray-500">4.</span> Maior Pontuador em Jogos do Brasil.</li>
+          </ul>
+        </section>
+
+        <div className="text-center pt-4 pb-8">
+          <p className="text-lg font-black text-yellow-400">👉 São muitas chances de ganhar 🚀</p>
         </div>
+
       </div>
     </main>
   )
