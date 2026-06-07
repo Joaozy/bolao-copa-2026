@@ -118,6 +118,7 @@ export default function Regras() {
               <li>Maior número de <strong>Placares Exatos</strong> (Na Mosca).</li>
               <li>Maior número de pontos nos <strong>Palpites Extras</strong>.</li>
               <li>Maior número de acertos de <strong>Vencedor</strong>.</li>
+              <li>Maior número de Pontos feito em jogos do <strong>BRASIL</strong>.</li>
               <li><strong>Empatado em Tudo:</strong> Divide o Premio!</li>
             </ol>
           </section>
