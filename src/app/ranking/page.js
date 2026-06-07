@@ -212,6 +212,11 @@ export default function Ranking() {
     setModalTab('games') 
     setUserBets([])
     setUserSpecialBets([])
+// Busca o nome completo do usuário no banco para exibir entre parênteses
+    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.user_id).single()
+    
+    // Salva o usuário selecionado já com o nome completo junto
+    setSelectedUser({ ...user, full_name: profile?.full_name })
 
     const agora = new Date()
 
@@ -413,17 +418,26 @@ export default function Ranking() {
             {/* CABEÇALHO MODAL */}
             <div className="p-4 bg-gray-700 flex justify-between items-center border-b border-gray-600">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden border border-gray-400 relative">
+                <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden border border-gray-400 relative flex-shrink-0">
                    {selectedUser.avatar_url && <img src={selectedUser.avatar_url} className="w-full h-full object-cover"/>}
                 </div>
                 <div>
-                  <h3 className="font-bold text-white">{selectedUser.nome_exibicao || 'Anônimo'}</h3>
+                  <h3 className="font-bold text-white flex flex-wrap items-baseline gap-1">
+                    <span>{selectedUser.nome_exibicao || 'Anônimo'}</span>
+                    
+                    {/* Exibe o nome completo entre parênteses (se existir e for diferente do apelido) */}
+                    {selectedUser.full_name && selectedUser.full_name !== selectedUser.nome_exibicao && (
+                      <span className="text-gray-400 font-normal text-sm">
+                        ({selectedUser.full_name})
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-xs text-gray-400">
                     {selectedRound === 'Geral' ? 'Histórico Geral' : selectedRound}
                   </p>
                 </div>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+              <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-white text-2xl ml-2">&times;</button>
             </div>
 
             {/* ABAS DENTRO DO MODAL */}
