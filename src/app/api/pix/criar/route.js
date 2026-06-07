@@ -55,7 +55,7 @@ export async function POST(request) {
     // ------------------------------------
     
     const valorBase = parseFloat(comp.entry_fee)
-    const valorComTaxaPix = valorBase + (valorBase * 0.005)
+    const valorComTaxaPix = valorBase + (valorBase * 0.000)
 
     // 4. Cria a preferência de pagamento no Mercado Pago
     const payment = new Payment(client);
