@@ -8,55 +8,33 @@ import toast from 'react-hot-toast'
 
 // --- DICIONÁRIO DE TRADUÇÃO EXATO DO BANCO DE DADOS ---
 export const traducoesPaises = {
-  "Algeria": "Argélia",
-  "Argentina": "Argentina",
-  "Australia": "Austrália",
-  "Austria": "Áustria",
-  "Belgium": "Bélgica",
-  "Bosnia & Herzegovina": "Bósnia e Herzegovina",
-  "Brazil": "Brasil",
-  "Canada": "Canadá",
-  "Cape Verde Islands": "Cabo Verde",
-  "Colombia": "Colômbia",
-  "Congo DR": "RD Congo",
-  "Croatia": "Croácia",
-  "Curaçao": "Curaçao",
-  "Czech Republic": "República Tcheca",
-  "Ecuador": "Equador",
-  "Egypt": "Egito",
-  "England": "Inglaterra",
-  "France": "França",
-  "Germany": "Alemanha",
-  "Ghana": "Gana",
-  "Haiti": "Haiti",
-  "Iran": "Irã",
-  "Iraq": "Iraque",
-  "Ivory Coast": "Costa do Marfim",
-  "Japan": "Japão",
-  "Jordan": "Jordânia",
-  "Mexico": "México",
-  "Morocco": "Marrocos",
-  "Netherlands": "Holanda",
-  "New Zealand": "Nova Zelândia",
-  "Norway": "Noruega",
-  "Panama": "Panamá",
-  "Paraguay": "Paraguai",
-  "Portugal": "Portugal",
-  "Qatar": "Catar",
-  "Saudi Arabia": "Arábia Saudita",
-  "Scotland": "Escócia",
-  "Senegal": "Senegal",
-  "South Africa": "África do Sul",
-  "South Korea": "Coreia do Sul",
-  "Spain": "Espanha",
-  "Sweden": "Suécia",
-  "Switzerland": "Suíça",
-  "Tunisia": "Tunísia",
-  "Türkiye": "Turquia",
-  "Uruguay": "Uruguai",
-  "USA": "Estados Unidos",
-  "Uzbekistan": "Uzbequistão"
+  "Algeria": "Argélia", "Argentina": "Argentina", "Australia": "Austrália", "Austria": "Áustria",
+  "Belgium": "Bélgica", "Bosnia & Herzegovina": "Bósnia e Herzegovina", "Brazil": "Brasil",
+  "Canada": "Canadá", "Cape Verde Islands": "Cabo Verde", "Colombia": "Colômbia", "Congo DR": "RD Congo",
+  "Croatia": "Croácia", "Curaçao": "Curaçao", "Czech Republic": "República Tcheca", "Ecuador": "Equador",
+  "Egypt": "Egito", "England": "Inglaterra", "France": "França", "Germany": "Alemanha", "Ghana": "Gana",
+  "Haiti": "Haiti", "Iran": "Irã", "Iraq": "Iraque", "Ivory Coast": "Costa do Marfim", "Japan": "Japão",
+  "Jordan": "Jordânia", "Mexico": "México", "Morocco": "Marrocos", "Netherlands": "Holanda",
+  "New Zealand": "Nova Zelândia", "Norway": "Noruega", "Panama": "Panamá", "Paraguay": "Paraguai",
+  "Portugal": "Portugal", "Qatar": "Catar", "Saudi Arabia": "Arábia Saudita", "Scotland": "Escócia",
+  "Senegal": "Senegal", "South Africa": "África do Sul", "South Korea": "Coreia do Sul", "Spain": "Espanha",
+  "Sweden": "Suécia", "Switzerland": "Suíça", "Tunisia": "Tunísia", "Türkiye": "Turquia",
+  "Uruguay": "Uruguai", "USA": "Estados Unidos", "Uzbekistan": "Uzbequistão"
 };
+
+// --- FUNÇÃO PARA TRADUZIR O NOME DAS FASES ---
+function traduzirRodada(roundName) {
+  if (!roundName) return '';
+  let nome = String(roundName);
+  nome = nome.replace(/Group Stage - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Regular Season - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Round of 16/i, 'Oitavas de Final');
+  nome = nome.replace(/Quarter-finals/i, 'Quartas de Final');
+  nome = nome.replace(/Semi-finals/i, 'Semifinais');
+  nome = nome.replace(/3rd Place Final/i, 'Disputa de 3º Lugar');
+  if (nome.trim().toLowerCase() === 'final') return 'Grande Final';
+  return nome;
+}
 
 // Títulos traduzidos para os tipos de regra
 const RULE_TITLES = {
@@ -97,9 +75,7 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
   
   const deadlineDate = rule.deadline ? new Date(rule.deadline) : null
   const isExpired = deadlineDate && new Date() > deadlineDate
-
   const hasBet = !!(bet?.value || bet?.teamId)
-  
   const [isEditing, setIsEditing] = useState(!hasBet && !isExpired)
 
   useEffect(() => {
@@ -130,7 +106,6 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
   }, [filterTeamId, rule.type])
 
   const title = RULE_TITLES[rule.type] || rule.label || rule.type
-  
   const deadlineText = deadlineDate 
     ? deadlineDate.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) 
     : ''
@@ -148,12 +123,10 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
                   </p>
               )}
           </div>
-
           <div className="flex items-center gap-2">
             <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded border border-yellow-500/30">
                 {rule.points} pts
             </span>
-            
             {!isEditing && !isExpired && (
               <button 
                 onClick={() => {
@@ -162,15 +135,11 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
                   setIsEditing(true)
                 }}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition shadow"
-                title="Editar Palpite"
               >
                 ✏️
               </button>
             )}
-            
-            {isExpired && (
-                <span className="text-xl" title="Apostas Encerradas">🔒</span>
-            )}
+            {isExpired && <span className="text-xl" title="Apostas Encerradas">🔒</span>}
           </div>
       </div>
       
@@ -276,7 +245,7 @@ export default function Home() {
     setLoading(true)
     
     if (session) {
-      const { data: enroll } = await supabase.from('enrollments')
+      const { data: enroll = null } = await supabase.from('enrollments')
         .select('is_paid')
         .eq('user_id', session.user.id)
         .eq('competition_id', selectedCompId)
@@ -578,7 +547,8 @@ export default function Home() {
                 <div className="w-full max-w-md mb-6 flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-800 no-scrollbar">
                 {rounds.map(round => (
                     <button key={round} onClick={() => setSelectedRound(round)} className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition ${selectedRound === round ? 'text-yellow-400 border-b-2 border-yellow-400' : 'text-gray-500 hover:text-white'}`}>
-                        {round}
+                        {/* APLICA A TRADUÇÃO DA RODADA NO BOTÃO AQUI */}
+                        {traduzirRodada(round)}
                     </button>
                 ))}
                 </div>
@@ -587,7 +557,6 @@ export default function Home() {
             <div className={`w-full max-w-md flex flex-col gap-4 ${!isEnrolled ? 'opacity-80' : ''}`}>
                 {games.length > 0 ? (
                 games.map(game => {
-                    // --- MUDANÇA AQUI: TRADUZINDO OS NOMES ANTES DE ENVIAR PARA O CARD ---
                     const nomeTraduzidoA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---';
                     const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---';
 
@@ -596,7 +565,6 @@ export default function Home() {
                           <GameCard 
                             game={{
                               ...game,
-                              // Atualiza o objeto game com os nomes em português
                               team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
                               team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null
                             }} 

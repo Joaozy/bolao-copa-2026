@@ -6,55 +6,33 @@ import SponsorBanner from '../../components/SponsorBanner'
 
 // --- DICIONÁRIO DE TRADUÇÃO EXATO DO BANCO DE DADOS ---
 const traducoesPaises = {
-  "Algeria": "Argélia",
-  "Argentina": "Argentina",
-  "Australia": "Austrália",
-  "Austria": "Áustria",
-  "Belgium": "Bélgica",
-  "Bosnia & Herzegovina": "Bósnia e Herzegovina",
-  "Brazil": "Brasil",
-  "Canada": "Canadá",
-  "Cape Verde Islands": "Cabo Verde",
-  "Colombia": "Colômbia",
-  "Congo DR": "RD Congo",
-  "Croatia": "Croácia",
-  "Curaçao": "Curaçao",
-  "Czech Republic": "República Tcheca",
-  "Ecuador": "Equador",
-  "Egypt": "Egito",
-  "England": "Inglaterra",
-  "France": "França",
-  "Germany": "Alemanha",
-  "Ghana": "Gana",
-  "Haiti": "Haiti",
-  "Iran": "Irã",
-  "Iraq": "Iraque",
-  "Ivory Coast": "Costa do Marfim",
-  "Japan": "Japão",
-  "Jordan": "Jordânia",
-  "Mexico": "México",
-  "Morocco": "Marrocos",
-  "Netherlands": "Holanda",
-  "New Zealand": "Nova Zelândia",
-  "Norway": "Noruega",
-  "Panama": "Panamá",
-  "Paraguay": "Paraguai",
-  "Portugal": "Portugal",
-  "Qatar": "Catar",
-  "Saudi Arabia": "Arábia Saudita",
-  "Scotland": "Escócia",
-  "Senegal": "Senegal",
-  "South Africa": "África do Sul",
-  "South Korea": "Coreia do Sul",
-  "Spain": "Espanha",
-  "Sweden": "Suécia",
-  "Switzerland": "Suíça",
-  "Tunisia": "Tunísia",
-  "Türkiye": "Turquia",
-  "Uruguay": "Uruguai",
-  "USA": "Estados Unidos",
-  "Uzbekistan": "Uzbequistão"
+  "Algeria": "Argélia", "Argentina": "Argentina", "Australia": "Austrália", "Austria": "Áustria",
+  "Belgium": "Bélgica", "Bosnia & Herzegovina": "Bósnia e Herzegovina", "Brazil": "Brasil",
+  "Canada": "Canadá", "Cape Verde Islands": "Cabo Verde", "Colombia": "Colômbia", "Congo DR": "RD Congo",
+  "Croatia": "Croácia", "Curaçao": "Curaçao", "Czech Republic": "República Tcheca", "Ecuador": "Equador",
+  "Egypt": "Egito", "England": "Inglaterra", "France": "França", "Germany": "Alemanha", "Ghana": "Gana",
+  "Haiti": "Haiti", "Iran": "Irã", "Iraq": "Iraque", "Ivory Coast": "Costa do Marfim", "Japan": "Japão",
+  "Jordan": "Jordânia", "Mexico": "México", "Morocco": "Marrocos", "Netherlands": "Holanda",
+  "New Zealand": "Nova Zelândia", "Norway": "Noruega", "Panama": "Panamá", "Paraguay": "Paraguai",
+  "Portugal": "Portugal", "Qatar": "Catar", "Saudi Arabia": "Arábia Saudita", "Scotland": "Escócia",
+  "Senegal": "Senegal", "South Africa": "África do Sul", "South Korea": "Coreia do Sul", "Spain": "Espanha",
+  "Sweden": "Suécia", "Switzerland": "Suíça", "Tunisia": "Tunísia", "Türkiye": "Turquia",
+  "Uruguay": "Uruguai", "USA": "Estados Unidos", "Uzbekistan": "Uzbequistão"
 };
+
+// --- FUNÇÃO PARA TRADUZIR O NOME DAS FASES NO DROPDOWN ---
+function traduzirRodada(roundName) {
+  if (!roundName) return '';
+  let nome = String(roundName);
+  nome = nome.replace(/Group Stage - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Regular Season - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Round of 16/i, 'Oitavas de Final');
+  nome = nome.replace(/Quarter-finals/i, 'Quartas de Final');
+  nome = nome.replace(/Semi-finals/i, 'Semifinais');
+  nome = nome.replace(/3rd Place Final/i, 'Disputa de 3º Lugar');
+  if (nome.trim().toLowerCase() === 'final') return 'Grande Final';
+  return nome;
+}
 
 export default function Calendario() {
   const [games, setGames] = useState([])
@@ -180,7 +158,15 @@ export default function Calendario() {
 
       <div className="w-full max-w-md flex justify-between items-end mb-4 px-1">
           <h2 className="text-xl font-bold text-gray-300">Jogos</h2>
-          <select className="bg-gray-800 border border-gray-600 text-white text-xs p-2 rounded outline-none focus:border-yellow-500 max-w-[150px]" value={selectedRound} onChange={(e) => setSelectedRound(e.target.value)}><option value="Todas">Todas as Rodadas</option>{rounds.map(r => <option key={r} value={r}>{r}</option>)}</select>
+          <select 
+            className="bg-gray-800 border border-gray-600 text-white text-xs p-2 rounded outline-none focus:border-yellow-500 max-w-[180px] font-bold" 
+            value={selectedRound} 
+            onChange={(e) => setSelectedRound(e.target.value)}
+          >
+            <option value="Todas">🌍 Todas as Rodadas</option>
+            {/* TRADUÇÃO EXIBIDA DIRETAMENTE NO MENU AQUI */}
+            {rounds.map(r => <option key={r} value={r}>📍 {traduzirRodada(r)}</option>)}
+          </select>
       </div>
       
       <div className="w-full max-w-md flex flex-col gap-6">
@@ -208,7 +194,6 @@ export default function Calendario() {
 
           const timeText = isLive ? formatGameTime(game.status_short, game.elapsed) : 'FIM'
 
-          // --- TRADUÇÃO DOS NOMES ANTES DE ENVIAR PARA O CARD ---
           const nomeTraduzidoA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---'
           const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---'
 
@@ -218,7 +203,6 @@ export default function Calendario() {
                 <GameCard 
                   game={{
                     ...game, 
-                    // Substitui os nomes em inglês pelos traduzidos
                     team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
                     team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null,
                     score_a: hasMatchData ? displayScoreA : null, 

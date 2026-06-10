@@ -1,21 +1,46 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 
-// Nova função para pegar a URL da bandeira de alta qualidade do FlagCDN
-function getFlagUrl(countryCode) {
-  if (!countryCode) return '';
-  return `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`;
+const traducoesPaises = {
+  "Algeria": "Argélia", "Argentina": "Argentina", "Australia": "Austrália", "Austria": "Áustria",
+  "Belgium": "Bélgica", "Bosnia & Herzegovina": "Bósnia e Herzegovina", "Brazil": "Brasil",
+  "Canada": "Canadá", "Cape Verde Islands": "Cabo Verde", "Colombia": "Colômbia", "Congo DR": "RD Congo",
+  "Croatia": "Croácia", "Curaçao": "Curaçao", "Czech Republic": "República Tcheca", "Ecuador": "Equador",
+  "Egypt": "Egito", "England": "Inglaterra", "France": "França", "Germany": "Alemanha", "Ghana": "Gana",
+  "Haiti": "Haiti", "Iran": "Irã", "Iraq": "Iraque", "Ivory Coast": "Costa do Marfim", "Japan": "Japão",
+  "Jordan": "Jordânia", "Mexico": "México", "Morocco": "Marrocos", "Netherlands": "Holanda",
+  "New Zealand": "Nova Zelândia", "Norway": "Noruega", "Panama": "Panamá", "Paraguay": "Paraguai",
+  "Portugal": "Portugal", "Qatar": "Catar", "Saudi Arabia": "Arábia Saudita", "Scotland": "Escócia",
+  "Senegal": "Senegal", "South Africa": "África do Sul", "South Korea": "Coreia do Sul", "Spain": "Espanha",
+  "Sweden": "Suécia", "Switzerland": "Suíça", "Tunisia": "Tunísia", "Türkiye": "Turquia",
+  "Uruguay": "Uruguai", "USA": "Estados Unidos", "Uzbekistan": "Uzbequistão"
+};
+
+// --- FUNÇÃO PARA TRADUZIR O NOME DAS FASES ---
+export function traduzirRodada(roundName) {
+  if (!roundName) return '';
+  let nome = String(roundName);
+  nome = nome.replace(/Group Stage - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Regular Season - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome = nome.replace(/Round of 16/i, 'Oitavas de Final');
+  nome = nome.replace(/Quarter-finals/i, 'Quartas de Final');
+  nome = nome.replace(/Semi-finals/i, 'Semifinais');
+  nome = nome.replace(/3rd Place Final/i, 'Disputa de 3º Lugar');
+  if (nome.trim().toLowerCase() === 'final') return 'Grande Final';
+  return nome;
 }
 
-// Componente refeito para exibir imagens ao invés de Emojis do sistema
+// Usamos uma resolução maior (w160) para a bandeira ficar nítida no círculo
+function getFlagUrl(countryCode) {
+  if (!countryCode) return '';
+  return `https://flagcdn.com/w160/${countryCode.toLowerCase()}.png`;
+}
+
 const TeamBadge = ({ team }) => {
   const [imgSrc, setImgSrc] = useState(team?.badge_url)
 
-  useEffect(() => { 
-    setImgSrc(team?.badge_url) 
-  }, [team?.badge_url])
+  useEffect(() => { setImgSrc(team?.badge_url) }, [team?.badge_url])
 
-  // Se der erro ao carregar a imagem do banco, tenta carregar uma local
   const handleError = () => {
     if (team?.name) {
       const slug = team.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') 
@@ -26,20 +51,19 @@ const TeamBadge = ({ team }) => {
 
   if (!team) return null
   
-  // AQUI É A TRAVA DAS BANDEIRAS: 
-  // Se não houver escudo salvo, desenhamos a bandeira do FlagCDN.
-  // Evitamos usar o Emoji porque Androids antigos e Windows não renderizam eles.
+  // A MÁGICA VISUAL AQUI: object-cover faz a bandeira preencher todo o círculo!
   if (!imgSrc && team.flag_code) {
       return (
         <img 
           src={getFlagUrl(team.flag_code)} 
           alt={team.name} 
-          className="w-6 h-4 inline mr-2 object-cover shadow-sm border border-gray-700 rounded-sm" 
+          className="w-full h-full object-cover scale-110" 
         />
       )
   }
   
-  return <img src={imgSrc} alt={team.name} className="w-6 h-6 inline mr-2 object-contain" onError={handleError} />
+  // Se for escudo de time normal (não seleção), mantém ajustado sem cortar
+  return <img src={imgSrc} alt={team.name} className="w-8 h-8 object-contain" onError={handleError} />
 }
 
 export default function GameCard({ game, values, isEditing, onChange, onToggleEdit }) {
@@ -56,9 +80,8 @@ export default function GameCard({ game, values, isEditing, onChange, onToggleEd
     ? `Hoje, ${dataJogo.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
     : dataJogo.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-  // Usamos os nomes que já chegam traduzidos do page.js!
-  const nomeTimeA = game.team_a?.name || '---'
-  const nomeTimeB = game.team_b?.name || '---'
+  const nomeTimeA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---'
+  const nomeTimeB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---'
 
   return (
     <div className={`relative p-4 rounded-2xl border transition-all duration-300 shadow-md
@@ -69,7 +92,6 @@ export default function GameCard({ game, values, isEditing, onChange, onToggleEd
             : 'bg-gray-800 border-gray-600 hover:border-gray-500 hover:bg-gray-700/80')
       }
     `}>
-      {/* Se no page.js passamos um "custom_status", exibe ele no lugar de "Encerrado" */}
       {isLocked && (
         <div className="absolute top-2 right-3 text-xs font-bold text-gray-400 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-700">
           {game.custom_status || '🔒 Encerrado'}
@@ -90,7 +112,8 @@ export default function GameCard({ game, values, isEditing, onChange, onToggleEd
 
       <div className="text-center mb-4 pt-1">
         <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 bg-gray-900 px-3 py-1 rounded-full border border-gray-700">
-          {game.competition?.name || 'Competição'} • {game.round || 'Fase'}
+          {/* FASE TRADUZIDA AQUI */}
+          {game.competition?.name || 'Competição'} • {traduzirRodada(game.round) || 'Fase'}
         </span>
         <div className={`text-xs mt-2 font-medium ${isHoje ? 'text-green-400' : 'text-gray-400'}`}>
           📅 {dataFormatada}
@@ -100,7 +123,8 @@ export default function GameCard({ game, values, isEditing, onChange, onToggleEd
       <div className="flex justify-between items-center px-2">
         {/* TIME A */}
         <div className="flex flex-col items-center w-1/3">
-          <div className="mb-2 p-2 bg-gray-900 rounded-full shadow-inner border border-gray-700">
+          {/* Círculo perfeito e sem padding (overflow-hidden) para a imagem preencher */}
+          <div className="mb-2 w-12 h-12 bg-gray-900 rounded-full shadow-lg border-2 border-gray-700 flex items-center justify-center overflow-hidden relative">
              <TeamBadge team={game.team_a} />
           </div>
           <span className="text-xs font-bold text-center text-gray-200 line-clamp-2 h-8 leading-tight">{nomeTimeA}</span>
@@ -145,7 +169,7 @@ export default function GameCard({ game, values, isEditing, onChange, onToggleEd
 
         {/* TIME B */}
         <div className="flex flex-col items-center w-1/3">
-          <div className="mb-2 p-2 bg-gray-900 rounded-full shadow-inner border border-gray-700">
+          <div className="mb-2 w-12 h-12 bg-gray-900 rounded-full shadow-lg border-2 border-gray-700 flex items-center justify-center overflow-hidden relative">
              <TeamBadge team={game.team_b} />
           </div>
           <span className="text-xs font-bold text-center text-gray-200 line-clamp-2 h-8 leading-tight">{nomeTimeB}</span>
