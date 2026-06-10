@@ -1,15 +1,21 @@
 'use client'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
-// Função auxiliar para bandeiras
-function getFlagEmoji(countryCode) {
-  if (!countryCode) return '🏳️'
-  return countryCode.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))
+// Nova função para pegar a URL da bandeira de alta qualidade do FlagCDN
+function getFlagUrl(countryCode) {
+  if (!countryCode) return '';
+  return `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`;
 }
 
+// Componente refeito para exibir imagens ao invés de Emojis do sistema
 const TeamBadge = ({ team }) => {
   const [imgSrc, setImgSrc] = useState(team?.badge_url)
-  useEffect(() => { setImgSrc(team?.badge_url) }, [team?.badge_url])
+
+  useEffect(() => { 
+    setImgSrc(team?.badge_url) 
+  }, [team?.badge_url])
+
+  // Se der erro ao carregar a imagem do banco, tenta carregar uma local
   const handleError = () => {
     if (team?.name) {
       const slug = team.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') 
@@ -17,172 +23,134 @@ const TeamBadge = ({ team }) => {
       if (imgSrc !== localPath) setImgSrc(localPath)
     }
   }
+
   if (!team) return null
-  if (!imgSrc) return <span className="text-3xl">{getFlagEmoji(team.flag_code)}</span>
-  return <img src={imgSrc} alt={team.name} className="h-10 w-auto object-contain drop-shadow-md" onError={handleError} />
+  
+  // AQUI É A TRAVA DAS BANDEIRAS: 
+  // Se não houver escudo salvo, desenhamos a bandeira do FlagCDN.
+  // Evitamos usar o Emoji porque Androids antigos e Windows não renderizam eles.
+  if (!imgSrc && team.flag_code) {
+      return (
+        <img 
+          src={getFlagUrl(team.flag_code)} 
+          alt={team.name} 
+          className="w-6 h-4 inline mr-2 object-cover shadow-sm border border-gray-700 rounded-sm" 
+        />
+      )
+  }
+  
+  return <img src={imgSrc} alt={team.name} className="w-6 h-6 inline mr-2 object-contain" onError={handleError} />
 }
 
-export default function GameCard({ game, values, onChange, onToggleEdit, isEditing }) {
-  const [travadoPeloHorario, setTravadoPeloHorario] = useState(false)
+export default function GameCard({ game, values, isEditing, onChange, onToggleEdit }) {
+  if (!game) return null;
+  const isStarted = new Date(game.start_time) < new Date();
 
-  if (!game) return null
+  const valA = values?.scoreA ?? ''
+  const valB = values?.scoreB ?? ''
+  const isLocked = isStarted && !isEditing
 
-  useEffect(() => {
-    const checarHorario = () => {
-      const agora = new Date()
-      const dataJogo = new Date(game.start_time)
-      if (agora >= dataJogo || game.is_finished) {
-        setTravadoPeloHorario(true)
-      } else {
-        setTravadoPeloHorario(false)
-      }
-    }
-    checarHorario()
-  }, [game])
+  const dataJogo = new Date(game.start_time)
+  const isHoje = dataJogo.toDateString() === new Date().toDateString()
+  const dataFormatada = isHoje 
+    ? `Hoje, ${dataJogo.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+    : dataJogo.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-  const handleChange = (field, e) => {
-    const valor = e.target.value
-    if (valor === '' || (Number(valor) >= 0 && !valor.includes('-'))) {
-      onChange(game.id, field, valor)
-    }
-  }
-
-  // Verifica se tem placar válido (para mostrar na tela)
-  const temPlacarOficial = (game.score_a !== null && game.score_a !== undefined) && 
-                           (game.score_b !== null && game.score_b !== undefined)
-  
-  // CORREÇÃO: Só mostra o placar se tiver dados E (o jogo já começou OU já acabou)
-  const shouldShowScore = temPlacarOficial && (travadoPeloHorario || game.is_finished)
-
-  const inputsDisabled = travadoPeloHorario || !isEditing
-
-  // --- NOVA LÓGICA DE BADGE (INTELIGENTE) ---
-  const renderBadgePontos = () => {
-    // CORREÇÃO DO ZERO: Verifica se é undefined ou null explicitamente. Se for 0, passa.
-    if (values?.points_awarded === undefined || values?.points_awarded === null || !game.is_finished) return null
-    
-    const pts = values.points_awarded
-    
-    // Dados para comparação visual (independente dos pontos)
-    const pA = Number(values.scoreA)
-    const pB = Number(values.scoreB)
-    const rA = game.score_a
-    const rB = game.score_b
-
-    let estilo = ''
-    let textoTipo = ''
-
-    // Lógica visual baseada no ACERTO, não nos pontos fixos
-    if (pA === rA && pB === rB) {
-        // NA MOSCA
-        estilo = 'bg-yellow-500 text-black border-yellow-300 animate-pulse'
-        textoTipo = 'NA MOSCA! 🎯'
-    } else {
-        const signP = Math.sign(pA - pB)
-        const signR = Math.sign(rA - rB)
-
-        if (signP === signR) {
-            // Acertou vencedor/empate
-            if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) {
-                // Vencedor + Gols ou Saldo
-                estilo = 'bg-blue-600 text-white border-blue-400'
-                textoTipo = 'QUASE! 🥈'
-            } else {
-                // Só Vencedor
-                estilo = 'bg-green-600 text-white border-green-400'
-                textoTipo = 'VENCEDOR ✅'
-            }
-        } else if (pA === rA || pB === rB) {
-            // Errou vencedor mas acertou um placar
-            estilo = 'bg-gray-600 text-gray-200 border-gray-400'
-            textoTipo = 'CONSOLO 🤏'
-        } else {
-            // Errou tudo
-            estilo = 'bg-red-900/80 text-red-200 border-red-800'
-            textoTipo = 'ZICOU ❌'
-        }
-    }
-
-    return (
-        <div className={`mt-4 py-1 px-4 rounded font-bold text-center text-xs border uppercase tracking-wider ${estilo}`}>
-            {textoTipo} +{pts}
-        </div>
-    )
-  }
+  // Usamos os nomes que já chegam traduzidos do page.js!
+  const nomeTimeA = game.team_a?.name || '---'
+  const nomeTimeB = game.team_b?.name || '---'
 
   return (
-    <div className={`p-4 rounded-xl border w-full max-w-md mb-4 shadow-lg relative overflow-hidden transition-all 
-      ${travadoPeloHorario ? 'bg-gray-800/80 border-gray-700 grayscale-[0.2]' : (isEditing ? 'bg-gray-800 border-yellow-500/50' : 'bg-gray-800 border-gray-700')}
+    <div className={`relative p-4 rounded-2xl border transition-all duration-300 shadow-md
+      ${isLocked 
+        ? 'bg-gray-800/40 border-gray-700 opacity-90 grayscale-[20%]' 
+        : (isEditing 
+            ? 'bg-gray-800 border-yellow-500 shadow-yellow-900/20 transform scale-[1.02] z-10' 
+            : 'bg-gray-800 border-gray-600 hover:border-gray-500 hover:bg-gray-700/80')
+      }
     `}>
-      
-      {travadoPeloHorario && (
-        <div className={`absolute top-0 left-0 w-full text-center text-[10px] font-bold py-1 uppercase ${game.is_finished ? 'bg-black/50 text-white' : 'bg-green-600 text-white animate-pulse'}`}>
-          {game.is_finished ? 'Encerrado' : 'Em Andamento • Ao Vivo'}
+      {/* Se no page.js passamos um "custom_status", exibe ele no lugar de "Encerrado" */}
+      {isLocked && (
+        <div className="absolute top-2 right-3 text-xs font-bold text-gray-400 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-700">
+          {game.custom_status || '🔒 Encerrado'}
         </div>
       )}
-
-      {!travadoPeloHorario && (
+      
+      {!isLocked && (
         <button 
           onClick={() => onToggleEdit(game.id)}
-          className={`absolute top-2 right-2 p-2 rounded-full transition shadow-md
-            ${isEditing 
-                ? 'bg-yellow-500 text-black hover:bg-yellow-400' 
-                : 'bg-gray-700 text-gray-400 hover:text-white hover:bg-gray-600'}
+          className={`absolute top-2 right-2 p-2 rounded-full transition shadow text-xs
+            ${isEditing ? 'bg-yellow-500 text-black hover:bg-yellow-400' : 'bg-gray-700 text-white hover:bg-gray-600'}
           `}
-          title={isEditing ? "Cancelar edição" : "Editar palpite"}
+          title={isEditing ? 'Confirmar' : 'Editar Palpite'}
         >
-          {isEditing ? '🔓' : '✏️'}
+          {isEditing ? '✓' : '✏️'}
         </button>
       )}
 
-      <div className="flex justify-center items-center mt-4 mb-4">
-        {shouldShowScore ? (
-          <div className={`flex items-center gap-3 px-4 py-2 rounded border min-w-[140px] justify-center ${game.is_finished ? 'bg-black/40 border-white/10' : 'bg-green-900/40 border-green-500/30'}`}>
-             <span className="text-3xl font-black text-white">{game.score_a}</span>
-             
-             <div className="flex flex-col items-center justify-center min-w-[60px]">
-                <span className={`text-[9px] uppercase font-bold tracking-widest ${game.is_finished ? 'text-gray-500' : 'text-green-400'}`}>
-                   {game.is_finished ? 'Final' : 'Ao Vivo'}
-                </span>
-                
-                {game.custom_status && (
-                    <span className="text-[10px] font-mono text-yellow-300 animate-pulse font-bold mt-0.5">
-                        {game.custom_status}
-                    </span>
-                )}
-             </div>
-
-             <span className="text-3xl font-black text-white">{game.score_b}</span>
-          </div>
-        ) : (
-          <div className="text-gray-400 text-xs bg-gray-900/50 px-3 py-1 rounded flex items-center gap-2">
-            <span>📅 {new Date(game.start_time).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})}</span>
-            <span>⏰ {new Date(game.start_time).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
-          </div>
-        )}
+      <div className="text-center mb-4 pt-1">
+        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 bg-gray-900 px-3 py-1 rounded-full border border-gray-700">
+          {game.competition?.name || 'Competição'} • {game.round || 'Fase'}
+        </span>
+        <div className={`text-xs mt-2 font-medium ${isHoje ? 'text-green-400' : 'text-gray-400'}`}>
+          📅 {dataFormatada}
+        </div>
       </div>
-      
+
       <div className="flex justify-between items-center px-2">
+        {/* TIME A */}
         <div className="flex flex-col items-center w-1/3">
-          <div className="mb-2 h-10 flex items-center justify-center"><TeamBadge team={game.team_a} /></div>
-          <span className="font-bold text-center text-xs leading-tight line-clamp-1">{game.team_a?.name}</span>
-        </div>
-
-        <div className="flex flex-col items-center w-1/3">
-          <div className="flex items-center gap-2">
-            <input type="number" inputMode="numeric" disabled={inputsDisabled} className={`w-10 h-10 text-center text-xl rounded border outline-none transition ${inputsDisabled ? 'bg-gray-900 text-gray-500 border-transparent cursor-not-allowed font-mono' : 'bg-gray-700 text-white border-yellow-500/50 focus:border-yellow-400 focus:bg-gray-600'}`} value={values?.scoreA ?? ''} onChange={(e) => handleChange('scoreA', e)} placeholder="-" />
-            <span className="text-gray-600 text-xs">X</span>
-            <input type="number" inputMode="numeric" disabled={inputsDisabled} className={`w-10 h-10 text-center text-xl rounded border outline-none transition ${inputsDisabled ? 'bg-gray-900 text-gray-500 border-transparent cursor-not-allowed font-mono' : 'bg-gray-700 text-white border-yellow-500/50 focus:border-yellow-400 focus:bg-gray-600'}`} value={values?.scoreB ?? ''} onChange={(e) => handleChange('scoreB', e)} placeholder="-" />
+          <div className="mb-2 p-2 bg-gray-900 rounded-full shadow-inner border border-gray-700">
+             <TeamBadge team={game.team_a} />
           </div>
+          <span className="text-xs font-bold text-center text-gray-200 line-clamp-2 h-8 leading-tight">{nomeTimeA}</span>
         </div>
 
+        {/* PLACAR CENTRO */}
+        <div className="flex items-center gap-3 w-1/3 justify-center mt-[-10px]">
+          <input 
+            type="number" 
+            className={`w-12 h-12 text-center text-xl font-black rounded-xl border transition-all outline-none hide-arrows
+              ${isLocked 
+                ? 'bg-gray-900 border-gray-700 text-gray-400 cursor-not-allowed shadow-inner' 
+                : (isEditing 
+                    ? 'bg-gray-900 border-yellow-400 text-white shadow-inner focus:ring-2 focus:ring-yellow-500/50' 
+                    : 'bg-gray-800 border-gray-600 text-white cursor-pointer hover:bg-gray-700')
+              }
+            `}
+            value={valA}
+            onChange={(e) => onChange(game.id, 'scoreA', e.target.value)}
+            disabled={!isEditing}
+            placeholder="-"
+          />
+          
+          <span className="text-gray-500 font-black text-sm">x</span>
+          
+          <input 
+            type="number" 
+            className={`w-12 h-12 text-center text-xl font-black rounded-xl border transition-all outline-none hide-arrows
+              ${isLocked 
+                ? 'bg-gray-900 border-gray-700 text-gray-400 cursor-not-allowed shadow-inner' 
+                : (isEditing 
+                    ? 'bg-gray-900 border-yellow-400 text-white shadow-inner focus:ring-2 focus:ring-yellow-500/50' 
+                    : 'bg-gray-800 border-gray-600 text-white cursor-pointer hover:bg-gray-700')
+              }
+            `}
+            value={valB}
+            onChange={(e) => onChange(game.id, 'scoreB', e.target.value)}
+            disabled={!isEditing}
+            placeholder="-"
+          />
+        </div>
+
+        {/* TIME B */}
         <div className="flex flex-col items-center w-1/3">
-           <div className="mb-2 h-10 flex items-center justify-center"><TeamBadge team={game.team_b} /></div>
-          <span className="font-bold text-center text-xs leading-tight line-clamp-1">{game.team_b?.name}</span>
+          <div className="mb-2 p-2 bg-gray-900 rounded-full shadow-inner border border-gray-700">
+             <TeamBadge team={game.team_b} />
+          </div>
+          <span className="text-xs font-bold text-center text-gray-200 line-clamp-2 h-8 leading-tight">{nomeTimeB}</span>
         </div>
       </div>
-
-      {renderBadgePontos()}
     </div>
   )
 }

@@ -97,7 +97,9 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
   
   const deadlineDate = rule.deadline ? new Date(rule.deadline) : null
   const isExpired = deadlineDate && new Date() > deadlineDate
+
   const hasBet = !!(bet?.value || bet?.teamId)
+  
   const [isEditing, setIsEditing] = useState(!hasBet && !isExpired)
 
   useEffect(() => {
@@ -128,6 +130,7 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
   }, [filterTeamId, rule.type])
 
   const title = RULE_TITLES[rule.type] || rule.label || rule.type
+  
   const deadlineText = deadlineDate 
     ? deadlineDate.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) 
     : ''
@@ -145,10 +148,12 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
                   </p>
               )}
           </div>
+
           <div className="flex items-center gap-2">
             <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded border border-yellow-500/30">
                 {rule.points} pts
             </span>
+            
             {!isEditing && !isExpired && (
               <button 
                 onClick={() => {
@@ -157,11 +162,15 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
                   setIsEditing(true)
                 }}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition shadow"
+                title="Editar Palpite"
               >
                 ✏️
               </button>
             )}
-            {isExpired && <span className="text-xl" title="Apostas Encerradas">🔒</span>}
+            
+            {isExpired && (
+                <span className="text-xl" title="Apostas Encerradas">🔒</span>
+            )}
           </div>
       </div>
       
@@ -577,17 +586,28 @@ export default function Home() {
 
             <div className={`w-full max-w-md flex flex-col gap-4 ${!isEnrolled ? 'opacity-80' : ''}`}>
                 {games.length > 0 ? (
-                games.map(game => (
-                    <div key={game.id} onClick={() => !isEnrolled && toast.error('Acesse seu perfil e faça a inscrição primeiro!')}>
-                        <GameCard 
-                          game={game} 
-                          values={gamePredictions[game.id]}
-                          isEditing={gamePredictions[game.id]?.isEditing}
-                          onChange={isEnrolled ? handleGameChange : () => {}}
-                          onToggleEdit={isEnrolled ? toggleEdit : () => toast.error('Acesse seu perfil e faça a inscrição primeiro!')}
-                        />
-                    </div>
-                ))
+                games.map(game => {
+                    // --- MUDANÇA AQUI: TRADUZINDO OS NOMES ANTES DE ENVIAR PARA O CARD ---
+                    const nomeTraduzidoA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---';
+                    const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---';
+
+                    return (
+                      <div key={game.id} onClick={() => !isEnrolled && toast.error('Acesse seu perfil e faça a inscrição primeiro!')}>
+                          <GameCard 
+                            game={{
+                              ...game,
+                              // Atualiza o objeto game com os nomes em português
+                              team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
+                              team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null
+                            }} 
+                            values={gamePredictions[game.id]}
+                            isEditing={gamePredictions[game.id]?.isEditing}
+                            onChange={isEnrolled ? handleGameChange : () => {}}
+                            onToggleEdit={isEnrolled ? toggleEdit : () => toast.error('Acesse seu perfil e faça a inscrição primeiro!')}
+                          />
+                      </div>
+                    )
+                })
                 ) : (
                 <div className="text-center py-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-500">
                     <div className="text-4xl mb-2">⚽</div>
