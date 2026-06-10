@@ -4,6 +4,58 @@ import { supabase } from '../../lib/supabaseClient'
 import GameCard from '../../components/GameCard'
 import SponsorBanner from '../../components/SponsorBanner'
 
+// --- DICIONÁRIO DE TRADUÇÃO EXATO DO BANCO DE DADOS ---
+const traducoesPaises = {
+  "Algeria": "Argélia",
+  "Argentina": "Argentina",
+  "Australia": "Austrália",
+  "Austria": "Áustria",
+  "Belgium": "Bélgica",
+  "Bosnia & Herzegovina": "Bósnia e Herzegovina",
+  "Brazil": "Brasil",
+  "Canada": "Canadá",
+  "Cape Verde Islands": "Cabo Verde",
+  "Colombia": "Colômbia",
+  "Congo DR": "RD Congo",
+  "Croatia": "Croácia",
+  "Curaçao": "Curaçao",
+  "Czech Republic": "República Tcheca",
+  "Ecuador": "Equador",
+  "Egypt": "Egito",
+  "England": "Inglaterra",
+  "France": "França",
+  "Germany": "Alemanha",
+  "Ghana": "Gana",
+  "Haiti": "Haiti",
+  "Iran": "Irã",
+  "Iraq": "Iraque",
+  "Ivory Coast": "Costa do Marfim",
+  "Japan": "Japão",
+  "Jordan": "Jordânia",
+  "Mexico": "México",
+  "Morocco": "Marrocos",
+  "Netherlands": "Holanda",
+  "New Zealand": "Nova Zelândia",
+  "Norway": "Noruega",
+  "Panama": "Panamá",
+  "Paraguay": "Paraguai",
+  "Portugal": "Portugal",
+  "Qatar": "Catar",
+  "Saudi Arabia": "Arábia Saudita",
+  "Scotland": "Escócia",
+  "Senegal": "Senegal",
+  "South Africa": "África do Sul",
+  "South Korea": "Coreia do Sul",
+  "Spain": "Espanha",
+  "Sweden": "Suécia",
+  "Switzerland": "Suíça",
+  "Tunisia": "Tunísia",
+  "Türkiye": "Turquia",
+  "Uruguay": "Uruguai",
+  "USA": "Estados Unidos",
+  "Uzbekistan": "Uzbequistão"
+};
+
 export default function Calendario() {
   const [games, setGames] = useState([])
   const [userBetsMap, setUserBetsMap] = useState({}) 
@@ -103,7 +155,6 @@ export default function Calendario() {
     return 0
   }
 
-  // --- HELPER: FORMATA O TEMPO DE JOGO ---
   const formatGameTime = (status, elapsed) => {
       if (status === 'HT') return 'INTERVALO'
       if (status === 'FT' || status === 'AET' || status === 'PEN') return 'FIM'
@@ -125,7 +176,6 @@ export default function Calendario() {
         </div>
       </div>
       
-      {/* BANNER AQUI */}
       <SponsorBanner />
 
       <div className="w-full max-w-md flex justify-between items-end mb-4 px-1">
@@ -137,26 +187,19 @@ export default function Calendario() {
         {filteredGames.map((game) => {
           const palpiteValues = userBetsMap[game.id] || { scoreA: '', scoreB: '' }
           
-          // --- CORREÇÃO DE LÓGICA (FUTURO vs AO VIVO) ---
-          
-          // Status que confirmam que o jogo NÃO começou
-          const notStartedStatuses = ['NS', 'TBD', 'PST'] // Not Started, To Be Defined, Postponed
+          const notStartedStatuses = ['NS', 'TBD', 'PST'] 
           const isNotStarted = notStartedStatuses.includes(game.status_short)
 
-          // Só consideramos que tem dados se NÃO for NS/TBD e tiver status válido OU placar manual
           const hasMatchData = !isNotStarted && (
              (game.status_short && game.status_short !== 'NS') || 
              (game.score_a !== null && game.score_b !== null)
           )
           
-          // Ao Vivo = Começou E Não acabou
           const isLive = !game.is_finished && hasMatchData
-          
           const displayScoreA = game.score_a ?? 0
           const displayScoreB = game.score_b ?? 0
           
           let livePoints = null
-          // Só calcula pontos se tiver começado de verdade
           if (hasMatchData) {
              livePoints = game.is_finished 
                 ? (palpiteValues.points_awarded ?? calcularPontosAoVivo(palpiteValues.scoreA, palpiteValues.scoreB, displayScoreA, displayScoreB))
@@ -165,15 +208,21 @@ export default function Calendario() {
 
           const timeText = isLive ? formatGameTime(game.status_short, game.elapsed) : 'FIM'
 
+          // --- TRADUÇÃO DOS NOMES ANTES DE ENVIAR PARA O CARD ---
+          const nomeTraduzidoA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---'
+          const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---'
+
           return (
             <div key={game.id} className="relative flex flex-col items-center"> 
               <div className="pointer-events-none opacity-90 w-full z-10">
                 <GameCard 
                   game={{
                     ...game, 
-                    score_a: hasMatchData ? displayScoreA : null, // Se for futuro, anula o placar
+                    // Substitui os nomes em inglês pelos traduzidos
+                    team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
+                    team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null,
+                    score_a: hasMatchData ? displayScoreA : null, 
                     score_b: hasMatchData ? displayScoreB : null,
-                    // Passamos o tempo para o card desenhar DENTRO da caixa
                     custom_status: isLive ? timeText : null
                   }} 
                   values={palpiteValues} 
@@ -181,7 +230,6 @@ export default function Calendario() {
                 />
               </div>
 
-              {/* BARRA DE PONTUAÇÃO (SÓ SE TIVER DADOS) */}
               {hasMatchData && livePoints !== null && (
                 <div className={`
                   mt-[-12px] pt-4 pb-1 px-6 rounded-b-xl text-[10px] font-bold uppercase tracking-wider shadow-lg z-0 border-x border-b transform transition-all animate-fade-in
