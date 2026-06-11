@@ -27,12 +27,13 @@ export default function Premiacoes() {
           </div>
           <div className="p-4 space-y-3">
             {[
-              { pos: '1º Lugar (Campeão)', prize: 'R$ 1.000,00 + 1 Cupom Multiviagens (R$ 1.000 OFF)', color: 'text-yellow-400', icon: '🏆' },
-              { pos: '2º Lugar', prize: 'R$ 600,00 + 1 Cupom Multiviagens', color: 'text-gray-300', icon: '🥈' },
-              { pos: '3º Lugar', prize: 'R$ 400,00 + 1 Cupom Multiviagens', color: 'text-orange-400', icon: '🥉' },
-              { pos: '4º Lugar', prize: 'R$ 250,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
-              { pos: '5º Lugar', prize: 'R$ 150,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
-              { pos: '6º Lugar', prize: 'R$ 100,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '1º Lugar (Campeão)', prize: 'R$ 1.200,00 + 1 Cupom Multiviagens (R$ 1.000 OFF)', color: 'text-yellow-400', icon: '🏆' },
+              { pos: '2º Lugar', prize: 'R$ 700,00 + 1 Cupom Multiviagens', color: 'text-gray-300', icon: '🥈' },
+              { pos: '3º Lugar', prize: 'R$ 450,00 + 1 Cupom Multiviagens', color: 'text-orange-400', icon: '🥉' },
+              { pos: '4º Lugar', prize: 'R$ 300,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '5º Lugar', prize: 'R$ 200,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '6º Lugar', prize: 'R$ 150,00 + 1 Cupom Multiviagens', color: 'text-white', icon: '🏅' },
+              { pos: '7º Lugar', prize: 'R$ 100,00', color: 'text-white', icon: '🏅' },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3 bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 hover:bg-gray-700 transition">
                 <div className="text-2xl mt-1">{item.icon}</div>
