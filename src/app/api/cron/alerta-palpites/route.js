@@ -58,7 +58,7 @@ export async function GET() {
       for (const usuario of esquecidos) {
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
-        const mensagem = `⚠️ *ALERTA DE BOLÃO* ⚠️\n\nEi ${usuario.nickname || 'Campeão'}! 🏃‍♂️💨\n\nO jogo *${jogo.team_a.name} x ${jogo.team_b.name}* começa em menos de 30 minutos e você ainda não palpitou!\n\nCorre lá: https://bolao-copa-final.vercel.app/`
+        const mensagem = `⚠️ *ALERTA DE BOLÃO* ⚠️\n\nEi ${usuario.nickname || 'Campeão'}! 🏃‍♂️💨\n\nO jogo *${jogo.team_a.name} x ${jogo.team_b.name}* começa em menos de 60 minutos e você ainda não palpitou!\n\nCorre lá: https://bolao-copa-final.vercel.app/`
 
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
         const zapiToken = process.env.ZAPI_TOKEN
