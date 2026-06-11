@@ -1,10 +1,10 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
-import Link from 'next/link'
-import GameCard from '../components/GameCard'
-import SponsorBanner from '../components/SponsorBanner'
-import toast from 'react-hot-toast'
+'use client';
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import Link from 'next/link';
+import GameCard from '../components/GameCard';
+import SponsorBanner from '../components/SponsorBanner';
+import toast from 'react-hot-toast';
 
 // --- DICIONÁRIO DE TRADUÇÃO EXATO DO BANCO DE DADOS ---
 export const traducoesPaises = {
@@ -43,7 +43,7 @@ const RULE_TITLES = {
   third: '🥉 Terceiro Lugar',
   fourth: '🏅 Quarto Lugar',
   top_scorer: '⚽ Artilheiro'
-}
+};
 
 // Componente simples para selecionar Time (Campeão, Vice, etc)
 const TeamSelect = ({ teams, value, onChange, placeholder, disabled }) => (
@@ -60,35 +60,34 @@ const TeamSelect = ({ teams, value, onChange, placeholder, disabled }) => (
     <option value="">{placeholder}</option>
     {teams.map(t => (
       <option key={t.id} value={t.id}>
-        {/* APLICA A TRADUÇÃO AQUI */}
         {traducoesPaises[t.name] || t.name}
       </option>
     ))}
   </select>
-)
+);
 
 // Componente Inteligente para Palpites Especiais
 const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => {
-  const [filterTeamId, setFilterTeamId] = useState('')
-  const [players, setPlayers] = useState([])
-  const [loadingPlayers, setLoadingPlayers] = useState(false)
+  const [filterTeamId, setFilterTeamId] = useState('');
+  const [players, setPlayers] = useState([]);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
   
-  const deadlineDate = rule.deadline ? new Date(rule.deadline) : null
-  const isExpired = deadlineDate && new Date() > deadlineDate
-  const hasBet = !!(bet?.value || bet?.teamId)
-  const [isEditing, setIsEditing] = useState(!hasBet && !isExpired)
+  const deadlineDate = rule.deadline ? new Date(rule.deadline) : null;
+  const isExpired = deadlineDate && new Date() > deadlineDate;
+  const hasBet = !!(bet?.value || bet?.teamId);
+  const [isEditing, setIsEditing] = useState(!hasBet && !isExpired);
 
   useEffect(() => {
-    if (isExpired) setIsEditing(false)
-  }, [isExpired])
+    if (isExpired) setIsEditing(false);
+  }, [isExpired]);
 
   useEffect(() => {
     if (rule.type === 'top_scorer' && filterTeamId) {
       async function fetchPlayers() {
-        setLoadingPlayers(true)
-        const { data } = await supabase.from('players').select('*').eq('team_id', filterTeamId).order('name')
+        setLoadingPlayers(true);
+        const { data } = await supabase.from('players').select('*').eq('team_id', filterTeamId).order('name');
         
-        // --- TRAVA ANTI-DUPLICIDADE DE JOGADORES ---
+        // Trava anti-duplicidade
         const nomesVistos = new Set();
         const jogadoresUnicos = (data || []).filter(p => {
           if (nomesVistos.has(p.name)) return false; 
@@ -96,19 +95,19 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
           return true; 
         });
 
-        setPlayers(jogadoresUnicos)
-        setLoadingPlayers(false)
+        setPlayers(jogadoresUnicos);
+        setLoadingPlayers(false);
       }
-      fetchPlayers()
+      fetchPlayers();
     } else {
-      setPlayers([])
+      setPlayers([]);
     }
-  }, [filterTeamId, rule.type])
+  }, [filterTeamId, rule.type]);
 
-  const title = RULE_TITLES[rule.type] || rule.label || rule.type
+  const title = RULE_TITLES[rule.type] || rule.label || rule.type;
   const deadlineText = deadlineDate 
     ? deadlineDate.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) 
-    : ''
+    : '';
 
   return (
     <div className={`p-5 rounded-xl border shadow-lg transition-all relative
@@ -130,9 +129,9 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
             {!isEditing && !isExpired && (
               <button 
                 onClick={() => {
-                  if (!session) return toast.error('Faça login para palpitar!')
-                  if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
-                  setIsEditing(true)
+                  if (!session) return toast.error('Faça login para palpitar!');
+                  if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!');
+                  setIsEditing(true);
                 }}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition shadow"
               >
@@ -158,7 +157,6 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
              <option value="">1º Selecione a Seleção...</option>
              {teams.map(t => (
                <option key={t.id} value={t.id}>
-                 {/* APLICA A TRADUÇÃO AQUI */}
                  {traducoesPaises[t.name] || t.name}
                </option>
              ))}
@@ -189,98 +187,99 @@ const SpecialBetCard = ({ rule, bet, teams, onUpdate, session, isEnrolled }) => 
         />
       )}
     </div>
-  )
-}
+  );
+};
 
 export default function Home() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   
   // NAVEGAÇÃO E STATUS
-  const [competitions, setCompetitions] = useState([])
-  const [selectedCompId, setSelectedCompId] = useState(null)
-  const [activeTab, setActiveTab] = useState('games') 
-  const [isEnrolled, setIsEnrolled] = useState(false)
-  const [isPaid, setIsPaid] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [competitions, setCompetitions] = useState([]);
+  const [selectedCompId, setSelectedCompId] = useState(null);
+  const [activeTab, setActiveTab] = useState('games'); 
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   
   // DADOS DE JOGOS
-  const [rounds, setRounds] = useState([])
-  const [selectedRound, setSelectedRound] = useState('')
-  const [games, setGames] = useState([])
-  const [gamePredictions, setGamePredictions] = useState({}) 
+  const [rounds, setRounds] = useState([]);
+  const [selectedRound, setSelectedRound] = useState('');
+  const [games, setGames] = useState([]);
+  const [gamePredictions, setGamePredictions] = useState({}); 
 
   // DADOS DE EXTRAS
-  const [teams, setTeams] = useState([])
-  const [competitionTeams, setCompetitionTeams] = useState([]) 
-  const [specialRules, setSpecialRules] = useState([])
-  const [specialBets, setSpecialBets] = useState({}) 
+  const [teams, setTeams] = useState([]);
+  const [competitionTeams, setCompetitionTeams] = useState([]); 
+  const [specialRules, setSpecialRules] = useState([]);
+  const [specialBets, setSpecialBets] = useState({}); 
 
   useEffect(() => {
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
 
-      const { data: comps } = await supabase.from('competitions').select('*').eq('is_active', true).order('id')
-      const { data: allTeams } = await supabase.from('teams').select('*').order('name')
-      setTeams(allTeams || [])
+      const { data: comps } = await supabase.from('competitions').select('*').eq('is_active', true).order('id');
+      const { data: allTeams } = await supabase.from('teams').select('*').order('name');
+      setTeams(allTeams || []);
 
       if (comps && comps.length > 0) {
-        setCompetitions(comps)
-        setSelectedCompId(comps[0].id)
+        setCompetitions(comps);
+        setSelectedCompId(comps[0].id);
       } else {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    init()
-  }, [])
+    init();
+  }, []);
 
   useEffect(() => {
-    if (!selectedCompId) return
-    loadCompetitionData()
-  }, [selectedCompId, session, teams])
+    if (!selectedCompId) return;
+    loadCompetitionData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompId, session, teams]);
 
   async function loadCompetitionData() {
-    setLoading(true)
+    setLoading(true);
     
     if (session) {
-      const { data: enroll = null } = await supabase.from('enrollments')
+      const { data: enroll } = await supabase.from('enrollments')
         .select('is_paid')
         .eq('user_id', session.user.id)
         .eq('competition_id', selectedCompId)
-        .maybeSingle()
+        .maybeSingle();
 
       if (enroll) {
-        setIsEnrolled(true)
-        setIsPaid(enroll.is_paid || false)
+        setIsEnrolled(true);
+        setIsPaid(enroll.is_paid || false);
       } else {
-        setIsEnrolled(false)
-        setIsPaid(false)
+        setIsEnrolled(false);
+        setIsPaid(false);
       }
     } else {
-      setIsEnrolled(false)
-      setIsPaid(false)
+      setIsEnrolled(false);
+      setIsPaid(false);
     }
 
     const { data: compGames } = await supabase
         .from('games')
         .select('team_a_id, team_b_id')
-        .eq('competition_id', selectedCompId)
+        .eq('competition_id', selectedCompId);
     
     if (compGames && teams.length > 0) {
-        const teamIds = new Set()
+        const teamIds = new Set();
         compGames.forEach(g => {
-            teamIds.add(g.team_a_id)
-            teamIds.add(g.team_b_id)
-        })
-        const filtered = teams.filter(t => teamIds.has(t.id))
-        setCompetitionTeams(filtered)
+            teamIds.add(g.team_a_id);
+            teamIds.add(g.team_b_id);
+        });
+        const filtered = teams.filter(t => teamIds.has(t.id));
+        setCompetitionTeams(filtered);
     } else {
-        setCompetitionTeams(teams)
+        setCompetitionTeams(teams);
     }
 
-    const agora = new Date().toISOString()
+    const agora = new Date().toISOString();
 
     const { data: allGames } = await supabase
       .from('games')
@@ -288,170 +287,201 @@ export default function Home() {
       .eq('competition_id', selectedCompId)
       .eq('is_finished', false)
       .gt('start_time', agora)
-      .order('start_time', { ascending: true })
+      .order('start_time', { ascending: true });
 
     if (allGames) {
-      const uniqueRounds = [...new Set(allGames.map(g => g.round))].filter(Boolean)
-      setRounds(uniqueRounds)
+      const uniqueRounds = [...new Set(allGames.map(g => g.round))].filter(Boolean);
+      setRounds(uniqueRounds);
       
-      const currentRound = uniqueRounds.length > 0 ? uniqueRounds[0] : ''
-      setSelectedRound(currentRound)
+      const currentRound = uniqueRounds.length > 0 ? uniqueRounds[0] : '';
+      setSelectedRound(currentRound);
       
-      filterAndLoadGames(allGames, currentRound)
+      filterAndLoadGames(allGames, currentRound);
     }
 
     const { data: rules } = await supabase
       .from('special_rules')
       .select('*')
       .eq('competition_id', selectedCompId)
-      .eq('is_active', true)
+      .eq('is_active', true);
     
-    setSpecialRules(rules || [])
+    setSpecialRules(rules || []);
     
-    if (session && rules?.length > 0) {
-      const { data: sBets } = await supabase.from('special_bets').select('*').eq('user_id', session.user.id).in('special_rule_id', rules.map(r => r.id))
-      const sBetsMap = {}
-      sBets?.forEach(b => sBetsMap[b.special_rule_id] = { teamId: b.picked_team_id, value: b.picked_value })
-      setSpecialBets(sBetsMap)
+    if (session && rules && rules.length > 0) {
+      const { data: sBets } = await supabase.from('special_bets').select('*').eq('user_id', session.user.id).in('special_rule_id', rules.map(r => r.id));
+      const sBetsMap = {};
+      sBets?.forEach(b => {
+          sBetsMap[b.special_rule_id] = { teamId: b.picked_team_id, value: b.picked_value };
+      });
+      setSpecialBets(sBetsMap);
     }
 
-    setLoading(false)
+    setLoading(false);
   }
 
   const filterAndLoadGames = async (allGamesSource, round) => {
     const filtered = round 
       ? allGamesSource.filter(g => g.round === round)
-      : allGamesSource
+      : allGamesSource;
 
-    setGames(filtered)
+    setGames(filtered);
 
     if (session && filtered.length > 0) {
       const { data: bets } = await supabase
         .from('bets')
         .select('*')
         .eq('user_id', session.user.id)
-        .in('game_id', filtered.map(g => g.id))
+        .in('game_id', filtered.map(g => g.id));
 
-      const preds = {}
+      const preds = {};
       filtered.forEach(g => {
-        const bet = bets?.find(b => b.game_id === g.id)
+        const bet = bets?.find(b => b.game_id === g.id);
         preds[g.id] = {
           scoreA: bet ? bet.guess_score_a : '',
           scoreB: bet ? bet.guess_score_b : '',
           isEditing: !bet
-        }
-      })
-      setGamePredictions(preds)
+        };
+      });
+      setGamePredictions(preds);
     }
-  }
+  };
 
   useEffect(() => {
-    if (!selectedCompId || !selectedRound) return
+    if (!selectedCompId || !selectedRound) return;
     const fetchAgain = async () => {
-       const agora = new Date().toISOString()
-       const { data } = await supabase.from('games').select(`*, team_a:teams!team_a_id(*), team_b:teams!team_b_id(*)`).eq('competition_id', selectedCompId).eq('is_finished', false).gt('start_time', agora).order('start_time', { ascending: true })
-       filterAndLoadGames(data || [], selectedRound)
-    }
-    fetchAgain()
-  }, [selectedRound])
+       const agora = new Date().toISOString();
+       const { data } = await supabase.from('games').select(`*, team_a:teams!team_a_id(*), team_b:teams!team_b_id(*)`).eq('competition_id', selectedCompId).eq('is_finished', false).gt('start_time', agora).order('start_time', { ascending: true });
+       filterAndLoadGames(data || [], selectedRound);
+    };
+    fetchAgain();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRound]);
 
   const handleGameChange = (gameId, field, value) => {
-    if (!session) return toast.error('Faça login para palpitar!')
-    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    if (!session) return toast.error('Faça login para palpitar!');
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!');
     
-    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), [field]: value } }))
-    setHasChanges(true)
-  }
+    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), [field]: value } }));
+    setHasChanges(true);
+  };
   
   const toggleEdit = (gameId) => {
-    if (!session) return toast.error('Faça login para palpitar!')
-    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    if (!session) return toast.error('Faça login para palpitar!');
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!');
     
-    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), isEditing: !(prev[gameId]?.isEditing) } }))
-  }
+    setGamePredictions(prev => ({ ...prev, [gameId]: { ...(prev[gameId] || {}), isEditing: !(prev[gameId]?.isEditing) } }));
+  };
 
   const handleSpecialChange = (ruleId, field, value) => {
-    if (!session) return toast.error('Faça login para palpitar!')
-    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!')
+    if (!session) return toast.error('Faça login para palpitar!');
+    if (!isEnrolled) return toast.error('Inscreva-se no bolão primeiro (Acesse o Perfil)!');
     
-    setSpecialBets(prev => ({ ...prev, [ruleId]: { ...(prev[ruleId] || {}), [field]: value } }))
-    setHasChanges(true)
-  }
+    setSpecialBets(prev => ({ ...prev, [ruleId]: { ...(prev[ruleId] || {}), [field]: value } }));
+    setHasChanges(true);
+  };
 
   const handleSave = async () => {
-    if (!session) return toast.error('Faça login!')
-    if (!isEnrolled) return toast.error('Você não está inscrito!')
-    setSaving(true)
+    if (!session) return toast.error('Faça login!');
+    if (!isEnrolled) return toast.error('Você não está inscrito!');
+    setSaving(true);
 
     try {
       if (activeTab === 'games') {
-        const updates = []
+        const updates = [];
+        const deletes = [];
+
         games.forEach(g => {
-          const p = gamePredictions[g.id]
-          if (p && p.scoreA !== '' && p.scoreB !== '') {
-            updates.push({ user_id: session.user.id, game_id: g.id, guess_score_a: p.scoreA, guess_score_b: p.scoreB })
+          const p = gamePredictions[g.id];
+          if (p) {
+            if (p.scoreA !== '' && p.scoreB !== '' && p.scoreA !== null && p.scoreB !== null) {
+              updates.push({ user_id: session.user.id, game_id: g.id, guess_score_a: p.scoreA, guess_score_b: p.scoreB });
+            } 
+            else if ((p.scoreA === '' || p.scoreA === null) && (p.scoreB === '' || p.scoreB === null)) {
+              deletes.push(g.id);
+            }
           }
-        })
-        if (updates.length > 0) {
-          const { error } = await supabase.from('bets').upsert(updates, { onConflict: 'user_id, game_id' })
+        });
+
+        let success = false;
+
+        if (deletes.length > 0) {
+          const { error } = await supabase
+            .from('bets')
+            .delete()
+            .eq('user_id', session.user.id)
+            .in('game_id', deletes);
           
-          if (error) {
-            toast.error(error.message)
-          } else {
-            toast.success('Jogos salvos com sucesso!')
-            setGamePredictions(prev => {
-              const next = {...prev}
-              updates.forEach(u => next[u.game_id].isEditing = false)
-              return next
-            })
-          }
+          if (error) throw error;
+          success = true;
+        }
+
+        if (updates.length > 0) {
+          const { error } = await supabase
+            .from('bets')
+            .upsert(updates, { onConflict: 'user_id, game_id' });
+          
+          if (error) throw error;
+          success = true;
+        }
+
+        if (success) {
+          toast.success('Jogos salvos com sucesso!');
+          setGamePredictions(prev => {
+            const next = { ...prev }; // <- Ponto e vírgula de segurança adicionado aqui
+            
+            [...updates.map(u => u.game_id), ...deletes].forEach(id => {
+              if (next[id]) next[id].isEditing = false;
+            });
+            return next;
+          });
         }
       }
 
       if (activeTab === 'specials') {
-        const specialUpdates = []
-        const agora = new Date()
+        const specialUpdates = [];
+        const agora = new Date();
         
         specialRules.forEach(r => {
-          if (r.deadline && new Date(r.deadline) < agora) return
+          if (r.deadline && new Date(r.deadline) < agora) return;
 
-          const sb = specialBets[r.id]
+          const sb = specialBets[r.id];
           if (sb && (sb.teamId || sb.value)) {
             specialUpdates.push({
               user_id: session.user.id,
               special_rule_id: r.id,
               picked_team_id: sb.teamId || null,
               picked_value: sb.value || null
-            })
+            });
           }
-        })
+        });
         
         if (specialUpdates.length > 0) {
-          const { error } = await supabase.from('special_bets').upsert(specialUpdates, { onConflict: 'user_id, special_rule_id' })
+          const { error } = await supabase.from('special_bets').upsert(specialUpdates, { onConflict: 'user_id, special_rule_id' });
           
           if (error) {
-            toast.error(error.message)
+            toast.error(error.message);
           } else {
-            toast.success('Palpites extras salvos!')
-            loadCompetitionData() 
+            toast.success('Palpites extras salvos!');
+            loadCompetitionData();
           }
         } else if (Object.keys(specialBets).length > 0) {
-           toast.error('O prazo para alguns palpites já encerrou.')
+           toast.error('O prazo para alguns palpites já encerrou.');
         }
       }
-      setHasChanges(false)
+      
+      setHasChanges(false);
     } catch (e) {
-      toast.error('Erro ao salvar: ' + e.message)
+      toast.error('Erro ao salvar: ' + e.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const currentComp = competitions.find(c => c.id === selectedCompId);
   const prazoInscricao = currentComp?.prazo_inscricao ? new Date(currentComp.prazo_inscricao) : null;
   const isInscricoesEncerradas = prazoInscricao ? new Date() > prazoInscricao : false;
 
-  if (loading) return <div className="text-white text-center p-10">Carregando...</div>
+  if (loading) return <div className="text-white text-center p-10">Carregando...</div>;
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-900 text-white p-4 pb-32">
@@ -547,7 +577,6 @@ export default function Home() {
                 <div className="w-full max-w-md mb-6 flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-800 no-scrollbar">
                 {rounds.map(round => (
                     <button key={round} onClick={() => setSelectedRound(round)} className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition ${selectedRound === round ? 'text-yellow-400 border-b-2 border-yellow-400' : 'text-gray-500 hover:text-white'}`}>
-                        {/* APLICA A TRADUÇÃO DA RODADA NO BOTÃO AQUI */}
                         {traduzirRodada(round)}
                     </button>
                 ))}
@@ -561,7 +590,7 @@ export default function Home() {
                     const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---';
 
                     return (
-                      <div key={game.id} onClick={() => !isEnrolled && toast.error('Acesse seu perfil e faça a inscrição primeiro!')}>
+                      <div key={game.id} onClick={() => { if (!isEnrolled) toast.error('Acesse seu perfil e faça a inscrição primeiro!'); }}>
                           <GameCard 
                             game={{
                               ...game,
@@ -574,7 +603,7 @@ export default function Home() {
                             onToggleEdit={isEnrolled ? toggleEdit : () => toast.error('Acesse seu perfil e faça a inscrição primeiro!')}
                           />
                       </div>
-                    )
+                    );
                 })
                 ) : (
                 <div className="text-center py-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-500">
@@ -618,5 +647,5 @@ export default function Home() {
         </div>
       )}
     </main>
-  )
+  );
 }
