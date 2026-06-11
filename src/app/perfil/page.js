@@ -22,7 +22,7 @@ export default function Perfil() {
     notify_results: false 
   })
 
-  // NOVOS ESTADOS: Senha Atual incluída!
+  // Senha Atual incluída!
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -253,35 +253,62 @@ export default function Perfil() {
         <div className="w-full max-w-md mb-8">
             <h2 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">🎟️ Minhas Inscrições</h2>
             <div className="space-y-3">
-                {myEnrollments.length > 0 ? myEnrollments.map(enroll => (
-                    <div key={enroll.id} className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center shadow-md">
-                        <div><h3 className="font-bold text-white text-lg">{enroll.competitions?.name}</h3><p className="text-xs text-gray-400">Valor: R$ {enroll.competitions?.entry_fee}</p></div>
-                        <div className="text-right flex flex-col items-end gap-2">
-                            {enroll.is_paid ? (
-                                <span className="bg-green-900/40 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">PAGO ✅</span>
-                            ) : (
-                                <>
-                                    <button onClick={() => router.push(`/pagamento?competitionId=${enroll.competition_id}`)} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-lg border border-red-400">PAGAR 💳</button>
-                                    <button onClick={() => handleUnsubscribe(enroll.id, enroll.competitions?.name)} className="text-xs text-gray-500 hover:text-red-400 underline">Desistir</button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )) : <div className="text-center p-8 bg-gray-800/50 rounded-xl border border-dashed border-gray-700 text-gray-400">Você não está participando de nenhum bolão ainda.</div>}
+                {myEnrollments.length > 0 ? myEnrollments.map(enroll => {
+                    // Lógica para verificar se a competição dessa inscrição já passou do prazo
+                    const prazo = enroll.competitions?.prazo_inscricao ? new Date(enroll.competitions.prazo_inscricao) : null;
+                    const isEncerrado = prazo ? new Date() > prazo : false;
+
+                    return (
+                      <div key={enroll.id} className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center shadow-md">
+                          <div>
+                            <h3 className="font-bold text-white text-lg">{enroll.competitions?.name}</h3>
+                            <p className="text-xs text-gray-400">Valor: R$ {enroll.competitions?.entry_fee}</p>
+                          </div>
+                          <div className="text-right flex flex-col items-end gap-2">
+                              {enroll.is_paid ? (
+                                  <span className="bg-green-900/40 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">PAGO ✅</span>
+                              ) : isEncerrado ? (
+                                  // Se passou do prazo e não pagou, bloqueia e avisa
+                                  <span className="text-xs font-bold text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-500/30">Prazo Encerrado</span>
+                              ) : (
+                                  <>
+                                      <button onClick={() => router.push(`/pagamento?competitionId=${enroll.competition_id}`)} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-lg border border-red-400">PAGAR 💳</button>
+                                      <button onClick={() => handleUnsubscribe(enroll.id, enroll.competitions?.name)} className="text-xs text-gray-500 hover:text-red-400 underline">Desistir</button>
+                                  </>
+                              )}
+                          </div>
+                      </div>
+                    )
+                }) : <div className="text-center p-8 bg-gray-800/50 rounded-xl border border-dashed border-gray-700 text-gray-400">Você não está participando de nenhum bolão ainda.</div>}
             </div>
         </div>
       )}
 
+      {/* --- TRAVA DE PRAZO NAS COMPETIÇÕES DISPONÍVEIS --- */}
       {!isNewUser && availableComps.length > 0 && (
         <div className="w-full max-w-md">
             <h2 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">🆕 Disponíveis para Entrar</h2>
             <div className="space-y-3">
-                {availableComps.map(comp => (
-                    <div key={comp.id} className="bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center opacity-90 hover:opacity-100 transition hover:border-blue-500/50">
-                        <div><h3 className="font-bold text-white">{comp.name}</h3><p className="text-xs text-gray-400">Inscrição: <span className="text-yellow-400 font-bold">R$ {comp.entry_fee}</span></p></div>
-                        <button onClick={() => handleEnroll(comp.id)} disabled={enrollingId === comp.id} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition transform hover:scale-105">{enrollingId === comp.id ? '...' : 'Participar +'}</button>
-                    </div>
-                ))}
+                {availableComps.map(comp => {
+                    const prazo = comp.prazo_inscricao ? new Date(comp.prazo_inscricao) : null;
+                    const isEncerrado = prazo ? new Date() > prazo : false;
+
+                    return (
+                      <div key={comp.id} className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-center transition ${isEncerrado ? 'border-red-900/50 opacity-75' : 'border-gray-700 hover:border-blue-500/50'}`}>
+                          <div>
+                            <h3 className={`font-bold ${isEncerrado ? 'text-gray-400 line-through' : 'text-white'}`}>{comp.name}</h3>
+                            <p className="text-xs text-gray-400">Inscrição: <span className={`${isEncerrado ? 'text-gray-500' : 'text-yellow-400'} font-bold`}>R$ {comp.entry_fee}</span></p>
+                            {isEncerrado && <p className="text-[10px] text-red-400 mt-1 font-bold">🔒 Inscrições encerradas</p>}
+                          </div>
+                          
+                          {!isEncerrado ? (
+                            <button onClick={() => handleEnroll(comp.id)} disabled={enrollingId === comp.id} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition transform hover:scale-105">{enrollingId === comp.id ? '...' : 'Participar +'}</button>
+                          ) : (
+                            <span className="text-xl bg-gray-900 p-2 rounded-lg" title="Prazo encerrado">🔒</span>
+                          )}
+                      </div>
+                    )
+                })}
             </div>
         </div>
       )}
