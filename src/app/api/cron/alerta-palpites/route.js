@@ -11,7 +11,7 @@ export async function GET() {
   )
 
   try {
-    const MINUTOS_ANTECEDENCIA = 30 
+    const MINUTOS_ANTECEDENCIA = 60 
     const agora = new Date()
     
     // 1. Busca jogos que ainda não começaram
