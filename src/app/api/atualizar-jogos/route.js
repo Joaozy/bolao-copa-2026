@@ -19,7 +19,7 @@ export async function GET() {
       .select('*')
       .not('api_id', 'is', null) 
       .eq('is_finished', false)
-      .lte('data_jogo', dataLimite)
+      .lte('start_time', dataLimite)
 
     if (!jogosPendentes || jogosPendentes.length === 0) {
       return NextResponse.json({ message: 'Nenhum jogo ao vivo monitorado no momento.' })
