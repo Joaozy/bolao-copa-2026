@@ -34,6 +34,38 @@ function traduzirRodada(roundName) {
   return nome;
 }
 
+// --- LÓGICA DE ORDENAÇÃO INTELIGENTE (AO VIVO > TERMINADOS > FUTUROS) ---
+const notStartedStatuses = ['NS', 'TBD', 'PST'];
+
+const categorizeGame = (g) => {
+  if (g.is_finished) return 2; // 2º Prioridade: Terminados
+  
+  const isNotStarted = notStartedStatuses.includes(g.status_short) || (!g.status_short && new Date(g.start_time) > new Date());
+  
+  if (!isNotStarted && !g.is_finished) return 1; // 1º Prioridade: Ao Vivo
+  
+  return 3; // 3º Prioridade: Futuros
+};
+
+const sortGames = (gamesArray) => {
+  return [...gamesArray].sort((a, b) => {
+    const catA = categorizeGame(a);
+    const catB = categorizeGame(b);
+
+    // Se forem de categorias diferentes, ordena pela prioridade (1, 2 ou 3)
+    if (catA !== catB) return catA - catB; 
+
+    const timeA = new Date(a.start_time).getTime();
+    const timeB = new Date(b.start_time).getTime();
+
+    // Se for jogo futuro (3), o mais próximo de acontecer aparece primeiro
+    if (catA === 3) return timeA - timeB;
+    
+    // Se for ao vivo (1) ou terminado (2), o mais recente aparece primeiro
+    return timeB - timeA; 
+  });
+};
+
 export default function Calendario() {
   const [games, setGames] = useState([])
   const [userBetsMap, setUserBetsMap] = useState({}) 
@@ -75,6 +107,7 @@ export default function Calendario() {
         setUserBetsMap(betsMap)
       }
 
+      // Removemos o .order() do Supabase pois o Javascript vai fazer a ordenação inteligente
       const { data: gamesData } = await supabase
         .from('games')
         .select(`
@@ -83,11 +116,12 @@ export default function Calendario() {
           team_b:teams!team_b_id(name, flag_code, badge_url)
         `)
         .eq('competition_id', selectedCompId)
-        .order('start_time', { ascending: false })
 
       if (gamesData) {
-        setGames(gamesData)
-        setFilteredGames(gamesData)
+        const sortedData = sortGames(gamesData) // Aplica a ordenação
+        setGames(sortedData)
+        setFilteredGames(sortedData)
+        
         const uniqueRounds = [...new Set(gamesData.map(g => g.round))].filter(Boolean).sort()
         setRounds(uniqueRounds)
         setSelectedRound('Todas')
@@ -106,7 +140,8 @@ export default function Calendario() {
                 }
                 return g
             })
-            return updated
+            // Reordena dinamicamente se o status do jogo mudar (ex: começou agora)
+            return sortGames(updated)
         })
       })
       .subscribe()
@@ -164,7 +199,6 @@ export default function Calendario() {
             onChange={(e) => setSelectedRound(e.target.value)}
           >
             <option value="Todas">🌍 Todas as Rodadas</option>
-            {/* TRADUÇÃO EXIBIDA DIRETAMENTE NO MENU AQUI */}
             {rounds.map(r => <option key={r} value={r}>📍 {traduzirRodada(r)}</option>)}
           </select>
       </div>
@@ -173,7 +207,6 @@ export default function Calendario() {
         {filteredGames.map((game) => {
           const palpiteValues = userBetsMap[game.id] || { scoreA: '', scoreB: '' }
           
-          const notStartedStatuses = ['NS', 'TBD', 'PST'] 
           const isNotStarted = notStartedStatuses.includes(game.status_short)
 
           const hasMatchData = !isNotStarted && (
