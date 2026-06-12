@@ -1,48 +1,110 @@
-// Exemplo de Rota de API (Node.js)
-import { createClient } from '@supabase/supabase-js'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export default async function handler(req, res) {
-  // 1. TRAVA DE SEGURANÇA: Evita que curiosos rodem seu bot
-  const { token } = req.query;
-  if (token !== process.env.CRON_SECRET) {
-    return res.status(401).json({ error: 'Acesso não autorizado' });
-  }
+// Força a rota a ser dinâmica para não usar cache na Vercel
+export const dynamic = 'force-dynamic'; 
 
-  // 2. CONSULTA NO SUPABASE (Tem jogo começando agora?)
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-  
-  // Aqui entra aquela query SQL que montamos (via RPC ou adaptando com filtros do Supabase)
-  const { data: jogos, error } = await supabase.rpc('buscar_palpites_proximo_jogo');
+export async function GET(request) {
+  try {
+    // =======================================================
+    // 1. TRAVA DE SEGURANÇA (O Leão de Chácara)
+    // =======================================================
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
 
-  // Se não tiver jogo nos próximos 15 min, encerra silenciosamente
-  if (!jogos || jogos.length === 0) {
-    return res.status(200).json({ message: 'Nenhum jogo no momento. Dormindo...' });
-  }
+    // Compara o token da URL com a sua variável de ambiente
+    if (token !== process.env.CRON_SECRET) {
+      return new Response(JSON.stringify({ error: 'Acesso negado. Tá achando que é festa?' }), { 
+        status: 401, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
 
-  // 3. ENVIA OS DADOS PARA O GEMINI GERAR O TEXTO
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // =======================================================
+    // 2. CONSULTA AO SUPABASE (Tem jogo agora?)
+    // =======================================================
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL, 
+      process.env.SUPABASE_SERVICE_ROLE_KEY // Recomendo a Service Role Key para garantir leitura
+    );
 
-  const prompt = `
-    Você é um administrador de bolão sarcástico. 
-    Transforme este JSON em uma mensagem de WhatsApp engraçada e zoe as zebras:
-    ${JSON.stringify(jogos)}
-  `;
+    // Chama a função RPC que acabamos de criar no banco
+    const { data: palpites, error } = await supabase.rpc('get_upcoming_match_bets');
 
-  const result = await model.generateContent(prompt);
-  const textoProGrupo = result.response.text();
+    if (error) throw new Error(`Erro no Supabase: ${error.message}`);
 
-  // 4. DISPARO PARA O WHATSAPP
-  // Aqui você faz o fetch/axios para a sua API do WhatsApp (Evolution/Baileys)
-  await fetch('URL_DA_SUA_API_DO_WHATSAPP', {
+    // Se o array vier vazio, não tem jogo nos próximos 15 minutos. Pode dormir.
+    if (!palpites || palpites.length === 0) {
+      return new Response(JSON.stringify({ message: 'Nenhum jogo na agulha. O bot vai tirar um cochilo.' }), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
+    // Extrai o nome do jogo (ex: Canada x Bosnia) do primeiro item do array
+    const mandante = palpites[0].mandante;
+    const visitante = palpites[0].visitante;
+    const jogo = `${mandante} x ${visitante}`;
+
+    // =======================================================
+    // 3. A MÁGICA DA RESENHA (Google Gemini)
+    // =======================================================
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const systemPrompt = `
+      Você é um administrador fanfarrão, sarcástico e especialista em futebol de um bolão de WhatsApp.
+      Um jogo vai começar em instantes: ${jogo}.
+      
+      Aqui estão os palpites da galera em formato JSON: ${JSON.stringify(palpites)}.
+      
+      Sua missão:
+      1. Crie um texto curto e empolgante para mandar no grupo de WhatsApp avisando que o jogo vai começar.
+      2. Destaque qual foi o "placar modinha" (o que mais teve votos).
+      3. Zoe, com muito humor e deboche, quem apostou em zebras ou placares absurdos (cite o "apelido" da pessoa e o placar).
+      4. Use emojis, formatação do WhatsApp (*negrito*) e não invente dados que não estão no JSON.
+      5. Seja direto, evite introduções longas.
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    const textoResenha = result.response.text();
+
+    // =======================================================
+    // 4. O DISPARO (WhatsApp API)
+    // =======================================================
+    const instanceId = process.env.ZAPI_INSTANCE_ID;
+    const instanceToken = process.env.ZAPI_INSTANCE_TOKEN;
+    const clientToken = process.env.ZAPI_CLIENT_TOKEN;
+    const grupoId = process.env.WHATSAPP_GRUPO_ID; // Aqui entra o 120363427683402567-group
+
+    // A URL exata da Z-API para enviar texto
+    const zapUrl = `https://api.z-api.io/instances/${instanceId}/token/${instanceToken}/send-text`;
+
+    await fetch(zapUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Client-Token': clientToken 
+      },
       body: JSON.stringify({
-          number: "ID_DO_GRUPO@g.us",
-          text: textoProGrupo
+        phone: grupoId,
+        message: textoResenha // O texto genial que o Gemini gerou
       })
-  });
+    });
 
-  return res.status(200).json({ message: 'Mensagem enviada com sucesso!' });
+    return new Response(JSON.stringify({ 
+      message: 'Golaço! Resenha gerada e disparada no grupo.',
+      textoGerado: textoResenha 
+    }), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' } 
+    });
+
+  } catch (error) {
+    console.error(error);
+    return new Response(JSON.stringify({ error: 'Deu ruim no VAR', details: error.message }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' } 
+    });
+  }
 }
