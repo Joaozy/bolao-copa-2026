@@ -12,6 +12,15 @@ const RULE_LABELS = {
   top_scorer: '⚽ Artilheiro'
 }
 
+// Ordem fixa para exibição das regras na aba Extras
+const RULE_ORDER = {
+  champion: 1,
+  vice: 2,
+  third: 3,
+  fourth: 4,
+  top_scorer: 5
+}
+
 // Função inteligente para abreviar nomes de times (Ignora "Time", "Clube", etc)
 function formatTeamName(name) {
     if(!name) return '---'
@@ -284,6 +293,13 @@ export default function Ranking() {
                 }
             }).filter(Boolean)
 
+            // CORREÇÃO: Aplica a ordenação fixa definida lá em cima!
+            visibleSpecials.sort((a, b) => {
+                const weightA = RULE_ORDER[a.rule.type] || 99;
+                const weightB = RULE_ORDER[b.rule.type] || 99;
+                return weightA - weightB;
+            });
+
             setUserSpecialBets(visibleSpecials)
         }
 
@@ -514,11 +530,13 @@ export default function Ranking() {
                             <div className="text-[10px] text-purple-400 uppercase font-bold tracking-wide">
                                 {RULE_LABELS[sBet.rule.type] || sBet.rule.label || sBet.rule.type}
                             </div>
+                            
+                            {/* CORREÇÃO: Prioriza o texto do jogador (se houver) e mostra a bandeira ao lado */}
                             <div className="font-bold text-white text-sm mt-1 flex items-center gap-2">
                                 {sBet.picked_team && (
                                     <img src={sBet.picked_team.badge_url} alt="" className="w-5 h-5 object-contain" />
                                 )}
-                                {sBet.picked_team?.name || sBet.picked_value}
+                                {sBet.rule.type === 'top_scorer' ? sBet.picked_value : (sBet.picked_team?.name || sBet.picked_value)}
                             </div>
                         </div>
                         
