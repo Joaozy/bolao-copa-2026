@@ -13,7 +13,7 @@ export async function GET(request) {
       return new Response(JSON.stringify({ error: 'Acesso negado.' }), { status: 401 });
     }
 
-    // 2. CONSULTA AO SUPABASE (Busca jogo finalizado e não notificado)
+    // 2. CONSULTA AO SUPABASE
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL, 
       process.env.SUPABASE_SERVICE_ROLE_KEY 
@@ -36,7 +36,7 @@ export async function GET(request) {
     
     const placarReal = `${mandante} ${golsMandante} x ${golsVisitante} ${visitante}`;
 
-    // 3. A MÁGICA DA RESENHA PÓS-JOGO (Modelo Validado)
+    // 3. A MÁGICA DA RESENHA PÓS-JOGO
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
@@ -60,7 +60,8 @@ export async function GET(request) {
     const textoResenha = result.response.text();
 
     // 4. O DISPARO E A CONFIRMAÇÃO DA Z-API
-    const zapUrl = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_INSTANCE_TOKEN}/send-text`;
+    // Corrigido para usar ZAPI_TOKEN conforme suas variáveis na Vercel
+    const zapUrl = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`;
 
     const zapResponse = await fetch(zapUrl, {
       method: 'POST',
@@ -74,15 +75,14 @@ export async function GET(request) {
       })
     });
 
-    // Se a Z-API der erro (celular desconectado, token inválido, etc), ele para aqui e NÃO atualiza o banco
     if (!zapResponse.ok) {
         throw new Error(`Falha no envio Z-API. Status: ${zapResponse.status}`);
     }
 
-    // 5. CARIMBA O BANCO (Só chega aqui se o zap confirmou)
+    // 5. CARIMBA O BANCO
     const { error: updateError } = await supabase
       .from('games')
-      .update({ results_notified: true }) // Usa a coluna nativa que já existe
+      .update({ results_notified: true })
       .eq('id', gameId);
 
     if (updateError) throw new Error(`Enviado pro Zap, mas falhou ao atualizar banco: ${updateError.message}`);
