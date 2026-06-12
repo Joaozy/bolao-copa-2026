@@ -36,7 +36,7 @@ export async function GET(request) {
 
     // 3. A MÁGICA DA RESENHA
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const systemPrompt = `
       Você é um administrador fanfarrão de um bolão de WhatsApp.
