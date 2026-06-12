@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
@@ -13,51 +13,56 @@ export async function GET(request) {
       return new Response(JSON.stringify({ error: 'Acesso negado.' }), { status: 401 });
     }
 
-    // 2. CONSULTA AO SUPABASE
+    // 2. CONSULTA AO SUPABASE (Busca jogo finalizado e não notificado)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL, 
       process.env.SUPABASE_SERVICE_ROLE_KEY 
     );
 
-    // Chama a NOVA função que busca os jogos que já começaram e não foram enviados
-    const { data: palpites, error } = await supabase.rpc('get_started_match_bets');
+    const { data: palpites, error } = await supabase.rpc('get_finished_match_diagnostic');
 
     if (error) throw new Error(`Erro no Supabase: ${error.message}`);
 
     if (!palpites || palpites.length === 0) {
-      return new Response(JSON.stringify({ message: 'Nenhum jogo rolando que já não tenha sido enviado. Cochilando...' }), { status: 200 });
+      return new Response(JSON.stringify({ message: 'Nenhum jogo recém-finalizado na fila. Cochilando...' }), { status: 200 });
     }
 
-    // Extrai os dados do primeiro palpite retornado
+    // Extrai os dados do jogo real
     const gameId = palpites[0].game_id;
     const mandante = palpites[0].mandante;
     const visitante = palpites[0].visitante;
-    const jogo = `${mandante} x ${visitante}`;
+    const golsMandante = palpites[0].gols_mandante;
+    const golsVisitante = palpites[0].gols_visitante;
+    
+    const placarReal = `${mandante} ${golsMandante} x ${golsVisitante} ${visitante}`;
 
-    // 3. A MÁGICA DA RESENHA
+    // 3. A MÁGICA DA RESENHA PÓS-JOGO (Modelo Validado)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const systemPrompt = `
-      Você é um administrador fanfarrão de um bolão de WhatsApp.
-      A BOLA ACABOU DE ROLAR para o jogo: ${jogo}. Os palpites estão travados!
+      Você é um administrador sarcástico, debochado e especialista em futebol de um bolão de WhatsApp.
+      O juiz acabou de apitar o final do jogo! 
       
-      Aqui estão os palpites em JSON: ${JSON.stringify(palpites)}.
+      PLACAR REAL DA PARTIDA: ${placarReal}
       
-      Missão:
-      1. Crie um texto empolgante dizendo que a bola rolou e os mercados fecharam.
-      2. Destaque o "placar modinha" da galera.
-      3. Zoe (com apelido e placar) quem fez apostas malucas/zebras.
-      4. Use formato de WhatsApp.
+      Aqui estão os palpites da galera em JSON: ${JSON.stringify(palpites)}.
+      
+      Sua missão:
+      1. Anuncie o fim do jogo e o placar real com empolgação.
+      2. Faça um diagnóstico da rodada: exalte (ou chame de cagão/sortudo) quem CRAVOU o placar exato (gols exatos de cada time).
+      3. Zoe sem dó quem apostou num placar bizarro, totalmente diferente da realidade ou na zebra errada (cite os nomes e os placares medonhos).
+      4. Use formatação do WhatsApp (*negrito*, _itálico_) e emojis de futebol e risadas.
+      5. Seja direto, como uma mensagem natural de grupo.
     `;
 
     const result = await model.generateContent(systemPrompt);
     const textoResenha = result.response.text();
 
-    // 4. O DISPARO (Z-API)
+    // 4. O DISPARO E A CONFIRMAÇÃO DA Z-API
     const zapUrl = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_INSTANCE_TOKEN}/send-text`;
 
-    await fetch(zapUrl, {
+    const zapResponse = await fetch(zapUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,19 +74,21 @@ export async function GET(request) {
       })
     });
 
-    // =======================================================
-    // 5. CARIMBA O BANCO (NOVIDADE!)
-    // =======================================================
-    // Atualiza a coluna raiox_enviado para TRUE nesse jogo específico
+    // Se a Z-API der erro (celular desconectado, token inválido, etc), ele para aqui e NÃO atualiza o banco
+    if (!zapResponse.ok) {
+        throw new Error(`Falha no envio Z-API. Status: ${zapResponse.status}`);
+    }
+
+    // 5. CARIMBA O BANCO (Só chega aqui se o zap confirmou)
     const { error: updateError } = await supabase
       .from('games')
-      .update({ raiox_enviado: true })
+      .update({ results_notified: true }) // Usa a coluna nativa que já existe
       .eq('id', gameId);
 
-    if (updateError) throw new Error(`Mensagem enviada, mas erro ao atualizar status do jogo: ${updateError.message}`);
+    if (updateError) throw new Error(`Enviado pro Zap, mas falhou ao atualizar banco: ${updateError.message}`);
 
     return new Response(JSON.stringify({ 
-      message: `Sucesso! Resenha do jogo ID ${gameId} disparada e marcada como enviada.`
+      message: `Golaço! Diagnóstico do jogo ${gameId} enviado e carimbado no banco.`
     }), { status: 200 });
 
   } catch (error) {
