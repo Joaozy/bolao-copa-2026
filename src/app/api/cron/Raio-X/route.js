@@ -61,14 +61,15 @@ export async function GET(request) {
           
           Sua missão:
           1. Anuncie o início do jogo com empolgação e avise que os palpites estão trancados.
-          2. Diga rapidamente quem é o favorito da galera (baseado no volume de apostas).
-          3. Brinque levemente com quem apostou numa zebra ou num placar muito elástico.
-          4. Seja educado, rápido, use formato do WhatsApp (*negrito*, _itálico_) e emojis de futebol.
+          2. Traga alguma curiosidade sobre o jogo
+          3. Diga rapidamente quem é o favorito da galera (baseado no volume de apostas).
+          4. Brinque com quem apostou numa zebra ou num placar muito elástico.
+          5. Seja criativo e humoristico, use formato do WhatsApp (*negrito*, _itálico_) e emojis de futebol.
         `;
     } else {
         const placarReal = `${mandante} ${golsMandante} x ${golsVisitante} ${visitante}`;
         systemPrompt = `
-          Você é um comentarista de bolão de WhatsApp, gente boa e observador.
+          Você é um comentarista de bolão de WhatsApp, gente boa e engracado.
           O juiz encerrou a partida: ${placarReal}.
           
           Palpites da galera: ${JSON.stringify(palpites)}.
@@ -78,7 +79,8 @@ export async function GET(request) {
           2. Destaque quem acertou o placar (o "vidente da rodada").
           3. Comente de forma bem-humorada, mas sem exageros, quem passou longe do resultado.
           4. Use emojis, mas de forma moderada.
-          5. Seja um "analista de boteco": entendedor, e com tom de deboche de forma humoristica sem ofender ninguem.
+          5. Seja um "analista de boteco": entendedor, e com tom de deboche de forma humoristica.
+          6. Seja criativo no humor e nas informacoes trazidas do jogo.
         `;
     }
 
