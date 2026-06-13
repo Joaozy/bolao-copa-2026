@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// 1. TRAVAS ANTI-CACHE GLOBAIS DA VERCEL
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; 
 
 export async function GET(request) {
   try {
-    // 1. TRAVA DE SEGURANÇA
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
 
@@ -13,10 +14,18 @@ export async function GET(request) {
       return new Response(JSON.stringify({ error: 'Acesso negado.' }), { status: 401 });
     }
 
-    // 2. CONSULTA AO SUPABASE (Puxa início OU fim)
+    // 2. CONEXÃO SUPABASE COM CACHE DESLIGADO À FORÇA
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL, 
-      process.env.SUPABASE_SERVICE_ROLE_KEY 
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: { persistSession: false },
+        global: {
+          fetch: (url, options) => {
+            return fetch(url, { ...options, cache: 'no-store' }); // Proíbe o Next.js de guardar histórico
+          }
+        }
+      }
     );
 
     // Chamamos a função nova que criamos no SQL
