@@ -44,7 +44,7 @@ export async function GET(request) {
 
     // 3. BUSCA OS JOGOS DO DIA ATUAL
     const agora = new Date();
-    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), azure.getDate(), 0, 0, 0).toISOString();
+    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0).toISOString();
     const fimDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
 
     const { data: gamesHoje } = await supabase
