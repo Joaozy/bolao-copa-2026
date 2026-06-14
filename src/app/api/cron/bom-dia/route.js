@@ -5,6 +5,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; 
 
+// Função auxiliar para embaralhar arrays (pegar pessoas aleatórias do meio da tabela)
+const pegarExemplosAleatorios = (array, quantidade) => {
+    return array.sort(() => 0.5 - Math.random()).slice(0, quantidade);
+};
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -39,7 +44,7 @@ export async function GET(request) {
 
     // 3. BUSCA OS JOGOS DO DIA ATUAL
     const agora = new Date();
-    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0).toISOString();
+    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), azure.getDate(), 0, 0, 0).toISOString();
     const fimDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
 
     const { data: gamesHoje } = await supabase
@@ -61,7 +66,7 @@ export async function GET(request) {
       .eq('competition_id', compId)
       .order('total_pontos', { ascending: false });
 
-    // 5. MONTA O RESUMO MASTIGADO PARA A IA
+    // 5. MONTA O RESUMO MASTIGADO COM A NOVA LÓGICA DE FILTRAGEM
     let resumoJogos = "";
     if (gamesHoje && gamesHoje.length > 0) {
         resumoJogos = gamesHoje.map(g => {
@@ -73,26 +78,45 @@ export async function GET(request) {
             return `- *${g.team_a?.name}* x *${g.team_b?.name}* às ${horaLocal}`;
         }).join('\n');
     } else {
-        resumoJogos = "Nenhum jogo agendado para hoje! Dia de folga para os jogadores, mas dia de secar os rivais na tabela.";
+        resumoJogos = "Nenhum jogo agendado para hoje!";
     }
 
-    let resumoRanking = "Sem dados de ranking suficientes no momento.";
+    let resumoRanking = "Sem dados suficientes no ranking.";
     if (leaderboard && leaderboard.length > 0) {
-        const top5 = leaderboard.slice(0, 5).map((u, i) => {
-            return `${i + 1}º *${u.nome_exibicao}* (${u.total_pontos} pts | ${u.qtd_cv} Cravadas)`;
+        const totalUsers = leaderboard.length;
+
+        // A. Os 3 Primeiros
+        const top3Text = leaderboard.slice(0, 3).map((u, i) => {
+            return `${i + 1}º *${u.nome_exibicao}* (${u.total_pontos} pts)`;
         }).join('\n');
 
-        const totalUsers = leaderboard.length;
-        const lanternas = leaderboard.slice(Math.max(0, totalUsers - 3)).reverse().map((u, i) => {
-            return `${totalUsers - i}º *${u.nome_exibicao}* (${u.total_pontos} pts)`;
+        // B. Os 3 Últimos (Lanternas)
+        const ultimos3 = leaderboard.slice(Math.max(3, totalUsers - 3));
+        const lanternasText = ultimos3.map(u => {
+            const posReal = leaderboard.findIndex(x => x.user_id === u.user_id) + 1;
+            return `${posReal}º *${u.nome_exibicao}* (${u.total_pontos} pts)`;
+        }).reverse().join('\n');
+
+        // C. Sorteio de 3 jogadores do Meio de Tabela (Limbo)
+        const inicioMeio = 3;
+        const fimMeio = Math.max(3, totalUsers - 3);
+        const poolMeio = leaderboard.slice(inicioMeio, fimMeio);
+        
+        const sorteadosMeio = pegarExemplosAleatorios(poolMeio, 3);
+        const meioText = sorteadosMeio.map(u => {
+            const posReal = leaderboard.findIndex(x => x.user_id === u.user_id) + 1;
+            return `${posReal}º *${u.nome_exibicao}* (${u.total_pontos} pts)`;
         }).join('\n');
 
         resumoRanking = `
-          --- TOP 5 DO BOLÃO (OS ILUMINADOS) ---
-          ${top5}
+          [OS 3 PRIMEIROS COLOCADOS]
+          ${top3Text}
 
-          --- LANTERNAS DO BOLÃO (INIMIGOS DO ACERTO) ---
-          ${lanternas}
+          [3 PARTICIPANTES DO MEIO DA TABELA]
+          ${meioText || 'Nenhum jogador no meio termo.'}
+
+          [OS 3 ÚLTIMOS COLOCADOS]
+          ${lanternasText}
         `;
     }
 
@@ -101,26 +125,26 @@ export async function GET(request) {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const promptSistema = `
-      Você é o "Resenheiro do Bolão", o administrador mais bem-humorado, sarcástico e carismático de um grupo de WhatsApp de amigos.
-      Sua missão é enviar o boletim matinal oficial do dia.
+      Você é o organizador oficial de um grupo de bolão de WhatsApp de futebol. Seu tom é carismático, limpo e direto.
+      Sua missão é gerar o boletim diário focado em engajamento dos membros.
       
-      Aqui estão as informações reais extraídas do nosso sistema:
+      Aqui estão as informações reais do banco de dados:
       
-      [JOGOS DE HOJE]
+      JOGOS DE HOJE:
       ${resumoJogos}
       
-      [SITUAÇÃO DA TABELA DO BOLÃO]
+      SITUAÇÃO DO RANKING:
       ${resumoRanking}
       
-      Sua missão (Seja criativo, engraçado e direto):
-      1. Dê um bom dia animado e zoeiro para o grupo.
-      2. Apresente os jogos de hoje. Para CADA jogo listado, invente ou traga uma curiosidade engraçada, boba ou estatística sarcástica.
-      3. Analise o Ranking do Bolão com piadas:
-         - Exalte os líderes do TOP 5 (chame de videntes, cheios de sorte).
-         - Martele e tire muito sarro dos Lanternas citados.
-      4. Faça um aviso final lembrando a todos de salvarem seus palpites antes que o primeiro jogo do dia comece.
-      5. Use emoticons de futebol, cerveja, óculos escuros, risadas e a formatação do WhatsApp (*negrito*, _itálico_).
-      6. Mantenha o texto dinâmico e bem espaçado (nada de blocos gigantes).
+      REGRAS CRÍTICAS DE FORMATAÇÃO E CONTEÚDO:
+      1. PROIBIDO usar títulos em Markdown como '#', '##', '-' para seções ou listas numeradas complexas. Use apenas quebras de linhas duplas para dar espaço, emojis e palavras em MAIÚSCULO em negrito para dividir o texto (ex: *⚽ JOGOS DE HOJE*).
+      2. JOGOS DO DIA: Liste as partidas de hoje. Para CADA jogo, traga uma curiosidade REAL, rápida e interessante sobre o confronto histórico das duas seleções ou sobre a cultura/futebol de um dos países. NÃO FAÇA PIADAS NESTA PARTE. Seja puramente informativo e interessante.
+      3. RESENHA DO RANKING: Aqui sim você usará humor inteligente e sarcasmo de grupo de amigos:
+         - Faça uma breve exaltação aos 3 primeiros (Os líderes espirituais).
+         - Dê um empurrão moral ou faça uma brincadeira com os 3 sorteados do meio de tabela (Os invisíveis, nem sobem nem descem).
+         - Zombe amigavelmente dos 3 últimos colocados (Inimigos da previsão do tempo, lanternas oficiais).
+         - Sempre cite nominalmente as pessoas fornecidas no resumo.
+      4. Mantenha a mensagem compacta, bem espaçada e perfeitamente legível na tela de um celular.
     `;
 
     const result = await model.generateContent(promptSistema);
@@ -136,8 +160,7 @@ export async function GET(request) {
         'Client-Token': process.env.ZAPI_CLIENT_TOKEN 
       },
       body: JSON.stringify({
-        // 👇 ALTERAÇÃO AQUI PARA O SEU TESTE 👇
-        phone: "5579991159138", // Troque pelos seus números reais (55 + DDD + Número)
+        phone: "5579991159138", // 💡 MUDADO PARA SEU NÚMERO DE TESTE. Altere para o seu número real para testar.
         message: textoBoletim
       })
     });
