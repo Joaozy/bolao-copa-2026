@@ -25,7 +25,7 @@ export async function GET(request) {
       }
     );
 
-    // A. Busca a competição ativa para saber de qual torneio puxar os dados
+    // A. Busca a competição ativa
     const { data: comps } = await supabase
       .from('competitions')
       .select('id')
@@ -38,7 +38,6 @@ export async function GET(request) {
     }
 
     // 3. BUSCA OS JOGOS DO DIA ATUAL
-    // Configura o intervalo das 00:00 até as 23:59 do dia de hoje (Fuso de Brasília/Local aproximado)
     const agora = new Date();
     const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0).toISOString();
     const fimDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
@@ -55,7 +54,7 @@ export async function GET(request) {
       .lte('start_time', fimDia)
       .order('start_time', { ascending: true });
 
-    // 4. BUSCA O RANKING DO BOLÃO (Tabela Leaderboard)
+    // 4. BUSCA O RANKING DO BOLÃO
     const { data: leaderboard } = await supabase
       .from('leaderboard')
       .select('*')
@@ -79,12 +78,10 @@ export async function GET(request) {
 
     let resumoRanking = "Sem dados de ranking suficientes no momento.";
     if (leaderboard && leaderboard.length > 0) {
-        // Pega os 5 primeiros colocados
         const top5 = leaderboard.slice(0, 5).map((u, i) => {
             return `${i + 1}º *${u.nome_exibicao}* (${u.total_pontos} pts | ${u.qtd_cv} Cravadas)`;
         }).join('\n');
 
-        // Pega os 3 últimos colocados (Lanternas)
         const totalUsers = leaderboard.length;
         const lanternas = leaderboard.slice(Math.max(0, totalUsers - 3)).reverse().map((u, i) => {
             return `${totalUsers - i}º *${u.nome_exibicao}* (${u.total_pontos} pts)`;
@@ -117,13 +114,13 @@ export async function GET(request) {
       
       Sua missão (Seja criativo, engraçado e direto):
       1. Dê um bom dia animado e zoeiro para o grupo.
-      2. Apresente os jogos de hoje. Para CADA jogo listado, invente ou traga uma curiosidade engraçada, boba ou estatística sarcástica (ex: "Jogo bom pra tirar um cochilo", "Clássico onde a canela vai cantar", "Histórico de treta entre os técnicos").
+      2. Apresente os jogos de hoje. Para CADA jogo listado, invente ou traga uma curiosidade engraçada, boba ou estatística sarcástica.
       3. Analise o Ranking do Bolão com piadas:
-         - Exalte os líderes do TOP 5 (chame de videntes, herdeiros da Mãe Dináh, cheios de sorte).
-         - Martele e tire muito sarro dos Lanternas citados (Inimigos do acerto, chutadores de vento, lanternas oficiais).
-      4. Faça um aviso final lembrando a todos de salvarem seus palpites antes que o primeiro jogo do dia comece para não perderem pontos de bobeira.
+         - Exalte os líderes do TOP 5 (chame de videntes, cheios de sorte).
+         - Martele e tire muito sarro dos Lanternas citados.
+      4. Faça um aviso final lembrando a todos de salvarem seus palpites antes que o primeiro jogo do dia comece.
       5. Use emoticons de futebol, cerveja, óculos escuros, risadas e a formatação do WhatsApp (*negrito*, _itálico_).
-      6. Mantenha o texto dinâmico, limpo e bem espaçado para leitura fácil no celular (nada de blocos gigantes de texto).
+      6. Mantenha o texto dinâmico e bem espaçado (nada de blocos gigantes).
     `;
 
     const result = await model.generateContent(promptSistema);
@@ -139,7 +136,8 @@ export async function GET(request) {
         'Client-Token': process.env.ZAPI_CLIENT_TOKEN 
       },
       body: JSON.stringify({
-        phone: process.env.WHATSAPP_GRUPO_ID,
+        // 👇 ALTERAÇÃO AQUI PARA O SEU TESTE 👇
+        phone: "5579991159138", // Troque pelos seus números reais (55 + DDD + Número)
         message: textoBoletim
       })
     });
