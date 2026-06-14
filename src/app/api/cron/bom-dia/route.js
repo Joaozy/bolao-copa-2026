@@ -160,7 +160,7 @@ export async function GET(request) {
         'Client-Token': process.env.ZAPI_CLIENT_TOKEN 
       },
       body: JSON.stringify({
-        phone: "5579991159138", // 💡 MUDADO PARA SEU NÚMERO DE TESTE. Altere para o seu número real para testar.
+        phone: process.env.WHATSAPP_GRUPO_ID, // 🔄 Retornado para o ID do grupo oficial
         message: textoBoletim
       })
     });
