@@ -144,22 +144,46 @@ export default function Ranking() {
         const profilesMap = {}
         profiles?.forEach(p => profilesMap[p.id] = p)
 
-        // 2. Busca apostas APENAS dessa rodada
-        const { data: bets } = await supabase
-            .from('bets')
-            .select(`
-                points_awarded, 
-                user_id, 
-                guess_score_a, 
-                guess_score_b,
-                games!inner(competition_id, round, score_a, score_b)
-            `)
-            .eq('games.competition_id', selectedCompId)
-            .eq('games.round', selectedRound)
+        // 2. Busca apostas APENAS dessa rodada (COM PAGINAÇÃO PARA DRIBLAR O LIMITE DE 1000)
+        let allBets = []
+        let fetchMore = true
+        let from = 0
+        const step = 1000
+
+        while (fetchMore) {
+            const { data: betsChunk, error } = await supabase
+                .from('bets')
+                .select(`
+                    points_awarded, 
+                    user_id, 
+                    guess_score_a, 
+                    guess_score_b,
+                    games!inner(competition_id, round, score_a, score_b)
+                `)
+                .eq('games.competition_id', selectedCompId)
+                .eq('games.round', selectedRound)
+                .range(from, from + step - 1)
+
+            if (error) {
+                console.error("Erro buscando palpites:", error)
+                break
+            }
+
+            if (betsChunk && betsChunk.length > 0) {
+                allBets = [...allBets, ...betsChunk]
+                from += step
+                // Se retornou menos de 1000, é porque não tem mais nada na próxima página
+                if (betsChunk.length < step) {
+                    fetchMore = false
+                }
+            } else {
+                fetchMore = false
+            }
+        }
 
         // 3. Calcula os pontos na memória
         const stats = {}
-        bets?.forEach(bet => {
+        allBets.forEach(bet => {
             const uid = bet.user_id
             if (!stats[uid]) stats[uid] = { total: 0, cv: 0, vsg: 0, av: 0 }
             
