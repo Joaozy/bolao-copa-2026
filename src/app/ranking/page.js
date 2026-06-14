@@ -402,36 +402,42 @@ export default function Ranking() {
             {loading ? (
               <tr><td colSpan="6" className="p-8 text-center text-gray-400">Carregando classificação...</td></tr>
             ) : filteredUsers.length > 0 ? (
-              filteredUsers.map((user, index) => (
-                <tr 
-                  key={user.user_id} 
-                  onClick={() => handleUserClick(user)}
-                  className={`border-b border-gray-700 cursor-pointer hover:bg-gray-700/80 transition active:bg-gray-600 ${index < 3 && !searchTerm && selectedRound === 'Geral' ? 'bg-gray-700/20' : ''}`}
-                >
-                  <td className="p-3 text-center font-bold text-lg text-gray-400">
-                    {index + 1}º
-                  </td>
-                  <td className="p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex-shrink-0 border border-gray-500 relative">
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover"/>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs">👤</div>
-                        )}
+              filteredUsers.map((user) => {
+                
+                // 👇 AQUI ESTÁ A CORREÇÃO: Descobre a posição real baseada na lista completa
+                const posicaoReal = users.findIndex(u => u.user_id === user.user_id) + 1;
+
+                return (
+                  <tr 
+                    key={user.user_id} 
+                    onClick={() => handleUserClick(user)}
+                    className={`border-b border-gray-700 cursor-pointer hover:bg-gray-700/80 transition active:bg-gray-600 ${posicaoReal <= 3 && !searchTerm && selectedRound === 'Geral' ? 'bg-gray-700/20' : ''}`}
+                  >
+                    <td className="p-3 text-center font-bold text-lg text-gray-400">
+                      {posicaoReal}º
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex-shrink-0 border border-gray-500 relative">
+                          {user.avatar_url ? (
+                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover"/>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xs">👤</div>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm text-gray-200">{user.nome_exibicao || 'Anônimo'}</span>
+                          <span className="text-[10px] text-gray-500 md:hidden">Toque para ver histórico</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="font-bold text-sm text-gray-200">{user.nome_exibicao || 'Anônimo'}</span>
-                        <span className="text-[10px] text-gray-500 md:hidden">Toque para ver histórico</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-3 text-center font-mono text-yellow-200/80">{user.qtd_cv}</td>
-                  <td className="p-3 text-center font-mono text-blue-200/80">{user.qtd_vsg}</td>
-                  <td className="p-3 text-center font-mono text-green-200/80">{user.qtd_av}</td>
-                  <td className="p-3 text-center font-bold text-yellow-400 text-xl">{user.total_pontos}</td>
-                </tr>
-              ))
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-200/80">{user.qtd_cv}</td>
+                    <td className="p-3 text-center font-mono text-blue-200/80">{user.qtd_vsg}</td>
+                    <td className="p-3 text-center font-mono text-green-200/80">{user.qtd_av}</td>
+                    <td className="p-3 text-center font-bold text-yellow-400 text-xl">{user.total_pontos}</td>
+                  </tr>
+                );
+              }) // <- Fechamento correto do map e do return aqui!
             ) : (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-gray-500">
