@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // 1. TRAVAS E CONFIGURAÇÕES DA VERCEL
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-export const maxDuration = 60; // 👈 Tempo estendido! Garante que a IA leia tudo sem dar Timeout.
+export const maxDuration = 60; 
 
 export async function GET(request) {
   try {
@@ -42,10 +42,13 @@ export async function GET(request) {
     const golsMandante = evento.gols_mandante;
     const golsVisitante = evento.gols_visitante;
 
-    // 3. PASSA A BOLA PARA A IA
-    // Em vez de "adivinhar" as colunas no JavaScript e causar 'undefined', 
-    // mandamos o JSON bruto. A IA lê e descobre sozinha quem palpitou o quê!
-    const listaTodosPalpites = JSON.stringify(palpites);
+    // 🔥 A CORREÇÃO MÁGICA: 
+    // Isola APENAS os palpites que pertencem a este 'gameId' específico. 
+    // Assim, se houver 2 jogos pendentes ao mesmo tempo, a IA não mistura os dados!
+    const palpitesDoJogo = palpites.filter(p => p.game_id === gameId);
+
+    // 3. PASSA A BOLA PARA A IA (Somente os dados filtrados!)
+    const listaTodosPalpites = JSON.stringify(palpitesDoJogo);
 
     // 4. A MÁGICA DA RESENHA
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -58,7 +61,7 @@ export async function GET(request) {
           Você é o "Rei da Resenha", o administrador sarcástico e zoeiro de um bolão de WhatsApp.
           A bola acabou de rolar para *${mandante}* x *${visitante}*!
           
-          📋 DADOS BRUTOS DOS PALPITES (Total: ${palpites.length} apostas):
+          📋 DADOS BRUTOS DOS PALPITES (Total: ${palpitesDoJogo.length} apostas para este jogo):
           ${listaTodosPalpites}
           
           SUA MISSÃO (Texto direto, formatado para WhatsApp):
@@ -66,7 +69,7 @@ export async function GET(request) {
           2. 🤓 CURIOSIDADE: Solte uma (e apenas uma) curiosidade real sobre o confronto ou um dos países.
           3. 📊 ANÁLISE DOS PALPITES: Leia o JSON acima e descubra sozinho qual foi o placar mais apostado (zombe do "efeito manada") e qual time é o favorito do grupo.
           4. 🦓 LOUCURAS E ZEBRAS: Vasculhe o JSON e encontre os palpites mais diferentes, elásticos ou improváveis. Cite os NOMES REAIS dessas pessoas (extraídos do JSON) e zombe da coragem delas! Se todo mundo foi em placar chato (1x0, 1x1), zombe da covardia geral.
-          5. ⚠️ REGRAS: Use apenas *negrito* e _itálico_. Não use hashtags (#). Use gírias de futebol raiz (bagre, retranca, zica).
+          5. ⚠️ REGRAS: Use apenas *negrito* e _itálico_. Não use hashtags (#). Use gírias de futebol raiz e seja criativo na zoacao.
         `;
     } else {
         const placarReal = `${mandante} ${golsMandante} x ${golsVisitante} ${visitante}`;
@@ -80,7 +83,7 @@ export async function GET(request) {
           SUA MISSÃO (Seja criativo, engraçado e direto):
           1. 🏁 ANÚNCIO: Informe o placar final com energia.
           2. 🔮 OS VIDENTES: Leia o JSON e encontre TODOS os participantes que acertaram EXATAMENTE o placar de ${golsMandante}x${golsVisitante}. Cite-os pelos NOMES REAIS (presentes no JSON) e exalte-os. Se absolutamente ninguém acertou, zombe do grupo dizendo que estão chutando vento.
-          3. 🤡 OS ILUDIDOS E QUASE-LÁ: Escolha alguns nomes reais do JSON que erraram feio para zombar pesado. Depois, cite alguns que "bateram na trave".
+          3. 🤡 OS ILUDIDOS E QUASE-LÁ: Escolha alguns nomes reais do JSON que erraram feio para zombar pesado. Depois, cite alguns que "bateram na trave". seja criativo na zoacao.
           4. ⚠️ REGRAS: Use emojis, gírias de futebol raiz e formatação do WhatsApp (*negrito*). Proibido usar hashtags (#).
         `;
     }
@@ -110,7 +113,10 @@ export async function GET(request) {
 
     if (updateError) throw new Error(`Falha banco: ${updateError.message}`);
 
-    return new Response(JSON.stringify({ message: `Golaço! Evento de ${tipoEvento} enviado.` }), { status: 200 });
+    return new Response(JSON.stringify({ 
+      message: `Golaço! Evento de ${tipoEvento} do jogo ${mandante}x${visitante} enviado.`,
+      gameId: gameId 
+    }), { status: 200 });
 
   } catch (error) {
     console.error(error);
