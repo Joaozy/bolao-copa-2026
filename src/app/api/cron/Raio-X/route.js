@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // 1. TRAVAS E CONFIGURAÇÕES DA VERCEL
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-export const maxDuration = 60; // 👈 Tempo estendido para garantir que a IA analise todos os palpites com calma
+export const maxDuration = 60; // 👈 Tempo estendido! Garante que a IA leia tudo sem dar Timeout.
 
 export async function GET(request) {
   try {
@@ -25,7 +25,6 @@ export async function GET(request) {
       }
     );
 
-    // O RPC já traz os dados e os palpites SOMENTE do jogo em questão
     const { data: palpites, error } = await supabase.rpc('get_match_events');
 
     if (error) throw new Error(`Erro no Supabase: ${error.message}`);
@@ -34,7 +33,7 @@ export async function GET(request) {
       return new Response(JSON.stringify({ message: 'Nenhum evento (início ou fim) na fila.' }), { status: 200 });
     }
 
-    // Extrai os dados do jogo atual
+    // Extrai os dados do jogo atual (da primeira linha retornada)
     const evento = palpites[0];
     const gameId = evento.game_id;
     const tipoEvento = evento.event_type; // 'INICIO' ou 'FIM'
@@ -43,13 +42,12 @@ export async function GET(request) {
     const golsMandante = evento.gols_mandante;
     const golsVisitante = evento.gols_visitante;
 
-    // 3. MONTA A LISTA COMPLETA DE PALPITES (A IA vai ler tudo)
-    // Formato: "- João: 2x1", "- Maria: 0x0"
-    const listaTodosPalpites = palpites.map(p => 
-        `- ${p.nome_exibicao || 'Anônimo'}: ${p.guess_score_a}x${p.guess_score_b}`
-    ).join('\n');
+    // 3. PASSA A BOLA PARA A IA
+    // Em vez de "adivinhar" as colunas no JavaScript e causar 'undefined', 
+    // mandamos o JSON bruto. A IA lê e descobre sozinha quem palpitou o quê!
+    const listaTodosPalpites = JSON.stringify(palpites);
 
-    // 4. A MÁGICA DA RESENHA (A IA faz a análise dos dados)
+    // 4. A MÁGICA DA RESENHA
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
@@ -60,15 +58,15 @@ export async function GET(request) {
           Você é o "Rei da Resenha", o administrador sarcástico e zoeiro de um bolão de WhatsApp.
           A bola acabou de rolar para *${mandante}* x *${visitante}*!
           
-          📋 LISTA COMPLETA DOS PALPITES (Total: ${palpites.length} apostas):
+          📋 DADOS BRUTOS DOS PALPITES (Total: ${palpites.length} apostas):
           ${listaTodosPalpites}
           
           SUA MISSÃO (Texto direto, formatado para WhatsApp):
           1. 📢 ANÚNCIO: Grite que começou e que as apostas estão TRANCADAS 🔒.
-          2. 🤓 CURIOSIDADE: Solte uma (e apenas uma) curiosidade real e interessante sobre o confronto ou um dos países.
-          3. 📊 ANÁLISE DOS PALPITES: Analise toda a lista acima. Revele qual foi o placar mais apostado pela galera (zombe do "efeito manada") e qual time é o favorito do grupo.
-          4. 🦓 LOUCURAS E ZEBRAS: Vasculhe a lista e encontre os palpites mais diferentes, elásticos ou improváveis. Cite os nomes dessas pessoas e zombe da coragem (ou loucura) delas! Se todo mundo foi em placar chato (1x0, 1x1), zombe da falta de ousadia.
-          5. ⚠️ REGRAS: Use apenas *negrito* e _itálico_ para destacar nomes e times. Não use hashtags (#). Use gírias de futebol raiz (bagre, retranca, zica).
+          2. 🤓 CURIOSIDADE: Solte uma (e apenas uma) curiosidade real sobre o confronto ou um dos países.
+          3. 📊 ANÁLISE DOS PALPITES: Leia o JSON acima e descubra sozinho qual foi o placar mais apostado (zombe do "efeito manada") e qual time é o favorito do grupo.
+          4. 🦓 LOUCURAS E ZEBRAS: Vasculhe o JSON e encontre os palpites mais diferentes, elásticos ou improváveis. Cite os NOMES REAIS dessas pessoas (extraídos do JSON) e zombe da coragem delas! Se todo mundo foi em placar chato (1x0, 1x1), zombe da covardia geral.
+          5. ⚠️ REGRAS: Use apenas *negrito* e _itálico_. Não use hashtags (#). Use gírias de futebol raiz (bagre, retranca, zica).
         `;
     } else {
         const placarReal = `${mandante} ${golsMandante} x ${golsVisitante} ${visitante}`;
@@ -76,13 +74,13 @@ export async function GET(request) {
           Você é o "Rei da Resenha", o narrador sarcástico e zoeiro do nosso bolão de WhatsApp.
           Fim de papo! O placar final oficial foi: *${placarReal}*.
           
-          📋 LISTA COMPLETA DOS PALPITES QUE A GALERA FEZ:
+          📋 DADOS BRUTOS DOS PALPITES DA GALERA:
           ${listaTodosPalpites}
           
           SUA MISSÃO (Seja criativo, engraçado e direto):
           1. 🏁 ANÚNCIO: Informe o placar final com energia.
-          2. 🔮 OS VIDENTES: Olhe a lista e encontre TODOS os participantes que acertaram EXATAMENTE o placar de ${golsMandante}x${golsVisitante}. Cite-os nominalmente e exalte-os como mestres. Se absolutamente ninguém acertou, chame o grupo de "cego" e "chutadores de vento".
-          3. 🤡 OS ILUDIDOS E QUASE-LÁ: Escolha alguns nomes da lista que erraram o ganhador de forma bizarra para zombar pesado. Depois, cite alguns que "bateram na trave" (quase acertaram).
+          2. 🔮 OS VIDENTES: Leia o JSON e encontre TODOS os participantes que acertaram EXATAMENTE o placar de ${golsMandante}x${golsVisitante}. Cite-os pelos NOMES REAIS (presentes no JSON) e exalte-os. Se absolutamente ninguém acertou, zombe do grupo dizendo que estão chutando vento.
+          3. 🤡 OS ILUDIDOS E QUASE-LÁ: Escolha alguns nomes reais do JSON que erraram feio para zombar pesado. Depois, cite alguns que "bateram na trave".
           4. ⚠️ REGRAS: Use emojis, gírias de futebol raiz e formatação do WhatsApp (*negrito*). Proibido usar hashtags (#).
         `;
     }
