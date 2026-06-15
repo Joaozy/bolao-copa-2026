@@ -43,10 +43,22 @@ export async function GET(request) {
         return new Response(JSON.stringify({ message: 'Nenhuma competição ativa encontrada.' }), { status: 200 });
     }
 
-    // 3. BUSCA OS JOGOS DO DIA ATUAL
+    // 3. BUSCA OS JOGOS DO DIA ATUAL (Blindado contra fuso horário do servidor)
     const agora = new Date();
-    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0).toISOString();
-    const fimDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
+    
+    // Pega a data exata no Brasil (formato DD/MM/YYYY)
+    const formatter = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const [dia, mes, ano] = formatter.format(agora).split('/');
+    
+    // Força os limites do dia usando o fuso de Brasília (-03:00) para o banco de dados converter corretamente
+    const inicioDia = new Date(`${ano}-${mes}-${dia}T00:00:00-03:00`).toISOString();
+    const fimDia = new Date(`${ano}-${mes}-${dia}T23:59:59-03:00`).toISOString();
 
     const { data: gamesHoje } = await supabase
       .from('games')
