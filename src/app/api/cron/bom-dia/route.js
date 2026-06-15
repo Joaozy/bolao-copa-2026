@@ -170,7 +170,14 @@ export async function GET(request) {
         throw new Error(`Falha Z-API ao enviar Bom Dia. Status: ${zapResponse.status}`);
     }
 
-    return new Response(JSON.stringify({ message: 'Boletim matinal enviado com sucesso!' }), { status: 200 });
+    return new Response(JSON.stringify({ 
+        message: 'Comando disparado para a Z-API!',
+        id_usado: process.env.WHATSAPP_GRUPO_ID,
+        texto_enviado: textoBoletim
+    }), { 
+        status: 200, 
+        headers: { 'Content-Type': 'application/json' } 
+    });
 
   } catch (error) {
     console.error(error);
