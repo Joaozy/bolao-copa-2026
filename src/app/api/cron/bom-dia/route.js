@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// 1. TRAVAS ANTI-CACHE GLOBAIS DA VERCEL
+
+// 1. TRAVAS E CONFIGURAÇÕES DA VERCEL
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 export const maxDuration = 60; 
 
 // Função auxiliar para embaralhar arrays (pegar pessoas aleatórias do meio da tabela)

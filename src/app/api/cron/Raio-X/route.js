@@ -2,8 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // 1. TRAVAS E CONFIGURAÇÕES DA VERCEL
+// 1. TRAVAS E CONFIGURAÇÕES DA VERCEL
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 export const maxDuration = 60; 
 
 export async function GET(request) {
