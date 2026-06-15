@@ -3,7 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // 1. TRAVAS ANTI-CACHE GLOBAIS DA VERCEL
 export const dynamic = 'force-dynamic';
-export const revalidate = 0; 
+export const revalidate = 0;
+export const maxDuration = 60; 
 
 // Função auxiliar para embaralhar arrays (pegar pessoas aleatórias para zoar)
 const pegarExemplosAleatorios = (array, quantidade) => {
