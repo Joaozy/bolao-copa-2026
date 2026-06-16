@@ -13,6 +13,7 @@ import TabUsers from './tabs/TabUsers'
 import TabTeams from './tabs/TabTeams'
 import TabBanners from './tabs/TabBanners'
 import TabSponsors from './tabs/TabSponsors'
+import TabPalpites from './tabs/TabPalpites'
 
 export default function Admin() {
   const [loading, setLoading] = useState(true)
@@ -94,7 +95,8 @@ export default function Admin() {
             {id: 'finance', label: '💰 Financeiro'}, {id: 'rules', label: '⚙️ Regras'}, 
             {id: 'import', label: 'Importar'}, {id: 'games', label: 'Jogos'}, 
             {id: 'users', label: 'Inscritos'}, {id: 'teams', label: 'Times'}, 
-            {id: 'banners', label: '🖼️ Banners'}, {id: 'sponsors', label: '🤝 Parceiros'}
+            {id: 'banners', label: '🖼️ Banners'}, {id: 'sponsors', label: '🤝 Parceiros'},
+            {id: 'palpites', label: '💉 Palpites'}
         ].map(tab => (
             <button key={tab.id} onClick={() => changeTab(tab.id)} className={`px-4 py-2 font-bold rounded-t whitespace-nowrap ${activeTab === tab.id ? 'bg-blue-800 text-white' : 'text-gray-400 hover:text-white'}`}>
                 {tab.label}
@@ -113,6 +115,7 @@ export default function Admin() {
         {activeTab === 'teams' && <TabTeams teams={teams} fetchAllData={fetchAllData} />}
         {activeTab === 'banners' && <TabBanners banners={banners} fetchAllData={fetchAllData} />}
         {activeTab === 'sponsors' && <TabSponsors sponsors={sponsors} fetchAllData={fetchAllData} />}
+        {activeTab === 'palpites' && <TabPalpites allProfiles={allProfiles} games={games} />}
       </div>
     </div>
   )
