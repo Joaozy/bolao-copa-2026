@@ -54,14 +54,16 @@ export default function Game7x0() {
   };
 
   // Conversor: Pega a posição em inglês do banco e transforma na categoria tática
-  const classificarPosicao = (posEnglish) => {
-    if (!posEnglish) return 'OUTRO';
-    const p = posEnglish.toLowerCase();
-    if (p.includes('goalkeeper') || p === 'g') return 'GOL';
-    if (p.includes('defender') || p === 'd') return 'DEF';
-    if (p.includes('midfielder') || p === 'm') return 'MEI';
-    if (p.includes('attacker') || p.includes('forward') || p === 'a') return 'ATA';
-    return 'OUTRO';
+  const classificarPosicao = (posBanco) => {
+    const mapaPosicoes = {
+      'Goalkeeper': 'GOL',
+      'Defender': 'DEF',
+      'Midfielder': 'MEI',
+      'Attacker': 'ATA'
+    };
+
+    // Retorna a posição exata. Se vier "Atacante" ou qualquer outra coisa nula/diferente, cai no 'OUTRO' e fica bloqueado.
+    return mapaPosicoes[posBanco] || 'OUTRO';
   };
 
   // Verificador: Checa se a posição do jogador ainda cabe na formação escolhida

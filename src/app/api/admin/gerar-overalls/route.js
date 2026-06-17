@@ -15,7 +15,7 @@ export async function GET(request) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
-    // 1. Busca exatamente um lote seguro (40 jogadores) que não vai dar timeout
+    // Busca APENAS os jogadores de seleção (ignorando os que estão com -1)
     const { data: players, error } = await supabase
       .from('players')
       .select('id, name')
@@ -24,14 +24,12 @@ export async function GET(request) {
 
     if (error) throw error;
 
-    // 2. Se a busca retornar vazia, o trabalho acabou!
     if (!players || players.length === 0) {
       return new Response(`
         <html>
           <body style="background:#111; color:#00e676; font-family:sans-serif; text-align:center; padding:50px;">
             <h1>✅ Automação Concluída!</h1>
-            <p>Todos os jogadores do banco já receberam suas notas reais.</p>
-            <p>Você já pode fechar esta aba e ir jogar o Draft!</p>
+            <p>Todos os atletas da Copa do Mundo receberam suas notas reais.</p>
           </body>
         </html>
       `, { headers: { 'Content-Type': 'text/html' } });
@@ -40,55 +38,40 @@ export async function GET(request) {
     const listaNomes = players.map(p => `ID ${p.id}: ${p.name}`).join('\n');
 
     const prompt = `
-      Analise esta lista de jogadores de futebol e forneça um Overall (nota de 60 a 99) para cada um deles baseado estritamente no desempenho, nível técnico e momento real no ano de 2026.
-      Exemplos de patamar: Craques mundiais ativos (Lamine Yamal, Vinicius Jr, Mbappe, Messi, Haaland) devem ficar entre 90-97. Jogadores excelentes de grandes ligas 82-89. Jogadores medianos 74-81. Jogadores limitados abaixo de 73.
-      
-      Retorne APENAS um array JSON no seguinte formato:
-      [
-        {"id": id_do_jogador, "overall": nota_gerada}
-      ]
-
-      LISTA DE JOGADORES:
+      Analise esta lista de jogadores e forneça um Overall (nota de 60 a 99) baseado no nível técnico real no ano de 2026.
+      Craques mundiais: 90-97. Excelentes: 82-89. Medianos: 74-81. Limitados: abaixo de 73.
+      Retorne APENAS um array JSON: [{"id": id, "overall": nota}]
+      LISTA:
       ${listaNomes}
     `;
 
-    // 3. IA processa o lote
     const result = await model.generateContent(prompt);
     const notasGeradas = JSON.parse(result.response.text());
 
-    // 4. Salva no banco de dados
     for (const item of notasGeradas) {
       await supabase.from('players').update({ overall: item.overall }).eq('id', item.id);
     }
 
-    // 5. Calcula quantos ainda faltam no banco geral para te mostrar no painel
     const { count } = await supabase.from('players').select('*', { count: 'exact', head: true }).eq('overall', 0);
 
-    // 6. O TRUQUE DE MESTRE: Retorna um HTML que força a página a recarregar sozinha!
     return new Response(`
       <html>
-        <head>
-          <meta http-equiv="refresh" content="1"> </head>
+        <head><meta http-equiv="refresh" content="1"></head>
         <body style="background:#222; color:#fff; font-family:sans-serif; text-align:center; padding:50px;">
-          <h2 style="color:#0288d1">⚙️ Robô Trabalhando...</h2>
-          <p>Mais um lote de <b>${notasGeradas.length}</b> jogadores atualizado com sucesso!</p>
-          <p style="color:#ffeb3b; font-size: 20px;">Faltam avaliar aproximadamente: <b>${count}</b> jogadores.</p>
-          <p style="color:#aaa; margin-top:30px;">A página vai recarregar sozinha para processar o próximo lote.<br/>Não feche o navegador e não aperte F5.</p>
-          <script>
-            // Segurança extra: se a meta tag falhar, o JavaScript atualiza a página
-            setTimeout(() => window.location.reload(), 1500);
-          </script>
+          <h2 style="color:#0288d1">⚙️ IA Trabalhando...</h2>
+          <p>Mais um lote atualizado com sucesso!</p>
+          <p style="color:#ffeb3b; font-size: 20px;">Faltam avaliar apenas: <b>${count}</b> jogadores das seleções.</p>
+          <script>setTimeout(() => window.location.reload(), 1500);</script>
         </body>
       </html>
     `, { headers: { 'Content-Type': 'text/html' } });
 
   } catch (err) {
-    // Se der erro de JSON na IA, ele recarrega sozinho pra tentar o lote de novo sem você fazer nada
     return new Response(`
       <html>
         <head><meta http-equiv="refresh" content="2"></head>
         <body style="background:#222; color:#ff5252; text-align:center; padding:50px;">
-          <h3>Pequeno engasgo da IA. Tentando novamente em 2 segundos...</h3>
+          <h3>Engasgo na IA. Tentando de novo...</h3>
           <p>${err.message}</p>
         </body>
       </html>
