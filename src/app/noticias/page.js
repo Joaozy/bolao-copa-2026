@@ -1,6 +1,10 @@
-'use client';
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
+
+// Inicializa usando o pacote padrão que você já tem instalado
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const FORMACÕES = {
   '4-3-3': { name: '4-3-3', GOL: 1, DEF: 4, MEI: 3, ATA: 3 },
@@ -10,7 +14,6 @@ const FORMACÕES = {
 };
 
 export default function Game7x0() {
-  const supabase = createClientComponentClient();
   const [step, setStep] = useState('formacao'); // formacao -> draft -> simulacao -> fim
   const [formacao, setFormacao] = useState(null);
   const [myTeam, setMyTeam] = useState([]); // Array de jogadores selecionados
