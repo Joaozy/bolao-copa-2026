@@ -136,19 +136,19 @@ export async function GET(request) {
     // 8. DISPARO Z-API
 
     const zapUrl = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`;
-    const numeroDestinatario = "5579991159138";
+    // const numeroDestinatario = ""; Para testes
     const zapResponse = await fetch(zapUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': process.env.ZAPI_CLIENT_TOKEN },
-      body: JSON.stringify({ phone: numeroDestinatario, message: textoBoletim })
+      body: JSON.stringify({ phone: process.env.WHATSAPP_GRUPO_ID, message: textoBoletim })
     });
 
     if (!zapResponse.ok) throw new Error(`Falha Z-API. Status: ${zapResponse.status}`);
 
     // 9. FECHA A TRAVA DE SEGURANÇA (Carimba que hoje já foi)
-    if (numeroDestinatario !== "5579991159138") {
-        await supabase.from('competitions').update({ last_bulletin_date: hojeDataStr }).eq('id', comp.id);
-    }
+    // if (numeroDestinatario !== "") {} para testes
+    await supabase.from('competitions').update({ last_bulletin_date: hojeDataStr }).eq('id', comp.id);
+    
 
     return new Response(JSON.stringify({ message: 'Bom dia enviado com sucesso e trava ativada!', texto_enviado: textoBoletim }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
