@@ -42,7 +42,7 @@ export default function Navbar() {
     { name: '📊 Tabelas', path: '/tabelas' },
     { name: '🏆 Ranking', path: '/ranking' },
     { name: '👤 Perfil', path: '/perfil' },
-    { name: '🤝 Parceiros', path: '/noticias' },
+    { name: '🤝 Desafio', path: '/noticias' },
     { name: '📜 Regras', path: '/regras' },
     { name: '🎁 Premiações', path: '/premiacoes' },
     { name: '📞 Contato', path: '/contato' },
