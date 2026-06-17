@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/raiox-fim?token=senha123",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/bom-dia?token=senha123",
+      "schedule": "*/15 11-13 * * *"
     }
   ]
 }
