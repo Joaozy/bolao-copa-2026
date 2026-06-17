@@ -29,11 +29,39 @@ export default function Game7x0() {
   // Puxa os times (seleções) para o sorteio do dado
   useEffect(() => {
     async function loadInitialData() {
-      const { data } = await supabase.from('teams').select('id, name, badge_url, flag_code');
-      // Filtra para garantir apenas seleções (ignorando os clubes nacionais do banco)
-      const selecoes = data?.filter(t => t.flag_code !== null) || [];
-      setAllTeams(selecoes);
+      // 1. Puxa qual é a competição ativa no momento
+      const { data: comp } = await supabase
+        .from('competitions')
+        .select('id')
+        .eq('is_active', true)
+        .single();
+
+      if (!comp) return;
+
+      // 2. Puxa todos os jogos dessa competição para saber quem está jogando
+      const { data: games } = await supabase
+        .from('games')
+        .select('team_a_id, team_b_id')
+        .eq('competition_id', comp.id);
+
+      if (!games) return;
+
+      // 3. Extrai apenas os IDs únicos das seleções que estão nesses jogos
+      const teamIds = new Set();
+      games.forEach(g => {
+        if (g.team_a_id) teamIds.add(g.team_a_id);
+        if (g.team_b_id) teamIds.add(g.team_b_id);
+      });
+
+      // 4. Agora sim, puxa os dados apenas dessas seleções isoladas
+      const { data: selecoes } = await supabase
+        .from('teams')
+        .select('id, name, badge_url, flag_code')
+        .in('id', Array.from(teamIds));
+
+      setAllTeams(selecoes || []);
     }
+    
     loadInitialData();
   }, []);
 
