@@ -7,9 +7,10 @@ export const runtime = 'edge';
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    if (searchParams.get('token') !== process.env.CRON_SECRET) {
-      return new Response(JSON.stringify({ error: 'Acesso negado.' }), { status: 401 });
+    // 1. NOVA FECHADURA DA VERCEL (Lê o Header invisível do Cron)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return new Response(JSON.stringify({ error: 'Acesso negado. Cron Secret inválido.' }), { status: 401 });
     }
 
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
@@ -44,7 +45,10 @@ export async function GET(request) {
       4. ⚠️ Use emojis, *negrito* e gírias raiz. Sem hashtags (#).
     `;
 
-    const textoResenha = (await model.generateContent(systemPrompt)).response.text();
+    // 2. A VASSOURA DE FORMATAÇÃO (Limpa os \n perdidos)
+    const textoResenha = (await model.generateContent(systemPrompt)).response.text()
+      .replace(/\\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n');
 
     const zapRes = await fetch(`https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`, {
       method: 'POST',
@@ -58,6 +62,8 @@ export async function GET(request) {
     return new Response(JSON.stringify({ message: `Fim de ${mandante}x${visitante} enviado!`, gameId }), { status: 200 });
 
   } catch (error) {
+    // 3. RASTREADOR DE ERROS (Grava a falha nos logs da Vercel)
+    console.error("Falha Crítica no Raio-X Fim:", error.message);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
