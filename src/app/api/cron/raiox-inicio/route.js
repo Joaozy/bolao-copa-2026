@@ -7,9 +7,9 @@ export const runtime = 'edge';
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    if (searchParams.get('token') !== process.env.CRON_SECRET) {
-      return new Response(JSON.stringify({ error: 'Acesso negado.' }), { status: 401 });
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return new Response(JSON.stringify({ error: 'Acesso negado. Cron Secret inválido.' }), { status: 401 });
     }
 
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
