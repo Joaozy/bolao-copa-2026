@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-export const runtime = 'edge';
+export const maxDuration = 300;
 
 export async function GET(request) {
   try {
@@ -38,8 +38,8 @@ export async function GET(request) {
       
       SUA MISSÃO:
       1. 📢 O AVISO: Grite que começou e que as apostas estão TRANCADAS 🔒. Deixe claro que quem não apostou, já era.
-      2. 🤓 O SABICHÃO: Solte uma curiosidade rápida e real sobre o confronto histórico dessas duas seleções.
-      3. 📊 O CLUBE DOS COVARDES (Placar mais apostado): Descubra qual foi o placar que mais recebeu apostas. Zombe pesado da maioria, mas VARIE A PIADA SEMPRE! Diga que copiaram do vizinho, que o sindicato combinou esse placar no grupo do telegram, que consultaram a mãe Dináh, que é a aposta do "medo de perder o réu primário" ou que vão todos afundar abraçados no Titanic. Seja Criativo e Varie Sempre as Piadas.
+      2. 🤓 O SABICHÃO: Solte uma curiosidade rápida e real sobre as seleçoes. Pode ser curiosidade de confrontos, de historia fora do futebol, cultura e etc.. seja criativo.
+      3. 📊 O CLUBE DOS COVARDES (Placar mais apostado): Descubra qual foi o placar que mais recebeu apostas. Zombe pesado da maioria, mas VARIE A PIADA SEMPRE! 
       4. 🦓 OS LUNÁTICOS: Vasculhe os palpites e zombe dos nomes reais de quem fez apostas completamente absurdas (placares elásticos, zebras loucas ou 0x0 para times artilheiros). 
       5. ⚠️ ESTILO: Use apenas *negrito* e _itálico_. ZERO hashtags (#). Use gírias raiz do futebol brasileiro (ex: bagre, retranqueiro, professor pardal, zebra, secador, apito amigo).
     `;
