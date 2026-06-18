@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/bom-dia?token=senha123",
       "schedule": "*/15 11-13 * * *"
+    },
+    {
+      "path": "/api/notificacoes/resultados",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
