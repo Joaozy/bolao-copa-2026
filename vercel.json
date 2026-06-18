@@ -13,7 +13,7 @@
       "schedule": "*/15 11-13 * * *"
     },
     {
-      "path": "/api/notificacoes/resultados",
+      "path": "/api/cron/notifica-resultado",
       "schedule": "*/15 * * * *"
     }
   ]

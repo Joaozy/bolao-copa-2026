@@ -131,7 +131,9 @@ export async function GET(request) {
       5. Mantenha espaçado para facilitar a leitura no celular.
     `;
 
-    const textoBoletim = (await model.generateContent(promptSistema)).response.text();
+    const textoBoletim = (await model.generateContent(promptSistema)).response.text()
+      .replace(/\\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n');
 
     // 8. DISPARO Z-API
 
