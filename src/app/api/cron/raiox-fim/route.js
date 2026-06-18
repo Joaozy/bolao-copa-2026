@@ -57,7 +57,7 @@ export async function GET(request) {
     });
     if (!zapRes.ok) throw new Error(`Falha Z-API: ${zapRes.status}`);
 
-    await supabase.from('games').update({ results_notified: true }).eq('id', gameId);
+    await supabase.from('games').update({ raiox_fim_enviado: true }).eq('id', gameId);
 
     return new Response(JSON.stringify({ message: `Fim de ${mandante}x${visitante} enviado!`, gameId }), { status: 200 });
 
