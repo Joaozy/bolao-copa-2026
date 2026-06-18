@@ -45,13 +45,22 @@ const TIER_LABEL = {
   baixo: '🌱 Seleção de nível Médio/Fraco',
 };
 
+// "min/max" são percentis da lista de adversários ordenada do mais forte (0)
+// pro mais fraco (1). Isso evita que você já tope com um favorito ao título
+// nos 16-avos — a dificuldade de verdade só aparece nas fases finais.
 const FASES_MATA_MATA = [
-  { fase: '16-avos de Final', fator: 0.9 },
-  { fase: 'Oitavas de Final', fator: 0.65 },
-  { fase: 'Quartas de Final', fator: 0.45 },
-  { fase: 'Semifinal', fator: 0.3 },
-  { fase: 'GRANDE FINAL', fator: 0.12 },
+  { fase: '16-avos de Final', min: 0.35, max: 1.0 },
+  { fase: 'Oitavas de Final', min: 0.22, max: 0.85 },
+  { fase: 'Quartas de Final', min: 0.1, max: 0.65 },
+  { fase: 'Semifinal', min: 0.0, max: 0.45 },
+  { fase: 'GRANDE FINAL', min: 0.0, max: 0.22 },
 ];
+
+// Quanto a diferença de força pesa no número médio de gols — deixei mais
+// suave que o motor original pra zebra acontecer com mais frequência.
+const PESO_FORCA = 0.065;
+// Um empurrãozinho a seu favor (tipo "fator casa"), pra Copa não ser um pesadelo matemático.
+const BONUS_PROTAGONISTA = 0.35;
 
 // ---------- helpers de simulação ----------
 
@@ -83,7 +92,7 @@ function poisson(lambda) {
 // "Dia de jogo": variação aleatória de forma que dá chance de zebra —
 // uma seleção 81 pode jogar acima da média e superar uma 83.
 function variarForma(forca) {
-  return forca + (Math.random() * 14 - 7);
+  return forca + (Math.random() * 18 - 9);
 }
 
 // Força de uma seleção real = média de overall dos 11 melhores jogadores dela.
@@ -109,13 +118,16 @@ function gerarPlanoSorteio() {
   return embaralhar([...Array(5).fill('top'), ...Array(3).fill('medio'), ...Array(3).fill('baixo')]);
 }
 
-// Sorteia um adversário real entre os times restantes, dando peso aos mais
-// fortes conforme a fase avança — sem repetir quem você já enfrentou.
-function sortearAdversario(restantes, forcaPorTime, fator) {
+// Sorteia um adversário real numa faixa de força (em percentil), sem repetir
+// quem você já enfrentou — é essa faixa que cria a curva de dificuldade.
+function sortearAdversario(restantes, forcaPorTime, banda) {
   const ordenados = [...restantes].sort((a, b) => (forcaPorTime[b.id] || 70) - (forcaPorTime[a.id] || 70));
-  const tamanhoPool = Math.max(1, Math.round(ordenados.length * fator));
-  const pool = ordenados.slice(0, tamanhoPool);
-  return pool[Math.floor(Math.random() * pool.length)];
+  const n = ordenados.length;
+  const lo = Math.floor(banda.min * n);
+  const hi = Math.min(n, Math.max(lo + 1, Math.ceil(banda.max * n)));
+  const pool = ordenados.slice(lo, hi);
+  const poolFinal = pool.length > 0 ? pool : ordenados;
+  return poolFinal[Math.floor(Math.random() * poolFinal.length)];
 }
 
 // Sorteia os minutos dos gols de cada lado e devolve a lista em ordem cronológica.
@@ -179,8 +191,21 @@ export default function Game7x0() {
   const [scoreboard, setScoreboard] = useState(null);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [esperandoAcao, setEsperandoAcao] = useState(null);
+  const [velocidade, setVelocidade] = useState('normal'); // 'normal' | 'rapida'
+  const [golFlash, setGolFlash] = useState(null);
+  const [eventosPartidaAtual, setEventosPartidaAtual] = useState([]);
+  const [minutoAtual, setMinutoAtual] = useState(0);
   const logRef = useRef(null);
   const cliqueResolverRef = useRef(null);
+  const velocidadeRef = useRef('normal');
+  const golFlashTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    velocidadeRef.current = velocidade;
+  }, [velocidade]);
+
+  // Converte um tempo "base" pra duração real, de acordo com a velocidade escolhida.
+  const tempo = (ms) => (velocidadeRef.current === 'rapida' ? Math.round(ms * 0.35) : ms);
 
   const formacao = formacaoKey ? FORMACOES[formacaoKey] : null;
 
@@ -329,7 +354,13 @@ export default function Game7x0() {
 
   const addLog = async (texto, tipo = 'normal') => {
     setLogsSimulacao((prev) => [...prev, { texto, tipo, key: prev.length }]);
-    await delay(550);
+    await delay(tempo(550));
+  };
+
+  const dispararGolFlash = (lado, nome) => {
+    if (golFlashTimeoutRef.current) clearTimeout(golFlashTimeoutRef.current);
+    setGolFlash({ lado, nome, key: Date.now() });
+    golFlashTimeoutRef.current = setTimeout(() => setGolFlash(null), tempo(1100));
   };
 
   // Pausa a simulação até o usuário clicar no botão de ação exibido na tela.
@@ -352,28 +383,33 @@ export default function Game7x0() {
     const ataqueHoje = variarForma(ataque);
     const defesaHoje = variarForma(defesa);
     const advHoje = variarForma(forcaAdv);
-    const mediaEu = Math.max(0.15, 1.4 + (ataqueHoje - advHoje) * 0.08);
-    const mediaAdv = Math.max(0.15, 1.4 + (advHoje - defesaHoje) * 0.08);
+    const mediaEu = Math.max(0.15, 1.4 + (ataqueHoje - advHoje) * PESO_FORCA + BONUS_PROTAGONISTA);
+    const mediaAdv = Math.max(0.15, 1.4 + (advHoje - defesaHoje) * PESO_FORCA - BONUS_PROTAGONISTA * 0.5);
     const golsEu = poisson(mediaEu);
     const golsAdv = poisson(mediaAdv);
     const eventos = gerarEventosGols(golsEu, golsAdv);
 
     setScoreboard({ fase: faseLabel, nosso: 0, deles: 0, rival: rival.name, badge: rival.badge_url });
+    setEventosPartidaAtual(eventos);
+    setMinutoAtual(0);
     await addLog(`🏁 Bola rolando: ${nomeExibido} x ${rival.name} (força ${forcaAdv})`, 'titulo');
 
     let placarEu = 0;
     let placarAdv = 0;
-    if (eventos.length === 0) await delay(700);
+    if (eventos.length === 0) await delay(tempo(700));
     for (const ev of eventos) {
-      await delay(650);
+      await delay(tempo(650));
       if (ev.lado === 'eu') placarEu += 1;
       else placarAdv += 1;
+      setMinutoAtual(ev.minuto);
       setScoreboard((prev) => ({ ...prev, nosso: placarEu, deles: placarAdv }));
+      dispararGolFlash(ev.lado, ev.lado === 'eu' ? nomeExibido : rival.name);
       await addLog(
         `⚽ ${ev.minuto}' GOL! ${ev.lado === 'eu' ? nomeExibido : rival.name} (${placarEu}-${placarAdv})`,
         ev.lado === 'eu' ? 'bom' : 'mau'
       );
     }
+    setMinutoAtual(90);
     await addLog(
       `📣 Apito final: ${nomeExibido} ${golsEu} x ${golsAdv} ${rival.name}`,
       golsEu > golsAdv ? 'bom' : golsEu === golsAdv ? 'meio' : 'mau'
@@ -421,8 +457,8 @@ export default function Game7x0() {
   const simularEntreRivais = (forcaA, forcaB) => {
     const fAHoje = variarForma(forcaA);
     const fBHoje = variarForma(forcaB);
-    const mediaA = Math.max(0.15, 1.4 + (fAHoje - fBHoje) * 0.08);
-    const mediaB = Math.max(0.15, 1.4 + (fBHoje - fAHoje) * 0.08);
+    const mediaA = Math.max(0.15, 1.4 + (fAHoje - fBHoje) * PESO_FORCA);
+    const mediaB = Math.max(0.15, 1.4 + (fBHoje - fAHoje) * PESO_FORCA);
     return { golsA: poisson(mediaA), golsB: poisson(mediaB) };
   };
 
@@ -433,6 +469,9 @@ export default function Game7x0() {
     setResultadoFinal(null);
     setScoreboard(null);
     setEsperandoAcao(null);
+    setGolFlash(null);
+    setEventosPartidaAtual([]);
+    setMinutoAtual(0);
 
     const { ataque, defesa } = calcularAtaqueDefesa();
     const nomeExibido = nomeTime.trim() || 'Sua Seleção';
@@ -517,7 +556,7 @@ export default function Game7x0() {
 
     for (const etapa of FASES_MATA_MATA) {
       if (!vivo) break;
-      const adversario = sortearAdversario(restantes, forcaPorTime, etapa.fator);
+      const adversario = sortearAdversario(restantes, forcaPorTime, etapa);
       if (!adversario) break;
       restantes = restantes.filter((t) => t.id !== adversario.id);
 
@@ -565,6 +604,9 @@ export default function Game7x0() {
     setScoreboard(null);
     setResultadoFinal(null);
     setEsperandoAcao(null);
+    setGolFlash(null);
+    setEventosPartidaAtual([]);
+    setMinutoAtual(0);
   };
 
   const forcaAtual = calcularForcaTime();
@@ -579,6 +621,7 @@ export default function Game7x0() {
   });
 
   const tierAtualLabel = planoSorteio[rodadaAtual] ? TIER_LABEL[planoSorteio[rodadaAtual]] : '';
+  const mostrarOveralls = modo === 'classico' || myTeam.length >= 11;
 
   return (
     <div
@@ -660,14 +703,17 @@ export default function Game7x0() {
           content: ''; position: absolute; left: 50%; top: 0; width: 0; height: 100%;
           border-left: 2px solid var(--linha); transform: translateX(-50%);
         }
-        .g7-slot { position: absolute; transform: translate(-50%, -50%); width: 78px; text-align: center; animation: g7-pop 0.35s ease; }
+        .g7-slot { position: absolute; transform: translate(-50%, -50%); width: clamp(44px, 19vw, 78px); text-align: center; animation: g7-pop 0.35s ease; }
         .g7-slot-vazio { width: 30px; height: 30px; margin: 0 auto; border: 2px dashed rgba(244,241,234,0.4); border-radius: 50%; }
         .g7-chip {
-          background: rgba(7,10,18,0.88); border-radius: 8px; padding: 4px 6px; font-size: 11px;
-          line-height: 1.25; border: 1px solid rgba(244,241,234,0.25);
+          background: rgba(7,10,18,0.88); border-radius: 8px; padding: 3px 4px;
+          line-height: 1.25; border: 1px solid rgba(244,241,234,0.25); overflow: hidden;
         }
-        .g7-chip strong { font-family: var(--font-display); font-size: 11px; display: block; }
-        .g7-chip .ovr { font-family: var(--font-mono); font-weight: 700; display: block; }
+        .g7-chip strong {
+          font-family: var(--font-display); font-size: clamp(8px, 2.1vw, 11px); display: block;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .g7-chip .ovr { font-family: var(--font-mono); font-weight: 700; display: block; font-size: clamp(8px, 2vw, 11px); }
 
         .g7-dice {
           width: 100%; padding: 22px; font-size: 17px; font-family: var(--font-display);
@@ -728,6 +774,47 @@ export default function Game7x0() {
         .g7-final-banner.campeao { background: radial-gradient(circle at top, rgba(242,193,78,0.25), transparent); border: 1px solid var(--gold); }
         .g7-final-banner.eliminado { background: rgba(215,38,61,0.08); border: 1px solid rgba(215,38,61,0.4); }
 
+        .g7-velocidade { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+        .g7-vel-btn {
+          font-family: var(--font-mono); font-size: 11px; padding: 5px 12px; border-radius: 999px;
+          border: 1px solid rgba(244,241,234,0.25); background: transparent; color: rgba(244,241,234,0.7); cursor: pointer;
+        }
+        .g7-vel-btn.ativo { background: rgba(242,193,78,0.18); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+        .g7-gol-flash {
+          position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+          pointer-events: none; z-index: 50;
+        }
+        .g7-gol-flash span {
+          font-family: var(--font-display); text-transform: uppercase; font-size: clamp(40px, 12vw, 90px);
+          letter-spacing: 0.04em; animation: g7-gol-pop 1.1s ease forwards; text-shadow: 0 0 30px rgba(0,0,0,0.6);
+        }
+        .g7-gol-flash.eu span { color: var(--gold); }
+        .g7-gol-flash.adv span { color: var(--crimson); font-size: clamp(26px, 7vw, 50px); }
+        @keyframes g7-gol-pop {
+          0% { opacity: 0; transform: scale(0.4) rotate(-4deg); }
+          15% { opacity: 1; transform: scale(1.08) rotate(1deg); }
+          30% { transform: scale(1) rotate(0deg); }
+          75% { opacity: 1; }
+          100% { opacity: 0; transform: scale(1.04); }
+        }
+
+        .g7-timeline { position: relative; height: 26px; margin-top: 10px; background: rgba(244,241,234,0.08); border-radius: 999px; }
+        .g7-timeline-progresso {
+          position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, rgba(242,193,78,0.35), rgba(242,193,78,0.12));
+          border-radius: 999px; transition: width 0.4s ease;
+        }
+        .g7-timeline-bola {
+          position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--gold);
+          transform: translate(-50%, -50%); transition: left 0.4s ease; box-shadow: 0 0 8px rgba(242,193,78,0.7);
+        }
+        .g7-timeline-marca {
+          position: absolute; top: 50%; width: 8px; height: 8px; border-radius: 50%; transform: translate(-50%, -50%);
+          border: 2px solid var(--ink);
+        }
+        .g7-timeline-marca.eu { background: var(--gold); }
+        .g7-timeline-marca.adv { background: var(--crimson); }
+
         .g7-reset {
           font-family: var(--font-mono); font-size: 13px; background: transparent; border: 1px solid rgba(244,241,234,0.3);
           color: var(--chalk); padding: 10px 18px; border-radius: 8px; cursor: pointer; margin-top: 18px;
@@ -738,10 +825,19 @@ export default function Game7x0() {
           .g7-draft-grid { flex-direction: column !important; }
           .g7-dice-col { width: 100% !important; }
         }
+        @media (max-width: 480px) {
+          .g7-wrap { padding: 20px 8px 50px; }
+        }
         @media (prefers-reduced-motion: reduce) {
           .g7-slot, .g7-log-line, .g7-acao { animation: none !important; }
         }
       `}</style>
+
+      {golFlash && (
+        <div className={`g7-gol-flash ${golFlash.lado}`}>
+          <span>{golFlash.lado === 'eu' ? '⚽ GOOOOL!' : `⚠️ Gol de ${golFlash.nome}`}</span>
+        </div>
+      )}
 
       <div className="g7-wrap">
         <p className="g7-eyebrow">Draft &amp; Simulação</p>
@@ -776,6 +872,18 @@ export default function Game7x0() {
               </button>
             </div>
 
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.1em', color: 'rgba(244,241,234,0.6)', textTransform: 'uppercase', marginBottom: 10 }}>
+              Velocidade da simulação
+            </p>
+            <div className="g7-pill-row" style={{ marginBottom: 34 }}>
+              <button className={`g7-pill ${velocidade === 'normal' ? 'ativo' : ''}`} onClick={() => setVelocidade('normal')}>
+                🐢 Normal
+              </button>
+              <button className={`g7-pill ${velocidade === 'rapida' ? 'ativo' : ''}`} onClick={() => setVelocidade('rapida')}>
+                ⚡ Rápida
+              </button>
+            </div>
+
             <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.1em', color: 'rgba(244,241,234,0.6)', textTransform: 'uppercase', marginBottom: 16 }}>
               Escolha a formação tática
             </p>
@@ -798,9 +906,15 @@ export default function Game7x0() {
                     {nomeTime.trim() || 'Sua Seleção'} ({myTeam.length}/11)
                   </h3>
                   <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: 22, fontWeight: 700 }}>
-                    {modo === 'almanaque' ? '❔' : forcaAtual}
+                    {mostrarOveralls ? forcaAtual : '❔'}
                   </span>
                 </div>
+
+                {myTeam.length === 11 && modo === 'almanaque' && (
+                  <p style={{ textAlign: 'center', color: 'var(--gold)', fontFamily: 'var(--font-mono)', fontSize: 12, marginTop: -6, marginBottom: 10 }}>
+                    ✨ Elenco fechado! Aqui está como ficou o seu time.
+                  </p>
+                )}
 
                 <div className="g7-pitch">
                   {slotsPreenchidos.map((slot, i) => (
@@ -809,7 +923,7 @@ export default function Game7x0() {
                         <div className="g7-chip" style={{ borderColor: POSICAO_COR[slot.cat] }}>
                           <strong>{slot.jogador.name}</strong>
                           <span className="ovr" style={{ color: POSICAO_COR[slot.cat] }}>
-                            {modo === 'almanaque' ? '🔒' : `⭐ ${slot.jogador.overall}`}
+                            {mostrarOveralls ? `⭐ ${slot.jogador.overall}` : '🔒'}
                           </span>
                         </div>
                       ) : (
@@ -891,6 +1005,11 @@ export default function Game7x0() {
 
         {step === 'simulacao' && (
           <div style={{ maxWidth: 640, margin: '32px auto 0' }}>
+            <div className="g7-velocidade">
+              <button className={`g7-vel-btn ${velocidade === 'normal' ? 'ativo' : ''}`} onClick={() => setVelocidade('normal')}>🐢 Normal</button>
+              <button className={`g7-vel-btn ${velocidade === 'rapida' ? 'ativo' : ''}`} onClick={() => setVelocidade('rapida')}>⚡ Rápida</button>
+            </div>
+
             {grupoAtual && (
               <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', fontSize: 13, marginBottom: 14 }}>
                 Grupo {grupoAtual.letra}
@@ -902,6 +1021,18 @@ export default function Game7x0() {
                 <p className="fase">{scoreboard.fase}</p>
                 <p className="placar">{scoreboard.nosso} × {scoreboard.deles}</p>
                 <p className="rival">vs {scoreboard.rival}</p>
+                <div className="g7-timeline">
+                  <div className="g7-timeline-progresso" style={{ width: `${(minutoAtual / 90) * 100}%` }} />
+                  {eventosPartidaAtual.filter((ev) => ev.minuto <= minutoAtual).map((ev, i) => (
+                    <div
+                      key={i}
+                      className={`g7-timeline-marca ${ev.lado}`}
+                      style={{ left: `${(ev.minuto / 90) * 100}%` }}
+                      title={`${ev.minuto}'`}
+                    />
+                  ))}
+                  <div className="g7-timeline-bola" style={{ left: `${(minutoAtual / 90) * 100}%` }} />
+                </div>
               </div>
             )}
 
