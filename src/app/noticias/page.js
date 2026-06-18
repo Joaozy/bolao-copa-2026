@@ -46,14 +46,14 @@ const TIERS_FIXOS = {
 
 // ─── fases do mata-mata: faixas de percentil de dificuldade ───────────────────
 const FASES_MATA_MATA = [
-  { fase:'16-avos de Final',   min:0.40, max:1.00 },
-  { fase:'Oitavas de Final',   min:0.25, max:0.82 },
-  { fase:'Quartas de Final',   min:0.12, max:0.60 },
-  { fase:'Semifinal',          min:0.00, max:0.40 },
-  { fase:'GRANDE FINAL',       min:0.00, max:0.20 },
+  { fase:'16-avos de Final', tipo:'percentil', min:0.40, max:1.00 },
+  { fase:'Oitavas de Final', tipo:'minOVR',    minOVR:80 },
+  { fase:'Quartas de Final', tipo:'minOVR',    minOVR:80 },
+  { fase:'Semifinal',        tipo:'top' },
+  { fase:'GRANDE FINAL',     tipo:'top' },
 ];
 
-// ─── motor de simulação (inspirado no Brasfoot) ───────────────────────────────
+// motor de simulacao (inspirado no Brasfoot)
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -62,7 +62,7 @@ function classificarPosicao(p) {
 }
 function embaralhar(a) { return [...a].sort(() => Math.random() - 0.5); }
 
-// variação de forma: "dia de jogo" — controla zebras
+// variacao de forma: "dia de jogo" - controla zebras
 function forma(v, amplitude = 7) { return v + (Math.random() * amplitude * 2 - amplitude); }
 
 function calcularForcaSelecao(jogadores) {
@@ -75,9 +75,8 @@ function definirTiers(times) {
   const top   = times.filter(t => TIERS_FIXOS.top.includes(t.name));
   const medio = times.filter(t => TIERS_FIXOS.medio.includes(t.name));
   const baixo = times.filter(t => !TIERS_FIXOS.top.includes(t.name) && !TIERS_FIXOS.medio.includes(t.name));
-  // fallback: se algum tier vier vazio (problema de nome), distribui equitativamente por OVR
   if (!top.length || !medio.length || !baixo.length) {
-    const ord = [...times].sort((a,b) => 0.5 - Math.random()); // embaralhado genérico
+    const ord = [...times].sort((a,b) => 0.5 - Math.random());
     const s = Math.ceil(ord.length / 3);
     return { top: ord.slice(0,s), medio: ord.slice(s,s*2), baixo: ord.slice(s*2) };
   }
@@ -88,14 +87,27 @@ function gerarPlanoSorteio() {
   return embaralhar([...Array(5).fill('top'),...Array(3).fill('medio'),...Array(3).fill('baixo')]);
 }
 
-function sortearAdversario(restantes, forcas, banda) {
-  const ord = [...restantes].sort((a,b) => (forcas[b.id]||70) - (forcas[a.id]||70));
-  const n   = ord.length;
-  const lo  = Math.floor(banda.min * n);
-  const hi  = Math.min(n, Math.max(lo+1, Math.ceil(banda.max * n)));
-  const pool= ord.slice(lo, hi);
-  return (pool.length ? pool : ord)[Math.floor(Math.random() * (pool.length||ord.length))];
+// Sorteia adversario com regra por fase:
+// 16-avos: faixa percentil livre
+// Oitavas/Quartas: apenas selecoes OVR 80+
+// Semi/Final: apenas selecoes do tier Top
+function sortearAdversario(restantes, forcas, etapa) {
+  let pool;
+  if (etapa.tipo === 'top') {
+    pool = restantes.filter(t => TIERS_FIXOS.top.includes(t.name));
+  } else if (etapa.tipo === 'minOVR') {
+    pool = restantes.filter(t => (forcas[t.id] || 70) >= etapa.minOVR);
+  } else {
+    const ord = [...restantes].sort((a,b) => (forcas[b.id]||70) - (forcas[a.id]||70));
+    const n = ord.length;
+    const lo = Math.floor(etapa.min * n);
+    const hi = Math.min(n, Math.max(lo+1, Math.ceil(etapa.max * n)));
+    pool = ord.slice(lo, hi);
+  }
+  if (!pool.length) pool = restantes;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
+
 
 /**
  * MOTOR BRASFOOT-INSPIRADO — calibrado para Copa 2026
@@ -126,8 +138,9 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca }) {
   const cAdv = 2 + Math.round((1 - posse) * 4); // 2–4
 
   // prob por chance: protagonista +0.33 de base, coeficiente alto para diferenciar bem
-  const pEu  = Math.max(0.18, Math.min(0.52, 0.33 + (mA - aD) * 0.012));
-  const pAdv = Math.max(0.10, Math.min(0.32, 0.22 + (aA - mD) * 0.012));
+  // leve dificuldade extra: base de pEu baixou, pAdv subiu
+  const pEu  = Math.max(0.17, Math.min(0.48, 0.29 + (mA - aD) * 0.012));
+  const pAdv = Math.max(0.12, Math.min(0.37, 0.25 + (aA - mD) * 0.012));
 
   // duelo: luck minúsculo ±2% — só um toque de imprevisibilidade
   let gEu = 0, gAdv = 0;
