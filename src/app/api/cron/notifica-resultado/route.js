@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+// Aumente este tempo se o seu plano na Vercel permitir (Pro permite até 300s)
+export const maxDuration = 300
+
+// 🛡️ O SEGREDO ANTI-BAN: Função que pausa a execução
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function GET() {
   const supabase = createClient(
@@ -88,6 +93,11 @@ export async function GET() {
         }
         
         relatorio.push({ usuario: usuario.nickname, pontos: pontosGanhos, posicao: posicaoRanking })
+
+        // ⏱️ A MÁGICA ACONTECE AQUI:
+        // Gera um delay aleatório entre 1.5 e 3 segundos para simular digitação humana
+        const tempoEspera = Math.floor(Math.random() * (3000 - 1500 + 1)) + 1500;
+        await sleep(tempoEspera);
       }
 
       // 5. Marca o jogo como notificado para não enviar repetido no próximo ciclo do cron
