@@ -98,41 +98,40 @@ function sortearAdversario(restantes, forcas, banda) {
 }
 
 /**
- * MOTOR BRASFOOT-INSPIRADO
- * Calibrado para a Copa 2026:
- * - Usuário: variância de forma ±4 (time especial, mais consistente)
- * - Adversário: variância ±6 (times normais, mais imprevisíveis)
- * - Bônus de protagonista: +0.08 em pEu, teto de pAdv mais baixo
- * - Resultado típico: usuário ~1.6 gols · adversário ~1.0 gol por jogo
+ * MOTOR BRASFOOT-INSPIRADO — calibrado para Copa 2026
+ *
+ * Princípio: diferença de força tem que dominar sobre sorte.
+ * Amplitude de forma ±3 para ambos os lados (era ±4/±6).
+ * Coeficiente 0.012 por ponto de diferença (era 0.008).
+ *
+ * Exemplos com time usuário OVR 82:
+ *   vs time 82 (igual)  → ~1.65 gols × ~1.00 gols esperado
+ *   vs time 68 (fraco)  → ~2.20 gols × ~0.45 gols esperado
+ *   vs time 88 (forte)  → ~1.20 gols × ~1.40 gols esperado
  */
 function simularMotor({ meuAtq, meuMei, minDef, advForca }) {
-  // usuário joga mais consistente — time montado com muito cuidado
-  const mA = forma(meuAtq, 4);
-  const mM = forma(meuMei, 4);
-  const mD = forma(minDef, 4);
-  // adversário tem mais oscilação — pode ter dia ruim ou grande atuação
-  const aA = forma(advForca * 0.96, 6);
-  const aM = forma(advForca,        6);
-  const aD = forma(advForca * 0.96, 6);
+  // amplitude pequena → força real domina, zebras existem mas são raras
+  const mA = forma(meuAtq, 3);
+  const mM = forma(meuMei, 3);
+  const mD = forma(minDef, 3);
+  const aA = forma(advForca * 0.97, 3);
+  const aM = forma(advForca,        3);
+  const aD = forma(advForca * 0.97, 3);
 
-  // domínio do meio-campo → posse (33-67% — realismo)
+  // posse pelo meio-campo (33–67%)
   const posse = Math.max(0.33, Math.min(0.67, mM / (mM + aM)));
 
-  // chances de gol por lado — usuário ganha +1 extra (protagonista)
-  const cEu  = 4 + Math.round(posse * 5);      // 4–7
-  const cAdv = 3 + Math.round((1 - posse) * 4); // 3–5
+  // chances por lado — base enxuta para placar realista
+  const cEu  = 3 + Math.round(posse       * 4); // 3–5
+  const cAdv = 2 + Math.round((1 - posse) * 4); // 2–4
 
-  // probabilidade de converter CADA chance
-  // base 27% para o usuário (+0.08 protagonista), teto do adversário em 0.30
-  const pEu  = Math.max(0.18, Math.min(0.46, 0.27 + (mA - aD) * 0.008 + 0.08));
-  const pAdv = Math.max(0.11, Math.min(0.30, 0.21 + (aA - mD) * 0.006));
+  // prob por chance: protagonista +0.33 de base, coeficiente alto para diferenciar bem
+  const pEu  = Math.max(0.18, Math.min(0.52, 0.33 + (mA - aD) * 0.012));
+  const pAdv = Math.max(0.10, Math.min(0.32, 0.22 + (aA - mD) * 0.012));
 
-  // duelo individual (Brasfoot): chute vs defesa + luck ±4
+  // duelo: luck minúsculo ±2% — só um toque de imprevisibilidade
   let gEu = 0, gAdv = 0;
-  const duelo = (prob) => {
-    const luck = (Math.random() * 8 - 4) * 0.01;
-    return Math.random() < Math.max(0, Math.min(1, prob + luck));
-  };
+  const duelo = prob => Math.random() < Math.max(0, Math.min(1, prob + (Math.random() * 0.04 - 0.02)));
   for (let i = 0; i < cEu;  i++) if (duelo(pEu))  gEu++;
   for (let i = 0; i < cAdv; i++) if (duelo(pAdv)) gAdv++;
 
@@ -214,6 +213,7 @@ export default function Game7x0() {
   const [planoSorteio, setPlanoSorteio] = useState([]);
   const [rodadaAtual, setRodadaAtual] = useState(0);
   const [ajudaUsada, setAjudaUsada] = useState(false);
+  const [teamsUsados, setTeamsUsados] = useState([]); // IDs das seleções já sorteadas nesse draft
   const [currentRolledTeam, setCurrentRolledTeam] = useState(null);
   const [availablePlayers, setAvailablePlayers] = useState([]);
   const [isRolling, setIsRolling] = useState(false);
@@ -266,7 +266,7 @@ export default function Game7x0() {
 
   const iniciarDraft = key => {
     setFormacaoKey(key); setMyTeam([]); setPlanoSorteio(gerarPlanoSorteio());
-    setRodadaAtual(0); setAjudaUsada(false); setStep('draft');
+    setRodadaAtual(0); setAjudaUsada(false); setTeamsUsados([]); setStep('draft');
   };
 
   const verificarVaga = pos => {
@@ -287,9 +287,14 @@ export default function Game7x0() {
     setAvailablePlayers(ord); setIsRolling(false);
   };
 
-  const poolDaRodada = () => {
+  // Filtra o pool removendo seleções já sorteadas neste draft
+  const poolDaRodada = (excluirId = null) => {
     const tier = planoSorteio[rodadaAtual];
-    return tiers[tier]?.length ? tiers[tier] : allTeams;
+    const base = tiers[tier]?.length ? tiers[tier] : allTeams;
+    const filtrado = base.filter(t => !teamsUsados.includes(t.id) && t.id !== excluirId);
+    // fallback: se o tier esgotou (todos já usados), abre para qualquer seleção ainda disponível
+    if (filtrado.length === 0) return allTeams.filter(t => !teamsUsados.includes(t.id) && t.id !== excluirId);
+    return filtrado;
   };
 
   const rolarDado = () => {
@@ -306,8 +311,9 @@ export default function Game7x0() {
   const usarAjuda = () => {
     if (ajudaUsada||isRolling||!currentRolledTeam) return;
     setAjudaUsada(true);
-    const pool = poolDaRodada().filter(t=>t.id!==currentRolledTeam.id);
-    const p = pool.length ? pool : poolDaRodada();
+    // exclui também a seleção atual ao buscar substituta
+    const pool = poolDaRodada(currentRolledTeam.id);
+    const p = pool.length ? pool : allTeams.filter(t=>t.id!==currentRolledTeam.id);
     setIsRolling(true); setAvailablePlayers([]); setCurrentRolledTeam(null);
     let v=0;
     const iv = setInterval(() => {
@@ -319,6 +325,8 @@ export default function Game7x0() {
 
   const selecionarJogador = p => {
     if (myTeam.length>=11||myTeam.some(x=>x.id===p.id)||!verificarVaga(p.position)) return;
+    // marca a seleção como usada para não sair de novo
+    setTeamsUsados(prev => [...prev, currentRolledTeam.id]);
     setMyTeam([...myTeam, {...p, selectionName: currentRolledTeam.name}]);
     setRodadaAtual(prev=>prev+1); setCurrentRolledTeam(null); setAvailablePlayers([]);
   };
@@ -539,6 +547,7 @@ export default function Game7x0() {
     setCurrentRolledTeam(null); setAvailablePlayers([]); setGrupoAtual(null);
     setTabelaGrupo(null); setScoreboard(null); setResultadoFinal(null);
     setEsperandoAcao(null); setGolFlash(null); setEventosPartida([]); setMinutoAtual(0);
+    setTeamsUsados([]); setRodadaAtual(0); setAjudaUsada(false);
   };
 
   // ── render helpers ─────────────────────────────────────────────────────────
