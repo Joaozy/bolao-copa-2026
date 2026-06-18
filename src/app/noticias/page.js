@@ -34,7 +34,15 @@ const SELECOES_COPA = Object.values(GRUPOS_COPA).flat();
 const POSICAO_LABEL = { GOL:'Goleiro', DEF:'Zagueiro/Lateral', MEI:'Meio-campo', ATA:'Atacante' };
 const POSICAO_COR   = { GOL:'#F2C14E', DEF:'#5FA8D3', MEI:'#8AD68A', ATA:'#D7263D' };
 const ORDEM_POSICAO = { GOL:0, DEF:1, MEI:2, ATA:3 };
-const TIER_LABEL    = { top:'🔥 Nível Top', medio:'⚖️ Nível Médio/Bom', baixo:'🌱 Nível Médio/Fraco' };
+const TIER_LABEL = { top:'🔥 Nível Top', medio:'⚖️ Nível Médio/Bom', baixo:'🌱 Nível Médio/Fraco' };
+
+// Tiers curados manualmente — refletem o nível real das seleções na Copa 2026.
+const TIERS_FIXOS = {
+  top: ['Brazil','Argentina','France','Spain','Belgium','England','Netherlands','Germany','Portugal'],
+  medio: ['Mexico','South Korea','Switzerland','Morocco','Scotland','Türkiye','USA','Ecuador',
+          'Japan','Sweden','Uruguay','Norway','Colombia','Croatia'],
+};
+// Tudo que não está em top nem medio cai automaticamente em baixo.
 
 // ─── fases do mata-mata: faixas de percentil de dificuldade ───────────────────
 const FASES_MATA_MATA = [
@@ -63,10 +71,17 @@ function calcularForcaSelecao(jogadores) {
   return Math.round(top11.reduce((s,p) => s + p.overall, 0) / top11.length);
 }
 
-function definirTiers(times, forcas) {
-  const ord = [...times].sort((a,b) => (forcas[b.id]||70) - (forcas[a.id]||70));
-  const t = Math.ceil(ord.length / 3);
-  return { top: ord.slice(0, t), medio: ord.slice(t, t*2), baixo: ord.slice(t*2) };
+function definirTiers(times) {
+  const top   = times.filter(t => TIERS_FIXOS.top.includes(t.name));
+  const medio = times.filter(t => TIERS_FIXOS.medio.includes(t.name));
+  const baixo = times.filter(t => !TIERS_FIXOS.top.includes(t.name) && !TIERS_FIXOS.medio.includes(t.name));
+  // fallback: se algum tier vier vazio (problema de nome), distribui equitativamente por OVR
+  if (!top.length || !medio.length || !baixo.length) {
+    const ord = [...times].sort((a,b) => 0.5 - Math.random()); // embaralhado genérico
+    const s = Math.ceil(ord.length / 3);
+    return { top: ord.slice(0,s), medio: ord.slice(s,s*2), baixo: ord.slice(s*2) };
+  }
+  return { top, medio, baixo };
 }
 
 function gerarPlanoSorteio() {
@@ -84,39 +99,39 @@ function sortearAdversario(restantes, forcas, banda) {
 
 /**
  * MOTOR BRASFOOT-INSPIRADO
- * 1. Setores: Ataque / Meio / Defesa calculados separadamente
- * 2. Domínio do meio-campo → "posse" → frequência de chances de gol
- * 3. Cada chance é um DUELO: poder do chute vs poder da defesa + luck
- * 4. Goleadas são raras porque cada duelo é independente e calibrado
- * 5. Fator zebra: luck ±10 em cada duelo individual
+ * Calibrado para a Copa 2026:
+ * - Usuário: variância de forma ±4 (time especial, mais consistente)
+ * - Adversário: variância ±6 (times normais, mais imprevisíveis)
+ * - Bônus de protagonista: +0.08 em pEu, teto de pAdv mais baixo
+ * - Resultado típico: usuário ~1.6 gols · adversário ~1.0 gol por jogo
  */
 function simularMotor({ meuAtq, meuMei, minDef, advForca }) {
-  // forma "dia de jogo" por setor (amplitude menor = menos caos)
-  const mA = forma(meuAtq, 5);
-  const mM = forma(meuMei, 5);
-  const mD = forma(minDef, 5);
-  // adversário tem força única mas dividimos por setor com leve variação
-  const aA = forma(advForca * 0.97, 5);
-  const aM = forma(advForca,        5);
-  const aD = forma(advForca * 0.97, 5);
+  // usuário joga mais consistente — time montado com muito cuidado
+  const mA = forma(meuAtq, 4);
+  const mM = forma(meuMei, 4);
+  const mD = forma(minDef, 4);
+  // adversário tem mais oscilação — pode ter dia ruim ou grande atuação
+  const aA = forma(advForca * 0.96, 6);
+  const aM = forma(advForca,        6);
+  const aD = forma(advForca * 0.96, 6);
 
-  // domínio do meio-campo → posse (clamped 33-67% — realismo)
+  // domínio do meio-campo → posse (33-67% — realismo)
   const posse = Math.max(0.33, Math.min(0.67, mM / (mM + aM)));
 
-  // chances de gol por lado (3 a 8 por jogo — Copa tem jogos tensos)
-  const cEu  = 3 + Math.round(posse       * 5);  // 3-6
-  const cAdv = 3 + Math.round((1-posse)   * 5);
+  // chances de gol por lado — usuário ganha +1 extra (protagonista)
+  const cEu  = 4 + Math.round(posse * 5);      // 4–7
+  const cAdv = 3 + Math.round((1 - posse) * 4); // 3–5
 
   // probabilidade de converter CADA chance
-  // base 25%, range realista 14-38%
-  const pEu  = Math.max(0.14, Math.min(0.38, 0.25 + (mA - aD) * 0.007 + 0.03)); // +0.03 protagonista
-  const pAdv = Math.max(0.14, Math.min(0.38, 0.25 + (aA - mD) * 0.007));
+  // base 27% para o usuário (+0.08 protagonista), teto do adversário em 0.30
+  const pEu  = Math.max(0.18, Math.min(0.46, 0.27 + (mA - aD) * 0.008 + 0.08));
+  const pAdv = Math.max(0.11, Math.min(0.30, 0.21 + (aA - mD) * 0.006));
 
-  // simula cada duelo individualmente (Brasfoot: chute vs defesa + luck)
+  // duelo individual (Brasfoot): chute vs defesa + luck ±4
   let gEu = 0, gAdv = 0;
   const duelo = (prob) => {
-    const luck = (Math.random() * 10 - 5);   // ±5 luck por lance
-    return Math.random() < Math.max(0, Math.min(1, prob + luck * 0.01));
+    const luck = (Math.random() * 8 - 4) * 0.01;
+    return Math.random() < Math.max(0, Math.min(1, prob + luck));
   };
   for (let i = 0; i < cEu;  i++) if (duelo(pEu))  gEu++;
   for (let i = 0; i < cAdv; i++) if (duelo(pAdv)) gAdv++;
@@ -238,7 +253,7 @@ export default function Game7x0() {
           f[time.id] = calcularForcaSelecao((jog||[]).filter(j=>j.team_id===time.id));
         });
         setForcaPorTime(f);
-        setTiers(definirTiers(times, f));
+        setTiers(definirTiers(times));
       }
       setCarregando(false);
     }
