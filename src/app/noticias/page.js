@@ -121,7 +121,7 @@ function sortearAdversario(restantes, forcas, etapa) {
  *   vs time 68 (fraco)  → ~2.20 gols × ~0.45 gols esperado
  *   vs time 88 (forte)  → ~1.20 gols × ~1.40 gols esperado
  */
-function simularMotor({ meuAtq, meuMei, minDef, advForca }) {
+function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, ofensividade = 'equilibrado' }) {
   // amplitude pequena → força real domina, zebras existem mas são raras
   const mA = forma(meuAtq, 3);
   const mM = forma(meuMei, 3);
@@ -138,11 +138,21 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca }) {
   const cAdv = 2 + Math.round((1 - posse) * 4); // 2–4
 
   // prob por chance: protagonista +0.33 de base, coeficiente alto para diferenciar bem
-  // leve dificuldade extra: base de pEu baixou, pAdv subiu
-  const pEu  = Math.max(0.17, Math.min(0.48, 0.29 + (mA - aD) * 0.012));
-  const pAdv = Math.max(0.12, Math.min(0.37, 0.25 + (aA - mD) * 0.012));
+  // Modo Brasil: bonus leve pois equipe 100% brasileira
+  const pEuBase  = modoBrasil ? 0.32 : 0.29;
+  const pAdvBase = 0.25;
 
-  // duelo: luck minúsculo ±2% — só um toque de imprevisibilidade
+  // Ofensividade: ajustes sutis nas probabilidades
+  // Ofensivo -> +ataque +exposicao | Defensivo -> -ataque -exposicao
+  const ofBonusEu  = { ofensivo: +0.04, equilibrado: 0, defensivo: -0.03 };
+  const ofBonusAdv = { ofensivo: +0.02, equilibrado: 0, defensivo: -0.04 };
+  const bonusEu  = ofBonusEu[ofensividade]  ?? 0;
+  const bonusAdv = ofBonusAdv[ofensividade] ?? 0;
+
+  const pEu  = Math.max(0.17, Math.min(0.50, pEuBase  + (mA - aD) * 0.012 + bonusEu));
+  const pAdv = Math.max(0.10, Math.min(0.40, pAdvBase + (aA - mD) * 0.012 + bonusAdv));
+
+  // duelo: luck minusculo +/-2%
   let gEu = 0, gAdv = 0;
   const duelo = prob => Math.random() < Math.max(0, Math.min(1, prob + (Math.random() * 0.04 - 0.02)));
   for (let i = 0; i < cEu;  i++) if (duelo(pEu))  gEu++;
@@ -212,11 +222,14 @@ function gerarSlotsCampo(f) {
 
 export default function Game7x0() {
   const [step, setStep] = useState('formacao');
+  const [gameMode, setGameMode] = useState('draft'); // 'draft' | 'brasil'
   const [modo, setModo] = useState('classico');
   const [velocidade, setVelocidade] = useState('normal');
+  const [ofensividade, setOfensividade] = useState('equilibrado'); // 'ofensivo'|'equilibrado'|'defensivo'
   const [nomeTime, setNomeTime] = useState('');
   const [formacaoKey, setFormacaoKey] = useState(null);
   const [myTeam, setMyTeam] = useState([]);
+  const [brazilPlayers, setBrazilPlayers] = useState([]);
 
   const [allTeams, setAllTeams] = useState([]);
   const [forcaPorTime, setForcaPorTime] = useState({});
@@ -273,13 +286,45 @@ export default function Game7x0() {
     load();
   }, []);
 
+  // Carrega jogadores do Brasil ao activar Modo Brasil
+  useEffect(() => {
+    if (gameMode === 'brasil' && allTeams.length) {
+      const brazil = allTeams.find(t => t.name === 'Brazil');
+      if (brazil) {
+        supabase.from('players').select('id,name,position,overall,photo_url')
+          .eq('team_id', brazil.id).eq('competition_id', COMPETITION_ID_COPA)
+          .then(({ data }) => {
+            const ord = (data||[]).sort((a,b) => {
+              const pa = ORDEM_POSICAO[classificarPosicao(a.position)]??9;
+              const pb = ORDEM_POSICAO[classificarPosicao(b.position)]??9;
+              return pa!==pb ? pa-pb : b.overall-a.overall;
+            });
+            setBrazilPlayers(ord);
+          });
+      }
+    }
+  }, [gameMode, allTeams]);
+
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logsSimulacao]);
 
   const iniciarDraft = key => {
-    setFormacaoKey(key); setMyTeam([]); setPlanoSorteio(gerarPlanoSorteio());
-    setRodadaAtual(0); setAjudaUsada(false); setTeamsUsados([]); setStep('draft');
+    setFormacaoKey(key); setMyTeam([]); setTeamsUsados([]);
+    setRodadaAtual(0); setAjudaUsada(false);
+    if (gameMode === 'brasil') {
+      // Modo Brasil: sem dados, jogador escolhe direto do elenco verde-amarelo
+      setStep('draft');
+    } else {
+      setPlanoSorteio(gerarPlanoSorteio());
+      setStep('draft');
+    }
+  };
+
+  // Seleciona jogador brasileiro direto (sem sorteio)
+  const selecionarJogadorBrasil = p => {
+    if (myTeam.length>=11||myTeam.some(x=>x.id===p.id)||!verificarVaga(p.position)) return;
+    setMyTeam([...myTeam, {...p, selectionName:'Brazil'}]);
   };
 
   const verificarVaga = pos => {
@@ -383,7 +428,8 @@ export default function Game7x0() {
   const jogarPartida = async ({ faseLabel, rival, ataque, meio, defesa, nomeExibido }) => {
     const advForca = forcaPorTime[rival.id] || 78;
     const { gEu, gAdv, cEu, cAdv, posse } = simularMotor({
-      meuAtq: ataque, meuMei: meio, minDef: defesa, advForca
+      meuAtq: ataque, meuMei: meio, minDef: defesa, advForca,
+      modoBrasil: gameMode === 'brasil', ofensividade
     });
     const eventos = gerarMinutosGols(gEu, gAdv);
 
@@ -561,6 +607,7 @@ export default function Game7x0() {
     setTabelaGrupo(null); setScoreboard(null); setResultadoFinal(null);
     setEsperandoAcao(null); setGolFlash(null); setEventosPartida([]); setMinutoAtual(0);
     setTeamsUsados([]); setRodadaAtual(0); setAjudaUsada(false);
+    setGameMode('draft'); setOfensividade('equilibrado'); setBrazilPlayers([]);
   };
 
   // ── render helpers ─────────────────────────────────────────────────────────
@@ -745,7 +792,11 @@ export default function Game7x0() {
     <div className="g7">
       <p className="g7-eyebrow">Draft &amp; Simulação</p>
       <h1 className="g7-h1">Desafio 7×0 — Copa 2026</h1>
-      <p className="g7-sub">Monte sua seleção dos sonhos com craques das 48 seleções e tente vencer a Copa do Mundo.</p>
+      <p className="g7-sub">
+        {gameMode === 'brasil'
+          ? '🇧🇷 Monte o melhor XI do Brasil e leve a Canarinho ao título!'
+          : 'Monte sua seleção dos sonhos com craques das 48 seleções e tente vencer a Copa do Mundo.'}
+      </p>
 
       {carregando && <p style={{textAlign:'center',marginTop:40,color:'rgba(244,241,234,.6)'}}>Carregando seleções...</p>}
 
@@ -757,13 +808,32 @@ export default function Game7x0() {
               onChange={e=>setNomeTime(e.target.value)} maxLength={24}/>
           </div>
 
+          {/* Tipo de Draft */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
-            color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Modo de jogo</p>
+            color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Tipo de draft</p>
+          <div className="g7-pills" style={{marginBottom:28}}>
+            <button className={`g7-pill ${gameMode==='draft'?'on':''}`} onClick={()=>setGameMode('draft')}>🌍 Draft Livre</button>
+            <button className={`g7-pill ${gameMode==='brasil'?'on':''}`} onClick={()=>setGameMode('brasil')}>🇧🇷 Modo Brasil</button>
+          </div>
+
+          {/* Modo de exibição */}
+          <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
+            color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Modo de exibição</p>
           <div className="g7-pills" style={{marginBottom:28}}>
             <button className={`g7-pill ${modo==='classico'?'on':''}`} onClick={()=>setModo('classico')}>Clássico · notas visíveis</button>
             <button className={`g7-pill ${modo==='almanaque'?'on':''}`} onClick={()=>setModo('almanaque')}>Almanaque · na memória</button>
           </div>
 
+          {/* Mentalidade padrão */}
+          <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
+            color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Mentalidade padrão</p>
+          <div className="g7-pills" style={{marginBottom:28}}>
+            <button className={`g7-pill ${ofensividade==='ofensivo'?'on':''}`} onClick={()=>setOfensividade('ofensivo')}>⚔️ Ofensivo</button>
+            <button className={`g7-pill ${ofensividade==='equilibrado'?'on':''}`} onClick={()=>setOfensividade('equilibrado')}>⚖️ Equilibrado</button>
+            <button className={`g7-pill ${ofensividade==='defensivo'?'on':''}`} onClick={()=>setOfensividade('defensivo')}>🛡️ Defensivo</button>
+          </div>
+
+          {/* Velocidade */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
             color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Velocidade da simulação</p>
           <div className="g7-pills" style={{marginBottom:32}}>
@@ -876,8 +946,11 @@ export default function Game7x0() {
             </div>
           </div>
 
-          {/* painel de sorteio */}
+          {/* painel direito: sorteio livre OU selecao brasil */}
           <div className="g7-dicecol" style={{width:350,flexShrink:0}}>
+
+            {/* --- DRAFT LIVRE --- */}
+            {gameMode === 'draft' && (
             <div className="g7-card" style={{padding:16,textAlign:'center'}}>
               {myTeam.length<11 && (
                 <p style={{fontFamily:'var(--font-mono)',fontSize:11,color:'rgba(244,241,234,.55)',marginBottom:8}}>
@@ -888,7 +961,6 @@ export default function Game7x0() {
                 disabled={isRolling||myTeam.length>=11||currentRolledTeam!==null}>
                 {isRolling?'🎰 Sorteando...':currentRolledTeam?'👇 Escolha 1 atleta':'🎲 Rolar o dado'}
               </button>
-
               {currentRolledTeam && (
                 <div style={{marginTop:14,padding:12,background:'var(--ink)',borderRadius:10,textAlign:'left'}}>
                   <div style={{textAlign:'center',marginBottom:8}}>
@@ -902,7 +974,6 @@ export default function Game7x0() {
                       Força {forcaPorTime[currentRolledTeam.id]||'?'}
                     </p>}
                   </div>
-
                   {!isRolling && !ajudaUsada && (
                     <button className="g7-ajuda" onClick={usarAjuda}>
                       🔁 Não gostei — sortear outra (vale 1× no jogo)
@@ -913,7 +984,6 @@ export default function Game7x0() {
                       ajuda já utilizada
                     </p>
                   )}
-
                   <div style={{maxHeight:300,overflowY:'auto',marginTop:10}}>
                     {availablePlayers.map(p=>{
                       const cat = classificarPosicao(p.position);
@@ -936,6 +1006,55 @@ export default function Game7x0() {
                 </div>
               )}
             </div>
+            )}
+
+            {/* --- MODO BRASIL --- */}
+            {gameMode === 'brasil' && (
+            <div className="g7-card" style={{padding:16}}>
+              <div style={{textAlign:'center',marginBottom:12}}>
+                <span style={{fontSize:28}}>🇧🇷</span>
+                <h3 style={{fontFamily:'var(--font-display)',textTransform:'uppercase',margin:'4px 0 2px',color:'var(--gold)'}}>Elenco do Brasil</h3>
+                <p style={{fontFamily:'var(--font-mono)',fontSize:11,color:'rgba(244,241,234,.5)',margin:0}}>
+                  Escolha seu XI ideal · {myTeam.length}/11
+                </p>
+              </div>
+              {brazilPlayers.length === 0 && (
+                <p style={{textAlign:'center',fontSize:12,color:'rgba(244,241,234,.5)'}}>Carregando jogadores...</p>
+              )}
+              <div style={{maxHeight:420,overflowY:'auto'}}>
+                {['GOL','DEF','MEI','ATA'].map(cat => (
+                  <div key={cat} style={{marginBottom:8}}>
+                    <div style={{background:POSICAO_COR[cat]+'22',padding:'4px 10px',borderRadius:6,
+                      fontFamily:'var(--font-mono)',fontSize:10,color:POSICAO_COR[cat],
+                      textTransform:'uppercase',letterSpacing:'.1em',marginBottom:2}}>
+                      {POSICAO_LABEL[cat]} · {myTeam.filter(p=>classificarPosicao(p.position)===cat).length}/{formacao?.[cat]||'?'}
+                    </div>
+                    {brazilPlayers.filter(p=>classificarPosicao(p.position)===cat).map(p=>{
+                      const jaEsta = myTeam.some(x=>x.id===p.id);
+                      const livre = !jaEsta && verificarVaga(p.position);
+                      return (
+                        <div key={p.id} className={`g7-prow ${livre?'livre':''}`}
+                          onClick={()=>livre&&selecionarJogadorBrasil(p)}
+                          style={{cursor:livre?'pointer':jaEsta?'default':'not-allowed',
+                            opacity:jaEsta?0.6:livre?1:0.3,
+                            background:jaEsta?'rgba(242,193,78,.08)':'transparent'}}>
+                          <div>
+                            <strong style={{display:'block',fontSize:13}}>{p.name}</strong>
+                            {jaEsta && <span style={{fontSize:10,color:'var(--gold)',fontFamily:'var(--font-mono)'}}>✓ escalado</span>}
+                          </div>
+                          <span style={{fontFamily:'var(--font-mono)',fontWeight:700,color:POSICAO_COR[cat]}}>
+                            {modo==='almanaque'&&myTeam.length<11 ? '🔒' : p.overall}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+            )}
+
+            <button className="g7-reset" onClick={reiniciar}>← trocar formação</button>
             <button className="g7-reset" onClick={reiniciar}>← trocar formação</button>
           </div>
 
@@ -973,8 +1092,17 @@ export default function Game7x0() {
           )}
 
           {esperandoAcao && (
-            <div className="g7-acwrap">
-              <button className="g7-ac" onClick={clicarAcao}>{esperandoAcao}</button>
+            <div>
+              {/* Seletor de mentalidade por partida — pode mudar a cada jogo */}
+              <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:12}}>
+                {[['ofensivo','⚔️ Ofensivo'],['equilibrado','⚖️ Equilibrado'],['defensivo','🛡️ Defensivo']].map(([v,l])=>(
+                  <button key={v} className={`g7-vtbtn ${ofensividade===v?'on':''}`}
+                    onClick={()=>setOfensividade(v)} style={{fontSize:12,padding:'5px 12px'}}>{l}</button>
+                ))}
+              </div>
+              <div className="g7-acwrap">
+                <button className="g7-ac" onClick={clicarAcao}>{esperandoAcao}</button>
+              </div>
             </div>
           )}
 
