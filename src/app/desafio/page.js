@@ -173,10 +173,10 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, of
   const cEu  = 3 + Math.round(posse       * 4); // 3–5
   const cAdv = 2 + Math.round((1 - posse) * 4); // 2–4
 
-  // prob por chance: protagonista +0.33 de base, coeficiente alto para diferenciar bem
-  // Modo Brasil: bonus leve pois equipe 100% brasileira
-  const pEuBase  = modoBrasil ? 0.32 : 0.29;
-  const pAdvBase = 0.25;
+  // Modo Brasil: rivais jogam extra motivados contra o favorito.
+  // pEuBase cai (sem bônus de protagonista) e pAdvBase sobe (pressão maior).
+  const pEuBase  = modoBrasil ? 0.27 : 0.29;
+  const pAdvBase = modoBrasil ? 0.28 : 0.25;
 
   // Ofensividade: ajustes sutis nas probabilidades
   // Ofensivo -> +ataque +exposicao | Defensivo -> -ataque -exposicao
