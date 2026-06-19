@@ -53,6 +53,42 @@ const FASES_MATA_MATA = [
   { fase:'GRANDE FINAL',     tipo:'top' },
 ];
 
+// Chaveamento provavel do Brasil na Copa 2026
+// Baseado na posicao do Brasil no Grupo C e nos cruzamentos do torneio.
+// Pool varia a cada rodada para dar caminhos diferentes ao jogador.
+const FASES_BRASIL = [
+  {
+    fase: '16-avos de Final',
+    // Brasil (C) cruza com 2° do Grupo D ou melhor 3°
+    pool: ['USA','Paraguay','Australia','Türkiye'],
+    desc: 'Provável rival: 2° do Grupo D',
+  },
+  {
+    fase: 'Oitavas de Final',
+    // Vencedor do lado oposto: Grupos A/B
+    pool: ['Canada','Bosnia & Herzegovina','Qatar','Switzerland','Mexico','South Korea','Czech Republic','South Africa'],
+    desc: 'Rival do Grupo A ou B',
+  },
+  {
+    fase: 'Quartas de Final',
+    // Melhor do caminho E/F
+    pool: ['Germany','Netherlands','Japan','Ivory Coast','Ecuador','Sweden','Tunisia'],
+    desc: 'Rival do Grupo E ou F',
+  },
+  {
+    fase: 'Semifinal',
+    // Grande confronto: possível G/H ou sobrevivente top
+    pool: ['Spain','Belgium','Uruguay','England','Croatia','Morocco','Colombia'],
+    desc: 'Grande duelo de semifinal',
+  },
+  {
+    fase: 'GRANDE FINAL',
+    // Os maiores favoritos ao título
+    pool: ['Argentina','France','Portugal','England','Germany'],
+    desc: 'Final dos sonhos',
+  },
+];
+
 // motor de simulacao (inspirado no Brasfoot)
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -571,13 +607,25 @@ export default function Game7x0() {
     const { ataque, meio, defesa } = calcularSetores();
     const nome = nomeTime.trim() || 'Sua Seleção';
 
-    // sorteio do grupo
-    const letras = Object.keys(GRUPOS_COPA);
-    const letra = letras[Math.floor(Math.random()*letras.length)];
-    const nomesRivais = GRUPOS_COPA[letra];
+    // ── Grupo: fixo no Modo Brasil, sorteado no Draft Livre ──────────────────
+    let letra, nomesRivais;
+    if (gameMode === 'brasil') {
+      letra = 'C';
+      nomesRivais = ['Morocco', 'Haiti', 'Scotland']; // rivais reais do Brasil
+    } else {
+      const letras = Object.keys(GRUPOS_COPA);
+      letra = letras[Math.floor(Math.random()*letras.length)];
+      nomesRivais = GRUPOS_COPA[letra];
+    }
     const rivais = nomesRivais.map(n=>allTeams.find(t=>t.name===n)).filter(Boolean);
     setGrupoAtual({ letra, rivais });
-    await addLog(`🎟️ Sorteio: GRUPO ${letra} — ${nomesRivais.join(', ')}.`, 'titulo');
+
+    if (gameMode === 'brasil') {
+      await addLog('🇧🇷 GRUPO C — Brazil · Morocco · Scotland · Haiti', 'titulo');
+      await addLog('Os rivais do Brasil na Copa 2026. Hora de mostrar o futebol!', 'meio');
+    } else {
+      await addLog(`🎟️ Sorteio: GRUPO ${letra} — ${nomesRivais.join(', ')}.`, 'titulo');
+    }
 
     const tabela = [
       { id:'EU', nome, pontos:0, j:0, v:0, e:0, d:0, gp:0, gc:0, souEu:true },
@@ -621,14 +669,32 @@ export default function Game7x0() {
 
     if (!clf) { setResultadoFinal({status:'eliminado',fase:'Fase de Grupos'}); return; }
 
-    let restantes = allTeams.filter(t=>!rivais.some(r=>r.id===t.id));
+    // ── Mata-mata: chaveamento real do Brasil ou geral ──────────────────────────
+    const fasesAtivas = gameMode === 'brasil' ? FASES_BRASIL : FASES_MATA_MATA;
+    const usadosNasCopas = new Set(rivais.map(r=>r.id)); // nao repetir rivais do grupo
     let vivo=true, faseAlc='';
 
-    for (const etapa of FASES_MATA_MATA) {
+    for (const etapa of fasesAtivas) {
       if (!vivo) break;
-      const adv = sortearAdversario(restantes, forcaPorTime, etapa);
+
+      // sorteia adversario da pool da fase (Brasil) ou do chaveamento geral
+      let adv;
+      if (gameMode === 'brasil') {
+        const candidatos = allTeams.filter(t =>
+          etapa.pool.includes(t.name) && !usadosNasCopas.has(t.id)
+        );
+        const pool = candidatos.length ? candidatos : allTeams.filter(t => !usadosNasCopas.has(t.id));
+        adv = pool[Math.floor(Math.random() * pool.length)];
+        if (adv) await addLog(`🗺️ ${etapa.desc}`, 'meio');
+      } else {
+        adv = sortearAdversario(
+          allTeams.filter(t => !usadosNasCopas.has(t.id)),
+          forcaPorTime,
+          etapa
+        );
+      }
       if (!adv) break;
-      restantes = restantes.filter(t=>t.id!==adv.id);
+      usadosNasCopas.add(adv.id);
 
       await aguardar(`⚔️ Apitar ${etapa.fase}: ${nome} vs ${adv.name}`);
       await addLog(`⚔️ ${etapa.fase.toUpperCase()} ⚔️`, 'titulo');
