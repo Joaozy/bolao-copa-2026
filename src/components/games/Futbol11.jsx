@@ -63,10 +63,7 @@ export default function Futbol11() {
   const [curIdx, setCurIdx]         = useState(0);
   
   const [skipsDisponiveis, setSkipsDisponiveis] = useState(1);
-  
-  // ❤️ NOVO: Sistema de Vidas
   const [vidas, setVidas]                       = useState(3);
-  
   const inputRef                                = useRef(null);
 
   const [busca, setBusca]                                 = useState('');
@@ -83,16 +80,58 @@ export default function Futbol11() {
     loadCopaTimes().then(setAllTeams);
   }, []);
 
+  // ⏱️ EFFECT 1: Loop do Cronômetro
   useEffect(() => {
     if (step !== 'playing' || timerMode === 0) return;
+    
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) { clearInterval(timerRef.current); setStep('timeout'); return 0; }
-        return prev - 1;
-      });
+      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
     }, 1000);
+    
     return () => clearInterval(timerRef.current);
-  }, [step, timerMode]);
+  }, [step, timerMode, curIdx]);
+
+  // ⏱️ EFFECT 2: Resetador do Cronômetro por Turno
+  useEffect(() => {
+    if (step === 'playing' && timerMode > 0) {
+      setTimeLeft(timerMode); 
+    }
+  }, [curIdx, step, timerMode]);
+
+  // ⏱️ EFFECT 3: Monitor de Estouro de Tempo da Seleção
+  const avancarPais = useCallback(() => {
+    const proximo = curIdx + 1;
+    if (proximo >= countries.length) {
+      clearInterval(timerRef.current);
+      setStep('finished');
+    } else {
+      setCurIdx(proximo);
+    }
+  }, [curIdx, countries]);
+
+  useEffect(() => {
+    if (step !== 'playing' || timerMode === 0) return;
+
+    if (timeLeft === 0) {
+      // O tempo acabou!
+      setJogadorSendoEscalado(null);
+      setBusca('');
+      setOpcoes([]);
+
+      const novasVidas = vidas - 1;
+      setVidas(novasVidas);
+
+      if (novasVidas <= 0) {
+        // Morreu pelo relógio
+        clearInterval(timerRef.current);
+        setStep('gameover');
+      } else {
+        // Perdeu vida, mas sobreviveu para o próximo país
+        setMsg({ texto: `⏱️ O tempo acabou! Você perdeu 1 vida (Restam ${novasVidas}). Avançando...`, tipo: 'erro' });
+        avancarPais();
+      }
+    }
+  }, [timeLeft, step, timerMode, vidas, avancarPais]); // Monitora o timeLeft
 
   useEffect(() => {
     if (step === 'playing' && !jogadorSendoEscalado && inputRef.current) {
@@ -111,7 +150,7 @@ export default function Futbol11() {
     setJogadorSendoEscalado(null);
     setMsg({ texto: '', tipo: '' });
     setSkipsDisponiveis(1);
-    setVidas(3); // 🔄 Reseta as vidas
+    setVidas(3); 
     if (timerMode > 0) setTimeLeft(timerMode);
     setStep('playing');
   };
@@ -132,7 +171,6 @@ export default function Futbol11() {
     }
   };
 
-  // 💥 NOVO: Função que tira vida e verifica fim de jogo
   const lidarComErro = (mensagemBase) => {
     const novasVidas = vidas - 1;
     setVidas(novasVidas);
@@ -150,31 +188,35 @@ export default function Futbol11() {
   const clicarNoAutocomplete = (jogador) => {
     const paisAtualObj = countries[curIdx];
 
-    // Erro 1: Jogador não é do país
     if (String(jogador.team_id) !== String(paisAtualObj.id)) {
       lidarComErro(`❌ Errou! ${jogador.name} não joga por ${paisAtualObj.name}.`);
       return;
     }
 
-    // Já escalado (isso dá apenas aviso, não tira vida por ser esquecimento bobo)
     const jaEscalado = Object.values(slots).find(s => s.player.id === jogador.id);
     if (jaEscalado) {
       setMsg({ texto: `⚠️ Você já escalou ${jogador.name}!`, tipo: 'aviso' });
       return;
     }
 
-    const slotsDisponiveisParaEle = SLOTS.filter(s => !slots[s.id] && slotAceita(s, jogador));
+    const slotsDisponiveisParaEle = SLOTS.filter(s => !slots[s.id] && slotAceita(s, ExtrarJogadorPosicoes(jogador)));
     
-    // Erro 2: Jogador não tem vaga (já usou todos os ZAGs, por exemplo)
     if (slotsDisponiveisParaEle.length === 0) {
       lidarComErro(`❌ Sem espaço! As posições de ${jogador.name} já estão preenchidas no campo.`);
       return;
     }
 
-    // Sucesso
     setJogadorSendoEscalado({ jogador, slotsPossiveis: slotsDisponiveisParaEle });
     setOpcoes([]); 
     setMsg({ texto: '', tipo: '' });
+  };
+
+  const ExtrarJogadorPosicoes = (jog) => {
+    return {
+      pos1: jog.pos1 || '',
+      pos2: jog.pos2 || '',
+      pos3: jog.pos3 || ''
+    };
   };
 
   const confirmarPosicao = (slotId) => {
@@ -194,16 +236,6 @@ export default function Futbol11() {
     setBusca('');
     if(inputRef.current) inputRef.current.focus();
   };
-
-  const avancarPais = useCallback(() => {
-    const proximo = curIdx + 1;
-    if (proximo >= countries.length) {
-      clearInterval(timerRef.current);
-      setStep('finished');
-    } else {
-      setCurIdx(proximo);
-    }
-  }, [curIdx, countries]);
 
   const pular = useCallback(() => {
     if (skipsDisponiveis <= 0) return;
@@ -234,7 +266,7 @@ export default function Futbol11() {
   const preenchidos    = Object.keys(slots).length;
   const pct            = Math.round((preenchidos / 11) * 100);
   const paisAtual      = countries[curIdx];
-  const timerCor       = timeLeft <= 10 ? '#ff5252' : timeLeft <= 30 ? '#ffe17a' : '#6fd17a';
+  const timerCor       = timeLeft <= 10 ? '#ff5252' : timeLeft <= 25 ? '#ffe17a' : '#6fd17a';
 
   const miniTime = t => `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
 
@@ -293,7 +325,7 @@ export default function Futbol11() {
         .f11-skip:hover:not(:disabled){background:rgba(215,38,61,.08);}
         .f11-skip:disabled{opacity: 0.4; cursor: not-allowed; border-color: rgba(244,241,234,.2); color: rgba(244,241,234,.4);}
 
-        .f11-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px; text-align:center;margin-bottom:0;}
+        .f11-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px; text-align:center;}
 
         .f11-result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:16px;}
         .f11-result-slot{background:#070a12;border-radius:8px;padding:10px;text-align:center; border:1px solid rgba(244,241,234,.1);}
@@ -325,10 +357,10 @@ export default function Futbol11() {
                 ))}
               </div>
 
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>Cronômetro</p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>Cronômetro por Seleção</p>
               <div className="f11-pills" style={{ marginBottom: 8 }}>
                 {[[0,'⏳ Sem limite'],[90,'90s'],[60,'60s'],[40,'40s']].map(([v,l])=>(
-                  <button key={v} className={`f11-pill ${timerMode===v?'on':''}`} onClick={() => setTimerMode(v)}>{l}</button>
+                  <button key={v} className={`timerMode === v ? 'f11-pill on' : 'f11-pill'}`} onClick={() => setTimerMode(v)} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, padding: '8px 16px', borderRadius: 999, border: '1px solid rgba(244,241,234,.22)', background: timerMode === v ? '#f2c14e' : 'transparent', color: timerMode === v ? '#1a1300' : '#f4f1ea', fontWeight: timerMode === v ? 'bold' : 'normal', cursor: 'pointer' }}>{l}</button>
                 ))}
               </div>
             </div>
@@ -342,20 +374,20 @@ export default function Futbol11() {
         {/* ── PLAYING ── */}
         {step === 'playing' && paisAtual && (
           <div style={{ marginTop: 20 }}>
-            {/* CABEÇALHO DO JOGO: Timer e Vidas */}
+            {/* CABEÇALHO DO JOGO */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: 'rgba(244,241,234,.6)' }}>
                 País {curIdx + 1} de {countries.length} · {preenchidos}/11
               </span>
               
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                 <span style={{ fontSize: 16, letterSpacing: 2 }}>
                   {Array.from({ length: 3 }).map((_, i) => (
                     <span key={i} style={{ opacity: i < vidas ? 1 : 0.2, filter: i >= vidas ? 'grayscale(100%)' : 'none' }}>❤️</span>
                   ))}
                 </span>
                 {timerMode > 0 && (
-                  <span className="f11-timer" style={{ color: timerCor }}>⏱ {miniTime(timeLeft)}</span>
+                  <span className="f11-timer" style={{ color: timerCor }}>⏱️ {miniTime(timeLeft)}</span>
                 )}
               </div>
             </div>
@@ -465,7 +497,6 @@ export default function Futbol11() {
                                   <img src={timeDoJog.badge_url} style={{ width: 24, borderRadius: 3 }} alt="" />
                                 )}
                                 <strong>{jog.name}</strong>
-                                {/* ✂️ A Posição foi removida daqui! */}
                               </div>
                               <span style={{ fontSize: 12, color: 'rgba(244,241,234,.5)' }}>⭐ {jog.overall}</span>
                             </div>
@@ -480,23 +511,13 @@ export default function Futbol11() {
           </div>
         )}
 
-        {/* ── GAMEOVER (Morte Súbita) ── */}
+        {/* ── GAMEOVER ── */}
         {step === 'gameover' && (
           <div style={{ textAlign: 'center', marginTop: 40 }}>
             <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#ff5252' }}>💀 Fim de Jogo!</p>
-            <p style={{ color: 'rgba(244,241,234,.6)', marginBottom: 20 }}>Você perdeu as suas 3 vidas! Você conseguiu escalar {preenchidos}/11 posições.</p>
+            <p style={{ color: 'rgba(244,241,234,.6)', marginBottom: 20 }}>Você perdeu as suas 3 vidas! Conseguiu escalar {preenchidos}/11 posições.</p>
             <ResultGrid slots={slots} />
             <button className="f11-reset" style={{ marginTop: 24 }} onClick={reiniciar}>🔄 Tentar de novo</button>
-          </div>
-        )}
-
-        {/* ── TIMEOUT ── */}
-        {step === 'timeout' && (
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#ff5252' }}>⏱ Tempo esgotado!</p>
-            <p style={{ color: 'rgba(244,241,234,.6)', marginBottom: 20 }}>Você preencheu {preenchidos}/11 posições.</p>
-            <ResultGrid slots={slots} />
-            <button className="f11-reset" style={{ marginTop: 24 }} onClick={reiniciar}>🔄 Jogar de novo</button>
           </div>
         )}
 
