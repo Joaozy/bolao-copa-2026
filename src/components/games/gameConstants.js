@@ -5,8 +5,6 @@ import JOGADORES_COPA from './dados/jogadoresCopa.json';
 
 export const COMPETITION_ID_COPA = 7;
 
-// ─── Posições ───────────────────────────────────────────────────────────────
-
 export const POSICAO_LABEL = {
   GOL: 'Goleiro', DEF: 'Zagueiro/Lateral', MEI: 'Meio-campo', ATA: 'Atacante',
 };
@@ -15,20 +13,15 @@ export const POSICAO_COR = {
 };
 export const ORDEM_POSICAO = { GOL: 0, DEF: 1, MEI: 2, ATA: 3 };
 
-// 👇 NOVO CLASSIFICADOR: Lê perfeitamente as suas siglas em português
 export function classificarPosicao(pos) {
   if (!pos) return 'OUTRO';
   const p = pos.toUpperCase();
-  
-  if (['GOL'].includes(p)) return 'GOL';
-  if (['ZAG', 'LD', 'LE'].includes(p)) return 'DEF';
-  if (['VOL', 'MC', 'ME', 'MD', 'MEI'].includes(p)) return 'MEI';
-  if (['SA', 'PD', 'PE', 'CA'].includes(p)) return 'ATA';
-  
+  if (['GOL', 'GOALKEEPER'].includes(p)) return 'GOL';
+  if (['ZAG', 'LD', 'LE', 'DEF', 'DEFENDER'].includes(p)) return 'DEF';
+  if (['VOL', 'MC', 'ME', 'MD', 'MEI', 'MIDFIELDER'].includes(p)) return 'MEI';
+  if (['SA', 'PD', 'PE', 'CA', 'ATA', 'ATTACKER'].includes(p)) return 'ATA';
   return 'OUTRO';
 }
-
-// ─── Seleções da Copa 2026 ───────────────────────────────────────────────────
 
 export const GRUPOS_COPA = {
   A: ['Mexico', 'South Africa', 'South Korea', 'Czech Republic'],
@@ -53,7 +46,6 @@ export const TIERS_FIXOS = {
     'Japan', 'Sweden', 'Uruguay', 'Norway', 'Colombia', 'Croatia'],
 };
 
-// ─── CSS tokens compartilhados ──────────────────────────────────────────────
 export const CSS_VARS = {
   bg:      '#0a0f1a',
   turf1:   '#123524',
@@ -64,8 +56,6 @@ export const CSS_VARS = {
   ink:     '#070a12',
   linha:   'rgba(244,241,234,0.35)',
 };
-
-// ─── Helpers de data / seed ──────────────────────────────────────────────────
 
 export function hashStr(str) {
   let h = 0;
@@ -98,29 +88,26 @@ export function getTodaySeed() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** Carrega todos os times garantindo que puxa APENAS da Copa, ignorando o Brasileirão */
 export async function loadCopaTimes() {
+  // O SEGREDO DO BUG: .in('name', SELECOES_COPA) ignora o limite de 1000 linhas!
   const { data, error } = await supabase
     .from('teams')
-    .select('id, name, badge_url, flag_code');
+    .select('id, name, badge_url, flag_code')
+    .in('name', SELECOES_COPA);
     
   if (error) {
     console.error("Erro ao buscar times:", error);
     return [];
   }
-  // Peneira final no código para garantir que Bahia, Botafogo, etc., não entrem
-  return data.filter(t => SELECOES_COPA.includes(t.name));
+  return data || [];
 }
 
-/** 👇 CÓDIGO DA BUSCA: Agora lê as posições e o OVR diretamente do JSON */
 export async function loadJogadoresDoTime(teamId) {
-  // Lê diretamente do JSON local, filtrando pelo ID da seleção!
-  const jogadoresDoTime = JOGADORES_COPA.filter(p => p.team_id === teamId);
+  const jogadoresDoTime = JOGADORES_COPA.filter(p => Number(p.team_id) === Number(teamId));
 
   return jogadoresDoTime.sort((a, b) => {
-    // Ordena pela pos1 (Posição principal)
     const pa = ORDEM_POSICAO[classificarPosicao(a.pos1)] ?? 9;
     const pb = ORDEM_POSICAO[classificarPosicao(b.pos1)] ?? 9;
-    return pa !== pb ? pa - pb : b.overall - a.overall;
+    return pa !== pb ? pa - pb : (b.overall || 70) - (a.overall || 70);
   });
 }

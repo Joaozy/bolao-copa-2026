@@ -6,8 +6,7 @@ import {
   hashStr, seededShuffle, getTodaySeed, loadCopaTimes, loadJogadoresDoTime,
 } from '@/components/games/gameConstants';
 
-// ─── Formação fixa: 4-2-3-1 ────────────────────────────────────────────────
-// Adicionado o atributo 'cat' para podermos bater com as múltiplas posições do jogador
+// Adicionado o atributo 'cat' para relacionarmos com as 3 posições do jogador
 const SLOTS = [
   { id: 'ST',  label: 'ATA', cat: 'ATA', x: 50, y: 10 },
   { id: 'LW',  label: 'ATA', cat: 'ATA', x: 18, y: 24 },
@@ -23,19 +22,12 @@ const SLOTS = [
 ];
 const SLOT_IDS = SLOTS.map(s => s.id);
 
-// ─── NOVA LÓGICA DE ACEITAÇÃO: Lê pos1, pos2 e pos3 ────────────────────────
 function slotAceita(slot, player) {
-  // Junta as posições preenchidas do jogador num array (ignora vazias)
   const posicoesDoJogador = [player.pos1, player.pos2, player.pos3].filter(Boolean);
-  
-  // Transforma as siglas (ZAG, VOL, etc.) em categorias principais (DEF, MEI)
   const categoriasDoJogador = posicoesDoJogador.map(classificarPosicao);
-  
-  // Se a categoria do Slot no campo existir nas categorias que o jogador faz, ele aceita!
   return categoriasDoJogador.includes(slot.cat);
 }
 
-// ─── Seed diário por dificuldade ────────────────────────────────────────────
 function escolherPaisesHoje(allTeams, difficulty) {
   const seed = getTodaySeed() + difficulty;
   let pool;
@@ -53,32 +45,29 @@ function escolherPaisesHoje(allTeams, difficulty) {
   return seededShuffle(pool, seed + 'order');
 }
 
-// ─── Componente ─────────────────────────────────────────────────────────────
 export default function Futbol11() {
-  const [step, setStep]             = useState('setup');   // setup | playing | finished | timeout
+  const [step, setStep]             = useState('setup');
   const [difficulty, setDifficulty] = useState('normal');
-  const [timerMode, setTimerMode]   = useState(0);         // 0 = sem timer
+  const [timerMode, setTimerMode]   = useState(0);
 
   const [allTeams, setAllTeams]     = useState([]);
-  const [countries, setCountries]   = useState([]);        // 11 países do dia
-  const [curIdx, setCurIdx]         = useState(0);         // qual país está na vez
-  const [players, setPlayers]       = useState([]);        // jogadores do país atual
+  const [countries, setCountries]   = useState([]);
+  const [curIdx, setCurIdx]         = useState(0);
+  const [players, setPlayers]       = useState([]);
   const [loadingPlayers, setLoadingPlayers] = useState(false);
 
-  const [slots, setSlots]           = useState({});        // { slotId: { player, team } }
-  const [picking, setPicking]       = useState(null);      // jogador aguardando slot
-  const [msg, setMsg]               = useState('');        // feedback temporário
+  const [slots, setSlots]           = useState({});
+  const [picking, setPicking]       = useState(null);
+  const [msg, setMsg]               = useState('');
   const [timeLeft, setTimeLeft]     = useState(0);
 
   const timerRef = useRef(null);
-  const skipped  = useRef(new Set());                      // países que o user pulou
+  const skipped  = useRef(new Set());
 
-  // Carrega times
   useEffect(() => {
     loadCopaTimes().then(setAllTeams);
   }, []);
 
-  // Countdown
   useEffect(() => {
     if (step !== 'playing' || timerMode === 0) return;
     timerRef.current = setInterval(() => {
@@ -90,7 +79,6 @@ export default function Futbol11() {
     return () => clearInterval(timerRef.current);
   }, [step, timerMode]);
 
-  // Carrega jogadores do país atual usando a nova lógica rápida (JSON)
   useEffect(() => {
     if (step !== 'playing' || !countries[curIdx]) return;
     setLoadingPlayers(true);
@@ -113,7 +101,6 @@ export default function Futbol11() {
   };
 
   const selecionarJogador = useCallback(p => {
-    // Verifica se há algum slot disponível para esse jogador baseado nas multiplas posições
     const slotsLivres = SLOTS.filter(s => !slots[s.id] && slotAceita(s, p));
     if (!slotsLivres.length) {
       setMsg(`Não há vaga disponível para ${p.name} nessa formação.`);
@@ -169,13 +156,11 @@ export default function Futbol11() {
     setMsg('');
   };
 
-  // ── Render helpers ─────────────────────────────────────────────────────────
   const preenchidos    = Object.keys(slots).length;
   const pct            = Math.round((preenchidos / 11) * 100);
   const paisAtual      = countries[curIdx];
   const timerCor       = timeLeft <= 10 ? '#ff5252' : timeLeft <= 30 ? '#ffe17a' : '#6fd17a';
   const jogadoresLista = players.filter(p =>
-    // Só mostra jogadores cuja posição cabe em pelo menos um slot vazio
     SLOTS.some(s => !slots[s.id] && slotAceita(s, p))
   );
 
@@ -436,7 +421,6 @@ export default function Futbol11() {
                     : (
                       <div className="f11-playerlist">
                         {jogadoresLista.map(p => {
-                          // Apanha todas as categorias únicas que este jogador sabe jogar
                           const categorias = [...new Set([p.pos1, p.pos2, p.pos3].filter(Boolean).map(classificarPosicao))];
                           const isSel = picking?.id === p.id;
                           return (
@@ -445,7 +429,6 @@ export default function Futbol11() {
                               onClick={() => picking?.id === p.id ? setPicking(null) : selecionarJogador(p)}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <strong style={{ fontSize: 13 }}>{p.name}</strong>
-                                {/* Renderiza as tags das múltiplas posições */}
                                 {categorias.map((c, idx) => (
                                   <span key={idx} className="f11-ptag" style={{ background: POSICAO_COR[c] }}>{c}</span>
                                 ))}
