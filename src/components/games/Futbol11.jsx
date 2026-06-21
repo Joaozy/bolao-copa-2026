@@ -3,8 +3,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   supabase, COMPETITION_ID_COPA,
   TIERS_FIXOS, SELECOES_COPA,
-  loadCopaTimes, buscarJogadoresPorNome
-} from '@/components/games/gameConstants'; // Removido o seededShuffle e getTodaySeed
+  loadCopaTimes
+} from '@/components/games/gameConstants'; 
+
+// 🗄️ IMPORTANDO O JSON LOCAL DIRETAMENTE
+import todosJogadores from '@/components/games/dados/jogadoresCopa.json';
 
 const SLOTS = [
   { id: 'PE',   label: 'PE',   req: ['PE', 'ATA', 'SA'], x: 18, y: 24 },
@@ -25,7 +28,7 @@ function slotAceita(slot, player) {
   return posicoesDoJogador.some(pos => slot.req.includes(pos));
 }
 
-// 🎲 NOVO EMBARALHADOR 100% ALEATÓRIO (Remove a trava diária)
+// 🎲 EMBARALHADOR 100% ALEATÓRIO
 function shuffleArray(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -48,7 +51,7 @@ function escolherPaisesAleatorios(allTeams, difficulty) {
   } else {
     pool = shuffleArray(allTeams).slice(0, 11);
   }
-  return shuffleArray(pool); // Embaralha a ordem final dos 11 selecionados
+  return shuffleArray(pool); 
 }
 
 export default function Futbol11() {
@@ -63,11 +66,10 @@ export default function Futbol11() {
   const [skipsDisponiveis, setSkipsDisponiveis] = useState(1);
   const inputRef                    = useRef(null);
 
-  // ⚡ Novos Estados da Dinâmica de Jogo
+  // ⚡ Estados da Dinâmica de Jogo
   const [busca, setBusca]                                 = useState('');
   const [opcoes, setOpcoes]                               = useState([]);
-  const [loadingBusca, setLoadingBusca]                   = useState(false);
-  const [jogadorSendoEscalado, setJogadorSendoEscalado]   = useState(null); // Guarda o jogador que está aguardando escolha de posição
+  const [jogadorSendoEscalado, setJogadorSendoEscalado]   = useState(null); 
 
   const [slots, setSlots]           = useState({});
   const [msg, setMsg]               = useState({ texto: '', tipo: '' });
@@ -90,7 +92,6 @@ export default function Futbol11() {
     return () => clearInterval(timerRef.current);
   }, [step, timerMode]);
 
-  // Foca no input toda vez que muda de país e não tem jogador sendo escalado
   useEffect(() => {
     if (step === 'playing' && !jogadorSendoEscalado && inputRef.current) {
       inputRef.current.focus();
@@ -99,7 +100,7 @@ export default function Futbol11() {
 
   const iniciar = () => {
     if (!allTeams.length) return;
-    const chosen = escolherPaisesAleatorios(allTeams, difficulty); // Usa a função nova
+    const chosen = escolherPaisesAleatorios(allTeams, difficulty); 
     setCountries(chosen);
     setCurIdx(0);
     setSlots({});
@@ -112,26 +113,28 @@ export default function Futbol11() {
     setStep('playing');
   };
 
-  const lidarComBusca = async (texto) => {
+  // ⚡ NOVA BUSCA LOCAL (Instantânea)
+  const lidarComBusca = (texto) => {
     setBusca(texto);
     setMsg({ texto: '', tipo: '' });
 
     if (texto.length >= 3) {
-      setLoadingBusca(true);
-      const resultados = await buscarJogadoresPorNome(texto); 
+      const termo = texto.toLowerCase().trim();
+      const resultados = todosJogadores
+        .filter(jog => jog.name.toLowerCase().includes(termo))
+        .slice(0, 10); // Mostra no máximo 10 opções
+        
       setOpcoes(resultados);
-      setLoadingBusca(false);
     } else {
       setOpcoes([]);
     }
   };
 
-  // 1️⃣ O USUÁRIO CLICA NO NOME DA LISTA
   const clicarNoAutocomplete = (jogador) => {
     const paisAtualObj = countries[curIdx];
 
-    // Verifica País
-    if (jogador.team_id !== paisAtualObj.id) {
+    // Verifica País garantindo que ambos sejam avaliados como texto (evita bugs de número vs string)
+    if (String(jogador.team_id) !== String(paisAtualObj.id)) {
       setMsg({ texto: `❌ Errou! ${jogador.name} não joga pela seleção de ${paisAtualObj.name}.`, tipo: 'erro' });
       setBusca('');
       setOpcoes([]);
@@ -145,7 +148,7 @@ export default function Futbol11() {
       return;
     }
 
-    // Verifica quais posições o jogador faz E se elas estão vazias no momento
+    // Verifica posições
     const slotsDisponiveisParaEle = SLOTS.filter(s => !slots[s.id] && slotAceita(s, jogador));
     
     if (slotsDisponiveisParaEle.length === 0) {
@@ -156,22 +159,19 @@ export default function Futbol11() {
       return;
     }
 
-    // Passou em tudo! Entra em modo de escolha de posição.
+    // Sucesso inicial
     setJogadorSendoEscalado({ jogador, slotsPossiveis: slotsDisponiveisParaEle });
-    setOpcoes([]); // Esconde o autocomplete
+    setOpcoes([]); 
     setMsg({ texto: '', tipo: '' });
   };
 
-  // 2️⃣ O USUÁRIO CLICA NO BOTÃO DA POSIÇÃO DESEJADA
   const confirmarPosicao = (slotId) => {
     const { jogador } = jogadorSendoEscalado;
     const paisAtualObj = countries[curIdx];
 
-    // Aloca no campo
     setSlots(prev => ({ ...prev, [slotId]: { player: jogador, team: paisAtualObj } }));
     setMsg({ texto: `✅ ${jogador.name} escalado com sucesso!`, tipo: 'sucesso' });
     
-    // Reseta estado local
     setJogadorSendoEscalado(null);
     setBusca('');
     avancarPais();
@@ -295,8 +295,6 @@ export default function Futbol11() {
 
         .f11-reset{font-family:'JetBrains Mono',monospace;font-size:12px;background:transparent; border:1px solid rgba(244,241,234,.25);color:#f4f1ea;padding:8px 18px;border-radius:8px;cursor:pointer;}
         .f11-reset:hover{border-color:#f2c14e;color:#f2c14e;}
-
-        .f11-eyebrow{font-family:'JetBrains Mono',monospace;letter-spacing:.22em;text-transform:uppercase; font-size:11px;color:#f2c14e;text-align:center;}
       `}</style>
 
       <div className="f11">
@@ -343,11 +341,9 @@ export default function Futbol11() {
             </div>
             <div className="f11-progbar"><div className="f11-progfill" style={{ width: `${pct}%` }} /></div>
 
-            {/* O CAMPO TÁTICO */}
             <div className="f11-pitch">
               {SLOTS.map(slot => {
                 const filled = slots[slot.id];
-                // Se estivermos escolhendo a posição, acende os slots possíveis!
                 const isHighlight = jogadorSendoEscalado && jogadorSendoEscalado.slotsPossiveis.find(s => s.id === slot.id);
                 return (
                   <div key={slot.id} className="f11-slot" style={{ left: `${slot.x}%`, top: `${slot.y}%` }}>
@@ -369,7 +365,6 @@ export default function Futbol11() {
               })}
             </div>
 
-            {/* PAINEL INFERIOR: PAÍS + AUTOCOMPLETE/POSICIONAMENTO */}
             <div className="f11-bottom">
               <div>
                 <div className="f11-country-card">
@@ -393,7 +388,6 @@ export default function Futbol11() {
               </div>
 
               <div>
-                {/* Alertas */}
                 {msg.texto && (
                   <div style={{
                     padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 'bold', textAlign: 'center',
@@ -405,9 +399,7 @@ export default function Futbol11() {
                   </div>
                 )}
 
-                {/* 🔀 PAINEL DINÂMICO (Escolha de Posição OU Busca) */}
                 {jogadorSendoEscalado ? (
-                  // TELA DE ESCOLHA DE POSIÇÃO
                   <div style={{ background: '#1c180e', border: '2px solid #f2c14e', borderRadius: 8, padding: 16, textAlign: 'center' }}>
                     <p style={{ color: '#f2c14e', fontWeight: 'bold', marginBottom: 12 }}>
                       Onde você quer escalar {jogadorSendoEscalado.jogador.name}?
@@ -428,7 +420,6 @@ export default function Futbol11() {
                     </button>
                   </div>
                 ) : (
-                  // TELA DE BUSCA ORIGINAL
                   <div className="f11-search-container">
                     <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'rgba(244,241,234,.7)', marginBottom: 8 }}>
                       👇 Digite o nome de um jogador de {paisAtual.name}
@@ -442,11 +433,11 @@ export default function Futbol11() {
                       onChange={(e) => lidarComBusca(e.target.value)}
                     />
 
-                    {/* Autocomplete */}
                     {opcoes.length > 0 && (
                       <div className="f11-autocomplete">
                         {opcoes.map(jog => {
-                          const timeDoJog = allTeams.find(t => t.id === jog.team_id);
+                          // Note que usamos == para lidar com caso o allTeams use string
+                          const timeDoJog = allTeams.find(t => t.id == jog.team_id);
                           return (
                             <div key={jog.id} className="f11-auto-item" onClick={() => clicarNoAutocomplete(jog)}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -462,7 +453,6 @@ export default function Futbol11() {
                         })}
                       </div>
                     )}
-                    {loadingBusca && <p style={{ fontSize: 12, color: '#f2c14e', marginTop: 8 }}>Procurando...</p>}
                   </div>
                 )}
               </div>
