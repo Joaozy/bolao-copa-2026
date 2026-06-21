@@ -1,25 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import DESAFIOS_DB from './dados/top10.json';
 
-// 🗄️ ESTRUTURA DO BANCO DE DADOS (Pode virar um .json externo depois)
-const DESAFIOS_DB = [
-  {
-    id: 1,
-    tema: "Artilheiros da Copa do Mundo (Todos os Tempos)",
-    jogadores: [
-      { id: 1,  nome: "Miroslav Klose",     aceitos: ["miroslav klose", "klose"],                 nacionalidade: "Alemanha", flag_url: "https://flagcdn.com/w40/de.png" },
-      { id: 2,  nome: "Ronaldo",            aceitos: ["ronaldo", "ronaldo fenomeno", "fenomeno"], nacionalidade: "Brasil",   flag_url: "https://flagcdn.com/w40/br.png" },
-      { id: 3,  nome: "Gerd Müller",        aceitos: ["gerd muller", "muller", "gerd mueller"],   nacionalidade: "Alemanha", flag_url: "https://flagcdn.com/w40/de.png" },
-      { id: 4,  nome: "Just Fontaine",      aceitos: ["just fontaine", "fontaine"],               nacionalidade: "França",   flag_url: "https://flagcdn.com/w40/fr.png" },
-      { id: 5,  nome: "Lionel Messi",       aceitos: ["lionel messi", "messi"],                   nacionalidade: "Argentina",flag_url: "https://flagcdn.com/w40/ar.png" },
-      { id: 6,  nome: "Pelé",               aceitos: ["pele"],                                    nacionalidade: "Brasil",   flag_url: "https://flagcdn.com/w40/br.png" },
-      { id: 7,  nome: "Kylian Mbappé",      aceitos: ["kylian mbappe", "mbappe"],                 nacionalidade: "França",   flag_url: "https://flagcdn.com/w40/fr.png" },
-      { id: 8,  nome: "Sándor Kocsis",      aceitos: ["sandor kocsis", "kocsis"],                 nacionalidade: "Hungria",  flag_url: "https://flagcdn.com/w40/hu.png" },
-      { id: 9,  nome: "Jürgen Klinsmann",   aceitos: ["jurgen klinsmann", "klinsmann"],           nacionalidade: "Alemanha", flag_url: "https://flagcdn.com/w40/de.png" },
-      { id: 10, nome: "Grzegorz Kohl",      aceitos: ["helmut rahn", "rahn"],                     nacionalidade: "Alemanha", flag_url: "https://flagcdn.com/w40/de.png" } // Usando Helmut Rahn como placeholder real
-    ]
-  }
-];
+
 
 // 🧹 Função para limpar acentos e espaços extras da digitação
 const normalizarTexto = (texto) => {

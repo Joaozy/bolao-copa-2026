@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { COMPETITION_ID_COPA } from '@/components/games/gameConstants';
+// Em seguida, role o código e onde tinha COMPETITION_ID, troque para COMPETITION_ID_COPA (ou apenas mude o nome da constante para COMPETITION_ID = COMPETITION_ID_COPA)
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
-const COMPETITION_ID = 7;
+const COMPETITION_ID = COMPETITION_ID_COPA;
 const ORCAMENTO = 880;     // OVR budget total por time
 const POOL_SIZE  = 22;     // jogadores no leilão
 const SQUAD_SIZE = 11;     // jogadores para montar o XI

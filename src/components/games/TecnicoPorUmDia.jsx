@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-
+import { COMPETITION_ID_COPA } from '@/components/games/gameConstants';
 // ─── Constantes ───────────────────────────────────────────────────────────────
-const COMPETITION_ID = 7;
+const COMPETITION_ID = COMPETITION_ID_COPA;
 
 const FORMACOES = {
   '4-3-3':   { DEF: 4, MEI: 3, ATA: 3, bonus: { ataque: 0.04,  defesa: -0.02 } },

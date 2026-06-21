@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-
+import { COMPETITION_ID_COPA } from '@/components/games/gameConstants';
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
-const COMPETITION_ID = 7;
+const COMPETITION_ID = COMPETITION_ID_COPA;
 const MAX_TENTATIVAS = 8;
 
 const GRUPOS_COPA = {
