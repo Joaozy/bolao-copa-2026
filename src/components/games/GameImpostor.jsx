@@ -1,10 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-// 👇 Importando nosso "Banco de Dados" de desafios
-import DAILY_CHALLENGES from './dados/impostorChallenges.json'
+import ALL_CHALLENGES from './impostorChallenges.json'
 
-// Misturador de array (Fisher-Yates)
 const shuffleArray = (array) => {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -18,54 +16,67 @@ export default function GameImpostor({ onBack }) {
   const [challenge, setChallenge] = useState(null)
   const [board, setBoard] = useState([])
   const [selectedIDs, setSelectedIDs] = useState([])
-  const [status, setStatus] = useState('playing') // 'playing', 'won', 'lost'
+  const [status, setStatus] = useState('playing')
+  const [playedIds, setPlayedIds] = useState([]) // Memória de jogos da sessão
   
-  useEffect(() => {
-    // Usa a data atual como "Semente" para escolher o desafio do dia
-    const today = Math.floor(Date.now() / 86400000); 
-    const dailyIndex = today % DAILY_CHALLENGES.length;
-    const currentChallenge = DAILY_CHALLENGES[dailyIndex];
+  const loadRandomChallenge = () => {
+    // Filtra os desafios que ainda não foram jogados
+    let available = ALL_CHALLENGES.filter(c => !playedIds.includes(c.id));
     
-    // Pega 6 corretos e 6 impostores para formar um grid de 12 cartas
+    // Se zerou o jogo (jogou todos os 50), reseta a memória
+    if (available.length === 0) {
+      available = ALL_CHALLENGES;
+      setPlayedIds([]);
+    }
+    
+    // Sorteia um novo
+    const randomIndex = Math.floor(Math.random() * available.length);
+    const currentChallenge = available[randomIndex];
+    
+    // Salva na memória para não repetir
+    setPlayedIds(prev => [...prev, currentChallenge.id]);
+    
     const shuffledCorrect = shuffleArray(currentChallenge.correct).slice(0, 6);
     const shuffledImpostors = shuffleArray(currentChallenge.impostors).slice(0, 6);
     
-    // Monta o tabuleiro mapeando quem é impostor e quem não é
     const rawBoard = [
       ...shuffledCorrect.map(name => ({ id: `C-${name}`, name, isImpostor: false })),
       ...shuffledImpostors.map(name => ({ id: `I-${name}`, name, isImpostor: true }))
     ];
     
     setChallenge(currentChallenge);
-    setBoard(shuffleArray(rawBoard)); 
+    setBoard(shuffleArray(rawBoard));
+    setSelectedIDs([]);
+    setStatus('playing');
+  };
+
+  // Carrega o primeiro jogo ao abrir a tela
+  useEffect(() => {
+    loadRandomChallenge();
   }, []);
 
   const handleCardClick = (card) => {
     if (status !== 'playing' || selectedIDs.includes(card.id)) return;
 
     if (card.isImpostor) {
-      // 🚨 CLICOU NO IMPOSTOR!
       setSelectedIDs([...selectedIDs, card.id]);
       setStatus('lost');
     } else {
-      // ✅ CLICOU NO CERTO
       const newSelected = [...selectedIDs, card.id];
       setSelectedIDs(newSelected);
-      
       if (newSelected.filter(id => id.startsWith('C-')).length === 6) {
         setStatus('won');
       }
     }
   };
 
-  if (!challenge) return <div className="text-white text-center p-10">Montando o gramado...</div>;
+  if (!challenge) return <div className="text-white text-center p-10">Aquecendo os motores...</div>;
 
   const correctCount = selectedIDs.filter(id => id.startsWith('C-')).length;
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col items-center">
       
-      {/* HEADER */}
       <div className="w-full flex justify-between items-center mb-6">
         <button onClick={onBack} className="text-gray-400 hover:text-white transition flex items-center gap-2">
           ← Voltar
@@ -87,7 +98,6 @@ export default function GameImpostor({ onBack }) {
         </div>
       </div>
 
-      {/* GRID DE CARTAS */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full mb-8">
         {board.map((card) => {
           const isSelected = selectedIDs.includes(card.id);
@@ -120,7 +130,6 @@ export default function GameImpostor({ onBack }) {
         })}
       </div>
 
-      {/* PAINEL DE RESULTADO */}
       {status !== 'playing' && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -138,18 +147,26 @@ export default function GameImpostor({ onBack }) {
               : 'Você selecionou um Impostor que não pertence a essa categoria!'}
           </p>
           
-          <button 
-            onClick={() => {
-              const texto = status === 'won' 
-                ? `🏆 Joguei "O Impostor" no Bolão Copa 2026 e acertei TUDO!\nCategoria: ${challenge.title}\n\nConsegue bater meu recorde? Acesse bolao-aju.vercel.app`
-                : `🚨 Fui enganado no "O Impostor" do Bolão Copa 2026!\nCategoria: ${challenge.title}\nAcertos: ${correctCount}/6\n\nTente fazer melhor: bolao-aju.vercel.app`;
-              navigator.clipboard.writeText(texto);
-              alert('Copiado para a área de transferência!');
-            }}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition shadow-[0_0_15px_rgba(37,99,235,0.5)]"
-          >
-            Compartilhar no WhatsApp 📱
-          </button>
+          <div className="flex flex-col md:flex-row justify-center gap-4">
+            <button 
+              onClick={loadRandomChallenge}
+              className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition border border-gray-500"
+            >
+              🔄 Jogar Novamente
+            </button>
+            <button 
+              onClick={() => {
+                const texto = status === 'won' 
+                  ? `🏆 Joguei "O Impostor" no Bolão Copa 2026 e acertei TUDO!\nCategoria: ${challenge.title}\n\nConsegue bater meu recorde? Acesse bolao-aju.vercel.app`
+                  : `🚨 Fui enganado no "O Impostor" do Bolão Copa 2026!\nCategoria: ${challenge.title}\nAcertos: ${correctCount}/6\n\nTente fazer melhor: bolao-aju.vercel.app`;
+                navigator.clipboard.writeText(texto);
+                alert('Copiado para a área de transferência!');
+              }}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition shadow-[0_0_15px_rgba(37,99,235,0.5)]"
+            >
+              📱 Compartilhar
+            </button>
+          </div>
         </motion.div>
       )}
 

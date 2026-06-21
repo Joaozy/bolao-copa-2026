@@ -32,15 +32,12 @@ const POSICAO_COR   = { GOL:'#F2C14E', DEF:'#5FA8D3', MEI:'#8AD68A', ATA:'#D7263
 const ORDEM_POSICAO = { GOL:0, DEF:1, MEI:2, ATA:3 };
 const TIER_LABEL = { top:'🔥 Nível Top', medio:'⚖️ Nível Médio/Bom', baixo:'🌱 Nível Médio/Fraco' };
 
-// Tiers curados manualmente — refletem o nível real das seleções na Copa 2026.
 const TIERS_FIXOS = {
   top: ['Brazil','Argentina','France','Spain','Belgium','England','Netherlands','Germany','Portugal'],
   medio: ['Mexico','South Korea','Switzerland','Morocco','Scotland','Türkiye','USA','Ecuador',
           'Japan','Sweden','Uruguay','Norway','Colombia','Croatia'],
 };
-// Tudo que não está em top nem medio cai automaticamente em baixo.
 
-// ─── fases do mata-mata: faixas de percentil de dificuldade ───────────────────
 const FASES_MATA_MATA = [
   { fase:'16-avos de Final', tipo:'percentil', min:0.40, max:1.00 },
   { fase:'Oitavas de Final', tipo:'minOVR',    minOVR:80 },
@@ -49,52 +46,48 @@ const FASES_MATA_MATA = [
   { fase:'GRANDE FINAL',     tipo:'top' },
 ];
 
-// Chaveamento provavel do Brasil na Copa 2026
-// Baseado na posicao do Brasil no Grupo C e nos cruzamentos do torneio.
-// Pool varia a cada rodada para dar caminhos diferentes ao jogador.
 const FASES_BRASIL = [
   {
     fase: '16-avos de Final',
-    // Brasil (C) cruza com 2° do Grupo D ou melhor 3°
     pool: ['USA','Paraguay','Australia','Türkiye'],
     desc: 'Provável rival: 2° do Grupo D',
   },
   {
     fase: 'Oitavas de Final',
-    // Vencedor do lado oposto: Grupos A/B
     pool: ['Canada','Bosnia & Herzegovina','Qatar','Switzerland','Mexico','South Korea','Czech Republic','South Africa'],
     desc: 'Rival do Grupo A ou B',
   },
   {
     fase: 'Quartas de Final',
-    // Melhor do caminho E/F
     pool: ['Germany','Netherlands','Japan','Ivory Coast','Ecuador','Sweden','Tunisia'],
     desc: 'Rival do Grupo E ou F',
   },
   {
     fase: 'Semifinal',
-    // Grande confronto: possível G/H ou sobrevivente top
     pool: ['Spain','Belgium','Uruguay','England','Croatia','Morocco','Colombia'],
     desc: 'Grande duelo de semifinal',
   },
   {
     fase: 'GRANDE FINAL',
-    // Os maiores favoritos ao título
     pool: ['Argentina','France','Portugal','England','Germany'],
     desc: 'Final dos sonhos',
   },
 ];
 
-// motor de simulacao (inspirado no Brasfoot)
-
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-function classificarPosicao(p) {
-  return ({ Goalkeeper:'GOL', Defender:'DEF', Midfielder:'MEI', Attacker:'ATA' })[p] || 'OUTRO';
+// 👇 CORRIGIDO: Agora lê as siglas exatas em português do seu banco de dados
+function classificarPosicao(pos) {
+  if (!pos) return 'OUTRO';
+  const p = pos.toUpperCase();
+  if (['GOL', 'GOALKEEPER'].includes(p)) return 'GOL';
+  if (['ZAG', 'LD', 'LE', 'DEF', 'DEFENDER'].includes(p)) return 'DEF';
+  if (['VOL', 'MC', 'ME', 'MD', 'MEI', 'MIDFIELDER'].includes(p)) return 'MEI';
+  if (['SA', 'PD', 'PE', 'CA', 'ATA', 'ATTACKER'].includes(p)) return 'ATA';
+  return 'OUTRO';
 }
-function embaralhar(a) { return [...a].sort(() => Math.random() - 0.5); }
 
-// variacao de forma: "dia de jogo" - controla zebras
+function embaralhar(a) { return [...a].sort(() => Math.random() - 0.5); }
 function forma(v, amplitude = 7) { return v + (Math.random() * amplitude * 2 - amplitude); }
 
 function calcularForcaSelecao(jogadores) {
@@ -119,10 +112,6 @@ function gerarPlanoSorteio() {
   return embaralhar([...Array(5).fill('top'),...Array(3).fill('medio'),...Array(3).fill('baixo')]);
 }
 
-// Sorteia adversario com regra por fase:
-// 16-avos: faixa percentil livre
-// Oitavas/Quartas: apenas selecoes OVR 80+
-// Semi/Final: apenas selecoes do tier Top
 function sortearAdversario(restantes, forcas, etapa) {
   let pool;
   if (etapa.tipo === 'top') {
@@ -140,21 +129,7 @@ function sortearAdversario(restantes, forcas, etapa) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-
-/**
- * MOTOR BRASFOOT-INSPIRADO — calibrado para Copa 2026
- *
- * Princípio: diferença de força tem que dominar sobre sorte.
- * Amplitude de forma ±3 para ambos os lados (era ±4/±6).
- * Coeficiente 0.012 por ponto de diferença (era 0.008).
- *
- * Exemplos com time usuário OVR 82:
- *   vs time 82 (igual)  → ~1.65 gols × ~1.00 gols esperado
- *   vs time 68 (fraco)  → ~2.20 gols × ~0.45 gols esperado
- *   vs time 88 (forte)  → ~1.20 gols × ~1.40 gols esperado
- */
 function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, ofensividade = 'equilibrado' }) {
-  // amplitude pequena → força real domina, zebras existem mas são raras
   const mA = forma(meuAtq, 3);
   const mM = forma(meuMei, 3);
   const mD = forma(minDef, 3);
@@ -162,21 +137,13 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, of
   const aM = forma(advForca,        3);
   const aD = forma(advForca * 0.97, 3);
 
-  // posse pelo meio-campo (33–67%)
   const posse = Math.max(0.33, Math.min(0.67, mM / (mM + aM)));
+  const cEu  = 3 + Math.round(posse       * 4); 
+  const cAdv = 2 + Math.round((1 - posse) * 4); 
 
-  // chances por lado — base enxuta para placar realista
-  const cEu  = 3 + Math.round(posse       * 4); // 3–5
-  const cAdv = 2 + Math.round((1 - posse) * 4); // 2–4
-
-  // Modo Brasil: rivais jogam extra motivados contra o favorito.
-  // pEuBase cai (sem bônus de protagonista) e pAdvBase sobe (pressão maior).
-  // Draft: neutro/ligeiramente hostil. Brasil: rivais sobem o nível.
   const pEuBase  = modoBrasil ? 0.24 : 0.26;
   const pAdvBase = modoBrasil ? 0.30 : 0.28;
 
-  // Ofensividade: ajustes sutis nas probabilidades
-  // Ofensivo -> +ataque +exposicao | Defensivo -> -ataque -exposicao
   const ofBonusEu  = { ofensivo: +0.04, equilibrado: 0, defensivo: -0.03 };
   const ofBonusAdv = { ofensivo: +0.02, equilibrado: 0, defensivo: -0.04 };
   const bonusEu  = ofBonusEu[ofensividade]  ?? 0;
@@ -185,7 +152,6 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, of
   const pEu  = Math.max(0.17, Math.min(0.50, pEuBase  + (mA - aD) * 0.012 + bonusEu));
   const pAdv = Math.max(0.10, Math.min(0.40, pAdvBase + (aA - mD) * 0.012 + bonusAdv));
 
-  // duelo: luck minusculo +/-2%
   let gEu = 0, gAdv = 0;
   const duelo = prob => Math.random() < Math.max(0, Math.min(1, prob + (Math.random() * 0.04 - 0.02)));
   for (let i = 0; i < cEu;  i++) if (duelo(pEu))  gEu++;
@@ -194,7 +160,6 @@ function simularMotor({ meuAtq, meuMei, minDef, advForca, modoBrasil = false, of
   return { gEu, gAdv, cEu, cAdv, posse, mA, mM, mD, aA, aM, aD };
 }
 
-// distribui os gols em minutos realistas
 function gerarMinutosGols(qtdEu, qtdAdv) {
   const ev = [];
   for (let i = 0; i < qtdEu;  i++) ev.push({ min: Math.floor(Math.random()*90)+1, lado:'eu' });
@@ -202,16 +167,12 @@ function gerarMinutosGols(qtdEu, qtdAdv) {
   return ev.sort((a,b) => a.min - b.min);
 }
 
-/**
- * Sorteia o marcador de um gol do MEU time.
- * Pesos: ATA 5.5× · MEI 2× · DEF 0.8× (sem GOL).
- * Dentro de cada grupo, jogadores com overall maior têm mais chance.
- */
+// 👇 Ajustado para buscar em p.pos1
 function sortearGoleador(team) {
-  const candidatos = team.filter(p => classificarPosicao(p.position) !== 'GOL');
+  const candidatos = team.filter(p => classificarPosicao(p.pos1) !== 'GOL');
   if (!candidatos.length) return null;
   const pw = { ATA: 5.5, MEI: 2.0, DEF: 0.8 };
-  const pesos = candidatos.map(p => (pw[classificarPosicao(p.position)] || 1) * (p.overall / 75));
+  const pesos = candidatos.map(p => (pw[classificarPosicao(p.pos1)] || 1) * (p.overall / 75));
   const total = pesos.reduce((s, w) => s + w, 0);
   let r = Math.random() * total;
   for (let i = 0; i < candidatos.length; i++) {
@@ -221,40 +182,26 @@ function sortearGoleador(team) {
   return candidatos[candidatos.length - 1];
 }
 
-/**
- * Monta a fila de cobradores de pênalti do meu time.
- * Ordenados por peso posicional × overall, do mais apto ao menos apto.
- * No sudden death continua ciclando a partir do início da lista.
- */
+// 👇 Ajustado para buscar em p.pos1
 function filaDePenaltis(team) {
   const pw = { ATA: 4, MEI: 2.5, DEF: 1 };
   return [...team]
-    .filter(p => classificarPosicao(p.position) !== 'GOL')
+    .filter(p => classificarPosicao(p.pos1) !== 'GOL')
     .sort((a, b) => {
-      const wa = (pw[classificarPosicao(a.position)] || 1) * a.overall;
-      const wb = (pw[classificarPosicao(b.position)] || 1) * b.overall;
+      const wa = (pw[classificarPosicao(a.pos1)] || 1) * a.overall;
+      const wb = (pw[classificarPosicao(b.pos1)] || 1) * b.overall;
       return wb - wa;
     });
 }
 
-// Modo Brasil: posicao livre com penalidade
+// 👇 Ajustado para não traduzir mais pro inglês. Guarda as categorias padrão.
+const CAT_TO_POS = { GOL:'GOL', DEF:'DEF', MEI:'MEI', ATA:'ATA' };
 
-const CAT_TO_POS = { GOL:'Goalkeeper', DEF:'Defender', MEI:'Midfielder', ATA:'Attacker' };
-
-/**
- * Calcula a penalidade de overall ao jogar fora de posição.
- * Retorna: 0 = sem penalidade | negativo = perde OVR | null = bloqueado
- *
- * Regras:
- *  GOL → qualquer outra: BLOQUEADO (qualquer campo → GOL: BLOQUEADO)
- *  DEF ↔ MEI: -5  (jogável, mas perde qualidade)
- *  MEI ↔ ATA:  0  (transição natural no futebol)
- *  DEF ↔ ATA: -15 (grotesco)
- */
+// 👇 Ajustado para ler a posição nativa pelo novo classificador
 function calcularPenalidade(posNatural, targetCat) {
-  const nat = ({ Goalkeeper:'GOL', Defender:'DEF', Midfielder:'MEI', Attacker:'ATA' })[posNatural] || posNatural;
-  if (nat === 'GOL') return targetCat === 'GOL' ? 0 : null; // goleiro não joga em outro lugar
-  if (targetCat === 'GOL') return null;                      // ninguém joga de goleiro sem ser GOL
+  const nat = classificarPosicao(posNatural);
+  if (nat === 'GOL') return targetCat === 'GOL' ? 0 : null; 
+  if (targetCat === 'GOL') return null;                     
   if (nat === targetCat) return 0;
   if ((nat === 'MEI' && targetCat === 'ATA') || (nat === 'ATA' && targetCat === 'MEI')) return 0;
   if ((nat === 'DEF' && targetCat === 'MEI') || (nat === 'MEI' && targetCat === 'DEF')) return -5;
@@ -290,12 +237,12 @@ export default function Game7x0() {
   const [gameMode, setGameMode] = useState('draft'); // 'draft' | 'brasil'
   const [modo, setModo] = useState('classico');
   const [velocidade, setVelocidade] = useState('normal');
-  const [ofensividade, setOfensividade] = useState('equilibrado'); // 'ofensivo'|'equilibrado'|'defensivo'
+  const [ofensividade, setOfensividade] = useState('equilibrado'); 
   const [nomeTime, setNomeTime] = useState('');
   const [formacaoKey, setFormacaoKey] = useState(null);
   const [myTeam, setMyTeam] = useState([]);
   const [brazilPlayers, setBrazilPlayers] = useState([]);
-  const [brazilSelecting, setBrazilSelecting] = useState(null); // jogador aguardando escolha de posicao
+  const [brazilSelecting, setBrazilSelecting] = useState(null); 
 
   const [allTeams, setAllTeams] = useState([]);
   const [forcaPorTime, setForcaPorTime] = useState({});
@@ -305,7 +252,7 @@ export default function Game7x0() {
   const [planoSorteio, setPlanoSorteio] = useState([]);
   const [rodadaAtual, setRodadaAtual] = useState(0);
   const [ajudaUsada, setAjudaUsada] = useState(false);
-  const [teamsUsados, setTeamsUsados] = useState([]); // IDs das seleções já sorteadas nesse draft
+  const [teamsUsados, setTeamsUsados] = useState([]); 
   const [currentRolledTeam, setCurrentRolledTeam] = useState(null);
   const [availablePlayers, setAvailablePlayers] = useState([]);
   const [isRolling, setIsRolling] = useState(false);
@@ -319,7 +266,7 @@ export default function Game7x0() {
   const [golFlash, setGolFlash] = useState(null);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [esperandoAcao, setEsperandoAcao] = useState(null);
-  const [viewMobile, setViewMobile] = useState('campo'); // 'campo' | 'lista'
+  const [viewMobile, setViewMobile] = useState('campo'); 
 
   const logRef = useRef(null);
   const cliqueRef = useRef(null);
@@ -327,7 +274,6 @@ export default function Game7x0() {
   const golFlashRef = useRef(null);
 
   useEffect(() => { velRef.current = velocidade; }, [velocidade]);
-  // Normal = lento e dramático (2.4×). Rápida = velocidade antiga do "normal" (1×).
   const t = ms => velRef.current === 'rapida' ? ms : Math.round(ms * 2.4);
 
   const formacao = formacaoKey ? FORMACOES[formacaoKey] : null;
@@ -352,17 +298,17 @@ export default function Game7x0() {
     load();
   }, []);
 
-  // Carrega jogadores do Brasil ao activar Modo Brasil
+  // 👇 CORRIGIDO: Buscar id,name,pos1,pos2,pos3,overall,photo_url
   useEffect(() => {
     if (gameMode === 'brasil' && allTeams.length) {
       const brazil = allTeams.find(t => t.name === 'Brazil');
       if (brazil) {
-        supabase.from('players').select('id,name,position,overall,photo_url')
+        supabase.from('players').select('id,name,pos1,pos2,pos3,overall,photo_url')
           .eq('team_id', brazil.id).eq('competition_id', COMPETITION_ID_COPA)
           .then(({ data }) => {
             const ord = (data||[]).sort((a,b) => {
-              const pa = ORDEM_POSICAO[classificarPosicao(a.position)]??9;
-              const pb = ORDEM_POSICAO[classificarPosicao(b.position)]??9;
+              const pa = ORDEM_POSICAO[classificarPosicao(a.pos1)]??9;
+              const pb = ORDEM_POSICAO[classificarPosicao(b.pos1)]??9;
               return pa!==pb ? pa-pb : b.overall-a.overall;
             });
             setBrazilPlayers(ord);
@@ -379,7 +325,6 @@ export default function Game7x0() {
     setFormacaoKey(key); setMyTeam([]); setTeamsUsados([]);
     setRodadaAtual(0); setAjudaUsada(false);
     if (gameMode === 'brasil') {
-      // Modo Brasil: sem dados, jogador escolhe direto do elenco verde-amarelo
       setStep('draft');
     } else {
       setPlanoSorteio(gerarPlanoSorteio());
@@ -387,23 +332,21 @@ export default function Game7x0() {
     }
   };
 
-  // Modo Brasil: ao clicar num jogador, abre o picker de posicao
   const selecionarJogadorBrasil = p => {
     if (myTeam.length>=11 || myTeam.some(x=>x.id===p.id)) return;
     setBrazilSelecting(p);
   };
 
-  // Confirma a posicao escolhida, aplicando penalidade se necessario
   const confirmarPosicaoBrasil = (player, targetCat) => {
-    const pen = calcularPenalidade(player.position, targetCat);
-    if (pen === null) return; // posicao bloqueada
+    const pen = calcularPenalidade(player.pos1, targetCat);
+    if (pen === null) return; 
     const overallEfetivo = Math.max(50, player.overall + pen);
     setMyTeam([...myTeam, {
       ...player,
-      position: CAT_TO_POS[targetCat],      // posicao jogada
-      overall: overallEfetivo,               // overall com penalidade aplicada
-      overallOriginal: player.overall,       // guardamos o original pra exibicao
-      posicaoNatural: classificarPosicao(player.position),
+      pos1: CAT_TO_POS[targetCat], // Grava a categoria escolhida para o jogo ler facilmente 
+      overall: overallEfetivo,
+      overallOriginal: player.overall,
+      posicaoNatural: classificarPosicao(player.pos1),
       penalidade: pen,
       selectionName: 'Brazil',
     }]);
@@ -414,26 +357,25 @@ export default function Game7x0() {
     if (!formacao) return false;
     const cat = classificarPosicao(pos);
     if (cat === 'OUTRO') return false;
-    return myTeam.filter(p=>classificarPosicao(p.position)===cat).length < formacao[cat];
+    return myTeam.filter(p=>classificarPosicao(p.pos1)===cat).length < formacao[cat];
   };
 
+  // 👇 CORRIGIDO: Buscar pos1
   const finalizarRolagem = async team => {
-    const { data } = await supabase.from('players').select('id,name,position,overall,photo_url')
+    const { data } = await supabase.from('players').select('id,name,pos1,pos2,pos3,overall,photo_url')
       .eq('team_id', team.id).eq('competition_id', COMPETITION_ID_COPA);
     const ord = (data||[]).sort((a,b) => {
-      const pa = ORDEM_POSICAO[classificarPosicao(a.position)]??9;
-      const pb = ORDEM_POSICAO[classificarPosicao(b.position)]??9;
+      const pa = ORDEM_POSICAO[classificarPosicao(a.pos1)]??9;
+      const pb = ORDEM_POSICAO[classificarPosicao(b.pos1)]??9;
       return pa!==pb ? pa-pb : b.overall-a.overall;
     });
     setAvailablePlayers(ord); setIsRolling(false);
   };
 
-  // Filtra o pool removendo seleções já sorteadas neste draft
   const poolDaRodada = (excluirId = null) => {
     const tier = planoSorteio[rodadaAtual];
     const base = tiers[tier]?.length ? tiers[tier] : allTeams;
     const filtrado = base.filter(t => !teamsUsados.includes(t.id) && t.id !== excluirId);
-    // fallback: se o tier esgotou (todos já usados), abre para qualquer seleção ainda disponível
     if (filtrado.length === 0) return allTeams.filter(t => !teamsUsados.includes(t.id) && t.id !== excluirId);
     return filtrado;
   };
@@ -452,7 +394,6 @@ export default function Game7x0() {
   const usarAjuda = () => {
     if (ajudaUsada||isRolling||!currentRolledTeam) return;
     setAjudaUsada(true);
-    // exclui também a seleção atual ao buscar substituta
     const pool = poolDaRodada(currentRolledTeam.id);
     const p = pool.length ? pool : allTeams.filter(t=>t.id!==currentRolledTeam.id);
     setIsRolling(true); setAvailablePlayers([]); setCurrentRolledTeam(null);
@@ -464,9 +405,9 @@ export default function Game7x0() {
     }, 90);
   };
 
+  // 👇 Ajustado
   const selecionarJogador = p => {
-    if (myTeam.length>=11||myTeam.some(x=>x.id===p.id)||!verificarVaga(p.position)) return;
-    // marca a seleção como usada para não sair de novo
+    if (myTeam.length>=11||myTeam.some(x=>x.id===p.id)||!verificarVaga(p.pos1)) return;
     setTeamsUsados(prev => [...prev, currentRolledTeam.id]);
     setMyTeam([...myTeam, {...p, selectionName: currentRolledTeam.name}]);
     setRodadaAtual(prev=>prev+1); setCurrentRolledTeam(null); setAvailablePlayers([]);
@@ -477,10 +418,11 @@ export default function Game7x0() {
     return Math.round(time.reduce((s,p)=>s+p.overall,0)/time.length);
   };
 
+  // 👇 Ajustado para p.pos1
   const calcularSetores = () => {
-    const atas = myTeam.filter(p=>classificarPosicao(p.position)==='ATA');
-    const meis = myTeam.filter(p=>classificarPosicao(p.position)==='MEI');
-    const defs = myTeam.filter(p=>['GOL','DEF'].includes(classificarPosicao(p.position)));
+    const atas = myTeam.filter(p=>classificarPosicao(p.pos1)==='ATA');
+    const meis = myTeam.filter(p=>classificarPosicao(p.pos1)==='MEI');
+    const defs = myTeam.filter(p=>['GOL','DEF'].includes(classificarPosicao(p.pos1)));
     const avg  = arr => arr.length ? Math.round(arr.reduce((s,p)=>s+p.overall,0)/arr.length) : calcularForcaTime();
     return { ataque: avg(atas), meio: avg(meis), defesa: avg(defs) };
   };
@@ -507,7 +449,6 @@ export default function Game7x0() {
     if (r) r();
   };
 
-  // ── partida com motor Brasfoot ──────────────────────────────────────────────
   const jogarPartida = async ({ faseLabel, rival, ataque, meio, defesa, nomeExibido }) => {
     const advForca = forcaPorTime[rival.id] || 78;
     const { gEu, gAdv, cEu, cAdv, posse } = simularMotor({
@@ -546,11 +487,10 @@ export default function Game7x0() {
     return { golsEu:gEu, golsAdv:gAdv };
   };
 
-  // ── pênaltis cobrança a cobrança ────────────────────────────────────────────
   const simularPenaltis = async ({ nomeEu, nomeAdv, forcaEuChute, forcaAdvChute }) => {
     let gEu=0, gAdv=0, rodada=0;
     const euPrimeiro = Math.random()<0.5;
-    const cobradores = filaDePenaltis(myTeam); // fila de cobradores do meu time
+    const cobradores = filaDePenaltis(myTeam); 
     await addLog('🥅 Foi para os pênaltis! O estádio prende a respiração.','titulo');
     await delay(t(500));
     while (true) {
@@ -563,7 +503,6 @@ export default function Game7x0() {
         if (lado==='eu') gEu+=conv?1:0; else gAdv+=conv?1:0;
 
         if (lado==='eu') {
-          // pega o cobrador da fila (cicla se for sudden death)
           const cobrador = cobradores[(rodada-1) % cobradores.length];
           const nCob = cobrador ? cobrador.name : nomeEu;
           await addLog(
@@ -588,13 +527,11 @@ export default function Game7x0() {
     return venceu;
   };
 
-  // ── entre rivais (bastidores, sem animação) ─────────────────────────────────
   const simBastidores = (fA, fB) => {
     const r = simularMotor({ meuAtq:fA, meuMei:fA, minDef:fA, advForca:fB });
     return { golsA:r.gEu, golsB:r.gAdv };
   };
 
-  // ── simulação da Copa ───────────────────────────────────────────────────────
   const rodarSimulacao = async () => {
     setStep('simulacao');
     setLogsSimulacao([]); setTabelaGrupo(null); setResultadoFinal(null);
@@ -604,11 +541,10 @@ export default function Game7x0() {
     const { ataque, meio, defesa } = calcularSetores();
     const nome = nomeTime.trim() || 'Sua Seleção';
 
-    // ── Grupo: fixo no Modo Brasil, sorteado no Draft Livre ──────────────────
     let letra, nomesRivais;
     if (gameMode === 'brasil') {
       letra = 'C';
-      nomesRivais = ['Morocco', 'Haiti', 'Scotland']; // rivais reais do Brasil
+      nomesRivais = ['Morocco', 'Haiti', 'Scotland']; 
     } else {
       const letras = Object.keys(GRUPOS_COPA);
       letra = letras[Math.floor(Math.random()*letras.length)];
@@ -666,15 +602,13 @@ export default function Game7x0() {
 
     if (!clf) { setResultadoFinal({status:'eliminado',fase:'Fase de Grupos'}); return; }
 
-    // ── Mata-mata: chaveamento real do Brasil ou geral ──────────────────────────
     const fasesAtivas = gameMode === 'brasil' ? FASES_BRASIL : FASES_MATA_MATA;
-    const usadosNasCopas = new Set(rivais.map(r=>r.id)); // nao repetir rivais do grupo
+    const usadosNasCopas = new Set(rivais.map(r=>r.id)); 
     let vivo=true, faseAlc='';
 
     for (const etapa of fasesAtivas) {
       if (!vivo) break;
 
-      // sorteia adversario da pool da fase (Brasil) ou do chaveamento geral
       let adv;
       if (gameMode === 'brasil') {
         const candidatos = allTeams.filter(t =>
@@ -723,22 +657,22 @@ export default function Game7x0() {
     setGameMode('draft'); setOfensividade('equilibrado'); setBrazilPlayers([]); setBrazilSelecting(null);
   };
 
-  // ── render helpers ─────────────────────────────────────────────────────────
   const forcaAtual = calcularForcaTime();
-  const setores    = formacao ? calcularSetores() : { ataque:0, meio:0, defesa:0 };
+  const setores  = formacao ? calcularSetores() : { ataque:0, meio:0, defesa:0 };
   const slotsCampo = formacao ? gerarSlotsCampo(formacao) : [];
   const slots = slotsCampo.map(slot=>{
-    const ocup = myTeam.filter(p=>classificarPosicao(p.position)===slot.cat);
+    // 👇 Ajustado para p.pos1
+    const ocup = myTeam.filter(p=>classificarPosicao(p.pos1)===slot.cat);
     const idx  = slotsCampo.filter(s=>s.cat===slot.cat).indexOf(slot);
     return {...slot, jogador: ocup[idx]||null};
   });
   const mostrarOVR = modo==='classico' || myTeam.length>=11;
   const tierLabel  = planoSorteio[rodadaAtual] ? TIER_LABEL[planoSorteio[rodadaAtual]] : '';
 
-  // lineup mobile agrupado por posição
   const gruposMobile = ['GOL','DEF','MEI','ATA'].map(cat=>({
     cat, label: POSICAO_LABEL[cat], cor: POSICAO_COR[cat],
-    jogadores: myTeam.filter(p=>classificarPosicao(p.position)===cat),
+    // 👇 Ajustado para p.pos1
+    jogadores: myTeam.filter(p=>classificarPosicao(p.pos1)===cat),
     vagas: formacao ? formacao[cat] : 0,
   }));
 
@@ -921,7 +855,6 @@ export default function Game7x0() {
               onChange={e=>setNomeTime(e.target.value)} maxLength={24}/>
           </div>
 
-          {/* Tipo de Draft */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
             color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Tipo de draft</p>
           <div className="g7-pills" style={{marginBottom:28}}>
@@ -929,7 +862,6 @@ export default function Game7x0() {
             <button className={`g7-pill ${gameMode==='brasil'?'on':''}`} onClick={()=>setGameMode('brasil')}>🇧🇷 Modo Brasil</button>
           </div>
 
-          {/* Modo de exibição */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
             color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Modo de exibição</p>
           <div className="g7-pills" style={{marginBottom:28}}>
@@ -937,7 +869,6 @@ export default function Game7x0() {
             <button className={`g7-pill ${modo==='almanaque'?'on':''}`} onClick={()=>setModo('almanaque')}>Almanaque · na memória</button>
           </div>
 
-          {/* Mentalidade padrão */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
             color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Mentalidade padrão</p>
           <div className="g7-pills" style={{marginBottom:28}}>
@@ -946,7 +877,6 @@ export default function Game7x0() {
             <button className={`g7-pill ${ofensividade==='defensivo'?'on':''}`} onClick={()=>setOfensividade('defensivo')}>🛡️ Defensivo</button>
           </div>
 
-          {/* Velocidade */}
           <p style={{textAlign:'center',fontFamily:'var(--font-mono)',fontSize:12,letterSpacing:'.1em',
             color:'rgba(244,241,234,.5)',textTransform:'uppercase',marginBottom:10}}>Velocidade da simulação</p>
           <div className="g7-pills" style={{marginBottom:32}}>
@@ -986,15 +916,12 @@ export default function Game7x0() {
                 </p>
               )}
 
-              {/* toggle campo/lista (só aparece no mobile via CSS) */}
               <div className="g7-viewtoggle">
                 <button className={`g7-vtbtn ${viewMobile==='campo'?'on':''}`} onClick={()=>setViewMobile('campo')}>🏟️ Campo</button>
                 <button className={`g7-vtbtn ${viewMobile==='lista'?'on':''}`} onClick={()=>setViewMobile('lista')}>📋 Lista</button>
               </div>
 
-              {/* campo tático — esconde no mobile quando modo lista */}
-              <div style={{display: viewMobile==='lista' ? 'none' : 'block'}}
-                className="g7-pitch-wrapper">
+              <div style={{display: viewMobile==='lista' ? 'none' : 'block'}} className="g7-pitch-wrapper">
                 <style>{`@media(max-width:640px){.g7-pitch-wrapper.lista-hide{display:none!important;}}`}</style>
                 <div className="g7-pitch">
                   {slots.map((slot,i)=>(
@@ -1014,7 +941,6 @@ export default function Game7x0() {
                 </div>
               </div>
 
-              {/* lineup lista — visível no mobile quando modo lista */}
               {viewMobile==='lista' && (
                 <div className="g7-lineup" style={{}}>
                   {gruposMobile.map(g=>(
@@ -1038,7 +964,6 @@ export default function Game7x0() {
                 </div>
               )}
 
-              {/* setores */}
               {myTeam.length>0 && (
                 <div className="g7-setores">
                   {[{l:'🛡️ DEF',v:setores.defesa,c:'#5FA8D3'},{l:'⚙️ MEI',v:setores.meio,c:'#8AD68A'},{l:'⚔️ ATQ',v:setores.ataque,c:'#D7263D'}].map(s=>(
@@ -1059,7 +984,6 @@ export default function Game7x0() {
             </div>
           </div>
 
-          {/* painel direito: sorteio livre OU selecao brasil */}
           <div className="g7-dicecol" style={{width:350,flexShrink:0}}>
 
             {/* --- DRAFT LIVRE --- */}
@@ -1099,8 +1023,8 @@ export default function Game7x0() {
                   )}
                   <div style={{maxHeight:300,overflowY:'auto',marginTop:10}}>
                     {availablePlayers.map(p=>{
-                      const cat = classificarPosicao(p.position);
-                      const livre = verificarVaga(p.position);
+                      const cat = classificarPosicao(p.pos1);
+                      const livre = verificarVaga(p.pos1);
                       return (
                         <div key={p.id} className={`g7-prow ${livre?'livre':''}`}
                           onClick={()=>livre&&selecionarJogador(p)}
@@ -1121,7 +1045,6 @@ export default function Game7x0() {
             </div>
             )}
 
-
             {/* --- MODO BRASIL --- */}
             {gameMode === 'brasil' && (
             <div className="g7-card" style={{padding:16}}>
@@ -1133,7 +1056,6 @@ export default function Game7x0() {
                 </p>
               </div>
 
-              {/* Picker de posicao */}
               {brazilSelecting ? (
                 <div style={{background:'var(--ink)',borderRadius:10,padding:14}}>
                   <p style={{fontFamily:'var(--font-display)',textTransform:'uppercase',
@@ -1141,11 +1063,11 @@ export default function Game7x0() {
                     Em que posição vai jogar?
                   </p>
                   <p style={{fontFamily:'var(--font-mono)',fontSize:12,color:'rgba(244,241,234,.7)',marginBottom:12}}>
-                    {brazilSelecting.name} · posição natural: {classificarPosicao(brazilSelecting.position)}
+                    {brazilSelecting.name} · posição natural: {classificarPosicao(brazilSelecting.pos1)}
                   </p>
                   {['GOL','DEF','MEI','ATA'].map(cat => {
-                    const vagas = (formacao?.[cat]||0) - myTeam.filter(p=>classificarPosicao(p.position)===cat).length;
-                    const pen = calcularPenalidade(brazilSelecting.position, cat);
+                    const vagas = (formacao?.[cat]||0) - myTeam.filter(p=>classificarPosicao(p.pos1)===cat).length;
+                    const pen = calcularPenalidade(brazilSelecting.pos1, cat);
                     if (pen === null || vagas <= 0) return null;
                     const ovrEf = Math.max(50, brazilSelecting.overall + pen);
                     const corTipo = pen===0?'#6fd17a':pen>=-5?'#ffe6ad':'#ffb3bb';
@@ -1190,13 +1112,13 @@ export default function Game7x0() {
                       <div style={{background:POSICAO_COR[cat]+'22',padding:'4px 10px',borderRadius:6,
                         fontFamily:'var(--font-mono)',fontSize:10,color:POSICAO_COR[cat],
                         textTransform:'uppercase',letterSpacing:'.1em',marginBottom:2}}>
-                        {POSICAO_LABEL[cat]} · {myTeam.filter(p=>classificarPosicao(p.position)===cat).length}/{formacao?.[cat]||'?'}
+                        {POSICAO_LABEL[cat]} · {myTeam.filter(p=>classificarPosicao(p.pos1)===cat).length}/{formacao?.[cat]||'?'}
                       </div>
-                      {brazilPlayers.filter(p=>classificarPosicao(p.position)===cat).map(p=>{
+                      {brazilPlayers.filter(p=>classificarPosicao(p.pos1)===cat).map(p=>{
                         const jaEsta = myTeam.some(x=>x.id===p.id);
                         const temVaga = ['GOL','DEF','MEI','ATA'].some(c => {
-                          const v=(formacao?.[c]||0)-myTeam.filter(q=>classificarPosicao(q.position)===c).length;
-                          return v>0 && calcularPenalidade(p.position, c)!==null;
+                          const v=(formacao?.[c]||0)-myTeam.filter(q=>classificarPosicao(q.pos1)===c).length;
+                          return v>0 && calcularPenalidade(p.pos1, c)!==null;
                         });
                         const clickavel = !jaEsta && temVaga && myTeam.length < 11;
                         const escalado = jaEsta && myTeam.find(x=>x.id===p.id);
@@ -1210,7 +1132,7 @@ export default function Game7x0() {
                               <strong style={{display:'block',fontSize:13}}>{p.name}</strong>
                               {jaEsta && (
                                 <span style={{fontSize:10,color:'var(--gold)',fontFamily:'var(--font-mono)'}}>
-                                  ✓ {classificarPosicao(escalado?.position||p.position)}
+                                  ✓ {classificarPosicao(escalado?.pos1||p.pos1)}
                                   {escalado?.penalidade < 0 ? ` (${escalado.penalidade} OVR)` : ''}
                                 </span>
                               )}
@@ -1230,7 +1152,6 @@ export default function Game7x0() {
 
             <button className="g7-reset" onClick={reiniciar}>← trocar formação</button>
           </div>
-
         </div>
       )}
 

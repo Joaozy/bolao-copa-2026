@@ -1,6 +1,4 @@
 // ─── gameConstants.js ────────────────────────────────────────────────────────
-// Constantes e utilitários compartilhados entre todos os jogos da plataforma.
-// Importe apenas o que precisar em cada jogo.
 
 export { supabase } from '@/lib/supabaseClient';
 
@@ -16,8 +14,17 @@ export const POSICAO_COR = {
 };
 export const ORDEM_POSICAO = { GOL: 0, DEF: 1, MEI: 2, ATA: 3 };
 
-export function classificarPosicao(p) {
-  return ({ Goalkeeper: 'GOL', Defender: 'DEF', Midfielder: 'MEI', Attacker: 'ATA' })[p] || 'OUTRO';
+// 👇 NOVO CLASSIFICADOR: Lê perfeitamente as suas siglas em português
+export function classificarPosicao(pos) {
+  if (!pos) return 'OUTRO';
+  const p = pos.toUpperCase();
+  
+  if (['GOL'].includes(p)) return 'GOL';
+  if (['ZAG', 'LD', 'LE'].includes(p)) return 'DEF';
+  if (['VOL', 'MC', 'ME', 'MD', 'MEI'].includes(p)) return 'MEI';
+  if (['SA', 'PD', 'PE', 'CA'].includes(p)) return 'ATA';
+  
+  return 'OUTRO';
 }
 
 // ─── Seleções da Copa 2026 ───────────────────────────────────────────────────
@@ -45,7 +52,7 @@ export const TIERS_FIXOS = {
     'Japan', 'Sweden', 'Uruguay', 'Norway', 'Colombia', 'Croatia'],
 };
 
-// ─── CSS tokens compartilhados (copie para o <style> de cada jogo) ───────────
+// ─── CSS tokens compartilhados ──────────────────────────────────────────────
 export const CSS_VARS = {
   bg:      '#0a0f1a',
   turf1:   '#123524',
@@ -59,14 +66,12 @@ export const CSS_VARS = {
 
 // ─── Helpers de data / seed ──────────────────────────────────────────────────
 
-/** Hash simples de string → número inteiro positivo */
 export function hashStr(str) {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
   return Math.abs(h);
 }
 
-/** Gerador de números pseudo-aleatórios determinístico (mulberry32) */
 export function seededRng(seed) {
   let s = seed >>> 0;
   return () => {
@@ -77,7 +82,6 @@ export function seededRng(seed) {
   };
 }
 
-/** Embaralha array com semente determinística */
 export function seededShuffle(arr, seed) {
   const rng = seededRng(hashStr(String(seed)));
   const out = [...arr];
@@ -88,32 +92,42 @@ export function seededShuffle(arr, seed) {
   return out;
 }
 
-/** Retorna a chave de seed do dia: YYYY-MM-DD */
 export function getTodaySeed() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** Carrega todos os times das seleções da Copa do banco */
+/** Carrega todos os times garantindo que puxa APENAS da Copa, ignorando o Brasileirão */
 export async function loadCopaTimes() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('teams')
-    .select('id, name, badge_url, flag_code')
-    .in('name', SELECOES_COPA);
-  return data || [];
+    .select('id, name, badge_url, flag_code');
+    
+  if (error) {
+    console.error("Erro ao buscar times:", error);
+    return [];
+  }
+  // Peneira final no código para garantir que Bahia, Botafogo, etc., não entrem
+  return data.filter(t => SELECOES_COPA.includes(t.name));
 }
 
-/** Carrega jogadores de um time específico, ordenados por posição → overall */
+/** 👇 NOVO CÓDIGO DA BUSCA: Agora busca pos1, pos2, pos3 */
 export async function loadJogadoresDoTime(teamId) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('players')
-    .select('id, name, position, overall, photo_url')
+    .select('id, name, pos1, pos2, pos3, overall, photo_url')
     .eq('team_id', teamId)
     .eq('competition_id', COMPETITION_ID_COPA);
 
+  if (error) {
+    console.error("Erro ao buscar jogadores:", error);
+    return [];
+  }
+
   return (data || []).sort((a, b) => {
-    const pa = ORDEM_POSICAO[classificarPosicao(a.position)] ?? 9;
-    const pb = ORDEM_POSICAO[classificarPosicao(b.position)] ?? 9;
+    // Ordena baseando-se na pos1 (Posição principal)
+    const pa = ORDEM_POSICAO[classificarPosicao(a.pos1)] ?? 9;
+    const pb = ORDEM_POSICAO[classificarPosicao(b.pos1)] ?? 9;
     return pa !== pb ? pa - pb : b.overall - a.overall;
   });
 }

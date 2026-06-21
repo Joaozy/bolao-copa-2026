@@ -22,9 +22,9 @@ const SLOTS = [
 ];
 const SLOT_IDS = SLOTS.map(s => s.id);
 
-// Goleiros só podem ir para GK; campo vai para qualquer vaga non-GK
+// 👇 AJUSTADO PARA LER pos1
 function slotAceita(slot, player) {
-  const cat = classificarPosicao(player.position);
+  const cat = classificarPosicao(player.pos1);
   if (slot.onlyGol) return cat === 'GOL';
   return cat !== 'GOL';
 }
@@ -110,7 +110,7 @@ export default function Futbol11() {
     // Verifica se há algum slot disponível para esse jogador
     const slotsLivres = SLOTS.filter(s => !slots[s.id] && slotAceita(s, p));
     if (!slotsLivres.length) {
-      setMsg(`Não há vaga disponível para ${p.name} (${classificarPosicao(p.position)}) nessa formação.`);
+      setMsg(`Não há vaga disponível para ${p.name} (${classificarPosicao(p.pos1)}) nessa formação.`);
       return;
     }
     setPicking(p);
@@ -341,7 +341,7 @@ export default function Futbol11() {
             </div>
 
             <button className="f11-startbtn" onClick={iniciar} disabled={!allTeams.length}>
-              {allTeams.length ? '⚽ Começar' : 'Carregando...'}
+              {allTeams.length ? '⚽ Começar' : 'Carregando banco de dados...'}
             </button>
           </div>
         )}
@@ -432,7 +432,7 @@ export default function Futbol11() {
                     : (
                       <div className="f11-playerlist">
                         {jogadoresLista.map(p => {
-                          const cat   = classificarPosicao(p.position);
+                          const cat   = classificarPosicao(p.pos1);
                           const isSel = picking?.id === p.id;
                           return (
                             <div key={p.id}
