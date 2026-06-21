@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 
-export default function TabPalpites({ allProfiles, games, allBets = [] }) {
+export default function TabPalpites({ allProfiles, games, allBets = [], enrollments = [] }) {
   // Estados da injeção manual
   const [selectedUser, setSelectedUser] = useState('')
   const [selectedGame, setSelectedGame] = useState('')
@@ -10,26 +10,62 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
   const [overrideTime, setOverrideTime] = useState(false)
   const [status, setStatus] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [injectionUserSearch, setInjectionUserSearch] = useState('')
 
   // Estados da auditoria (Consulta)
   const [auditGame, setAuditGame] = useState('')
   const [auditUser, setAuditUser] = useState('')
+  const [auditUserSearch, setAuditUserSearch] = useState('')
 
-  // Organiza os usuários por ordem alfabética para facilitar a busca
+  // Organiza os usuários por ordem alfabética
   const sortedProfiles = [...(allProfiles || [])].sort((a, b) => {
     const nameA = a.nickname || a.email || ''
     const nameB = b.nickname || b.email || ''
     return nameA.localeCompare(nameB)
   })
 
-  // ---- LÓGICA DE AUDITORIA DERIVADA ----
-  const selectedAuditGameId = parseInt(auditGame)
-  const betsForAuditGame = allBets.filter(b => b.game_id === selectedAuditGameId)
+  // ----------------------------------------------------
+  // FONTES DE DADOS FILTRADAS POR INSCRIÇÃO E BUSCA
+  // ----------------------------------------------------
+
+  // 1. Filtros para o formulário de INJEÇÃO MANUAL
+  const chosenInjectionGame = games?.find(g => Number(g.id) === Number(selectedGame))
+  const injectionCompetitionId = chosenInjectionGame?.competition_id
+
+  const enrolledProfilesForInjection = sortedProfiles.filter(p => {
+    if (!injectionCompetitionId || !enrollments.length) return true // Se não escolheu jogo, mostra todos
+    return enrollments.some(e => e.user_id === p.id && Number(e.competition_id) === Number(injectionCompetitionId))
+  })
+
+  const filteredProfilesForInjection = enrolledProfilesForInjection.filter(p => {
+    const termo = injectionUserSearch.toLowerCase()
+    return (p.nickname || '').toLowerCase().includes(termo) || (p.email || '').toLowerCase().includes(termo)
+  })
+
+  // 2. Filtros para o formulário de AUDITORIA
+  const chosenAuditGame = games?.find(g => Number(g.id) === Number(auditGame))
+  const auditCompetitionId = chosenAuditGame?.competition_id
+
+  // Perfis estritamente inscritos na competição do jogo selecionado para auditoria
+  const enrolledProfilesForAudit = sortedProfiles.filter(p => {
+    if (!auditCompetitionId || !enrollments.length) return true
+    return enrollments.some(e => e.user_id === p.id && Number(e.competition_id) === Number(auditCompetitionId))
+  })
+
+  // Palpites do jogo auditado (Correção de tipo de dado aplicando Number)
+  const betsForAuditGame = allBets.filter(b => Number(b.game_id) === Number(auditGame))
   const usersWhoBetIds = betsForAuditGame.map(b => b.user_id)
   
-  // Quem não palpitou
-  const missingUsers = sortedProfiles.filter(p => !usersWhoBetIds.includes(p.id))
-  // Palpite do usuário específico selecionado
+  // Quem está inscrito mas NÃO palpitou ainda neste jogo
+  const missingUsers = enrolledProfilesForAudit.filter(p => !usersWhoBetIds.includes(p.id))
+
+  // Lista de participantes da auditoria filtrados pela digitação
+  const filteredProfilesForAudit = enrolledProfilesForAudit.filter(p => {
+    const termo = auditUserSearch.toLowerCase()
+    return (p.nickname || '').toLowerCase().includes(termo) || (p.email || '').toLowerCase().includes(termo)
+  })
+
+  // Palpite do participante específico consultado na auditoria
   const selectedUserBet = auditUser ? betsForAuditGame.find(b => b.user_id === auditUser) : null
 
 
@@ -70,7 +106,7 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
   return (
     <div className="space-y-8">
       {/* =========================================
-          CAIXA 1: INJETAR PALPITE
+          CAIXA 1: INJETAR PALPITE MANUAL
       ========================================= */}
       <div className="max-w-2xl bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700">
         <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-2">
@@ -78,32 +114,17 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Seleção de Usuário */}
+          {/* Seleção de Jogo Primeiro */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Participante</label>
-            <select 
-              required 
-              className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
-              value={selectedUser} 
-              onChange={(e) => setSelectedUser(e.target.value)}
-            >
-              <option value="">Selecione um participante...</option>
-              {sortedProfiles.map(u => (
-                <option key={u.id} value={u.id}>
-                  {u.nickname || u.email}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Seleção de Jogo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Partida</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">1º Selecione a Partida</label>
             <select 
               required 
               className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
               value={selectedGame} 
-              onChange={(e) => setSelectedGame(e.target.value)}
+              onChange={(e) => {
+                setSelectedGame(e.target.value)
+                setSelectedUser('') // Reseta usuário para evitar misturar competições
+              }}
             >
               <option value="">Selecione o confronto...</option>
               {games?.map(g => (
@@ -112,6 +133,37 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Seleção de Usuário com Busca */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">2º Participante</label>
+            
+            {/* Campo de digitação para buscar */}
+            <input 
+              type="text"
+              placeholder="🔍 Digite o nome para filtrar..."
+              className="w-full p-2 mb-2 bg-gray-950 border border-gray-700 rounded text-sm text-white focus:outline-none focus:border-blue-500"
+              value={injectionUserSearch}
+              onChange={(e) => setInjectionUserSearch(e.target.value)}
+            />
+
+            <select 
+              required 
+              className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+              value={selectedUser} 
+              onChange={(e) => setSelectedUser(e.target.value)}
+            >
+              <option value="">Selecione um participante...</option>
+              {filteredProfilesForInjection.map(u => (
+                <option key={u.id} value={u.id}>
+                  {u.nickname || u.email} {injectionCompetitionId ? '🏆' : ''}
+                </option>
+              ))}
+            </select>
+            {selectedGame && (
+              <p className="text-xs text-gray-400 mt-1">Exibindo apenas inscritos nesta competição.</p>
+            )}
           </div>
 
           {/* Placar */}
@@ -182,7 +234,8 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
               value={auditGame} 
               onChange={(e) => {
                 setAuditGame(e.target.value)
-                setAuditUser('') // Reseta a busca de usuário ao trocar de jogo
+                setAuditUser('')
+                setAuditUserSearch('')
               }}
             >
               <option value="">Selecione o confronto...</option>
@@ -199,14 +252,24 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
               
               {/* Coluna A: Pesquisa Individual */}
               <div className="bg-gray-900 p-4 rounded-md border border-gray-700">
-                <label className="block text-sm font-medium text-gray-300 mb-2">Verificar Participante Específico</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Verificar Participante Inscrito</label>
+                
+                {/* Filtro de digitação para auditoria */}
+                <input 
+                  type="text"
+                  placeholder="🔍 Digite para buscar..."
+                  className="w-full p-2 mb-2 bg-gray-950 border border-gray-700 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+                  value={auditUserSearch}
+                  onChange={(e) => setAuditUserSearch(e.target.value)}
+                />
+
                 <select 
                   className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md text-white text-sm mb-4"
                   value={auditUser} 
                   onChange={(e) => setAuditUser(e.target.value)}
                 >
                   <option value="">Selecione quem buscar...</option>
-                  {sortedProfiles.map(u => (
+                  {filteredProfilesForAudit.map(u => (
                     <option key={u.id} value={u.id}>{u.nickname || u.email}</option>
                   ))}
                 </select>
@@ -230,8 +293,8 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
               {/* Coluna B: Lista de Inadimplentes */}
               <div className="bg-gray-900 p-4 rounded-md border border-gray-700 flex flex-col">
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-300">Faltam Palpitar</label>
-                  <span className="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-bold">
+                  <label className="block text-sm font-medium text-gray-300">Faltam Palpitar (Inscritos)</label>
+                  <span className="bg-red-900/80 text-red-300 text-xs px-2 py-1 rounded font-bold">
                     {missingUsers.length} pendentes
                   </span>
                 </div>
@@ -240,14 +303,14 @@ export default function TabPalpites({ allProfiles, games, allBets = [] }) {
                   {missingUsers.length > 0 ? (
                     <ul className="space-y-2">
                       {missingUsers.map(u => (
-                        <li key={u.id} className="text-sm text-gray-400 border-b border-gray-800 pb-1 flex items-center justify-between">
-                          <span>{u.nickname || 'Sem Nome'}</span>
+                        <li key={u.id} className="text-sm text-gray-400 border-b border-gray-800 pb-1">
+                          <span>{u.nickname || u.email}</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="h-full flex items-center justify-center">
-                      <span className="text-green-400 text-sm font-bold text-center">Todos os participantes já palpitaram! 🎉</span>
+                    <div className="h-full flex items-center justify-center py-4">
+                      <span className="text-green-400 text-sm font-bold text-center">Todos os inscritos já palpitaram! 🎉</span>
                     </div>
                   )}
                 </div>
