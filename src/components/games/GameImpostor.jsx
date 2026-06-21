@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import ALL_CHALLENGES from './impostorChallenges.json'
+import ALL_CHALLENGES from './dados/impostorChallenges.json'
 
 const shuffleArray = (array) => {
   const newArray = [...array];
