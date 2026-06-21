@@ -33,16 +33,11 @@ export async function GET(request) {
     const relatorio = []
 
     for (const jogo of jogosFinalizados) {
-      // 🥇 O SEGREDO DO DESEMPATE ESTÁ AQUI
-      // O robô agora ordena exatamente com a mesma matemática do seu site!
+      // 🥇 BUSCA DO RANKING NO BANCO
       const { data: ranking } = await supabase
         .from('leaderboard')
         .select('user_id, total_pontos, qtd_cv, qtd_vsg, qtd_av') 
         .eq('competition_id', jogo.competition_id)
-        .order('total_pontos', { ascending: false })
-        .order('qtd_cv', { ascending: false })
-        .order('qtd_vsg', { ascending: false })
-        .order('qtd_av', { ascending: false });
 
       const { data: inscritos } = await supabase
         .from('enrollments')
@@ -52,12 +47,19 @@ export async function GET(request) {
 
       if (!inscritos || inscritos.length === 0) continue;
 
+      // 📖 CRIANDO UM DICIONÁRIO DE NOMES PARA O DESEMPATE ALFABÉTICO
+      const nicknameMap = {};
+      inscritos.forEach(inscrito => {
+        // Guardamos o nome em letras minúsculas e sem espaços extras para não dar erro na comparação
+        nicknameMap[inscrito.user_id] = (inscrito.profiles.nickname || '').toLowerCase().trim();
+      });
+
       const { data: palpites } = await supabase
         .from('bets')
         .select('user_id, points_awarded, guess_score_a, guess_score_b')
         .eq('game_id', jogo.id)
 
-      // ⏱️ CRIANDO O "RANKING FANTASMA" PARA A SETA (SUBIU/CAIU)
+      // ⏱️ O "RANKING FANTASMA" PARA A SETA (SUBIU/CAIU)
       const rankingAnterior = ranking?.map(userRank => {
         const palpiteDesteUser = palpites?.find(p => p.user_id === userRank.user_id);
         const pontosGanhos = palpiteDesteUser?.points_awarded || 0;
@@ -70,14 +72,6 @@ export async function GET(request) {
         };
       }) || [];
 
-      // Ordena o ranking anterior respeitando a mesma regra de desempate
-      rankingAnterior.sort((a, b) => {
-        if (b.pontos_anteriores !== a.pontos_anteriores) return b.pontos_anteriores - a.pontos_anteriores;
-        if (b.cv !== a.cv) return b.cv - a.cv;
-        if (b.vsg !== a.vsg) return b.vsg - a.vsg;
-        return b.av - a.av;
-      });
-
       const usuariosParaNotificar = inscritos
         .map(i => i.profiles)
         .filter(p => p.is_active && p.whatsapp && p.notify_results)
@@ -87,12 +81,57 @@ export async function GET(request) {
         const pontosGanhos = palpiteUser?.points_awarded || 0
         const palpiteTexto = palpiteUser ? `${palpiteUser.guess_score_a} x ${palpiteUser.guess_score_b}` : 'Não palpitou'
 
-        // 📊 LÓGICA DE RANKING ESTRITA (1 a N, idêntico ao site)
-        const pontuacaoTotal = ranking?.find(r => r.user_id === usuario.id)?.total_pontos || 0;
-        const posicaoAtual = ranking.findIndex(r => r.user_id === usuario.id) + 1;
+        // Nome do usuário atual para a nossa regra de desempate
+        const nomeAtual = nicknameMap[usuario.id] || '';
 
-        // 🔄 COMPARANDO COM A POSIÇÃO ANTERIOR
-        const posicaoAnterior = rankingAnterior.findIndex(r => r.user_id === usuario.id) + 1;
+        // 📊 LÓGICA DE RANKING ESTRITA (Resolve Empates Absolutos com Ordem Alfabética)
+        const statsAtual = ranking?.find(r => r.user_id === usuario.id) || { total_pontos: 0, qtd_cv: 0, qtd_vsg: 0, qtd_av: 0 };
+        
+        // Posição = 1 + N pessoas estritamente melhores que o usuário
+        const posicaoAtual = ranking.filter(r => {
+            if (r.user_id === usuario.id) return false; // Não compara com ele mesmo
+
+            if (r.total_pontos > statsAtual.total_pontos) return true;
+            if (r.total_pontos === statsAtual.total_pontos) {
+                if (r.qtd_cv > statsAtual.qtd_cv) return true;
+                if (r.qtd_cv === statsAtual.qtd_cv) {
+                    if (r.qtd_vsg > statsAtual.qtd_vsg) return true;
+                    if (r.qtd_vsg === statsAtual.qtd_vsg) {
+                        if (r.qtd_av > statsAtual.qtd_av) return true;
+                        if (r.qtd_av === statsAtual.qtd_av) {
+                            // 🔥 EMPATE ABSOLUTO NAS MATEMÁTICAS: O Juiz Alfabético entra em ação!
+                            const nomeR = nicknameMap[r.user_id] || '';
+                            // Se o nome do concorrente vem ANTES no alfabeto (< 0), ele passa na frente!
+                            if (nomeR.localeCompare(nomeAtual) < 0) return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }).length + 1;
+
+        // 🔄 LÓGICA DE POSIÇÃO ANTERIOR (Com o mesmo Juiz Alfabético)
+        const statsAnterior = rankingAnterior.find(r => r.user_id === usuario.id) || { pontos_anteriores: 0, cv: 0, vsg: 0, av: 0 };
+        
+        const posicaoAnterior = rankingAnterior.filter(r => {
+            if (r.user_id === usuario.id) return false;
+
+            if (r.pontos_anteriores > statsAnterior.pontos_anteriores) return true;
+            if (r.pontos_anteriores === statsAnterior.pontos_anteriores) {
+                if (r.cv > statsAnterior.cv) return true;
+                if (r.cv === statsAnterior.cv) {
+                    if (r.vsg > statsAnterior.vsg) return true;
+                    if (r.vsg === statsAnterior.vsg) {
+                        if (r.av > statsAnterior.av) return true;
+                        if (r.av === statsAnterior.av) {
+                            const nomeR = nicknameMap[r.user_id] || '';
+                            if (nomeR.localeCompare(nomeAtual) < 0) return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }).length + 1;
 
         // 🏹 DEFININDO A SETA DE TENDÊNCIA
         let variacaoTexto = "➖ Manteve a posição";
@@ -107,8 +146,7 @@ export async function GET(request) {
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
 
-        // ✉️ NOVA MENSAGEM (Agora com a variação!)
-        const mensagem = `🏁 *FIM DE JOGO* 🏁\n\nFala ${usuario.nickname}! A partida terminou:\n⚽ *${jogo.team_a.name} ${jogo.score_a} x ${jogo.score_b} ${jogo.team_b.name}*\n\nSeu palpite: ${palpiteTexto}\n🔥 *Você fez ${pontosGanhos} pontos!*\n\n📊 *Resumo do Campeonato:*\nPontuação Total: ${pontuacaoTotal}\nSua Posição: ${posicaoAtual}º lugar 🏆\nEstatística: ${variacaoTexto}\n\nAcesse para ver tudo: https://bolao-aju.vercel.app/`
+        const mensagem = `🏁 *FIM DE JOGO* 🏁\n\nFala ${usuario.nickname}! A partida terminou:\n⚽ *${jogo.team_a.name} ${jogo.score_a} x ${jogo.score_b} ${jogo.team_b.name}*\n\nSeu palpite: ${palpiteTexto}\n🔥 *Você fez ${pontosGanhos} pontos!*\n\n📊 *Resumo do Campeonato:*\nPontuação Total: ${statsAtual.total_pontos}\nSua Posição: ${posicaoAtual}º lugar 🏆\nEstatística: ${variacaoTexto}\n\nAcesse para ver tudo: https://bolao-aju.vercel.app/`
 
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
         const zapiToken = process.env.ZAPI_TOKEN
