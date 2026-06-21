@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 // 👇 Importando nosso "Banco de Dados" de desafios
-import DAILY_CHALLENGES from './impostorChallenges.json'
+import DAILY_CHALLENGES from './dados/impostorChallenges.json'
 
 // Misturador de array (Fisher-Yates)
 const shuffleArray = (array) => {
