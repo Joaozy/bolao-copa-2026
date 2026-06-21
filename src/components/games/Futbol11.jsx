@@ -3,11 +3,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   supabase, COMPETITION_ID_COPA,
   TIERS_FIXOS, SELECOES_COPA,
-  hashStr, seededShuffle, getTodaySeed, loadCopaTimes, 
-  buscarJogadoresPorNome // ⚠️ NOVA FUNÇÃO: Você precisa criar isso no seu gameConstants.js
-} from '@/components/games/gameConstants';
+  loadCopaTimes, buscarJogadoresPorNome
+} from '@/components/games/gameConstants'; // Removido o seededShuffle e getTodaySeed
 
-// 1️⃣ SLOTS ATUALIZADOS: Usando as posições exatas (req = posições aceitas naquele slot)
 const SLOTS = [
   { id: 'PE',   label: 'PE',   req: ['PE', 'ATA', 'SA'], x: 18, y: 24 },
   { id: 'CA',   label: 'CA',   req: ['CA', 'ATA'],       x: 50, y: 10 },
@@ -27,21 +25,30 @@ function slotAceita(slot, player) {
   return posicoesDoJogador.some(pos => slot.req.includes(pos));
 }
 
-function escolherPaisesHoje(allTeams, difficulty) {
-  const seed = getTodaySeed() + difficulty;
+// 🎲 NOVO EMBARALHADOR 100% ALEATÓRIO (Remove a trava diária)
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function escolherPaisesAleatorios(allTeams, difficulty) {
   let pool;
   if (difficulty === 'easy') {
     const top   = allTeams.filter(t => TIERS_FIXOS.top.includes(t.name));
-    const medio = seededShuffle(allTeams.filter(t => TIERS_FIXOS.medio.includes(t.name)), seed);
+    const medio = shuffleArray(allTeams.filter(t => TIERS_FIXOS.medio.includes(t.name)));
     pool = [...top, ...medio].slice(0, 11);
   } else if (difficulty === 'normal') {
     const top   = allTeams.filter(t => TIERS_FIXOS.top.includes(t.name));
     const medio = allTeams.filter(t => TIERS_FIXOS.medio.includes(t.name));
-    pool = seededShuffle([...top, ...medio], seed).slice(0, 11);
+    pool = shuffleArray([...top, ...medio]).slice(0, 11);
   } else {
-    pool = seededShuffle(allTeams, seed).slice(0, 11);
+    pool = shuffleArray(allTeams).slice(0, 11);
   }
-  return seededShuffle(pool, seed + 'order');
+  return shuffleArray(pool); // Embaralha a ordem final dos 11 selecionados
 }
 
 export default function Futbol11() {
@@ -53,18 +60,20 @@ export default function Futbol11() {
   const [countries, setCountries]   = useState([]);
   const [curIdx, setCurIdx]         = useState(0);
   
-  // 2️⃣ NOVOS ESTADOS PARA A LÓGICA DE BUSCA E AUTOCOMPLETE
-  const [posicaoAtiva, setPosicaoAtiva] = useState(null); 
-  const [busca, setBusca]               = useState('');
-  const [opcoes, setOpcoes]             = useState([]);
-  const [loadingBusca, setLoadingBusca] = useState(false);
+  const [skipsDisponiveis, setSkipsDisponiveis] = useState(1);
+  const inputRef                    = useRef(null);
+
+  // ⚡ Novos Estados da Dinâmica de Jogo
+  const [busca, setBusca]                                 = useState('');
+  const [opcoes, setOpcoes]                               = useState([]);
+  const [loadingBusca, setLoadingBusca]                   = useState(false);
+  const [jogadorSendoEscalado, setJogadorSendoEscalado]   = useState(null); // Guarda o jogador que está aguardando escolha de posição
 
   const [slots, setSlots]           = useState({});
   const [msg, setMsg]               = useState({ texto: '', tipo: '' });
   const [timeLeft, setTimeLeft]     = useState(0);
 
   const timerRef = useRef(null);
-  const skipped  = useRef(new Set());
 
   useEffect(() => {
     loadCopaTimes().then(setAllTeams);
@@ -81,29 +90,34 @@ export default function Futbol11() {
     return () => clearInterval(timerRef.current);
   }, [step, timerMode]);
 
+  // Foca no input toda vez que muda de país e não tem jogador sendo escalado
+  useEffect(() => {
+    if (step === 'playing' && !jogadorSendoEscalado && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [curIdx, step, jogadorSendoEscalado]);
+
   const iniciar = () => {
     if (!allTeams.length) return;
-    const chosen = escolherPaisesHoje(allTeams, difficulty);
+    const chosen = escolherPaisesAleatorios(allTeams, difficulty); // Usa a função nova
     setCountries(chosen);
     setCurIdx(0);
     setSlots({});
-    setPosicaoAtiva(null);
     setBusca('');
     setOpcoes([]);
+    setJogadorSendoEscalado(null);
     setMsg({ texto: '', tipo: '' });
-    skipped.current.clear();
+    setSkipsDisponiveis(1);
     if (timerMode > 0) setTimeLeft(timerMode);
     setStep('playing');
   };
 
-  // 3️⃣ LIDA COM A DIGITAÇÃO DO USUÁRIO
   const lidarComBusca = async (texto) => {
     setBusca(texto);
     setMsg({ texto: '', tipo: '' });
 
     if (texto.length >= 3) {
       setLoadingBusca(true);
-      // Busca em todo o banco (trazendo pegadinhas de outras seleções)
       const resultados = await buscarJogadoresPorNome(texto); 
       setOpcoes(resultados);
       setLoadingBusca(false);
@@ -112,17 +126,11 @@ export default function Futbol11() {
     }
   };
 
-  // 4️⃣ VALIDA O JOGADOR QUANDO ELE CLICA NO NOME DA LISTA
-  const confirmarJogador = useCallback((jogador) => {
-    if (!posicaoAtiva) {
-      setMsg({ texto: '⚠️ Clique em uma posição vazia no campo primeiro!', tipo: 'aviso' });
-      return;
-    }
-
-    const slotSelecionado = SLOTS.find(s => s.id === posicaoAtiva);
+  // 1️⃣ O USUÁRIO CLICA NO NOME DA LISTA
+  const clicarNoAutocomplete = (jogador) => {
     const paisAtualObj = countries[curIdx];
 
-    // Validação 1: O jogador é do país que foi sorteado?
+    // Verifica País
     if (jogador.team_id !== paisAtualObj.id) {
       setMsg({ texto: `❌ Errou! ${jogador.name} não joga pela seleção de ${paisAtualObj.name}.`, tipo: 'erro' });
       setBusca('');
@@ -130,32 +138,50 @@ export default function Futbol11() {
       return;
     }
 
-    // Validação 2: A posição está correta?
-    if (!slotAceita(slotSelecionado, jogador)) {
-      setMsg({ 
-        texto: `❌ Posição incorreta! O jogador ${jogador.name} atua como ${jogador.pos1}, não como ${slotSelecionado.label}.`, 
-        tipo: 'erro' 
-      });
-      setBusca('');
-      setOpcoes([]);
-      return;
-    }
-
-    // Validação 3: Já foi escalado?
+    // Verifica se já está no campo
     const jaEscalado = Object.values(slots).find(s => s.player.id === jogador.id);
     if (jaEscalado) {
       setMsg({ texto: `⚠️ Você já escalou ${jogador.name}!`, tipo: 'aviso' });
       return;
     }
 
-    // Sucesso!
-    setSlots(prev => ({ ...prev, [posicaoAtiva]: { player: jogador, team: paisAtualObj } }));
+    // Verifica quais posições o jogador faz E se elas estão vazias no momento
+    const slotsDisponiveisParaEle = SLOTS.filter(s => !slots[s.id] && slotAceita(s, jogador));
+    
+    if (slotsDisponiveisParaEle.length === 0) {
+      setMsg({ 
+        texto: `❌ Sem espaço! Todas as posições que ${jogador.name} joga já foram preenchidas no seu time.`, 
+        tipo: 'erro' 
+      });
+      return;
+    }
+
+    // Passou em tudo! Entra em modo de escolha de posição.
+    setJogadorSendoEscalado({ jogador, slotsPossiveis: slotsDisponiveisParaEle });
+    setOpcoes([]); // Esconde o autocomplete
+    setMsg({ texto: '', tipo: '' });
+  };
+
+  // 2️⃣ O USUÁRIO CLICA NO BOTÃO DA POSIÇÃO DESEJADA
+  const confirmarPosicao = (slotId) => {
+    const { jogador } = jogadorSendoEscalado;
+    const paisAtualObj = countries[curIdx];
+
+    // Aloca no campo
+    setSlots(prev => ({ ...prev, [slotId]: { player: jogador, team: paisAtualObj } }));
     setMsg({ texto: `✅ ${jogador.name} escalado com sucesso!`, tipo: 'sucesso' });
-    setPosicaoAtiva(null);
+    
+    // Reseta estado local
+    setJogadorSendoEscalado(null);
     setBusca('');
-    setOpcoes([]);
     avancarPais();
-  }, [posicaoAtiva, slots, countries, curIdx]);
+  };
+
+  const cancelarEscalacao = () => {
+    setJogadorSendoEscalado(null);
+    setBusca('');
+    if(inputRef.current) inputRef.current.focus();
+  };
 
   const avancarPais = useCallback(() => {
     const proximo = curIdx + 1;
@@ -168,13 +194,14 @@ export default function Futbol11() {
   }, [curIdx, countries]);
 
   const pular = useCallback(() => {
-    skipped.current.add(curIdx);
-    setPosicaoAtiva(null);
+    if (skipsDisponiveis <= 0) return;
+    setSkipsDisponiveis(prev => prev - 1);
+    setJogadorSendoEscalado(null);
     setBusca('');
     setOpcoes([]);
     setMsg({ texto: '', tipo: '' });
     avancarPais();
-  }, [curIdx, avancarPais]);
+  }, [curIdx, avancarPais, skipsDisponiveis]);
 
   const encerrar = () => {
     clearInterval(timerRef.current);
@@ -186,7 +213,7 @@ export default function Futbol11() {
     setStep('setup');
     setSlots({});
     setCurIdx(0);
-    setPosicaoAtiva(null);
+    setJogadorSendoEscalado(null);
     setBusca('');
     setOpcoes([]);
     setMsg({ texto: '', tipo: '' });
@@ -200,167 +227,105 @@ export default function Futbol11() {
   const miniTime = t => `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
 
   return (
-    <div style={{
-      minHeight:'100vh', background:'#0a0f1a', color:'#f4f1ea',
-      fontFamily:"'Inter', sans-serif",
-    }}>
+    <div style={{ minHeight:'100vh', background:'#0a0f1a', color:'#f4f1ea', fontFamily:"'Inter', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
         *{box-sizing:border-box;} body{margin:0;}
         .f11{max-width:960px;margin:0 auto;padding:24px 16px 60px;}
         @media(max-width:480px){.f11{padding:14px 10px 50px;}}
 
-        .f11-h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;
-          letter-spacing:.04em;text-align:center;font-size:clamp(26px,5vw,48px);
-          background:linear-gradient(180deg,#fff,#f2c14e);-webkit-background-clip:text;
-          background-clip:text;color:transparent;margin:4px 0 0;}
+        .f11-h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase; letter-spacing:.04em;text-align:center;font-size:clamp(26px,5vw,48px); background:linear-gradient(180deg,#fff,#f2c14e);-webkit-background-clip:text; background-clip:text;color:transparent;margin:4px 0 0;}
         .f11-sub{text-align:center;color:rgba(244,241,234,.6);font-size:14px;margin:6px 0 0;}
 
-        /* setup */
-        .f11-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-          border:1px solid rgba(244,241,234,.1);border-radius:14px;}
+        .f11-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border:1px solid rgba(244,241,234,.1);border-radius:14px;}
         .f11-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-        .f11-pill{font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 16px;
-          border-radius:999px;border:1px solid rgba(244,241,234,.22);background:transparent;
-          color:#f4f1ea;cursor:pointer;transition:all .15s;}
+        .f11-pill{font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 16px; border-radius:999px;border:1px solid rgba(244,241,234,.22);background:transparent; color:#f4f1ea;cursor:pointer;transition:all .15s;}
         .f11-pill.on{background:#f2c14e;color:#1a1300;border-color:#f2c14e;font-weight:700;}
 
-        .f11-startbtn{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;
-          text-transform:uppercase;padding:18px 48px;border-radius:10px;border:none;
-          background:linear-gradient(135deg,#f2c14e,#c9941f);color:#1a1300;cursor:pointer;
-          transition:transform .15s,box-shadow .15s;display:block;margin:24px auto 0;}
+        .f11-startbtn{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700; text-transform:uppercase;padding:18px 48px;border-radius:10px;border:none; background:linear-gradient(135deg,#f2c14e,#c9941f);color:#1a1300;cursor:pointer; transition:transform .15s,box-shadow .15s;display:block;margin:24px auto 0;}
         .f11-startbtn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(242,193,78,.3);}
 
-        /* campo */
-        .f11-pitch{position:relative;width:100%;aspect-ratio:7/10;border-radius:16px;overflow:hidden;
-          background:repeating-linear-gradient(0deg,#123524 0 44px,#1d5c3c 44px 88px);
-          border:3px solid rgba(244,241,234,.45);}
-        .f11-pitch::before{content:'';position:absolute;left:50%;top:50%;width:28%;aspect-ratio:1;
-          border:2px solid rgba(244,241,234,.28);border-radius:50%;transform:translate(-50%,-50%);}
-        .f11-pitch::after{content:'';position:absolute;left:0;top:50%;width:100%;height:0;
-          border-top:2px solid rgba(244,241,234,.28);}
+        .f11-pitch{position:relative;width:100%;aspect-ratio:7/10;border-radius:16px;overflow:hidden; background:repeating-linear-gradient(0deg,#123524 0 44px,#1d5c3c 44px 88px); border:3px solid rgba(244,241,234,.45);}
+        .f11-pitch::before{content:'';position:absolute;left:50%;top:50%;width:28%;aspect-ratio:1; border:2px solid rgba(244,241,234,.28);border-radius:50%;transform:translate(-50%,-50%);}
+        .f11-pitch::after{content:'';position:absolute;left:0;top:50%;width:100%;height:0; border-top:2px solid rgba(244,241,234,.28);}
 
-        .f11-slot{position:absolute;transform:translate(-50%,-50%);text-align:center;
-          width:clamp(52px,13vw,72px);}
-        .f11-slot-empty{width:clamp(44px,11vw,64px);height:clamp(28px,7vw,36px);margin:0 auto;
-          border:2px dashed rgba(244,241,234,.35);border-radius:6px;display:flex;
-          align-items:center;justify-content:center;transition:all .15s;cursor:pointer;background:rgba(0,0,0,0.4);}
-        .f11-slot-empty:hover{border-color:#f2c14e;}
-        .f11-slot-empty.active{border-color:#f2c14e;background:rgba(242,193,78,.3);
-          box-shadow: 0 0 10px rgba(242,193,78,.5);}
-        .f11-slot-empty label{font-family:'JetBrains Mono',monospace;font-size:clamp(8px,2.2vw,11px);
-          color:rgba(244,241,234,.9);font-weight:700;letter-spacing:.05em;pointer-events:none;}
+        .f11-slot{position:absolute;transform:translate(-50%,-50%);text-align:center; width:clamp(52px,13vw,72px);}
+        .f11-slot-empty{width:clamp(44px,11vw,64px);height:clamp(28px,7vw,36px);margin:0 auto; border:2px dashed rgba(244,241,234,.35);border-radius:6px;display:flex; align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}
+        .f11-slot-empty.highlight{border-color:#f2c14e; background:rgba(242,193,78,.2); box-shadow: 0 0 10px rgba(242,193,78,.4);}
+        .f11-slot-empty label{font-family:'JetBrains Mono',monospace;font-size:clamp(8px,2.2vw,11px); color:rgba(244,241,234,.6);font-weight:700;letter-spacing:.05em;}
         
         .f11-slot-filled{display:flex;flex-direction:column;align-items:center;gap:2px;}
-        .f11-slot-flag{width:clamp(28px,8vw,40px);height:clamp(18px,5vw,26px);border-radius:4px;
-          object-fit:cover;border:1px solid rgba(244,241,234,.3);}
-        .f11-slot-name{font-size:clamp(6px,1.6vw,9px);font-weight:700;font-family:'Oswald',sans-serif;
-          text-transform:uppercase;letter-spacing:.03em;line-height:1.1;
-          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:clamp(52px,13vw,72px);}
+        .f11-slot-flag{width:clamp(28px,8vw,40px);height:clamp(18px,5vw,26px);border-radius:4px; object-fit:cover;border:1px solid rgba(244,241,234,.3);}
+        .f11-slot-name{font-size:clamp(6px,1.6vw,9px);font-weight:700;font-family:'Oswald',sans-serif; text-transform:uppercase;letter-spacing:.03em;line-height:1.1; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:clamp(52px,13vw,72px);}
 
-        /* barra de progresso */
         .f11-progbar{height:4px;background:rgba(244,241,234,.1);border-radius:999px;margin:12px 0;}
-        .f11-progfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f2c14e,#ffe17a);
-          transition:width .4s ease;}
+        .f11-progfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f2c14e,#ffe17a); transition:width .4s ease;}
 
-        /* painel inferior */
         .f11-bottom{display:grid;grid-template-columns:200px 1fr;gap:16px;margin-top:16px;align-items:start;}
         @media(max-width:600px){.f11-bottom{grid-template-columns:1fr;}}
 
-        .f11-country-card{background:#070a12;border:2px solid rgba(244,241,234,.15);border-radius:12px;
-          padding:16px;text-align:center;}
-        .f11-country-flag{width:80px;height:52px;object-fit:cover;border-radius:6px;
-          border:1px solid rgba(244,241,234,.25);margin-bottom:8px;}
-        .f11-country-name{font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase;
-          letter-spacing:.06em;color:#f2c14e;}
+        .f11-country-card{background:#070a12;border:2px solid rgba(244,241,234,.15);border-radius:12px; padding:16px;text-align:center;}
+        .f11-country-flag{width:80px;height:52px;object-fit:cover;border-radius:6px; border:1px solid rgba(244,241,234,.25);margin-bottom:8px;}
+        .f11-country-name{font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase; color:#f2c14e;}
         
         .f11-search-container{position:relative; width:100%;}
-        .f11-search-input{width:100%;padding:14px;border-radius:8px;border:2px solid rgba(244,241,234,.2);
-          background:#070a12;color:#f4f1ea;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border .2s;}
+        .f11-search-input{width:100%;padding:14px;border-radius:8px;border:2px solid rgba(244,241,234,.2); background:#070a12;color:#f4f1ea;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border .2s;}
         .f11-search-input:focus{border-color:#f2c14e;}
-        .f11-search-input:disabled{opacity:0.5;cursor:not-allowed;}
+        .f11-search-input::placeholder{color:rgba(244,241,234,.3);}
         
-        /* Dropdown do Autocomplete */
-        .f11-autocomplete{position:absolute;top:100%;left:0;width:100%;background:#0a0f1a;
-          border:1px solid rgba(244,241,234,.2);border-radius:8px;margin-top:4px;z-index:50;
-          max-height:200px;overflow-y:auto;box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
-        .f11-auto-item{padding:12px;border-bottom:1px solid rgba(244,241,234,.1);cursor:pointer;
-          display:flex;justify-content:space-between;align-items:center;transition:background .2s;}
+        .f11-autocomplete{position:absolute;top:100%;left:0;width:100%;background:#0a0f1a; border:1px solid rgba(244,241,234,.2);border-radius:8px;margin-top:4px;z-index:50; max-height:200px;overflow-y:auto;box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
+        .f11-auto-item{padding:12px;border-bottom:1px solid rgba(244,241,234,.1);cursor:pointer; display:flex;justify-content:space-between;align-items:center;transition:background .2s;}
         .f11-auto-item:hover{background:rgba(242,193,78,.15);}
-        .f11-ptag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;
-          border-radius:4px;color:#06090f;font-weight:700;background:#f2c14e;margin-left:6px;}
+        .f11-ptag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px; border-radius:4px;color:#06090f;font-weight:700;background:#f2c14e;margin-left:6px;}
 
-        .f11-skip{width:100%;margin-top:10px;padding:7px;font-family:'JetBrains Mono',monospace;
-          font-size:11px;border:1px dashed rgba(215,38,61,.5);border-radius:6px;
-          background:transparent;color:#ff8a93;cursor:pointer;}
-        .f11-skip:hover{background:rgba(215,38,61,.08);}
+        .f11-skip{width:100%;margin-top:10px;padding:7px;font-family:'JetBrains Mono',monospace; font-size:11px;border:1px dashed rgba(215,38,61,.5);border-radius:6px; background:transparent;cursor:pointer;}
+        .f11-skip:hover:not(:disabled){background:rgba(215,38,61,.08);}
+        .f11-skip:disabled{opacity: 0.4; cursor: not-allowed; border-color: rgba(244,241,234,.2); color: rgba(244,241,234,.4);}
 
-        /* timer */
-        .f11-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;
-          text-align:center;margin-bottom:4px;}
+        .f11-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px; text-align:center;margin-bottom:4px;}
 
-        /* resultado */
         .f11-result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:16px;}
-        .f11-result-slot{background:#070a12;border-radius:8px;padding:10px;text-align:center;
-          border:1px solid rgba(244,241,234,.1);}
+        .f11-result-slot{background:#070a12;border-radius:8px;padding:10px;text-align:center; border:1px solid rgba(244,241,234,.1);}
         .f11-result-slot.filled{border-color:rgba(242,193,78,.3);}
         .f11-result-slot.empty{border-color:rgba(215,38,61,.3);}
-        .f11-result-slotlabel{font-family:'JetBrains Mono',monospace;font-size:9px;
-          text-transform:uppercase;letter-spacing:.1em;color:rgba(244,241,234,.4);margin-bottom:4px;}
+        .f11-result-slotlabel{font-family:'JetBrains Mono',monospace;font-size:9px; text-transform:uppercase;letter-spacing:.1em;color:rgba(244,241,234,.4);margin-bottom:4px;}
         .f11-result-flag{width:36px;height:24px;object-fit:cover;border-radius:3px;margin:0 auto 4px;}
-        .f11-result-name{font-size:11px;font-weight:600;font-family:'Oswald',sans-serif;
-          text-transform:uppercase;letter-spacing:.03em;}
+        .f11-result-name{font-size:11px;font-weight:600;font-family:'Oswald',sans-serif; text-transform:uppercase;letter-spacing:.03em;}
         .f11-result-ovr{font-family:'JetBrains Mono',monospace;font-size:10px;color:#f2c14e;margin-top:2px;}
 
-        .f11-reset{font-family:'JetBrains Mono',monospace;font-size:12px;background:transparent;
-          border:1px solid rgba(244,241,234,.25);color:#f4f1ea;padding:8px 18px;border-radius:8px;cursor:pointer;}
+        .f11-reset{font-family:'JetBrains Mono',monospace;font-size:12px;background:transparent; border:1px solid rgba(244,241,234,.25);color:#f4f1ea;padding:8px 18px;border-radius:8px;cursor:pointer;}
         .f11-reset:hover{border-color:#f2c14e;color:#f2c14e;}
 
-        .f11-eyebrow{font-family:'JetBrains Mono',monospace;letter-spacing:.22em;text-transform:uppercase;
-          font-size:11px;color:#f2c14e;text-align:center;}
+        .f11-eyebrow{font-family:'JetBrains Mono',monospace;letter-spacing:.22em;text-transform:uppercase; font-size:11px;color:#f2c14e;text-align:center;}
       `}</style>
 
       <div className="f11">
-        <p className="f11-eyebrow">Desafio Diário</p>
         <h1 className="f11-h1">Futbol 11 — Copa 2026</h1>
-        <p className="f11-sub">Monte um XI puxando da memória jogadores de 11 seleções diferentes.</p>
+        <p className="f11-sub">Mostre o seu conhecimento tático puxando jogadores da memória.</p>
 
         {/* ── SETUP ── */}
         {step === 'setup' && (
           <div style={{ maxWidth: 520, margin: '36px auto 0' }}>
             <div className="f11-card" style={{ padding: 24 }}>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em',
-                textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>
-                Dificuldade
-              </p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>Dificuldade</p>
               <div className="f11-pills" style={{ marginBottom: 28 }}>
                 {[['easy','⭐ Fácil','Só seleções top'],['normal','⚽ Normal','Top + médias'],['hard','💀 Difícil','Todas as 48']].map(([v,l,d])=>(
-                  <button key={v} className={`f11-pill ${difficulty===v?'on':''}`} onClick={() => setDifficulty(v)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 18px' }}>
-                    <span>{l}</span>
-                    <span style={{ fontSize: 10, opacity: .7, fontWeight: 400, marginTop: 2 }}>{d}</span>
+                  <button key={v} className={`f11-pill ${difficulty===v?'on':''}`} onClick={() => setDifficulty(v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 18px' }}>
+                    <span>{l}</span><span style={{ fontSize: 10, opacity: .7, fontWeight: 400, marginTop: 2 }}>{d}</span>
                   </button>
                 ))}
               </div>
 
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em',
-                textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>
-                Cronômetro
-              </p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(244,241,234,.5)', textAlign: 'center', marginBottom: 10 }}>Cronômetro</p>
               <div className="f11-pills" style={{ marginBottom: 8 }}>
                 {[[0,'⏳ Sem limite'],[90,'90s'],[60,'60s'],[40,'40s']].map(([v,l])=>(
                   <button key={v} className={`f11-pill ${timerMode===v?'on':''}`} onClick={() => setTimerMode(v)}>{l}</button>
                 ))}
               </div>
-
-              <p style={{ textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
-                color: 'rgba(244,241,234,.4)', marginTop: 8 }}>
-                🗓️ Países do dia: {getTodaySeed()} · {difficulty}
-              </p>
             </div>
 
             <button className="f11-startbtn" onClick={iniciar} disabled={!allTeams.length}>
-              {allTeams.length ? '⚽ Começar' : 'Carregando banco de dados...'}
+              {allTeams.length ? '⚽ Começar o Draft' : 'Carregando banco de dados...'}
             </button>
           </div>
         )}
@@ -373,20 +338,17 @@ export default function Futbol11() {
                 País {curIdx + 1} de {countries.length} · {preenchidos}/11
               </span>
               {timerMode > 0 && (
-                <span className="f11-timer" style={{ color: timerCor, fontSize: 18 }}>
-                  ⏱ {miniTime(timeLeft)}
-                </span>
+                <span className="f11-timer" style={{ color: timerCor, fontSize: 18 }}>⏱ {miniTime(timeLeft)}</span>
               )}
             </div>
-            <div className="f11-progbar">
-              <div className="f11-progfill" style={{ width: `${pct}%` }} />
-            </div>
+            <div className="f11-progbar"><div className="f11-progfill" style={{ width: `${pct}%` }} /></div>
 
             {/* O CAMPO TÁTICO */}
             <div className="f11-pitch">
               {SLOTS.map(slot => {
                 const filled = slots[slot.id];
-                const isActive = posicaoAtiva === slot.id;
+                // Se estivermos escolhendo a posição, acende os slots possíveis!
+                const isHighlight = jogadorSendoEscalado && jogadorSendoEscalado.slotsPossiveis.find(s => s.id === slot.id);
                 return (
                   <div key={slot.id} className="f11-slot" style={{ left: `${slot.x}%`, top: `${slot.y}%` }}>
                     {filled ? (
@@ -395,19 +357,11 @@ export default function Futbol11() {
                           ? <img src={filled.team.badge_url} alt={filled.team.name} className="f11-slot-flag"/>
                           : <div style={{ width: 38, height: 24, background: 'rgba(244,241,234,.15)', borderRadius: 4, margin: '0 auto' }} />
                         }
-                        <span className="f11-slot-name" style={{ color: '#f4f1ea' }}>
-                          {filled.player.name.split(' ').pop()}
-                        </span>
+                        <span className="f11-slot-name" style={{ color: '#f4f1ea' }}>{filled.player.name.split(' ').pop()}</span>
                       </div>
                     ) : (
-                      <div className={`f11-slot-empty ${isActive ? 'active' : ''}`}
-                        onClick={() => {
-                          setPosicaoAtiva(slot.id);
-                          setMsg({ texto: '', tipo: '' });
-                          setBusca('');
-                          setOpcoes([]);
-                        }}>
-                        <label>{slot.label}</label>
+                      <div className={`f11-slot-empty ${isHighlight ? 'highlight' : ''}`}>
+                        <label style={{ color: isHighlight ? '#1a1300' : '' }}>{slot.label}</label>
                       </div>
                     )}
                   </div>
@@ -415,7 +369,7 @@ export default function Futbol11() {
               })}
             </div>
 
-            {/* PAINEL INFERIOR: PAÍS + AUTOCOMPLETE */}
+            {/* PAINEL INFERIOR: PAÍS + AUTOCOMPLETE/POSICIONAMENTO */}
             <div className="f11-bottom">
               <div>
                 <div className="f11-country-card">
@@ -425,13 +379,21 @@ export default function Futbol11() {
                   }
                   <div className="f11-country-name">{paisAtual.name}</div>
                 </div>
-                <button className="f11-skip" onClick={pular}>🏳️ Pular esta seleção</button>
+                
+                <button 
+                  className="f11-skip" 
+                  onClick={pular} 
+                  disabled={skipsDisponiveis === 0}
+                  style={{ color: skipsDisponiveis === 0 ? '' : '#ff8a93' }}
+                >
+                  🏳️ Pular seleção ({skipsDisponiveis} restante)
+                </button>
                 <button className="f11-skip" style={{ marginTop: 6, borderColor: 'rgba(215,38,61,.7)', color: '#ff5252' }}
                   onClick={encerrar}>⏹ Encerrar jogo</button>
               </div>
 
               <div>
-                {/* Alertas de Erro ou Sucesso */}
+                {/* Alertas */}
                 {msg.texto && (
                   <div style={{
                     padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 'bold', textAlign: 'center',
@@ -443,51 +405,72 @@ export default function Futbol11() {
                   </div>
                 )}
 
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'rgba(244,241,234,.7)', marginBottom: 8 }}>
-                  {posicaoAtiva 
-                    ? `Buscando jogador para: [ ${SLOTS.find(s=>s.id===posicaoAtiva).label} ] da seleção de ${paisAtual.name}`
-                    : `👇 Clique em uma posição vazia no campo para buscar`
-                  }
-                </p>
-
-                <div className="f11-search-container">
-                  <input 
-                    type="text" 
-                    className="f11-search-input"
-                    placeholder="Digite pelo menos 3 letras..."
-                    value={busca}
-                    disabled={!posicaoAtiva}
-                    onChange={(e) => lidarComBusca(e.target.value)}
-                  />
-
-                  {/* Autocomplete Dropdown */}
-                  {opcoes.length > 0 && (
-                    <div className="f11-autocomplete">
-                      {opcoes.map(jog => {
-                        const timeDoJog = allTeams.find(t => t.id === jog.team_id); // Pega a bandeira para mostrar na lista
-                        return (
-                          <div key={jog.id} className="f11-auto-item" onClick={() => confirmarJogador(jog)}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              {timeDoJog?.badge_url && (
-                                <img src={timeDoJog.badge_url} style={{ width: 24, borderRadius: 3 }} alt="" />
-                              )}
-                              <strong>{jog.name}</strong>
-                              <span className="f11-ptag">{jog.pos1}</span>
-                            </div>
-                            <span style={{ fontSize: 12, color: 'rgba(244,241,234,.5)' }}>⭐ {jog.overall}</span>
-                          </div>
-                        )
-                      })}
+                {/* 🔀 PAINEL DINÂMICO (Escolha de Posição OU Busca) */}
+                {jogadorSendoEscalado ? (
+                  // TELA DE ESCOLHA DE POSIÇÃO
+                  <div style={{ background: '#1c180e', border: '2px solid #f2c14e', borderRadius: 8, padding: 16, textAlign: 'center' }}>
+                    <p style={{ color: '#f2c14e', fontWeight: 'bold', marginBottom: 12 }}>
+                      Onde você quer escalar {jogadorSendoEscalado.jogador.name}?
+                    </p>
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+                      {jogadorSendoEscalado.slotsPossiveis.map(s => (
+                        <button 
+                          key={s.id} 
+                          onClick={() => confirmarPosicao(s.id)}
+                          style={{ background: '#f2c14e', color: '#1a1300', padding: '8px 16px', borderRadius: 6, fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
                     </div>
-                  )}
-                  {loadingBusca && <p style={{ fontSize: 12, color: '#f2c14e', marginTop: 8 }}>Procurando...</p>}
-                </div>
+                    <button onClick={cancelarEscalacao} style={{ color: '#ff8a93', background: 'transparent', border: 'none', textDecoration: 'underline', cursor: 'pointer', fontSize: 13 }}>
+                      Escolher outro jogador
+                    </button>
+                  </div>
+                ) : (
+                  // TELA DE BUSCA ORIGINAL
+                  <div className="f11-search-container">
+                    <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'rgba(244,241,234,.7)', marginBottom: 8 }}>
+                      👇 Digite o nome de um jogador de {paisAtual.name}
+                    </p>
+                    <input 
+                      ref={inputRef}
+                      type="text" 
+                      className="f11-search-input"
+                      placeholder="Busque por pelo menos 3 letras..."
+                      value={busca}
+                      onChange={(e) => lidarComBusca(e.target.value)}
+                    />
+
+                    {/* Autocomplete */}
+                    {opcoes.length > 0 && (
+                      <div className="f11-autocomplete">
+                        {opcoes.map(jog => {
+                          const timeDoJog = allTeams.find(t => t.id === jog.team_id);
+                          return (
+                            <div key={jog.id} className="f11-auto-item" onClick={() => clicarNoAutocomplete(jog)}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                {timeDoJog?.badge_url && (
+                                  <img src={timeDoJog.badge_url} style={{ width: 24, borderRadius: 3 }} alt="" />
+                                )}
+                                <strong>{jog.name}</strong>
+                                <span className="f11-ptag">{jog.pos1}</span>
+                              </div>
+                              <span style={{ fontSize: 12, color: 'rgba(244,241,234,.5)' }}>⭐ {jog.overall}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {loadingBusca && <p style={{ fontSize: 12, color: '#f2c14e', marginTop: 8 }}>Procurando...</p>}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
 
-        {/* ── TIMEOUT & FINISHED (Mesmo código do seu atual) ── */}
+        {/* ── TIMEOUT & FINISHED ── */}
         {step === 'timeout' && (
           <div style={{ textAlign: 'center', marginTop: 40 }}>
             <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#ff5252' }}>⏱ Tempo esgotado!</p>
