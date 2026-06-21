@@ -4,177 +4,393 @@ import { SELECOES_COPA, TIERS_FIXOS, loadCopaTimes } from '@/components/games/ga
 import DECISOES from '@/components/games/dados/decisoesTecnico.json';
 import JOGADORES_COPA from '@/components/games/dados/jogadoresCopa.json';
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 const delay = ms => new Promise(r => setTimeout(r, ms));
+const calcForca = jogs => jogs.length ? Math.round(jogs.reduce((s, p) => s + p.overall, 0) / jogs.length) : 78;
 
+const RODADAS = {
+  1: { short: 'Oitavas', full: 'Oitavas de Final',  emoji: '⚔️' },
+  2: { short: 'Quartas', full: 'Quartas de Final',  emoji: '🏅' },
+  3: { short: 'Semi',    full: 'Semifinal',          emoji: '🔥' },
+  4: { short: 'Final',   full: 'Grande Final',       emoji: '🏆' },
+};
+
+const ATMOS = [
+  { tipo:'chute',   txt: (m) => `💨 ${m}' Chute colocado, mas para fora!` },
+  { tipo:'defesa',  txt: (m) => `🧤 ${m}' Defesa incrível do goleiro!` },
+  { tipo:'falta',   txt: (m) => `🟨 ${m}' Falta dura no meio-campo.` },
+  { tipo:'escanteio', txt: (m) => `🚩 ${m}' Escanteio — bola na área!` },
+  { tipo:'trave',   txt: (m) => `💥 ${m}' NA TRAVE! Quase!` },
+];
+
+// ─── Componente ───────────────────────────────────────────────────────────────
 export default function TecnicoPorUmDia() {
-  const [step, setStep] = useState('selecao'); // selecao | pre_jogo | jogo | gameover | campeao
+  const [step, setStep]     = useState('selecao');
   const [allTeams, setAllTeams] = useState([]);
   const [myTeam, setMyTeam] = useState(null);
-  
-  // Torneio Progressivo
-  const [rodada, setRodada] = useState(1); 
-  const nomeRodadas = { 1: 'Oitavas de Final', 2: 'Quartas de Final', 3: 'Semifinal', 4: 'Grande Final' };
-  const [advForca, setAdvForca] = useState(80);
+  const [rodada, setRodada] = useState(1);
   const [advTeam, setAdvTeam] = useState(null);
-
-  // Tática
+  const [advForca, setAdvForca] = useState(80);
   const [minhaForca, setMinhaForca] = useState({ atk: 80, def: 80 });
-  const [bonusTat, setBonusTat] = useState({ atk: 0, def: 0 });
-
-  // In-Game
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs]     = useState([]);
   const [placar, setPlacar] = useState({ eu: 0, adv: 0 });
   const [minuto, setMinuto] = useState(0);
+  const [faseJogo, setFaseJogo] = useState('');
   const [decisaoAtual, setDecisaoAtual] = useState(null);
-  
-  const logRef = useRef(null);
-  const resolverDecisao = useRef(null);
-  const playState = useRef({ sEu: 0, sAdv: 0 }); // Usado para evitar problemas de state assíncrono
+  const [golFlash, setGolFlash] = useState(null); // 'eu' | 'adv' | null
+
+  // Refs para evitar stale closures em funções assíncronas
+  const logRef      = useRef(null);
+  const resolverRef = useRef(null);
+  const scoreRef    = useRef({ eu: 0, adv: 0 });   // FIX: chaves corretas eu/adv
+  const bonusRef    = useRef({ atk: 0, def: 0 });   // FIX: não usa state dentro de async
+  const forcaRef    = useRef({ atk: 80, def: 80 }); // FIX: idem
+  const advFRef     = useRef(80);
+  const golFlashRef = useRef(null);
+  const myTeamRef   = useRef(null);
+  const advTeamRef  = useRef(null);
 
   useEffect(() => {
     loadCopaTimes().then(t => setAllTeams(t.filter(x => SELECOES_COPA.includes(x.name))));
   }, []);
 
-  useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [logs, decisaoAtual]);
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [logs, decisaoAtual]);
 
-  const addLog = async (txt, cor = '#fff') => {
-    setLogs(prev => [...prev, { txt, cor, key: Date.now() + Math.random() }]);
-    await delay(300); // Ticker speed
+  // ── Log ────────────────────────────────────────────────────────────────────
+  const addLog = async (txt, tipo = 'normal', ms = 350) => {
+    setLogs(prev => [...prev, { txt, tipo, key: Date.now() + Math.random() }]);
+    await delay(ms);
   };
 
+  // ── Goal flash overlay ────────────────────────────────────────────────────
+  const triggerGolFlash = (side) => {
+    if (golFlashRef.current) clearTimeout(golFlashRef.current);
+    setGolFlash(side);
+    golFlashRef.current = setTimeout(() => setGolFlash(null), 1400);
+  };
+
+  // ── Selecionar time ───────────────────────────────────────────────────────
   const selecionarTime = (team) => {
+    const jogs = JOGADORES_COPA.filter(p => String(p.team_id) === String(team.id));
+    const f = calcForca(jogs);
+    const forca = { atk: f + 2, def: f };
     setMyTeam(team);
-    const jogadores = JOGADORES_COPA.filter(p => String(p.team_id) === String(team.id));
-    const forcaGeral = jogadores.length ? Math.round(jogadores.reduce((s, p) => s + p.overall, 0) / jogadores.length) : 78;
-    setMinhaForca({ atk: forcaGeral + 2, def: forcaGeral }); // Leve boost pra compensar jogar em casa
-    prepararRodada(1);
+    myTeamRef.current = team;
+    setMinhaForca(forca);
+    forcaRef.current = forca;
+    prepararRodada(1, team);
   };
 
-  const prepararRodada = (r) => {
-    let possiveisRivais = [];
-    if (r === 1) possiveisRivais = allTeams.filter(t => TIERS_FIXOS.medio.includes(t.name) && t.id !== myTeam?.id);
-    else if (r === 2) possiveisRivais = allTeams.filter(t => t.id !== myTeam?.id);
-    else possiveisRivais = allTeams.filter(t => TIERS_FIXOS.top.includes(t.name) && t.id !== myTeam?.id);
+  const prepararRodada = (r, team = myTeam) => {
+    let pool = [];
+    if (r === 1)      pool = allTeams.filter(t => TIERS_FIXOS.medio.includes(t.name) && t.id !== team?.id);
+    else if (r <= 2)  pool = allTeams.filter(t => t.id !== team?.id);
+    else              pool = allTeams.filter(t => TIERS_FIXOS.top.includes(t.name) && t.id !== team?.id);
+    if (!pool.length) pool = allTeams.filter(t => t.id !== team?.id);
 
-    if (!possiveisRivais.length) possiveisRivais = allTeams; // Fallback
-    
-    const rival = possiveisRivais[Math.floor(Math.random() * possiveisRivais.length)];
-    setAdvTeam(rival);
-    
-    const jogRival = JOGADORES_COPA.filter(p => String(p.team_id) === String(rival.id));
-    const fRival = jogRival.length ? Math.round(jogRival.reduce((s, p) => s + p.overall, 0) / jogRival.length) : 78;
-    
-    // Na final a IA tem um boost natural
-    setAdvForca(r === 4 ? fRival + 3 : fRival); 
+    const rival = pool[Math.floor(Math.random() * pool.length)];
+    const jRival = JOGADORES_COPA.filter(p => String(p.team_id) === String(rival.id));
+    const fR = calcForca(jRival);
+    // Dificuldade crescente
+    const boost = r === 4 ? 4 : r === 3 ? 2 : 0;
+    const forcaRival = fR + boost;
+
+    setAdvTeam(rival);    advTeamRef.current  = rival;
+    setAdvForca(forcaRival); advFRef.current  = forcaRival;
     setRodada(r);
+    bonusRef.current = { atk: 0, def: 0 };
     setStep('pre_jogo');
   };
 
-  const rolarMinuto = async (m, pEu, pAdv) => {
-    setMinuto(m);
-    // Probabilidade ajustada por minuto (para ter placares realistas de futebol 1 a 3 gols)
-    const chanceGeral = 0.025; 
-    
-    // Minha chance: Base (chanceGeral) + Diff Força + Decisões
-    let chanceEu = chanceGeral + ((minhaForca.atk + (bonusTat.atk*100)) - advForca) * 0.0015;
-    // Chance Adv: Base (chanceGeral) + Diff Força - Minha Defesa + Decisões
-    let chanceAdv = chanceGeral + (advForca - (minhaForca.def + (bonusTat.def*100))) * 0.0015;
+  // ── Pedido de decisão tática ──────────────────────────────────────────────
+  const pedirDecisao = (fase) => {
+    const opts = DECISOES.filter(d => d.fase === fase);
+    const evt  = opts.length ? opts[Math.floor(Math.random() * opts.length)] : null;
+    if (!evt) return Promise.resolve({ label: 'Manter', atk: 0, def: 0 });
 
-    // Normalizar para nunca ser menor que 0.5%
-    chanceEu = Math.max(0.005, chanceEu);
-    chanceAdv = Math.max(0.005, chanceAdv);
-
-    if (Math.random() < chanceEu) { 
-      playState.current.sEu++; 
-      setPlacar({ ...playState.current }); 
-      await addLog(`⚽ ${m}' GOL DO ${myTeam.name.toUpperCase()}!`, '#6fd17a'); 
-      await delay(800);
-    }
-    else if (Math.random() < chanceAdv) { 
-      playState.current.sAdv++; 
-      setPlacar({ ...playState.current }); 
-      await addLog(`⚽ ${m}' GOL DO ${advTeam.name.toUpperCase()}...`, '#ff8a93'); 
-      await delay(800);
-    }
+    return new Promise(resolve => {
+      resolverRef.current = resolve;
+      setDecisaoAtual(evt);
+    });
   };
 
-  const iniciarPartida = async () => {
-    setStep('jogo'); setLogs([]); setPlacar({ eu: 0, adv: 0 }); setMinuto(0); setBonusTat({ atk: 0, def: 0 });
-    playState.current = { sEu: 0, sAdv: 0 };
+  const confirmarDecisao = (opcao) => {
+    const fn = resolverRef.current;
+    resolverRef.current = null;
+    setDecisaoAtual(null);
+    if (fn) fn(opcao);
+  };
 
-    await addLog(`🏆 APITO INICIAL: ${nomeRodadas[rodada]}!`, '#f2c14e');
-    await delay(1000);
-    
-    // Paradas programadas para Decisões
-    const paradas = [30, 45, 75];
+  // ── Simula um segmento de minutos ──────────────────────────────────────────
+  // Gera eventos (gols + atmosféricos) e os anima um a um com delays.
+  const rodarSegmento = async (minInicio, minFim) => {
+    const atk = forcaRef.current.atk + bonusRef.current.atk;
+    const def = forcaRef.current.def + bonusRef.current.def;
+    const adv = advFRef.current;
 
-    for (let m = 1; m <= 90; m++) {
-      await rolarMinuto(m);
-      
-      if (paradas.includes(m)) {
-        await addLog(`⏱️ Jogo paralisado aos ${m}' para instrução tática!`, '#5fa8d3');
-        
-        let faseDecisao = 'pressao';
-        if (m === 30) faseDecisao = 'intervalo'; // aproveitando as mesmas tags
-        if (m === 45) faseDecisao = 'intervalo';
+    // Gera eventos do segmento
+    const eventos = [];
+    for (let m = minInicio; m < minFim; m++) {
+      const chEu   = Math.max(0.004, 0.017 + (atk - adv) * 0.0016);
+      const chAdv  = Math.max(0.004, 0.017 + (adv - def) * 0.0016);
+      const chAtmos = 0.035;
+      const r = Math.random();
 
-        const evts = DECISOES.filter(d => d.fase === faseDecisao);
-        const evt = evts[Math.floor(Math.random() * evts.length)];
-        
-        setDecisaoAtual(evt);
-        // Trava o loop até o jogador clicar no botão
-        const escolha = await new Promise(r => { resolverDecisao.current = r; });
-        setDecisaoAtual(null);
-        
-        // Aplica o bonus no state
-        setBonusTat(prev => ({ atk: prev.atk + escolha.atk, def: prev.def + escolha.def }));
-        await addLog(`🗣️ Técnico: "${escolha.label}"`, '#fff');
-        await delay(1000);
+      if (r < chEu) {
+        eventos.push({ m, tipo: 'gol_eu' });
+      } else if (r < chEu + chAdv) {
+        eventos.push({ m, tipo: 'gol_adv' });
+      } else if (r < chEu + chAdv + chAtmos) {
+        const a = ATMOS[Math.floor(Math.random() * ATMOS.length)];
+        eventos.push({ m, tipo: 'atmos', txt: a.txt(m) });
       }
     }
 
-    await addLog(`🏁 FIM DE JOGO!`, '#f2c14e');
-    await delay(1500);
-
-    let finalVenceu = playState.current.sEu > playState.current.sAdv;
-
-    // Pênaltis
-    if (playState.current.sEu === playState.current.sAdv) {
-      await addLog('⚖️ EMPATE! VAMOS PARA OS PÊNALTIS!', '#f2c14e');
-      await delay(2000);
-      finalVenceu = Math.random() > 0.4; // 60% chance de vencer nos penaltis por ser o player
-      if (finalVenceu) { await addLog('⚽ VITÓRIA NOS PÊNALTIS!', '#6fd17a'); }
-      else { await addLog('❌ Derrota amarga nos pênaltis...', '#ff8a93'); }
-      await delay(2000);
+    if (eventos.length === 0) {
+      setMinuto(minFim);
+      await addLog(`🕐 Jogo truncado de ${minInicio}' a ${minFim}'. Poucas chances criadas.`, 'dim', 450);
+      return;
     }
 
-    if (finalVenceu) {
-      if (rodada === 4) setStep('campeao');
-      else prepararRodada(rodada + 1);
-    } else {
-      setStep('gameover');
+    for (const ev of eventos) {
+      setMinuto(ev.m);
+
+      if (ev.tipo === 'gol_eu') {
+        scoreRef.current = { eu: scoreRef.current.eu + 1, adv: scoreRef.current.adv };
+        setPlacar({ eu: scoreRef.current.eu, adv: scoreRef.current.adv }); // FIX: chaves corretas
+        triggerGolFlash('eu');
+        await addLog(
+          `⚽ ${ev.m}' GOOOOL DE ${(myTeamRef.current?.name || '').toUpperCase()}!`,
+          'gol_eu', 1400
+        );
+      } else if (ev.tipo === 'gol_adv') {
+        scoreRef.current = { eu: scoreRef.current.eu, adv: scoreRef.current.adv + 1 };
+        setPlacar({ eu: scoreRef.current.eu, adv: scoreRef.current.adv }); // FIX
+        triggerGolFlash('adv');
+        await addLog(
+          `⚽ ${ev.m}' Gol sofrido! ${advTeamRef.current?.name} marca...`,
+          'gol_adv', 1400
+        );
+      } else {
+        await addLog(ev.txt, 'atmos', 300);
+      }
     }
+
+    setMinuto(minFim);
   };
 
+  // ── Partida completa ───────────────────────────────────────────────────────
+  const iniciarPartida = async () => {
+    setStep('jogo');
+    setLogs([]); setPlacar({ eu: 0, adv: 0 }); setMinuto(0);
+    scoreRef.current = { eu: 0, adv: 0 };
+    bonusRef.current = { atk: 0, def: 0 };
+
+    const nr = RODADAS[rodada];
+    await addLog(`${nr.emoji} APITO INICIAL — ${nr.full}!`, 'titulo', 900);
+    await addLog(
+      `${myTeam.name.toUpperCase()} (ATK ${forcaRef.current.atk}) vs ${advTeam.name.toUpperCase()} (${advFRef.current})`,
+      'subtitulo', 600
+    );
+
+    // ── 1T: 1–30' ────────────────────────────────────────────────────────────
+    setFaseJogo('1T');
+    await rodarSegmento(1, 30);
+
+    // Decisão aos 30'
+    await addLog('⏱ Pausa tática — técnico entra em campo!', 'aviso', 400);
+    const d30 = await pedirDecisao('pressao');
+    bonusRef.current = { atk: bonusRef.current.atk + (d30.atk || 0) * 100, def: bonusRef.current.def + (d30.def || 0) * 100 };
+    await addLog(`🗣 Técnico: "${d30.label}"`, 'instrucao', 700);
+
+    // 1T cont: 30–45'
+    await rodarSegmento(30, 45);
+    setFaseJogo('HT');
+    await addLog(
+      `🔔 INTERVALO — ${scoreRef.current.eu}×${scoreRef.current.adv}`,
+      'titulo', 1000
+    );
+
+    // Decisão do intervalo
+    const d45 = await pedirDecisao('intervalo');
+    bonusRef.current = { atk: bonusRef.current.atk + (d45.atk || 0) * 100, def: bonusRef.current.def + (d45.def || 0) * 100 };
+    await addLog(`🗣 Técnico: "${d45.label}"`, 'instrucao', 700);
+
+    // ── 2T: 45–75' ────────────────────────────────────────────────────────────
+    setFaseJogo('2T');
+    await rodarSegmento(45, 75);
+
+    // Decisão aos 75'
+    await addLog('⏱ Minuto 75 — instrução final!', 'aviso', 400);
+    const d75 = await pedirDecisao('pressao');
+    bonusRef.current = { atk: bonusRef.current.atk + (d75.atk || 0) * 100, def: bonusRef.current.def + (d75.def || 0) * 100 };
+    await addLog(`🗣 Técnico: "${d75.label}"`, 'instrucao', 700);
+
+    // 2T final: 75–90'
+    await rodarSegmento(75, 90);
+    setMinuto(90);
+    await addLog('🏁 APITO FINAL!', 'titulo', 1200);
+
+    // Resultado
+    let venceu = scoreRef.current.eu > scoreRef.current.adv;
+
+    if (scoreRef.current.eu === scoreRef.current.adv) {
+      await addLog('⚖️ EMPATE! PÊNALTIS!', 'aviso', 1500);
+      venceu = Math.random() > 0.40;
+      await addLog(
+        venceu ? '⚽⚽ VITÓRIA NOS PÊNALTIS!' : '❌ Derrota nos pênaltis...',
+        venceu ? 'gol_eu' : 'gol_adv', 1600
+      );
+    }
+
+    await delay(1800);
+    if (venceu) { if (rodada === 4) setStep('campeao'); else prepararRodada(rodada + 1); }
+    else setStep('gameover');
+  };
+
+  // ── Progresso do torneio ───────────────────────────────────────────────────
+  const TournamentBar = () => (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:0, marginBottom:16 }}>
+      {[1,2,3,4].map((r, i) => {
+        const done  = r < rodada;
+        const atual = r === rodada;
+        const rd    = RODADAS[r];
+        return (
+          <div key={r} style={{ display:'flex', alignItems:'center' }}>
+            <div style={{ textAlign:'center', padding:'0 4px' }}>
+              <div style={{
+                width:34, height:34, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center',
+                fontSize:14, fontWeight:700, transition:'all .3s',
+                background: done ? '#f2c14e' : atual ? 'rgba(242,193,78,.18)' : 'rgba(244,241,234,.06)',
+                border: done ? '2px solid #f2c14e' : atual ? '2px solid #f2c14e' : '2px solid rgba(244,241,234,.15)',
+                color: done ? '#1a1300' : atual ? '#f2c14e' : 'rgba(244,241,234,.3)',
+              }}>
+                {done ? '✓' : rd.emoji}
+              </div>
+              <div style={{ fontSize:9, fontFamily:"'JetBrains Mono',monospace", textTransform:'uppercase', letterSpacing:'.06em', marginTop:3,
+                color: atual ? '#f2c14e' : done ? 'rgba(244,241,234,.6)' : 'rgba(244,241,234,.25)' }}>
+                {rd.short}
+              </div>
+            </div>
+            {i < 3 && (
+              <div style={{ width:28, height:2, background: r < rodada ? '#f2c14e' : 'rgba(244,241,234,.1)', transition:'background .4s', marginBottom:18 }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0f1a', color: '#fff', fontFamily: "Inter, sans-serif" }}>
-       <style>{`
+    <div style={{ minHeight:'100vh', background:'#08111f', color:'#f4f1ea', fontFamily:"'Inter',sans-serif" }}>
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
-        .t-btn{font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase;padding:12px 24px;background:#f2c14e;color:#000;border:none;border-radius:8px;cursor:pointer;}
-        .t-btn:hover{transform:scale(1.05);}
-        .t-logbox::-webkit-scrollbar { width: 6px; }
-        .t-logbox::-webkit-scrollbar-thumb { background: rgba(244,241,234,.2); border-radius: 4px; }
+        *{box-sizing:border-box;}
+        .tec{max-width:760px;margin:0 auto;padding:24px 14px 60px;}
+
+        /* Goal flash */
+        .tec-gf{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999;}
+        .tec-gf span{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.06em;animation:gfpop 1.4s ease forwards;text-shadow:0 0 40px rgba(0,0,0,.7);}
+        .tec-gf.eu span{color:#6fd17a;font-size:clamp(50px,14vw,100px);}
+        .tec-gf.adv span{color:#ff5252;font-size:clamp(32px,9vw,60px);}
+        @keyframes gfpop{0%{opacity:0;transform:scale(.3);}15%{opacity:1;transform:scale(1.1);}30%{transform:scale(1);}75%{opacity:1;}100%{opacity:0;transform:scale(1.05);}}
+
+        /* Scoreboard */
+        .tec-sb{background:#070a12;border:1px solid rgba(244,241,234,.1);border-radius:14px;padding:16px 20px;margin-bottom:14px;}
+        .tec-sb-fase{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#f2c14e;text-align:center;margin-bottom:10px;}
+        .tec-sb-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;}
+        .tec-sb-team{font-family:'Oswald',sans-serif;font-size:clamp(14px,3.5vw,20px);text-transform:uppercase;font-weight:700;}
+        .tec-sb-team.eu{text-align:right;color:#f2c14e;}
+        .tec-sb-team.adv{text-align:left;color:rgba(244,241,234,.7);}
+        .tec-sb-score{font-family:'Oswald',sans-serif;font-size:clamp(38px,9vw,60px);font-weight:700;text-align:center;line-height:1;padding:0 16px;background:rgba(0,0,0,.4);border-radius:10px;}
+        .tec-sb-min{font-family:'JetBrains Mono',monospace;font-size:11px;color:#f2c14e;text-align:center;margin-top:8px;}
+        .tec-tl{height:4px;background:rgba(244,241,234,.07);border-radius:999px;margin-top:8px;}
+        .tec-tl-fill{height:100%;background:linear-gradient(90deg,#f2c14e,#ffe17a);border-radius:999px;transition:width .8s ease;}
+
+        /* Log */
+        .tec-log{background:#070a12;border:1px solid rgba(244,241,234,.08);border-radius:12px;padding:14px;max-height:300px;overflow-y:auto;}
+        .tec-log::-webkit-scrollbar{width:5px;}
+        .tec-log::-webkit-scrollbar-thumb{background:rgba(244,241,234,.15);border-radius:4px;}
+        .tec-logline{padding:6px 0 6px 12px;border-left:2px solid rgba(244,241,234,.15);margin-bottom:8px;font-size:13px;animation:lfade .3s ease;}
+        @keyframes lfade{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
+        .tec-logline.gol_eu{border-left-color:#6fd17a;color:#b9f3bf;font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;}
+        .tec-logline.gol_adv{border-left-color:#ff5252;color:#ffc5c5;font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;}
+        .tec-logline.titulo{border-left-color:#f2c14e;color:#f2c14e;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:14px;}
+        .tec-logline.subtitulo{border-left-color:rgba(244,241,234,.3);color:rgba(244,241,234,.5);font-family:'JetBrains Mono',monospace;font-size:11px;}
+        .tec-logline.aviso{border-left-color:#5fa8d3;color:#a8d8f0;}
+        .tec-logline.instrucao{border-left-color:rgba(244,241,234,.5);color:rgba(244,241,234,.8);font-style:italic;}
+        .tec-logline.atmos{border-left-color:rgba(244,241,234,.18);color:rgba(244,241,234,.42);font-size:12px;}
+        .tec-logline.dim{border-left-color:rgba(244,241,234,.1);color:rgba(244,241,234,.3);font-size:11px;}
+
+        /* Decisão */
+        .tec-dec{background:#0d1a2e;border:2px solid #5fa8d3;border-radius:14px;padding:20px;margin-bottom:14px;animation:decpop .35s ease;}
+        @keyframes decpop{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+        .tec-dec h3{font-family:'Oswald',sans-serif;font-size:20px;text-transform:uppercase;color:#5fa8d3;margin:0 0 6px;}
+        .tec-dec p{font-size:13px;color:rgba(244,241,234,.7);margin:0 0 14px;line-height:1.5;}
+        .tec-dec-opts{display:flex;flex-direction:column;gap:8px;}
+        .tec-dec-btn{padding:12px 14px;background:rgba(95,168,211,.08);color:#f4f1ea;border:1px solid rgba(95,168,211,.3);border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:left;transition:all .15s;line-height:1.4;}
+        .tec-dec-btn:hover{background:rgba(95,168,211,.18);border-color:rgba(95,168,211,.6);}
+
+        /* Teams grid */
+        .tec-teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;max-height:460px;overflow-y:auto;margin-top:16px;padding-right:4px;}
+        .tec-teams-grid::-webkit-scrollbar{width:5px;}
+        .tec-teams-grid::-webkit-scrollbar-thumb{background:rgba(244,241,234,.15);border-radius:4px;}
+        .tec-team-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(244,241,234,.1);border-radius:10px;cursor:pointer;color:#f4f1ea;font-family:'Oswald',sans-serif;font-size:13px;text-transform:uppercase;text-align:left;transition:all .15s;}
+        .tec-team-btn:hover{border-color:rgba(242,193,78,.5);background:rgba(242,193,78,.07);}
+        .tec-team-flag{width:26px;height:16px;object-fit:cover;border-radius:2px;flex-shrink:0;}
+
+        /* Pre-jogo */
+        .tec-vs{background:#0d1a2e;border:2px solid rgba(242,193,78,.3);border-radius:16px;padding:28px 24px;text-align:center;}
+        .tec-vs-row{display:flex;justify-content:center;align-items:center;gap:16px;margin:20px 0;}
+        .tec-vs-side{flex:1;text-align:center;}
+        .tec-vs-name{font-family:'Oswald',sans-serif;font-size:clamp(18px,4vw,26px);text-transform:uppercase;font-weight:700;margin:0;}
+        .tec-vs-ovr{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(244,241,234,.4);margin-top:3px;}
+        .tec-vs-sep{font-family:'Oswald',sans-serif;font-size:28px;color:rgba(244,241,234,.2);flex-shrink:0;}
+        .tec-flag{width:52px;height:32px;object-fit:cover;border-radius:5px;margin:0 auto 8px;display:block;border:1px solid rgba(244,241,234,.2);}
+
+        .tec-btn{font-family:'Oswald',sans-serif;font-size:17px;text-transform:uppercase;padding:13px 32px;border-radius:10px;border:none;background:linear-gradient(135deg,#f2c14e,#c9941f);color:#1a1300;cursor:pointer;transition:transform .15s;}
+        .tec-btn:hover{transform:translateY(-2px);}
+
+        /* End screens */
+        .tec-end{text-align:center;margin-top:60px;padding:40px 20px;}
+        .tec-end h2{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(42px,10vw,72px);margin:0 0 10px;}
+
+        @media(max-width:480px){.tec-vs-row{flex-direction:column;gap:10px;} .tec-sb-score{font-size:48px;padding:0 10px;}}
       `}</style>
-      
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 16px' }}>
-        <h1 style={{ textAlign: 'center', fontFamily: "Oswald, sans-serif", color: '#f2c14e', fontSize: 40, margin:0 }}>Técnico por um Dia</h1>
-        
+
+      {/* Goal Flash Overlay */}
+      {golFlash && (
+        <div className={`tec-gf ${golFlash}`} key={golFlash + Date.now()}>
+          <span>{golFlash === 'eu' ? '⚽ GOOOL!' : `GOL SOFRIDO`}</span>
+        </div>
+      )}
+
+      <div className="tec">
+        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:'.22em', textTransform:'uppercase', color:'#f2c14e', textAlign:'center', marginBottom:4 }}>
+          Copa do Mundo 2026
+        </p>
+        <h1 style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, textTransform:'uppercase', textAlign:'center', fontSize:'clamp(28px,6vw,48px)', margin:'0 0 6px', background:'linear-gradient(160deg,#fff 30%,#f2c14e)', WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
+          Técnico por um Dia
+        </h1>
+        <p style={{ textAlign:'center', color:'rgba(244,241,234,.4)', fontSize:12, fontFamily:"'JetBrains Mono',monospace", margin:'0 0 24px' }}>
+          4 partidas · Decisões táticas reais · Copa do Mundo em suas mãos
+        </p>
+
+        {/* ── Seleção ── */}
         {step === 'selecao' && (
-          <div style={{ marginTop: 40 }}>
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,.6)', marginBottom: 30 }}>Escolha sua seleção e tente vencer a Copa do Mundo em 4 rodadas.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-              {allTeams.map(t => (
-                <button key={t.id} onClick={() => selecionarTime(t)} style={{ padding: '12px', background: '#1c180e', border: '1px solid rgba(242,193,78,.4)', color: '#fff', borderRadius: 8, cursor: 'pointer', fontFamily: "'Oswald',sans-serif", textTransform: 'uppercase' }}>
+          <div>
+            <p style={{ textAlign:'center', color:'rgba(244,241,234,.55)', fontSize:14, marginBottom:4 }}>
+              Escolha sua seleção e tente conquistar o título em 4 rodadas.
+            </p>
+            <div className="tec-teams-grid">
+              {allTeams.sort((a, b) => a.name.localeCompare(b.name)).map(t => (
+                <button key={t.id} className="tec-team-btn" onClick={() => selecionarTime(t)}>
+                  {t.badge_url
+                    ? <img src={t.badge_url} alt={t.name} className="tec-team-flag" />
+                    : <div className="tec-team-flag" style={{ background:'rgba(244,241,234,.1)' }} />}
                   {t.name}
                 </button>
               ))}
@@ -182,84 +398,121 @@ export default function TecnicoPorUmDia() {
           </div>
         )}
 
-        {step === 'pre_jogo' && advTeam && (
-          <div style={{ textAlign: 'center', marginTop: 60, background: '#1c180e', border: '2px solid #f2c14e', borderRadius: 16, padding: 40 }}>
-            <p style={{ color: '#f2c14e', letterSpacing: 2, fontFamily: "'JetBrains Mono',monospace", textTransform: 'uppercase' }}>{nomeRodadas[rodada]}</p>
-            
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20, margin: '30px 0' }}>
-               <div>
-                  <h2 style={{ fontSize: 32, fontFamily: 'Oswald', margin: 0 }}>{myTeam.name}</h2>
-                  <p style={{ color: 'rgba(255,255,255,.5)', margin: 0 }}>Força OVR ~ {minhaForca.atk}</p>
-               </div>
-               <span style={{ fontSize: 30, opacity: .3, fontFamily: 'Oswald' }}>VS</span>
-               <div>
-                  <h2 style={{ fontSize: 32, fontFamily: 'Oswald', margin: 0 }}>{advTeam.name}</h2>
-                  <p style={{ color: 'rgba(255,255,255,.5)', margin: 0 }}>Força OVR ~ {advForca}</p>
-               </div>
+        {/* ── Pré-jogo ── */}
+        {step === 'pre_jogo' && myTeam && advTeam && (
+          <div>
+            <TournamentBar />
+            <div className="tec-vs">
+              <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:'.15em', textTransform:'uppercase', color:'#f2c14e', margin:'0 0 4px' }}>
+                {RODADAS[rodada].emoji} {RODADAS[rodada].full}
+              </p>
+              <div className="tec-vs-row">
+                <div className="tec-vs-side">
+                  {myTeam.badge_url && <img src={myTeam.badge_url} alt={myTeam.name} className="tec-flag" />}
+                  <h2 className="tec-vs-name" style={{ color:'#f2c14e' }}>{myTeam.name}</h2>
+                  <div className="tec-vs-ovr">ATK {minhaForca.atk} · DEF {minhaForca.def}</div>
+                </div>
+                <span className="tec-vs-sep">VS</span>
+                <div className="tec-vs-side">
+                  {advTeam.badge_url && <img src={advTeam.badge_url} alt={advTeam.name} className="tec-flag" />}
+                  <h2 className="tec-vs-name">{advTeam.name}</h2>
+                  <div className="tec-vs-ovr">OVR ≈ {advForca}</div>
+                </div>
+              </div>
+              <p style={{ fontSize:13, color:'rgba(244,241,234,.5)', marginBottom:20 }}>
+                Você tomará 3 decisões táticas durante a partida. Escolha certo.
+              </p>
+              <button className="tec-btn" onClick={iniciarPartida}>⚽ Ir para o Campo</button>
             </div>
-
-            <button className="t-btn" onClick={iniciarPartida}>Ir para o Campo</button>
           </div>
         )}
 
-        {step === 'jogo' && (
-          <div style={{ maxWidth: 500, margin: '20px auto' }}>
-            
-            {/* Placar estilo TV */}
-            <div style={{ background: '#111', padding: '16px 24px', borderRadius: 12, textAlign: 'center', marginBottom: 20, border: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 24, fontFamily: 'Oswald', textTransform: 'uppercase' }}>{myTeam?.name.slice(0,3)}</div>
-              <div style={{ background: '#000', padding: '8px 24px', borderRadius: 8 }}>
-                <span style={{ fontSize: 36, fontFamily: 'Oswald', fontWeight: 'bold' }}>{placar.eu} - {placar.adv}</span>
-                <div style={{ fontSize: 12, color: '#f2c14e', fontFamily: "'JetBrains Mono',monospace" }}>{minuto}' MIN</div>
+        {/* ── Jogo ── */}
+        {step === 'jogo' && myTeam && advTeam && (
+          <div style={{ maxWidth:560, margin:'0 auto' }}>
+            <TournamentBar />
+
+            {/* Scoreboard */}
+            <div className="tec-sb">
+              <div className="tec-sb-fase">
+                {faseJogo === '1T' ? '1º Tempo' : faseJogo === 'HT' ? 'Intervalo' : '2º Tempo'}
               </div>
-              <div style={{ fontSize: 24, fontFamily: 'Oswald', textTransform: 'uppercase' }}>{advTeam?.name.slice(0,3)}</div>
+              <div className="tec-sb-row">
+                <div className="tec-sb-team eu">{myTeam.name}</div>
+                <div className="tec-sb-score">{placar.eu} – {placar.adv}</div>
+                <div className="tec-sb-team adv">{advTeam.name}</div>
+              </div>
+              <div className="tec-sb-min">⏱ {minuto}'</div>
+              <div className="tec-tl">
+                <div className="tec-tl-fill" style={{ width:`${Math.min(100, (minuto / 90) * 100)}%` }} />
+              </div>
             </div>
 
-            {/* Painel de Decisão (Aparece pausando o jogo) */}
+            {/* Decisão tática */}
             {decisaoAtual && (
-              <div style={{ background: '#0d1a2e', padding: 24, borderRadius: 12, marginBottom: 20, border: '2px solid #5fa8d3', animation: 'fadeIn 0.3s ease' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 24 }}>🚨</span>
-                  <h3 style={{ margin: 0, color: '#5fa8d3', fontFamily: 'Oswald', textTransform: 'uppercase', fontSize: 22 }}>{decisaoAtual.titulo}</h3>
+              <div className="tec-dec">
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                  <span style={{ fontSize:22 }}>🚨</span>
+                  <h3>{decisaoAtual.titulo}</h3>
                 </div>
-                <p style={{ fontSize: 15, color: 'rgba(255,255,255,.8)', marginBottom: 20 }}>{decisaoAtual.texto}</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p>{decisaoAtual.texto}</p>
+                <div className="tec-dec-opts">
                   {decisaoAtual.opcoes.map((op, i) => (
-                    <button key={i} onClick={() => resolverDecisao.current(op)} style={{ padding: 14, background: 'rgba(95,168,211,.1)', color: '#fff', border: '1px solid rgba(95,168,211,.4)', borderRadius: 8, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace", fontSize: 13, textAlign: 'left', transition: 'all 0.2s' }}>
-                      👉 {op.label}
+                    <button key={i} className="tec-dec-btn" onClick={() => confirmarDecisao(op)}>
+                      <span style={{ color:'#5fa8d3', marginRight:6 }}>▶</span> {op.label}
+                      {(op.atk || op.def) && (
+                        <span style={{ display:'block', fontSize:10, color:'rgba(244,241,234,.35)', marginTop:3 }}>
+                          {op.atk > 0 ? `+${Math.round(op.atk * 100)} ATK` : op.atk < 0 ? `${Math.round(op.atk * 100)} ATK` : ''}
+                          {op.atk && op.def ? '  ·  ' : ''}
+                          {op.def > 0 ? `+${Math.round(op.def * 100)} DEF` : op.def < 0 ? `${Math.round(op.def * 100)} DEF` : ''}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Log / Ticker do Jogo */}
-            <div className="t-logbox" style={{ background: '#070a12', padding: 20, borderRadius: 12, height: 350, overflowY: 'auto', border: '1px solid rgba(255,255,255,.1)' }} ref={logRef}>
+            {/* Log */}
+            <div className="tec-log" ref={logRef}>
               {logs.map(l => (
-                <div key={l.key} style={{ color: l.cor, marginBottom: 12, fontFamily: "'JetBrains Mono',monospace", fontSize: 13, borderBottom: '1px dashed rgba(255,255,255,.05)', paddingBottom: 8 }}>
-                  {l.txt}
-                </div>
+                <div key={l.key} className={`tec-logline ${l.tipo}`}>{l.txt}</div>
               ))}
-              {minuto < 90 && !decisaoAtual && (
-                <div style={{ color: 'rgba(255,255,255,.3)', fontStyle: 'italic', fontSize: 12, marginTop: 10 }}>Aguardando próximo lance...</div>
+              {!decisaoAtual && minuto < 90 && (
+                <div style={{ color:'rgba(244,241,234,.2)', fontSize:11, fontFamily:"'JetBrains Mono',monospace", marginTop:4 }}>
+                  ···
+                </div>
               )}
             </div>
           </div>
         )}
 
+        {/* ── Game Over ── */}
         {step === 'gameover' && (
-          <div style={{ textAlign: 'center', marginTop: 80 }}>
-             <h2 style={{ fontSize: 60, color: '#ff5252', fontFamily: 'Oswald', margin: 0 }}>ELIMINADO!</h2>
-             <p style={{ fontSize: 20 }}>A diretoria não gostou da sua derrota na fase: <strong style={{color:'#f2c14e'}}>{nomeRodadas[rodada]}</strong></p>
-             <button className="t-btn" onClick={() => setStep('selecao')} style={{ marginTop: 30 }}>Assinar com Novo Clube</button>
+          <div className="tec-end">
+            <h2 style={{ color:'#ff5252' }}>ELIMINADO</h2>
+            <p style={{ fontSize:16, color:'rgba(244,241,234,.6)', marginBottom:24 }}>
+              A Copa termina nas <strong style={{ color:'#f2c14e' }}>{RODADAS[rodada].full}</strong>
+              {advTeam && ` após a derrota para ${advTeam.name}.`}
+            </p>
+            <button className="tec-btn" onClick={() => { setStep('selecao'); setRodada(1); }}>
+              Recomeçar
+            </button>
           </div>
         )}
 
+        {/* ── Campeão ── */}
         {step === 'campeao' && (
-          <div style={{ textAlign: 'center', marginTop: 80 }}>
-             <h2 style={{ fontSize: 60, color: '#f2c14e', fontFamily: 'Oswald', margin: 0 }}>🏆 CAMPEÃO!</h2>
-             <p style={{ fontSize: 20 }}>A taça do mundo é nossa! Histórico com a seleção de <strong>{myTeam.name}</strong>!</p>
-             <button className="t-btn" onClick={() => setStep('selecao')} style={{ marginTop: 30 }}>Buscar Novo Desafio</button>
+          <div className="tec-end">
+            <TournamentBar />
+            <div style={{ fontSize:64, margin:'16px 0 8px' }}>🏆</div>
+            <h2 style={{ color:'#f2c14e' }}>CAMPEÃO!</h2>
+            <p style={{ fontSize:16, color:'rgba(244,241,234,.6)', marginBottom:24 }}>
+              {myTeam?.name} conquista a Copa do Mundo 2026! Você foi o melhor técnico do mundo.
+            </p>
+            <button className="tec-btn" onClick={() => { setStep('selecao'); setRodada(1); }}>
+              Novo Desafio
+            </button>
           </div>
         )}
       </div>
