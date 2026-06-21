@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Game7x0  from './Game7x0';
 import Futbol11 from './Futbol11';
+import GameImpostor from './GameImpostor';
 
 const GAMES = [
   {
@@ -34,6 +35,9 @@ export default function GameHub() {
       <Futbol11 />
     </GameWithBack>
   );
+
+  if (activeGame === 'impostor') return 
+    <GameImpostor onBack={() => setActiveGame(null)} />
 
   return (
     <div style={{

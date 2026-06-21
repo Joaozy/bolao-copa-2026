@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Campeões pelo Brasil em 2002",
+    "description": "Selecione apenas os jogadores que estavam no elenco do Penta.",
+    "correct": ["Ronaldo", "Rivaldo", "Cafu", "Roberto Carlos", "Marcos", "Gilberto Silva", "Kléberson", "Denílson"],
+    "impostors": ["Romário", "Adriano", "Zé Roberto", "Alex", "Taffarel", "Robinho", "Djalminha"]
+  },
+  {
+    "id": 2,
+    "title": "Fizeram gol em Final de Copa",
+    "description": "Selecione os jogadores que já marcaram pelo menos um gol em uma Grande Final de Copa do Mundo.",
+    "correct": ["Pelé", "Ronaldo", "Zidane", "Mbappé", "Iniesta", "Götze", "Di María", "Messi"],
+    "impostors": ["Cristiano Ronaldo", "Neymar", "Romário", "Roberto Baggio", "Batistuta", "Maradona", "Zico"]
+  },
+  {
+    "id": 3,
+    "title": "Craques que NUNCA ganharam a Copa",
+    "description": "Selecione apenas os jogadores que encerraram (ou estão) na carreira sem vencer uma Copa do Mundo.",
+    "correct": ["Cristiano Ronaldo", "Neymar", "Zico", "Johan Cruyff", "Platini", "Maldini", "Puskás", "Ibrahimovic"],
+    "impostors": ["Messi", "Maradona", "Zidane", "Romário", "Ronaldinho", "Xavi", "Ramos"]
+  }
+]
