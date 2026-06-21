@@ -1,7 +1,9 @@
 // ─── gameConstants.js ────────────────────────────────────────────────────────
 
-export { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import JOGADORES_COPA from './dados/jogadoresCopa.json';
+
+export { supabase }; // Re-exporta para os outros jogos poderem usar
 
 export const COMPETITION_ID_COPA = 7;
 
