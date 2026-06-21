@@ -19,6 +19,14 @@ const GAMES = [
     subtitle: 'Desafio diário: 11 seleções, 1 jogador cada',
     badge: 'Diário',
   },
+  // 👇 1. ADICIONADO O CARD DO IMPOSTOR AQUI
+  {
+    id: 'impostor',
+    icon: '🕵️‍♂️',
+    title: 'O Impostor',
+    subtitle: 'Ache os jogadores corretos da categoria e fuja das pegadinhas',
+    badge: 'Diário',
+  }
 ];
 
 export default function GameHub() {
@@ -36,8 +44,12 @@ export default function GameHub() {
     </GameWithBack>
   );
 
-  if (activeGame === 'impostor') return 
-    <GameImpostor onBack={() => setActiveGame(null)} />
+  // 👇 2. CORRIGIDO O RETURN E ADICIONADO O BOTÃO DE VOLTAR
+  if (activeGame === 'impostor') return (
+    <GameWithBack onBack={() => setActiveGame(null)}>
+      <GameImpostor onBack={() => setActiveGame(null)} />
+    </GameWithBack>
+  );
 
   return (
     <div style={{
@@ -84,7 +96,7 @@ export default function GameHub() {
       <div className="hub">
         <p className="hub-eyebrow">Copa do Mundo 2026</p>
         <h1 className="hub-h1">Futebol Games</h1>
-        <p className="hub-sub">Dois desafios. Mesmos jogadores. Qual você vai jogar hoje?</p>
+        <p className="hub-sub">Selecione o desafio de hoje e mostre que você conhece o esporte.</p>
 
         <div className="hub-grid">
           {GAMES.map(g => (
