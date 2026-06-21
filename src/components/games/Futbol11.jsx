@@ -1,31 +1,30 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  supabase, COMPETITION_ID_COPA, POSICAO_COR, POSICAO_LABEL,
-  classificarPosicao, TIERS_FIXOS, SELECOES_COPA,
-  hashStr, seededShuffle, getTodaySeed, loadCopaTimes, loadJogadoresDoTime,
+  supabase, COMPETITION_ID_COPA,
+  TIERS_FIXOS, SELECOES_COPA,
+  hashStr, seededShuffle, getTodaySeed, loadCopaTimes, 
+  buscarJogadoresPorNome // ⚠️ NOVA FUNÇÃO: Você precisa criar isso no seu gameConstants.js
 } from '@/components/games/gameConstants';
 
-// Adicionado o atributo 'cat' para relacionarmos com as 3 posições do jogador
+// 1️⃣ SLOTS ATUALIZADOS: Usando as posições exatas (req = posições aceitas naquele slot)
 const SLOTS = [
-  { id: 'ST',  label: 'ATA', cat: 'ATA', x: 50, y: 10 },
-  { id: 'LW',  label: 'ATA', cat: 'ATA', x: 18, y: 24 },
-  { id: 'RW',  label: 'ATA', cat: 'ATA', x: 82, y: 24 },
-  { id: 'CAM', label: 'MEI', cat: 'MEI', x: 50, y: 38 },
-  { id: 'CM1', label: 'MEI', cat: 'MEI', x: 30, y: 53 },
-  { id: 'CM2', label: 'MEI', cat: 'MEI', x: 70, y: 53 },
-  { id: 'LB',  label: 'DEF', cat: 'DEF', x: 12, y: 70 },
-  { id: 'CB1', label: 'DEF', cat: 'DEF', x: 36, y: 70 },
-  { id: 'CB2', label: 'DEF', cat: 'DEF', x: 64, y: 70 },
-  { id: 'RB',  label: 'DEF', cat: 'DEF', x: 88, y: 70 },
-  { id: 'GK',  label: 'GOL', cat: 'GOL', x: 50, y: 86 },
+  { id: 'PE',   label: 'PE',   req: ['PE', 'ATA', 'SA'], x: 18, y: 24 },
+  { id: 'CA',   label: 'CA',   req: ['CA', 'ATA'],       x: 50, y: 10 },
+  { id: 'PD',   label: 'PD',   req: ['PD', 'ATA', 'SA'], x: 82, y: 24 },
+  { id: 'MEI',  label: 'MEI',  req: ['MEI', 'MC', 'M'],  x: 50, y: 38 },
+  { id: 'MC1',  label: 'MC',   req: ['MC', 'VOL', 'MEI'],x: 30, y: 53 },
+  { id: 'MC2',  label: 'MC',   req: ['MC', 'VOL', 'MEI'],x: 70, y: 53 },
+  { id: 'LE',   label: 'LE',   req: ['LE', 'ADE'],       x: 12, y: 70 },
+  { id: 'ZAG1', label: 'ZAG',  req: ['ZAG', 'Z'],        x: 36, y: 70 },
+  { id: 'ZAG2', label: 'ZAG',  req: ['ZAG', 'Z'],        x: 64, y: 70 },
+  { id: 'LD',   label: 'LD',   req: ['LD', 'ADD'],       x: 88, y: 70 },
+  { id: 'GOL',  label: 'GOL',  req: ['GOL', 'GL'],       x: 50, y: 86 },
 ];
-const SLOT_IDS = SLOTS.map(s => s.id);
 
 function slotAceita(slot, player) {
-  const posicoesDoJogador = [player.pos1, player.pos2, player.pos3].filter(Boolean);
-  const categoriasDoJogador = posicoesDoJogador.map(classificarPosicao);
-  return categoriasDoJogador.includes(slot.cat);
+  const posicoesDoJogador = [player.pos1, player.pos2, player.pos3].filter(Boolean).map(p => p.toUpperCase());
+  return posicoesDoJogador.some(pos => slot.req.includes(pos));
 }
 
 function escolherPaisesHoje(allTeams, difficulty) {
@@ -53,12 +52,15 @@ export default function Futbol11() {
   const [allTeams, setAllTeams]     = useState([]);
   const [countries, setCountries]   = useState([]);
   const [curIdx, setCurIdx]         = useState(0);
-  const [players, setPlayers]       = useState([]);
-  const [loadingPlayers, setLoadingPlayers] = useState(false);
+  
+  // 2️⃣ NOVOS ESTADOS PARA A LÓGICA DE BUSCA E AUTOCOMPLETE
+  const [posicaoAtiva, setPosicaoAtiva] = useState(null); 
+  const [busca, setBusca]               = useState('');
+  const [opcoes, setOpcoes]             = useState([]);
+  const [loadingBusca, setLoadingBusca] = useState(false);
 
   const [slots, setSlots]           = useState({});
-  const [picking, setPicking]       = useState(null);
-  const [msg, setMsg]               = useState('');
+  const [msg, setMsg]               = useState({ texto: '', tipo: '' });
   const [timeLeft, setTimeLeft]     = useState(0);
 
   const timerRef = useRef(null);
@@ -79,50 +81,81 @@ export default function Futbol11() {
     return () => clearInterval(timerRef.current);
   }, [step, timerMode]);
 
-  useEffect(() => {
-    if (step !== 'playing' || !countries[curIdx]) return;
-    setLoadingPlayers(true);
-    setPlayers([]);
-    loadJogadoresDoTime(countries[curIdx].id)
-      .then(data => { setPlayers(data); setLoadingPlayers(false); });
-  }, [step, curIdx, countries]);
-
   const iniciar = () => {
     if (!allTeams.length) return;
     const chosen = escolherPaisesHoje(allTeams, difficulty);
     setCountries(chosen);
     setCurIdx(0);
     setSlots({});
-    setPicking(null);
-    setMsg('');
+    setPosicaoAtiva(null);
+    setBusca('');
+    setOpcoes([]);
+    setMsg({ texto: '', tipo: '' });
     skipped.current.clear();
     if (timerMode > 0) setTimeLeft(timerMode);
     setStep('playing');
   };
 
-  const selecionarJogador = useCallback(p => {
-    const slotsLivres = SLOTS.filter(s => !slots[s.id] && slotAceita(s, p));
-    if (!slotsLivres.length) {
-      setMsg(`Não há vaga disponível para ${p.name} nessa formação.`);
-      return;
-    }
-    setPicking(p);
-    setMsg('');
-  }, [slots]);
+  // 3️⃣ LIDA COM A DIGITAÇÃO DO USUÁRIO
+  const lidarComBusca = async (texto) => {
+    setBusca(texto);
+    setMsg({ texto: '', tipo: '' });
 
-  const confirmarSlot = useCallback(slotId => {
-    if (!picking) return;
-    const slot = SLOTS.find(s => s.id === slotId);
-    if (!slot || slots[slotId]) return;
-    if (!slotAceita(slot, picking)) {
-      setMsg('Esse jogador não pode jogar nessa posição.');
+    if (texto.length >= 3) {
+      setLoadingBusca(true);
+      // Busca em todo o banco (trazendo pegadinhas de outras seleções)
+      const resultados = await buscarJogadoresPorNome(texto); 
+      setOpcoes(resultados);
+      setLoadingBusca(false);
+    } else {
+      setOpcoes([]);
+    }
+  };
+
+  // 4️⃣ VALIDA O JOGADOR QUANDO ELE CLICA NO NOME DA LISTA
+  const confirmarJogador = useCallback((jogador) => {
+    if (!posicaoAtiva) {
+      setMsg({ texto: '⚠️ Clique em uma posição vazia no campo primeiro!', tipo: 'aviso' });
       return;
     }
-    setSlots(prev => ({ ...prev, [slotId]: { player: picking, team: countries[curIdx] } }));
-    setPicking(null);
-    setMsg('');
+
+    const slotSelecionado = SLOTS.find(s => s.id === posicaoAtiva);
+    const paisAtualObj = countries[curIdx];
+
+    // Validação 1: O jogador é do país que foi sorteado?
+    if (jogador.team_id !== paisAtualObj.id) {
+      setMsg({ texto: `❌ Errou! ${jogador.name} não joga pela seleção de ${paisAtualObj.name}.`, tipo: 'erro' });
+      setBusca('');
+      setOpcoes([]);
+      return;
+    }
+
+    // Validação 2: A posição está correta?
+    if (!slotAceita(slotSelecionado, jogador)) {
+      setMsg({ 
+        texto: `❌ Posição incorreta! O jogador ${jogador.name} atua como ${jogador.pos1}, não como ${slotSelecionado.label}.`, 
+        tipo: 'erro' 
+      });
+      setBusca('');
+      setOpcoes([]);
+      return;
+    }
+
+    // Validação 3: Já foi escalado?
+    const jaEscalado = Object.values(slots).find(s => s.player.id === jogador.id);
+    if (jaEscalado) {
+      setMsg({ texto: `⚠️ Você já escalou ${jogador.name}!`, tipo: 'aviso' });
+      return;
+    }
+
+    // Sucesso!
+    setSlots(prev => ({ ...prev, [posicaoAtiva]: { player: jogador, team: paisAtualObj } }));
+    setMsg({ texto: `✅ ${jogador.name} escalado com sucesso!`, tipo: 'sucesso' });
+    setPosicaoAtiva(null);
+    setBusca('');
+    setOpcoes([]);
     avancarPais();
-  }, [picking, slots, countries, curIdx]);
+  }, [posicaoAtiva, slots, countries, curIdx]);
 
   const avancarPais = useCallback(() => {
     const proximo = curIdx + 1;
@@ -136,8 +169,10 @@ export default function Futbol11() {
 
   const pular = useCallback(() => {
     skipped.current.add(curIdx);
-    setPicking(null);
-    setMsg('');
+    setPosicaoAtiva(null);
+    setBusca('');
+    setOpcoes([]);
+    setMsg({ texto: '', tipo: '' });
     avancarPais();
   }, [curIdx, avancarPais]);
 
@@ -150,19 +185,17 @@ export default function Futbol11() {
     clearInterval(timerRef.current);
     setStep('setup');
     setSlots({});
-    setPlayers([]);
     setCurIdx(0);
-    setPicking(null);
-    setMsg('');
+    setPosicaoAtiva(null);
+    setBusca('');
+    setOpcoes([]);
+    setMsg({ texto: '', tipo: '' });
   };
 
   const preenchidos    = Object.keys(slots).length;
   const pct            = Math.round((preenchidos / 11) * 100);
   const paisAtual      = countries[curIdx];
   const timerCor       = timeLeft <= 10 ? '#ff5252' : timeLeft <= 30 ? '#ffe17a' : '#6fd17a';
-  const jogadoresLista = players.filter(p =>
-    SLOTS.some(s => !slots[s.id] && slotAceita(s, p))
-  );
 
   const miniTime = t => `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
 
@@ -211,20 +244,19 @@ export default function Futbol11() {
           width:clamp(52px,13vw,72px);}
         .f11-slot-empty{width:clamp(44px,11vw,64px);height:clamp(28px,7vw,36px);margin:0 auto;
           border:2px dashed rgba(244,241,234,.35);border-radius:6px;display:flex;
-          align-items:center;justify-content:center;transition:all .15s;cursor:default;}
-        .f11-slot-empty.available{border-color:#f2c14e;background:rgba(242,193,78,.12);
-          cursor:pointer;animation:f11pulse .8s ease-in-out infinite;}
+          align-items:center;justify-content:center;transition:all .15s;cursor:pointer;background:rgba(0,0,0,0.4);}
+        .f11-slot-empty:hover{border-color:#f2c14e;}
+        .f11-slot-empty.active{border-color:#f2c14e;background:rgba(242,193,78,.3);
+          box-shadow: 0 0 10px rgba(242,193,78,.5);}
         .f11-slot-empty label{font-family:'JetBrains Mono',monospace;font-size:clamp(8px,2.2vw,11px);
-          color:rgba(244,241,234,.7);font-weight:700;letter-spacing:.05em;pointer-events:none;}
+          color:rgba(244,241,234,.9);font-weight:700;letter-spacing:.05em;pointer-events:none;}
+        
         .f11-slot-filled{display:flex;flex-direction:column;align-items:center;gap:2px;}
         .f11-slot-flag{width:clamp(28px,8vw,40px);height:clamp(18px,5vw,26px);border-radius:4px;
           object-fit:cover;border:1px solid rgba(244,241,234,.3);}
         .f11-slot-name{font-size:clamp(6px,1.6vw,9px);font-weight:700;font-family:'Oswald',sans-serif;
           text-transform:uppercase;letter-spacing:.03em;line-height:1.1;
           white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:clamp(52px,13vw,72px);}
-
-        @keyframes f11pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,193,78,.4);}
-          50%{box-shadow:0 0 0 5px rgba(242,193,78,0);}}
 
         /* barra de progresso */
         .f11-progbar{height:4px;background:rgba(244,241,234,.1);border-radius:999px;margin:12px 0;}
@@ -241,27 +273,27 @@ export default function Futbol11() {
           border:1px solid rgba(244,241,234,.25);margin-bottom:8px;}
         .f11-country-name{font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase;
           letter-spacing:.06em;color:#f2c14e;}
-        .f11-country-sub{font-family:'JetBrains Mono',monospace;font-size:10px;
-          color:rgba(244,241,234,.45);margin-top:2px;}
+        
+        .f11-search-container{position:relative; width:100%;}
+        .f11-search-input{width:100%;padding:14px;border-radius:8px;border:2px solid rgba(244,241,234,.2);
+          background:#070a12;color:#f4f1ea;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border .2s;}
+        .f11-search-input:focus{border-color:#f2c14e;}
+        .f11-search-input:disabled{opacity:0.5;cursor:not-allowed;}
+        
+        /* Dropdown do Autocomplete */
+        .f11-autocomplete{position:absolute;top:100%;left:0;width:100%;background:#0a0f1a;
+          border:1px solid rgba(244,241,234,.2);border-radius:8px;margin-top:4px;z-index:50;
+          max-height:200px;overflow-y:auto;box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
+        .f11-auto-item{padding:12px;border-bottom:1px solid rgba(244,241,234,.1);cursor:pointer;
+          display:flex;justify-content:space-between;align-items:center;transition:background .2s;}
+        .f11-auto-item:hover{background:rgba(242,193,78,.15);}
+        .f11-ptag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;
+          border-radius:4px;color:#06090f;font-weight:700;background:#f2c14e;margin-left:6px;}
 
         .f11-skip{width:100%;margin-top:10px;padding:7px;font-family:'JetBrains Mono',monospace;
           font-size:11px;border:1px dashed rgba(215,38,61,.5);border-radius:6px;
           background:transparent;color:#ff8a93;cursor:pointer;}
         .f11-skip:hover{background:rgba(215,38,61,.08);}
-
-        /* lista de jogadores */
-        .f11-playerlist{max-height:220px;overflow-y:auto;background:#070a12;border-radius:10px;
-          border:1px solid rgba(244,241,234,.1);}
-        .f11-prow{display:flex;justify-content:space-between;align-items:center;
-          padding:8px 12px;border-bottom:1px solid rgba(244,241,234,.06);cursor:pointer;transition:background .12s;}
-        .f11-prow:hover{background:rgba(242,193,78,.08);}
-        .f11-prow.selected{background:rgba(242,193,78,.16);border-left:2px solid #f2c14e;}
-        .f11-prow.disabled{opacity:.3;cursor:not-allowed;}
-        .f11-ptag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 5px;
-          border-radius:4px;color:#06090f;font-weight:700;margin-left:4px;}
-
-        .f11-msg{font-family:'JetBrains Mono',monospace;font-size:12px;color:#ffe17a;
-          text-align:center;padding:8px;min-height:32px;}
 
         /* timer */
         .f11-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;
@@ -286,14 +318,12 @@ export default function Futbol11() {
 
         .f11-eyebrow{font-family:'JetBrains Mono',monospace;letter-spacing:.22em;text-transform:uppercase;
           font-size:11px;color:#f2c14e;text-align:center;}
-
-        @media(prefers-reduced-motion:reduce){.f11-slot-empty.available{animation:none!important;}}
       `}</style>
 
       <div className="f11">
         <p className="f11-eyebrow">Desafio Diário</p>
         <h1 className="f11-h1">Futbol 11 — Copa 2026</h1>
-        <p className="f11-sub">Monte um XI com jogadores de 11 seleções diferentes, um por vez.</p>
+        <p className="f11-sub">Monte um XI puxando da memória jogadores de 11 seleções diferentes.</p>
 
         {/* ── SETUP ── */}
         {step === 'setup' && (
@@ -338,10 +368,9 @@ export default function Futbol11() {
         {/* ── PLAYING ── */}
         {step === 'playing' && paisAtual && (
           <div style={{ marginTop: 20 }}>
-            {/* header: progresso + timer */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: 'rgba(244,241,234,.6)' }}>
-                País {curIdx + 1} de {countries.length} · {preenchidos}/11 jogadores
+                País {curIdx + 1} de {countries.length} · {preenchidos}/11
               </span>
               {timerMode > 0 && (
                 <span className="f11-timer" style={{ color: timerCor, fontSize: 18 }}>
@@ -353,14 +382,13 @@ export default function Futbol11() {
               <div className="f11-progfill" style={{ width: `${pct}%` }} />
             </div>
 
-            {/* campo */}
+            {/* O CAMPO TÁTICO */}
             <div className="f11-pitch">
               {SLOTS.map(slot => {
-                const filled    = slots[slot.id];
-                const isAvail   = !!picking && !filled && slotAceita(slot, picking);
+                const filled = slots[slot.id];
+                const isActive = posicaoAtiva === slot.id;
                 return (
-                  <div key={slot.id} className="f11-slot"
-                    style={{ left: `${slot.x}%`, top: `${slot.y}%` }}>
+                  <div key={slot.id} className="f11-slot" style={{ left: `${slot.x}%`, top: `${slot.y}%` }}>
                     {filled ? (
                       <div className="f11-slot-filled">
                         {filled.team.badge_url
@@ -372,8 +400,13 @@ export default function Futbol11() {
                         </span>
                       </div>
                     ) : (
-                      <div className={`f11-slot-empty ${isAvail ? 'available' : ''}`}
-                        onClick={() => isAvail && confirmarSlot(slot.id)}>
+                      <div className={`f11-slot-empty ${isActive ? 'active' : ''}`}
+                        onClick={() => {
+                          setPosicaoAtiva(slot.id);
+                          setMsg({ texto: '', tipo: '' });
+                          setBusca('');
+                          setOpcoes([]);
+                        }}>
                         <label>{slot.label}</label>
                       </div>
                     )}
@@ -382,9 +415,8 @@ export default function Futbol11() {
               })}
             </div>
 
-            {/* painel inferior */}
+            {/* PAINEL INFERIOR: PAÍS + AUTOCOMPLETE */}
             <div className="f11-bottom">
-              {/* País da vez */}
               <div>
                 <div className="f11-country-card">
                   {paisAtual.badge_url
@@ -392,102 +424,96 @@ export default function Futbol11() {
                     : <div style={{ width: 80, height: 52, background: 'rgba(244,241,234,.1)', borderRadius: 6, margin: '0 auto 8px' }}/>
                   }
                   <div className="f11-country-name">{paisAtual.name}</div>
-                  <div className="f11-country-sub">
-                    Escolha 1 jogador
-                  </div>
                 </div>
                 <button className="f11-skip" onClick={pular}>🏳️ Pular esta seleção</button>
                 <button className="f11-skip" style={{ marginTop: 6, borderColor: 'rgba(215,38,61,.7)', color: '#ff5252' }}
                   onClick={encerrar}>⏹ Encerrar jogo</button>
               </div>
 
-              {/* Lista de jogadores */}
               <div>
-                {picking && (
-                  <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: '#f2c14e',
-                    marginBottom: 8, textAlign: 'center' }}>
-                    ✅ {picking.name} selecionado — clique numa vaga dourada no campo
-                  </p>
+                {/* Alertas de Erro ou Sucesso */}
+                {msg.texto && (
+                  <div style={{
+                    padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 'bold', textAlign: 'center',
+                    background: msg.tipo === 'erro' ? 'rgba(215,38,61,.2)' : msg.tipo === 'sucesso' ? 'rgba(111,209,122,.2)' : 'rgba(242,193,78,.2)',
+                    color: msg.tipo === 'erro' ? '#ff8a93' : msg.tipo === 'sucesso' ? '#6fd17a' : '#ffe17a',
+                    border: `1px solid ${msg.tipo === 'erro' ? 'rgba(215,38,61,.5)' : msg.tipo === 'sucesso' ? 'rgba(111,209,122,.5)' : 'rgba(242,193,78,.5)'}`
+                  }}>
+                    {msg.texto}
+                  </div>
                 )}
-                <div className="f11-msg">{msg}</div>
-                {loadingPlayers
-                  ? <p style={{ textAlign: 'center', color: 'rgba(244,241,234,.4)', fontFamily: "'JetBrains Mono',monospace", fontSize: 12 }}>
-                      Carregando jogadores...
-                    </p>
-                  : jogadoresLista.length === 0
-                    ? <p style={{ textAlign: 'center', color: 'rgba(244,241,234,.4)', fontFamily: "'JetBrains Mono',monospace", fontSize: 12, padding: 16 }}>
-                        Nenhum jogador disponível para as vagas restantes.
-                      </p>
-                    : (
-                      <div className="f11-playerlist">
-                        {jogadoresLista.map(p => {
-                          const categorias = [...new Set([p.pos1, p.pos2, p.pos3].filter(Boolean).map(classificarPosicao))];
-                          const isSel = picking?.id === p.id;
-                          return (
-                            <div key={p.id}
-                              className={`f11-prow ${isSel ? 'selected' : ''}`}
-                              onClick={() => picking?.id === p.id ? setPicking(null) : selecionarJogador(p)}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <strong style={{ fontSize: 13 }}>{p.name}</strong>
-                                {categorias.map((c, idx) => (
-                                  <span key={idx} className="f11-ptag" style={{ background: POSICAO_COR[c] }}>{c}</span>
-                                ))}
-                              </div>
-                              <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700,
-                                color: '#f2c14e', fontSize: 13 }}>{p.overall}</span>
+
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'rgba(244,241,234,.7)', marginBottom: 8 }}>
+                  {posicaoAtiva 
+                    ? `Buscando jogador para: [ ${SLOTS.find(s=>s.id===posicaoAtiva).label} ] da seleção de ${paisAtual.name}`
+                    : `👇 Clique em uma posição vazia no campo para buscar`
+                  }
+                </p>
+
+                <div className="f11-search-container">
+                  <input 
+                    type="text" 
+                    className="f11-search-input"
+                    placeholder="Digite pelo menos 3 letras..."
+                    value={busca}
+                    disabled={!posicaoAtiva}
+                    onChange={(e) => lidarComBusca(e.target.value)}
+                  />
+
+                  {/* Autocomplete Dropdown */}
+                  {opcoes.length > 0 && (
+                    <div className="f11-autocomplete">
+                      {opcoes.map(jog => {
+                        const timeDoJog = allTeams.find(t => t.id === jog.team_id); // Pega a bandeira para mostrar na lista
+                        return (
+                          <div key={jog.id} className="f11-auto-item" onClick={() => confirmarJogador(jog)}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              {timeDoJog?.badge_url && (
+                                <img src={timeDoJog.badge_url} style={{ width: 24, borderRadius: 3 }} alt="" />
+                              )}
+                              <strong>{jog.name}</strong>
+                              <span className="f11-ptag">{jog.pos1}</span>
                             </div>
-                          );
-                        })}
-                      </div>
-                    )
-                }
+                            <span style={{ fontSize: 12, color: 'rgba(244,241,234,.5)' }}>⭐ {jog.overall}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {loadingBusca && <p style={{ fontSize: 12, color: '#f2c14e', marginTop: 8 }}>Procurando...</p>}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── TIMEOUT ── */}
+        {/* ── TIMEOUT & FINISHED (Mesmo código do seu atual) ── */}
         {step === 'timeout' && (
           <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#ff5252' }}>
-              ⏱ Tempo esgotado!
-            </p>
-            <p style={{ color: 'rgba(244,241,234,.6)', marginBottom: 20 }}>
-              Você preencheu {preenchidos}/11 posições.
-            </p>
+            <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#ff5252' }}>⏱ Tempo esgotado!</p>
+            <p style={{ color: 'rgba(244,241,234,.6)', marginBottom: 20 }}>Você preencheu {preenchidos}/11 posições.</p>
             <ResultGrid slots={slots} />
             <button className="f11-reset" style={{ marginTop: 24 }} onClick={reiniciar}>🔄 Jogar de novo</button>
           </div>
         )}
 
-        {/* ── FINISHED ── */}
         {step === 'finished' && (
           <div style={{ marginTop: 28 }}>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               {preenchidos === 11 ? (
                 <>
-                  <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#f2c14e' }}>
-                    🏆 XI Completo!
-                  </p>
-                  <p style={{ color: 'rgba(244,241,234,.6)' }}>
-                    Você montou um XI com jogadores de {new Set(Object.values(slots).map(s => s.team.id)).size} países diferentes.
-                  </p>
+                  <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 32, textTransform: 'uppercase', color: '#f2c14e' }}>🏆 XI Completo!</p>
+                  <p style={{ color: 'rgba(244,241,234,.6)' }}>Você montou um XI com jogadores de {new Set(Object.values(slots).map(s => s.team.id)).size} países.</p>
                 </>
               ) : (
                 <>
-                  <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 28, textTransform: 'uppercase', color: '#ffe17a' }}>
-                    Jogo encerrado · {preenchidos}/11
-                  </p>
-                  <p style={{ color: 'rgba(244,241,234,.6)' }}>
-                    Você preencheu {preenchidos} de 11 posições.
-                  </p>
+                  <p style={{ fontFamily: "'Oswald',sans-serif", fontSize: 28, textTransform: 'uppercase', color: '#ffe17a' }}>Jogo encerrado</p>
+                  <p style={{ color: 'rgba(244,241,234,.6)' }}>Você preencheu {preenchidos} de 11 posições.</p>
                 </>
               )}
             </div>
             <ResultGrid slots={slots} />
-            <div style={{ textAlign: 'center', marginTop: 24 }}>
-              <button className="f11-reset" onClick={reiniciar}>🔄 Novo desafio</button>
-            </div>
+            <div style={{ textAlign: 'center', marginTop: 24 }}><button className="f11-reset" onClick={reiniciar}>🔄 Novo desafio</button></div>
           </div>
         )}
       </div>
@@ -495,7 +521,6 @@ export default function Futbol11() {
   );
 }
 
-// ── Subcomponente: grade de resultado ────────────────────────────────────────
 function ResultGrid({ slots }) {
   return (
     <div className="f11-result-grid">
@@ -512,8 +537,7 @@ function ResultGrid({ slots }) {
                 }
                 <div className="f11-result-name">{filled.player.name.split(' ').pop()}</div>
                 <div className="f11-result-ovr">⭐{filled.player.overall}</div>
-                <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace",
-                  color: 'rgba(244,241,234,.4)', marginTop: 2 }}>{filled.team.name}</div>
+                <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: 'rgba(244,241,234,.4)', marginTop: 2 }}>{filled.team.name}</div>
               </>
             ) : (
               <div style={{ color: 'rgba(215,38,61,.6)', fontSize: 20, margin: '8px 0' }}>—</div>
