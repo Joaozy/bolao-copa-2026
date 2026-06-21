@@ -1,6 +1,7 @@
 // ─── gameConstants.js ────────────────────────────────────────────────────────
 
 export { supabase } from '@/lib/supabaseClient';
+import JOGADORES_COPA from './dados/jogadoresCopa.json';
 
 export const COMPETITION_ID_COPA = 7;
 
@@ -111,21 +112,13 @@ export async function loadCopaTimes() {
   return data.filter(t => SELECOES_COPA.includes(t.name));
 }
 
-/** 👇 NOVO CÓDIGO DA BUSCA: Agora busca pos1, pos2, pos3 */
+/** 👇 CÓDIGO DA BUSCA: Agora lê as posições e o OVR diretamente do JSON */
 export async function loadJogadoresDoTime(teamId) {
-  const { data, error } = await supabase
-    .from('players')
-    .select('id, name, pos1, pos2, pos3, overall, photo_url')
-    .eq('team_id', teamId)
-    .eq('competition_id', COMPETITION_ID_COPA);
+  // Lê diretamente do JSON local, filtrando pelo ID da seleção!
+  const jogadoresDoTime = JOGADORES_COPA.filter(p => p.team_id === teamId);
 
-  if (error) {
-    console.error("Erro ao buscar jogadores:", error);
-    return [];
-  }
-
-  return (data || []).sort((a, b) => {
-    // Ordena baseando-se na pos1 (Posição principal)
+  return jogadoresDoTime.sort((a, b) => {
+    // Ordena pela pos1 (Posição principal)
     const pa = ORDEM_POSICAO[classificarPosicao(a.pos1)] ?? 9;
     const pb = ORDEM_POSICAO[classificarPosicao(b.pos1)] ?? 9;
     return pa !== pb ? pa - pb : b.overall - a.overall;

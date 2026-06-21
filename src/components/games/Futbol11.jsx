@@ -7,26 +7,32 @@ import {
 } from '@/components/games/gameConstants';
 
 // ─── Formação fixa: 4-2-3-1 ────────────────────────────────────────────────
+// Adicionado o atributo 'cat' para podermos bater com as múltiplas posições do jogador
 const SLOTS = [
-  { id: 'ST',  label: 'ST',  x: 50, y: 10, onlyGol: false },
-  { id: 'LW',  label: 'LW',  x: 18, y: 24, onlyGol: false },
-  { id: 'RW',  label: 'RW',  x: 82, y: 24, onlyGol: false },
-  { id: 'CAM', label: 'CAM', x: 50, y: 38, onlyGol: false },
-  { id: 'CM1', label: 'CM',  x: 30, y: 53, onlyGol: false },
-  { id: 'CM2', label: 'CM',  x: 70, y: 53, onlyGol: false },
-  { id: 'LB',  label: 'LB',  x: 12, y: 70, onlyGol: false },
-  { id: 'CB1', label: 'CB',  x: 36, y: 70, onlyGol: false },
-  { id: 'CB2', label: 'CB',  x: 64, y: 70, onlyGol: false },
-  { id: 'RB',  label: 'RB',  x: 88, y: 70, onlyGol: false },
-  { id: 'GK',  label: 'GK',  x: 50, y: 86, onlyGol: true  },
+  { id: 'ST',  label: 'ATA', cat: 'ATA', x: 50, y: 10 },
+  { id: 'LW',  label: 'ATA', cat: 'ATA', x: 18, y: 24 },
+  { id: 'RW',  label: 'ATA', cat: 'ATA', x: 82, y: 24 },
+  { id: 'CAM', label: 'MEI', cat: 'MEI', x: 50, y: 38 },
+  { id: 'CM1', label: 'MEI', cat: 'MEI', x: 30, y: 53 },
+  { id: 'CM2', label: 'MEI', cat: 'MEI', x: 70, y: 53 },
+  { id: 'LB',  label: 'DEF', cat: 'DEF', x: 12, y: 70 },
+  { id: 'CB1', label: 'DEF', cat: 'DEF', x: 36, y: 70 },
+  { id: 'CB2', label: 'DEF', cat: 'DEF', x: 64, y: 70 },
+  { id: 'RB',  label: 'DEF', cat: 'DEF', x: 88, y: 70 },
+  { id: 'GK',  label: 'GOL', cat: 'GOL', x: 50, y: 86 },
 ];
 const SLOT_IDS = SLOTS.map(s => s.id);
 
-// 👇 AJUSTADO PARA LER pos1
+// ─── NOVA LÓGICA DE ACEITAÇÃO: Lê pos1, pos2 e pos3 ────────────────────────
 function slotAceita(slot, player) {
-  const cat = classificarPosicao(player.pos1);
-  if (slot.onlyGol) return cat === 'GOL';
-  return cat !== 'GOL';
+  // Junta as posições preenchidas do jogador num array (ignora vazias)
+  const posicoesDoJogador = [player.pos1, player.pos2, player.pos3].filter(Boolean);
+  
+  // Transforma as siglas (ZAG, VOL, etc.) em categorias principais (DEF, MEI)
+  const categoriasDoJogador = posicoesDoJogador.map(classificarPosicao);
+  
+  // Se a categoria do Slot no campo existir nas categorias que o jogador faz, ele aceita!
+  return categoriasDoJogador.includes(slot.cat);
 }
 
 // ─── Seed diário por dificuldade ────────────────────────────────────────────
@@ -84,7 +90,7 @@ export default function Futbol11() {
     return () => clearInterval(timerRef.current);
   }, [step, timerMode]);
 
-  // Carrega jogadores do país atual
+  // Carrega jogadores do país atual usando a nova lógica rápida (JSON)
   useEffect(() => {
     if (step !== 'playing' || !countries[curIdx]) return;
     setLoadingPlayers(true);
@@ -107,10 +113,10 @@ export default function Futbol11() {
   };
 
   const selecionarJogador = useCallback(p => {
-    // Verifica se há algum slot disponível para esse jogador
+    // Verifica se há algum slot disponível para esse jogador baseado nas multiplas posições
     const slotsLivres = SLOTS.filter(s => !slots[s.id] && slotAceita(s, p));
     if (!slotsLivres.length) {
-      setMsg(`Não há vaga disponível para ${p.name} (${classificarPosicao(p.pos1)}) nessa formação.`);
+      setMsg(`Não há vaga disponível para ${p.name} nessa formação.`);
       return;
     }
     setPicking(p);
@@ -128,7 +134,6 @@ export default function Futbol11() {
     setSlots(prev => ({ ...prev, [slotId]: { player: picking, team: countries[curIdx] } }));
     setPicking(null);
     setMsg('');
-    // Avança para o próximo país
     avancarPais();
   }, [picking, slots, countries, curIdx]);
 
@@ -169,7 +174,6 @@ export default function Futbol11() {
   const pct            = Math.round((preenchidos / 11) * 100);
   const paisAtual      = countries[curIdx];
   const timerCor       = timeLeft <= 10 ? '#ff5252' : timeLeft <= 30 ? '#ffe17a' : '#6fd17a';
-  const slotsPicking   = picking ? SLOTS.filter(s => !slots[s.id] && slotAceita(s, picking)) : [];
   const jogadoresLista = players.filter(p =>
     // Só mostra jogadores cuja posição cabe em pelo menos um slot vazio
     SLOTS.some(s => !slots[s.id] && slotAceita(s, p))
@@ -432,7 +436,8 @@ export default function Futbol11() {
                     : (
                       <div className="f11-playerlist">
                         {jogadoresLista.map(p => {
-                          const cat   = classificarPosicao(p.pos1);
+                          // Apanha todas as categorias únicas que este jogador sabe jogar
+                          const categorias = [...new Set([p.pos1, p.pos2, p.pos3].filter(Boolean).map(classificarPosicao))];
                           const isSel = picking?.id === p.id;
                           return (
                             <div key={p.id}
@@ -440,7 +445,10 @@ export default function Futbol11() {
                               onClick={() => picking?.id === p.id ? setPicking(null) : selecionarJogador(p)}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <strong style={{ fontSize: 13 }}>{p.name}</strong>
-                                <span className="f11-ptag" style={{ background: POSICAO_COR[cat] }}>{cat}</span>
+                                {/* Renderiza as tags das múltiplas posições */}
+                                {categorias.map((c, idx) => (
+                                  <span key={idx} className="f11-ptag" style={{ background: POSICAO_COR[c] }}>{c}</span>
+                                ))}
                               </div>
                               <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700,
                                 color: '#f2c14e', fontSize: 13 }}>{p.overall}</span>
