@@ -33,10 +33,16 @@ export async function GET(request) {
     const relatorio = []
 
     for (const jogo of jogosFinalizados) {
+      // 🥇 O SEGREDO DO DESEMPATE ESTÁ AQUI
+      // O robô agora ordena exatamente com a mesma matemática do seu site!
       const { data: ranking } = await supabase
         .from('leaderboard')
-        .select('user_id, total_pontos')
+        .select('user_id, total_pontos, qtd_cv, qtd_vsg, qtd_av') 
         .eq('competition_id', jogo.competition_id)
+        .order('total_pontos', { ascending: false })
+        .order('qtd_cv', { ascending: false })
+        .order('qtd_vsg', { ascending: false })
+        .order('qtd_av', { ascending: false });
 
       const { data: inscritos } = await supabase
         .from('enrollments')
@@ -51,15 +57,26 @@ export async function GET(request) {
         .select('user_id, points_awarded, guess_score_a, guess_score_b')
         .eq('game_id', jogo.id)
 
-      // ⏱️ CRIANDO O "RANKING FANTASMA" (Pontuação antes deste jogo)
+      // ⏱️ CRIANDO O "RANKING FANTASMA" PARA A SETA (SUBIU/CAIU)
       const rankingAnterior = ranking?.map(userRank => {
         const palpiteDesteUser = palpites?.find(p => p.user_id === userRank.user_id);
         const pontosGanhos = palpiteDesteUser?.points_awarded || 0;
         return {
           user_id: userRank.user_id,
-          pontos_anteriores: userRank.total_pontos - pontosGanhos
+          pontos_anteriores: Number(userRank.total_pontos) - pontosGanhos,
+          cv: Number(userRank.qtd_cv),
+          vsg: Number(userRank.qtd_vsg),
+          av: Number(userRank.qtd_av)
         };
       }) || [];
+
+      // Ordena o ranking anterior respeitando a mesma regra de desempate
+      rankingAnterior.sort((a, b) => {
+        if (b.pontos_anteriores !== a.pontos_anteriores) return b.pontos_anteriores - a.pontos_anteriores;
+        if (b.cv !== a.cv) return b.cv - a.cv;
+        if (b.vsg !== a.vsg) return b.vsg - a.vsg;
+        return b.av - a.av;
+      });
 
       const usuariosParaNotificar = inscritos
         .map(i => i.profiles)
@@ -70,13 +87,12 @@ export async function GET(request) {
         const pontosGanhos = palpiteUser?.points_awarded || 0
         const palpiteTexto = palpiteUser ? `${palpiteUser.guess_score_a} x ${palpiteUser.guess_score_b}` : 'Não palpitou'
 
-        // 📊 LÓGICA MATEMÁTICA DE RANKING (Resolve o bug do +1 / -1)
+        // 📊 LÓGICA DE RANKING ESTRITA (1 a N, idêntico ao site)
         const pontuacaoTotal = ranking?.find(r => r.user_id === usuario.id)?.total_pontos || 0;
-        const posicaoAtual = ranking.filter(r => r.total_pontos > pontuacaoTotal).length + 1;
+        const posicaoAtual = ranking.findIndex(r => r.user_id === usuario.id) + 1;
 
         // 🔄 COMPARANDO COM A POSIÇÃO ANTERIOR
-        const pontosAnterioresUser = pontuacaoTotal - pontosGanhos;
-        const posicaoAnterior = rankingAnterior.filter(r => r.pontos_anteriores > pontosAnterioresUser).length + 1;
+        const posicaoAnterior = rankingAnterior.findIndex(r => r.user_id === usuario.id) + 1;
 
         // 🏹 DEFININDO A SETA DE TENDÊNCIA
         let variacaoTexto = "➖ Manteve a posição";
@@ -91,8 +107,8 @@ export async function GET(request) {
         let numeroLimpo = usuario.whatsapp.replace(/\D/g, '')
         const telefoneFinal = numeroLimpo.length <= 11 ? `55${numeroLimpo}` : numeroLimpo
 
-        // ✉️ NOVA MENSAGEM COM A VARIAÇÃO
-        const mensagem = `🏁 *FIM DE JOGO* 🏁\n\nFala ${usuario.nickname}! A partida terminou:\n⚽ *${jogo.team_a.name} ${jogo.score_a} x ${jogo.score_b} ${jogo.team_b.name}*\n\nSeu palpite: ${palpiteTexto}\n🔥 *Você fez ${pontosGanhos} pontos!*\n\n📊 *Resumo do Campeonato:*\nPontuação Total: ${pontuacaoTotal}\nSua Posição: ${posicaoAtual}º lugar 🏆\nTendência: ${variacaoTexto}\n\nAcesse para ver tudo: https://bolao-aju.vercel.app/`
+        // ✉️ NOVA MENSAGEM (Agora com a variação!)
+        const mensagem = `🏁 *FIM DE JOGO* 🏁\n\nFala ${usuario.nickname}! A partida terminou:\n⚽ *${jogo.team_a.name} ${jogo.score_a} x ${jogo.score_b} ${jogo.team_b.name}*\n\nSeu palpite: ${palpiteTexto}\n🔥 *Você fez ${pontosGanhos} pontos!*\n\n📊 *Resumo do Campeonato:*\nPontuação Total: ${pontuacaoTotal}\nSua Posição: ${posicaoAtual}º lugar 🏆\nEstatística: ${variacaoTexto}\n\nAcesse para ver tudo: https://bolao-aju.vercel.app/`
 
         const zapiInstanceId = process.env.ZAPI_INSTANCE_ID
         const zapiToken = process.env.ZAPI_TOKEN
