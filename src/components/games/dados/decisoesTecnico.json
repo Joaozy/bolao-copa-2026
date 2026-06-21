@@ -1,0 +1,139 @@
+[
+  { 
+    "fase": "intervalo", 
+    "titulo": "O time está exausto", 
+    "texto": "Seus meias de criação correram demais e não aguentam os 45 minutos finais.", 
+    "opcoes": [ 
+      { "label": "Colocar jovens rápidos (Velocidade)", "atk": 0.08, "def": -0.06 }, 
+      { "label": "Recuar as linhas e poupar energia", "atk": -0.04, "def": 0.07 },
+      { "label": "Não mexer e pedir raça", "atk": 0.02, "def": -0.02 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Gramado Encharcado", 
+    "texto": "Caiu uma tempestade! O campo está com poças e a bola rola muito mal.", 
+    "opcoes": [ 
+      { "label": "Abusar de lançamentos e cruzamentos", "atk": 0.06, "def": 0.01 }, 
+      { "label": "Chutes de fora da área", "atk": 0.08, "def": -0.03 },
+      { "label": "Tentar manter o toque de bola (Risco)", "atk": -0.05, "def": -0.05 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Lateral Sofrendo", 
+    "texto": "O ponta-esquerda do adversário está destruindo o nosso lateral direito.", 
+    "opcoes": [ 
+      { "label": "Dobrar a marcação nele", "atk": -0.05, "def": 0.09 }, 
+      { "label": "Atacar nas costas do ponta deles", "atk": 0.07, "def": -0.07 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Meio-Campo Dominado", 
+    "texto": "O adversário tem mais posse de bola e não conseguimos sair jogando.", 
+    "opcoes": [ 
+      { "label": "Ligação direta para o ataque", "atk": 0.05, "def": -0.02 }, 
+      { "label": "Colocar mais um volante (Trancar)", "atk": -0.06, "def": 0.10 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Retranca Absoluta", 
+    "texto": "A seleção adversária estacionou um ônibus na frente da área. Não tem espaço!", 
+    "opcoes": [ 
+      { "label": "Colocar um centroavante alto (Chuveirinho)", "atk": 0.08, "def": -0.04 }, 
+      { "label": "Ter paciência e rodar a bola", "atk": 0.03, "def": 0.04 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Vantagem de Altura", 
+    "texto": "Nossos zagueiros e atacantes são muito mais altos que os defensores deles.", 
+    "opcoes": [ 
+      { "label": "Focar em jogadas de bola parada", "atk": 0.07, "def": -0.01 }, 
+      { "label": "Jogar rasteiro para não arriscar", "atk": -0.02, "def": 0.03 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Estrela Machucada", 
+    "texto": "Seu camisa 10 sentiu a coxa e pediu para sair no vestiário.", 
+    "opcoes": [ 
+      { "label": "Mudar esquema para mais defensivo", "atk": -0.07, "def": 0.08 }, 
+      { "label": "Colocar um reserva ofensivo no lugar", "atk": 0.04, "def": -0.03 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Excesso de Faltas", 
+    "texto": "O juiz está rigoroso e já temos três jogadores amarelados na defesa.", 
+    "opcoes": [ 
+      { "label": "Diminuir a intensidade dos desarmes", "atk": 0.00, "def": -0.08 }, 
+      { "label": "Manter a pegada agressiva (Risco de Vermelho)", "atk": 0.03, "def": 0.06 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Adversário Cansado", 
+    "texto": "A zaga deles está lenta e abrindo espaços claros na cobertura.", 
+    "opcoes": [ 
+      { "label": "Colocar pontas rápidos para sufocar", "atk": 0.09, "def": -0.05 }, 
+      { "label": "Segurar o jogo e atacar no erro deles", "atk": 0.02, "def": 0.05 }
+    ] 
+  },
+  { 
+    "fase": "intervalo", 
+    "titulo": "Pressão da Torcida", 
+    "texto": "A torcida rival está vaiando e o nosso time começou a ficar nervoso.", 
+    "opcoes": [ 
+      { "label": "Pedir para esfriar e segurar a bola", "atk": -0.04, "def": 0.06 }, 
+      { "label": "Mandar o time ir para cima e calar o estádio", "atk": 0.06, "def": -0.06 }
+    ] 
+  },
+  { 
+    "fase": "pressao", 
+    "titulo": "Reta Final - Desespero!", 
+    "texto": "Faltam 15 minutos para acabar o jogo e precisamos do resultado a qualquer custo.", 
+    "opcoes": [ 
+      { "label": "Mandar o Zagueiro para o Ataque (Tudo ou Nada)", "atk": 0.15, "def": -0.15 }, 
+      { "label": "Manter a calma e focar na tática", "atk": 0.02, "def": 0.02 }
+    ] 
+  },
+  { 
+    "fase": "pressao", 
+    "titulo": "Reta Final - Segura o Jogo!", 
+    "texto": "Os últimos minutos estão um sufoco, o adversário está na nossa área.", 
+    "opcoes": [ 
+      { "label": "Colocar o time inteiro na defesa", "atk": -0.12, "def": 0.12 }, 
+      { "label": "Deixar 2 atacantes na frente para o contra-ataque", "atk": 0.08, "def": -0.06 }
+    ] 
+  },
+  { 
+    "fase": "pressao", 
+    "titulo": "Adversário com um a menos", 
+    "texto": "O zagueiro deles acabou de ser expulso!", 
+    "opcoes": [ 
+      { "label": "Sufocar e não deixar eles respirarem", "atk": 0.10, "def": -0.02 }, 
+      { "label": "Tocar a bola de lado e gastar o tempo", "atk": -0.04, "def": 0.06 }
+    ] 
+  },
+  { 
+    "fase": "pressao", 
+    "titulo": "Nervos à Flor da Pele", 
+    "texto": "Briga generalizada! O jogo parou por 5 minutos.", 
+    "opcoes": [ 
+      { "label": "Instruir o time a ser agressivo na volta", "atk": 0.07, "def": -0.05 }, 
+      { "label": "Pedir cabeça fria para evitar expulsão", "atk": -0.02, "def": 0.04 }
+    ] 
+  },
+  { 
+    "fase": "pressao", 
+    "titulo": "Escanteio no Último Lance", 
+    "texto": "Escanteio a nosso favor nos acréscimos do jogo.", 
+    "opcoes": [ 
+      { "label": "Mandar o Goleiro para a área!", "atk": 0.18, "def": -0.18 }, 
+      { "label": "Bater fechado na primeira trave", "atk": 0.05, "def": 0.00 }
+    ] 
+  }
+]
