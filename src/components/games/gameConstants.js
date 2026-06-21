@@ -89,14 +89,18 @@ export function getTodaySeed() {
 }
 
 export async function loadCopaTimes() {
-  // O SEGREDO DO BUG: .in('name', SELECOES_COPA) ignora o limite de 1000 linhas!
+  console.log("🔍 [RAIO-X] Buscando times da Copa...");
+  
   const { data, error } = await supabase
     .from('teams')
     .select('id, name, badge_url, flag_code')
     .in('name', SELECOES_COPA);
     
+  console.log("🚨 [RAIO-X] Retorno do Supabase -> Data:", data);
+  console.log("🚨 [RAIO-X] Erro:", error);
+  
   if (error) {
-    console.error("Erro ao buscar times:", error);
+    console.error("Erro detalhado:", error);
     return [];
   }
   return data || [];
