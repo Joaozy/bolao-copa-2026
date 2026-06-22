@@ -17,12 +17,18 @@ export default function FatoOuFake() {
   const [pool, setPool] = useState([]);
   const [idx, setIdx] = useState(0);
   const [historico, setHistorico] = useState([]);
+  
+  // Novos estados para exibir o feedback instantâneo
+  const [mostrandoFeedback, setMostrandoFeedback] = useState(false);
+  const [resultadoTurno, setResultadoTurno] = useState(null);
 
   const iniciarJogo = () => {
     // Sorteia 7 perguntas aleatórias do banco para o jogador não enjoar rápido
     setPool(shuffleArray(FATOS_DB).slice(0, 7));
     setIdx(0);
     setHistorico([]);
+    setMostrandoFeedback(false);
+    setResultadoTurno(null);
     setStep('playing');
   };
 
@@ -30,6 +36,14 @@ export default function FatoOuFake() {
     const item = pool[idx];
     const acertou = (chuteReal === item.real);
     
+    // Salva o resultado do turno para mostrar na tela
+    setResultadoTurno({ 
+      acertou, 
+      real: item.real, 
+      curiosidade: item.curiosidade 
+    });
+    
+    // Salva no histórico global
     setHistorico(prev => [...prev, { 
       manchete: item.manchete, 
       real: item.real, 
@@ -37,6 +51,14 @@ export default function FatoOuFake() {
       curiosidade: item.curiosidade 
     }]);
 
+    // Troca a tela para mostrar a explicação
+    setMostrandoFeedback(true);
+  };
+
+  const proximaPergunta = () => {
+    setMostrandoFeedback(false);
+    setResultadoTurno(null);
+    
     if (idx + 1 < pool.length) {
       setIdx(idx + 1);
     } else {
@@ -90,10 +112,38 @@ export default function FatoOuFake() {
               <h2 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 26, lineHeight: 1.4, margin: 0 }}>"{curr.manchete}"</h2>
             </div>
 
-            <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-              <button className="ff-btn ff-btn-fato" style={{ flex: 1 }} onClick={() => responder(true)}>✅ É FATO</button>
-              <button className="ff-btn ff-btn-fake" style={{ flex: 1 }} onClick={() => responder(false)}>❌ É FAKE</button>
-            </div>
+            {/* Alterna entre os botões de escolha ou a caixa de explicação */}
+            {!mostrandoFeedback ? (
+              <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+                <button className="ff-btn ff-btn-fato" style={{ flex: 1 }} onClick={() => responder(true)}>✅ É FATO</button>
+                <button className="ff-btn ff-btn-fake" style={{ flex: 1 }} onClick={() => responder(false)}>❌ É FAKE</button>
+              </div>
+            ) : (
+              <div style={{ 
+                marginTop: 24, 
+                padding: 24, 
+                background: resultadoTurno.acertou ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)', 
+                border: `2px solid ${resultadoTurno.acertou ? '#22c55e' : '#ef4444'}`, 
+                borderRadius: 12,
+                animation: 'fadeIn 0.3s ease-in-out'
+              }}>
+                <h3 style={{ margin: '0 0 8px', color: resultadoTurno.acertou ? '#22c55e' : '#ff8a93', fontFamily: "'Oswald',sans-serif", fontSize: 28, textTransform: 'uppercase' }}>
+                  {resultadoTurno.acertou ? '🎯 VOCÊ ACERTOU!' : '❌ VOCÊ ERROU!'}
+                </h3>
+                
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, marginBottom: 12, color: 'rgba(255,255,255,.6)' }}>
+                  A manchete era: <strong style={{ color: resultadoTurno.real ? '#22c55e' : '#ff8a93' }}>{resultadoTurno.real ? 'FATO VERÍDICO' : 'MENTIRA DESLAVADA'}</strong>
+                </p>
+                
+                <p style={{ fontSize: 16, lineHeight: 1.5, color: '#fff', marginBottom: 24 }}>
+                  <strong>Explicação:</strong> {resultadoTurno.curiosidade}
+                </p>
+                
+                <button className="ff-btn" style={{ width: '100%', background: '#f2c14e', color: '#000' }} onClick={proximaPergunta}>
+                  {idx + 1 < pool.length ? 'Próxima Pergunta →' : 'Ver Resultado Final 🏆'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -107,7 +157,7 @@ export default function FatoOuFake() {
               <button className="ff-btn" style={{ background: '#f2c14e', color: '#000', marginTop: 20 }} onClick={iniciarJogo}>Jogar Novamente</button>
             </div>
 
-            <h3 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 20, color: '#f2c14e', borderBottom: '1px solid rgba(255,255,255,.1)', paddingBottom: 10, marginBottom: 20 }}>Gabarito Oficial</h3>
+            <h3 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 20, color: '#f2c14e', borderBottom: '1px solid rgba(255,255,255,.1)', paddingBottom: 10, marginBottom: 20 }}>Resumo da Partida</h3>
             
             {historico.map((h, i) => (
               <div key={i} className="ff-hist-row">
@@ -115,10 +165,7 @@ export default function FatoOuFake() {
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{h.manchete}</div>
                   <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, marginBottom: 8 }}>
-                    Status: <strong style={{ color: h.real ? '#22c55e' : '#ef4444' }}>{h.real ? 'FATO VERÍDICO' : 'MENTIRA DESLAVADA'}</strong>
-                  </div>
-                  <div style={{ fontSize: 13, color: 'rgba(244,241,234,.7)', lineHeight: 1.4 }}>
-                    <strong>Explicação:</strong> {h.curiosidade}
+                    Sua resposta estava: <strong style={{ color: h.acertou ? '#22c55e' : '#ef4444' }}>{h.acertou ? 'CORRETA' : 'INCORRETA'}</strong>
                   </div>
                 </div>
               </div>
