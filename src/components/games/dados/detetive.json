@@ -1,0 +1,578 @@
+[
+  {
+    "id": 1,
+    "nome": "Pelé",
+    "aceitos": ["pele", "edson arantes", "edson arantes do nascimento"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Fiz minha estreia profissional por um clube aos 15 anos de idade.",
+      "Na minha primeira Copa do Mundo, comecei o torneio no banco de reservas.",
+      "Marquei um gol nas quartas de final da minha primeira Copa do Mundo contra o País de Gales.",
+      "Ao longo da minha carreira em Copas, fui caçado em campo e me lesionei gravemente em duas edições seguidas.",
+      "Fui o jogador mais jovem a disputar uma final de Copa do Mundo.",
+      "Marquei um hat-trick na semifinal da Copa do Mundo contra a França.",
+      "Marquei na final da minha primeira Copa e também na final da minha última Copa.",
+      "Minha última Copa do Mundo disputada foi a do México, em 1970.",
+      "Vesti a mítica camisa 10 da Seleção Brasileira em quatro mundiais.",
+      "Sou o único jogador da história do futebol a vencer três Copas do Mundo."
+    ]
+  },
+  {
+    "id": 2,
+    "nome": "Diego Maradona",
+    "aceitos": ["diego maradona", "maradona", "diego armando maradona"],
+    "nacionalidade": "Argentina",
+    "dicas": [
+      "Fui cortado da lista final da minha seleção na Copa de 1978 por ser considerado muito jovem.",
+      "Na Copa de 1982, fui expulso no jogo contra o Brasil após dar um chute em Batista.",
+      "Fui o jogador que mais sofreu faltas em uma única edição de Copa do Mundo (53 vezes).",
+      "Joguei minha última Copa do Mundo em 1994, nos Estados Unidos.",
+      "Fui pego no exame antidoping durante a Copa do Mundo de 1994, nos Estados Unidos.",
+      "Dei a assistência para o gol do título da minha seleção na final de 1986.",
+      "Marquei o 'Gol do Século' driblando metade do time adversário em uma Copa.",
+      "Fui o capitão e ergui a taça da Copa do Mundo no México.",
+      "Usei a camisa 10 da Seleção Argentina e sou o maior ídolo do Napoli.",
+      "Marquei o famoso gol de mão apelidado de 'A Mão de Deus' contra a Inglaterra."
+    ]
+  },
+  {
+    "id": 3,
+    "nome": "Ronaldo Fenômeno",
+    "aceitos": ["ronaldo", "ronaldo fenomeno", "ronaldo nazario", "fenomeno"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Fui convocado para minha primeira Copa do Mundo sem jogar um único minuto no torneio.",
+      "Sofri uma convulsão misteriosa horas antes da minha primeira final de Copa do Mundo.",
+      "Passei por quase dois anos de recuperação de cirurgias no joelho antes de uma Copa.",
+      "Fui eleito o Melhor Jogador da Copa do Mundo (Bola de Ouro), mas perdi a final naquele ano.",
+      "Fui o artilheiro isolado de uma Copa do Mundo com 8 gols.",
+      "Usei um corte de cabelo estilo 'Cascão' para desviar a atenção da mídia sobre minha lesão.",
+      "Joguei com a camisa 9 da Seleção Brasileira em três Copas consecutivas (98, 02 e 06).",
+      "Fui campeão do mundo duas vezes, uma no banco e outra como o grande craque do time.",
+      "Marquei os dois gols da vitória do Brasil na final contra a Alemanha.",
+      "Sou conhecido mundialmente pelo apelido de 'Fenômeno'."
+    ]
+  },
+  {
+    "id": 4,
+    "nome": "Miroslav Klose",
+    "aceitos": ["miroslav klose", "klose"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Nasci na Polônia, mas joguei Copas do Mundo por outra seleção.",
+      "Estreei em Copas do Mundo marcando um hat-trick contra a Arábia Saudita.",
+      "Meus primeiros 5 gols em Copas do Mundo foram todos marcados de cabeça.",
+      "Disputei quatro edições de Copa do Mundo, chegando pelo menos na semifinal em todas elas.",
+      "Fui o artilheiro (Chuteira de Ouro) de uma Copa jogando no meu próprio país.",
+      "Sou famoso por comemorar meus gols dando um salto mortal (mortal para frente).",
+      "Nunca ganhei a Bola de Ouro (melhor jogador do mundo), mas sou uma lenda de Copas.",
+      "Marquei gols em quatro Copas do Mundo diferentes.",
+      "Marquei meu último gol em Copas no fatídico jogo do 7x1 no Mineirão.",
+      "Sou o maior artilheiro da história das Copas do Mundo, com 16 gols."
+    ]
+  },
+  {
+    "id": 5,
+    "nome": "Lionel Messi",
+    "aceitos": ["lionel messi", "messi", "leo messi"],
+    "nacionalidade": "Argentina",
+    "dicas": [
+      "Sentei no banco de reservas durante a eliminação da minha seleção nas quartas de final em 2006.",
+      "Passei uma Copa do Mundo inteira (2010) sem conseguir marcar um único gol, mesmo sob o comando de um ídolo.",
+      "Fui eleito o Melhor Jogador da Copa do Mundo (Bola de Ouro) após perder uma final.",
+      "Anunciei aposentadoria da minha seleção após perder uma final continental, mas voltei atrás.",
+      "Sou o jogador com o maior número de partidas disputadas na história das Copas (26 jogos).",
+      "Sou o único jogador a marcar gols na fase de grupos, oitavas, quartas, semi e final na mesma edição.",
+      "Fui o grande destaque e capitão do título mundial de 2022 no Catar.",
+      "Vesti a camisa 10 da Argentina logo após a era Riquelme/Aimar.",
+      "Passei quase toda a minha carreira jogando no Barcelona.",
+      "Tenho 8 Bolas de Ouro da France Football."
+    ]
+  },
+  {
+    "id": 6,
+    "nome": "Zinedine Zidane",
+    "aceitos": ["zinedine zidane", "zidane", "zizou"],
+    "nacionalidade": "França",
+    "dicas": [
+      "Fui expulso no meu segundo jogo de Copa do Mundo após pisar em um adversário da Arábia Saudita.",
+      "Joguei uma Copa do Mundo com uma grave lesão na coxa, entrando apenas no último jogo da fase de grupos.",
+      "Anunciei minha aposentadoria da seleção em 2004, mas voltei para jogar a Copa de 2006.",
+      "Marquei gols em duas finais de Copa do Mundo diferentes.",
+      "Marquei dois gols de cabeça no primeiro tempo da minha primeira final de Copa.",
+      "Fui eleito o melhor jogador do mundo pela FIFA em três ocasiões.",
+      "Na minha última partida como profissional, cobrei um pênalti de cavadinha na final da Copa.",
+      "Minha última ação como jogador profissional foi receber um cartão vermelho.",
+      "Fui o maestro da seleção francesa campeã do mundo em 1998.",
+      "Dei uma cabeçada no peito de Marco Materazzi na final da Copa de 2006."
+    ]
+  },
+  {
+    "id": 7,
+    "nome": "Kylian Mbappé",
+    "aceitos": ["kylian mbappe", "mbappe"],
+    "nacionalidade": "França",
+    "dicas": [
+      "Dooei todo o salário que ganhei na minha primeira Copa do Mundo para uma instituição de caridade.",
+      "Fui o segundo jogador mais jovem da história a marcar gol em uma final de Copa.",
+      "Fui eleito o Melhor Jogador Jovem de uma edição de Copa do Mundo.",
+      "Marquei dois gols contra a Argentina nas oitavas de final da minha primeira Copa.",
+      "Fui campeão do mundo antes de completar 20 anos de idade.",
+      "Ganhei a Chuteira de Ouro de artilheiro na minha segunda participação em Copas.",
+      "Sou o único jogador, além de Geoff Hurst, a marcar um hat-trick em uma final de Copa do Mundo.",
+      "Perdi a final da Copa do Mundo mesmo marcando três gols no jogo.",
+      "Uso a camisa 10 na minha seleção nacional, embora prefira outro número nos clubes.",
+      "Sou o principal craque da seleção francesa na atualidade."
+    ]
+  },
+  {
+    "id": 8,
+    "nome": "Andrés Iniesta",
+    "aceitos": ["andres iniesta", "iniesta"],
+    "nacionalidade": "Espanha",
+    "dicas": [
+      "Joguei minha primeira Copa do Mundo em 2006, mas minha seleção caiu nas oitavas para a França.",
+      "Sofri com muitas lesões e depressão meses antes de jogar a Copa do Mundo da minha vida.",
+      "Fui eleito o Homem do Jogo em três partidas diferentes na Copa do Mundo que venci.",
+      "Fui aplaudido de pé em vários estádios rivais por causa da minha classe em campo.",
+      "Formei uma das maiores duplas de meio-campo da história com meu colega de clube.",
+      "Uso a camisa 6 na minha seleção, mas fiquei eternizado com a camisa 8 no meu clube.",
+      "Fui o autor do gol mais importante da história do meu país na prorrogação.",
+      "Ao comemorar meu gol histórico, tirei a camisa para homenagear Dani Jarque, meu amigo falecido.",
+      "Fui o maestro do tiki-taka espanhol e ídolo do Barcelona.",
+      "Marquei o gol do título inédito da Espanha na final da Copa de 2010 contra a Holanda."
+    ]
+  },
+  {
+    "id": 9,
+    "nome": "Cafu",
+    "aceitos": ["cafu", "marcos evangelista", "marcos evangelista de morais"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Fui reprovado em peneiras de diversos clubes grandes de São Paulo antes de virar profissional.",
+      "Comecei a jogar pela Seleção Brasileira na década de 1990 e me aposentei dela em 2006.",
+      "Na minha primeira final de Copa do Mundo, entrei no primeiro tempo para substituir um jogador lesionado (Jorginho).",
+      "Fiz parte do elenco que perdeu a final de 1998 para a França.",
+      "Sou o jogador que mais vezes vestiu a camisa da Seleção Brasileira na história.",
+      "Comandei a lateral direita do Brasil em quatro Copas do Mundo.",
+      "Sou o único jogador na história a disputar três finais de Copa do Mundo seguidas (94, 98 e 02).",
+      "Fui o capitão da equipe na conquista de uma das Copas do Brasil.",
+      "Ao erguer a taça de campeão, subi no pedestal e gritei o nome do meu bairro de origem.",
+      "Escrevi '100% Jardim Irene' na minha camisa ao levantar a Taça do Penta em 2002."
+    ]
+  },
+  {
+    "id": 10,
+    "nome": "Manuel Neuer",
+    "aceitos": ["manuel neuer", "neuer"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Na minha primeira Copa do Mundo, dei uma assistência (passe longo) para um gol de Klose contra a Inglaterra.",
+      "Disputei a Copa do Mundo de 2018 voltando de uma lesão grave que me afastou por quase um ano.",
+      "Em 2014, bati o recorde de toques na bola fora da grande área para um jogador da minha posição.",
+      "Fui eleito o Melhor Goleiro (Luva de Ouro) de uma Copa do Mundo.",
+      "Joguei contra o Brasil na histórica semifinal de 2014, sofrendo apenas um gol no fim do jogo.",
+      "Fui fundamental no título mundial da minha seleção no Maracanã, vencendo a Argentina por 1x0.",
+      "Revolucionei a minha posição, sendo considerado um 'Goleiro-Líbero'.",
+      "Sou o capitão e grande ídolo do Bayern de Munique há mais de uma década.",
+      "Vesti a camisa 1 da Seleção Alemã nas últimas quatro Copas do Mundo.",
+      "Sou considerado um dos maiores goleiros da história do futebol mundial."
+    ]
+  },
+  {
+    "id": 11,
+    "nome": "Luka Modric",
+    "aceitos": ["luka modric", "modric"],
+    "nacionalidade": "Croácia",
+    "dicas": [
+      "Durante a minha infância, tive que viver como refugiado de guerra.",
+      "Estreei em Copas do Mundo no ano de 2006, entrando no segundo tempo de um jogo contra o Japão.",
+      "Fui eleito o Melhor Jogador do Torneio (Bola de Ouro) de uma Copa do Mundo em que terminei como vice-campeão.",
+      "Levei minha seleção para a final da Copa do Mundo batendo recordes de prorrogações vencidas.",
+      "Quatro anos após ser vice, levei meu país novamente ao pódio (3º lugar) em outra Copa.",
+      "Uso a lendária camisa 10 tanto no meu clube quanto na minha seleção nacional.",
+      "Sou o jogador que mais vezes vestiu a camisa da minha seleção na história.",
+      "Venci o prêmio de Melhor Jogador do Mundo (Ballon d'Or) quebrando a hegemonia de Messi e CR7 em 2018.",
+      "Sou um meio-campista lendário do Real Madrid.",
+      "Sou o maior jogador da história da Croácia."
+    ]
+  },
+  {
+    "id": 12,
+    "nome": "Thomas Müller",
+    "aceitos": ["thomas muller", "muller"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Uma vez, Diego Maradona se recusou a dar uma coletiva de imprensa ao meu lado porque achou que eu era um gandula.",
+      "Fui eleito o Melhor Jogador Jovem na minha primeira Copa do Mundo.",
+      "Na minha primeira Copa, fui também o artilheiro do torneio, ganhando a Chuteira de Ouro.",
+      "Marquei um hat-trick contra Portugal logo na primeira rodada de uma Copa.",
+      "Fui o autor do primeiro gol do inesquecível 7x1 no Mineirão.",
+      "Tenho a incrível marca de 10 gols marcados e 6 assistências em Copas do Mundo.",
+      "Venci a Copa do Mundo com a minha seleção no Brasil.",
+      "Joguei a minha vida inteira em um único clube (Bayern de Munique).",
+      "Não sou um centroavante clássico nem um meia, inventaram a posição de 'Raumdeuter' (intérprete de espaços) só para mim.",
+      "Sou o camisa 13 e grande símbolo da Seleção Alemã nas últimas décadas."
+    ]
+  },
+  {
+    "id": 13,
+    "nome": "Romário",
+    "aceitos": ["romario", "romario de souza faria", "baixinho"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Fui cortado do meu primeiro Mundial juvenil por indisciplina.",
+      "Fiquei no banco de reservas durante quase toda a Copa do Mundo de 1990 devido a uma lesão.",
+      "Cumpri uma promessa ao meu treinador marcando os dois gols decisivos que classificaram minha seleção nas eliminatórias.",
+      "Marquei 5 gols na Copa do Mundo em que minha seleção quebrou um amargo jejum de 24 anos sem títulos.",
+      "Fui o primeiro jogador brasileiro a ser eleito oficialmente o Melhor do Mundo pela FIFA no ano em que fui campeão.",
+      "Formei uma dupla de ataque histórica conhecida por comemorar embalando um bebê após um gol.",
+      "Fui cortado da Copa de 1998 às vésperas do torneio por conta de uma lesão na panturrilha, algo que me fez chorar na coletiva.",
+      "Fui eleito o Melhor Jogador da Copa do Mundo nos Estados Unidos.",
+      "Sou famoso pela minha genialidade na grande área e pelas frases de efeito fora dela.",
+      "O meu apelido mais icônico no futebol é 'Baixinho'."
+    ]
+  },
+  {
+    "id": 14,
+    "nome": "Zico",
+    "aceitos": ["zico", "arthur antunes coimbra", "galinho"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Na minha primeira Copa, tive um gol legítimo anulado de forma bizarra: o juiz apitou o fim do jogo com a bola no ar.",
+      "Sofri uma grave lesão no joelho imposta por um zagueiro do Bangu, o que quase me tirou de uma Copa do Mundo.",
+      "Joguei 3 Copas do Mundo (1978, 1982, 1986), mas o destino nunca me deixou chegar a uma final.",
+      "Em 1986, entrando no segundo tempo sob muita pressão, perdi um pênalti no tempo normal contra a França nas quartas de final.",
+      "Fui o maestro e o grande camisa 10 de uma das seleções mais aclamadas da história que acabou não vencendo o torneio.",
+      "Sou considerado um dos maiores cobradores de faltas de todos os tempos do futebol mundial.",
+      "Construí minha carreira, fiz a maioria dos meus gols e me tornei o maior ídolo da história do Flamengo.",
+      "Tive uma passagem importante e bem sucedida jogando na Udinese, da Itália.",
+      "Sou a grande lenda do futebol brasileiro na década de 1980.",
+      "Mundialmente conhecido como o 'Galinho de Quintino'."
+    ]
+  },
+  {
+    "id": 15,
+    "nome": "Garrincha",
+    "aceitos": ["garrincha", "mane garrincha", "manuel francisco dos santos"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Nasci com as pernas tortas, sendo uma delas consideravelmente mais curta que a outra.",
+      "Quase fui cortado da Copa de 1958 após um teste psicológico sugerir que eu era 'inapto para a pressão'.",
+      "Minha estreia em Copas do Mundo foi na terceira partida da fase de grupos, contra a União Soviética.",
+      "Fui eleito para a seleção dos melhores do torneio na Copa de 1958.",
+      "Fui expulso na semifinal da Copa de 1962, mas fui liberado para jogar a grande final após manobras políticas.",
+      "Com a lesão precoce da nossa principal estrela, chamei a responsabilidade e venci a Copa de 1962 praticamente sozinho.",
+      "Fui eleito o Melhor Jogador da Copa do Mundo do Chile.",
+      "Sou o maior ídolo de todos os tempos da história do Botafogo.",
+      "O Brasil nunca perdeu uma partida em que eu e Pelé estivemos juntos em campo.",
+      "Sou conhecido como 'A Alegria do Povo' e o maior driblador da história do esporte."
+    ]
+  },
+  {
+    "id": 16,
+    "nome": "Johan Cruyff",
+    "aceitos": ["johan cruyff", "cruyff"],
+    "nacionalidade": "Holanda",
+    "dicas": [
+      "Exigi jogar com uma camisa de apenas duas listras em vez de três, honrando meu contrato de patrocínio pessoal com a Puma.",
+      "Surpreendi o mundo todo ao me recusar a disputar a Copa do Mundo de 1978.",
+      "Revelei anos depois que fiquei fora do Mundial porque minha família sofreu uma tentativa de sequestro à mão armada em Barcelona.",
+      "Minha única participação em Copas do Mundo foi a de 1974, na qual cheguei até a grande final.",
+      "Venci a Bola de Ouro da revista France Football três vezes ao longo da minha carreira.",
+      "Fui eleito o Melhor Jogador da Copa de 1974, embora minha seleção tenha terminado como vice-campeã.",
+      "Revolucionei a tática do futebol ao ser a engrenagem principal de um estilo chamado 'Futebol Total'.",
+      "Fui o capitão da fantástica equipe apelidada de 'Laranja Mecânica'.",
+      "Fui o maior jogador da história do Ajax e um dos maiores treinadores da história do Barcelona.",
+      "Usei durante minha carreira a imortal e lendária camisa número 14."
+    ]
+  },
+  {
+    "id": 17,
+    "nome": "Franz Beckenbauer",
+    "aceitos": ["franz beckenbauer", "beckenbauer"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Iniciei minha carreira atuando no meio-campo, mas me consagrei mundialmente quando fui recuado.",
+      "Joguei grande parte de uma semifinal de Copa do Mundo de forma heroica: com o ombro deslocado e o braço em uma tipoia.",
+      "Fui o autor da revolução tática que popularizou a posição de 'Líbero'.",
+      "Venci o prêmio Ballon d'Or (Bola de Ouro) duas vezes, sendo um dos raros defensores a conseguir o feito.",
+      "Disputei e perdi a final da Copa do Mundo de 1966 para a Inglaterra.",
+      "Fui o capitão da seleção que derrotou o esquadrão do Carrossel Holandês de Cruyff na final.",
+      "Fui o primeiríssimo jogador de futebol a erguer a nova Taça FIFA (o troféu atual) na história.",
+      "Faço parte do restrito e seleto grupo de três pessoas a vencer a Copa do Mundo tanto como jogador quanto como treinador.",
+      "Liderei minha seleção ao título mundial da Itália 1990 sentado no banco de reservas como técnico.",
+      "Fui reverenciado a vida toda com o imponente apelido de 'Der Kaiser' (O Imperador)."
+    ]
+  },
+  {
+    "id": 18,
+    "nome": "Paolo Rossi",
+    "aceitos": ["paolo rossi", "rossi"],
+    "nacionalidade": "Itália",
+    "dicas": [
+      "Anos antes do meu auge, quase tive a carreira encerrada ao me envolver em um grande escândalo de apostas esportivas na Europa.",
+      "Fui convocado para a Copa do Mundo após ter a minha suspensão reduzida de forma polêmica.",
+      "Passei a primeira fase do torneio mundial sem fazer gols, sofrendo duras críticas da imprensa que pedia minha saída do time.",
+      "Tive a minha 'ressurreição' marcando três gols no jogo decisivo contra o país que era considerado o maior favorito daquele torneio.",
+      "Marquei os dois gols na vitória das semifinais contra a perigosa seleção da Polônia.",
+      "Fui o autor do primeiro gol da minha seleção na grande final contra a Alemanha.",
+      "Venci o prêmio de Melhor Jogador da Copa e a Chuteira de Ouro como artilheiro isolado do torneio.",
+      "No fim do mesmo ano do Mundial, também fui consagrado com o prêmio da Bola de Ouro.",
+      "A partida mais icônica da minha vida ficou conhecida no país adversário como 'A Tragédia do Sarriá'.",
+      "Fui o maior carrasco da incrível Seleção Brasileira da Copa de 1982."
+    ]
+  },
+  {
+    "id": 19,
+    "nome": "Gianluigi Buffon",
+    "aceitos": ["gianluigi buffon", "buffon", "gigi"],
+    "nacionalidade": "Itália",
+    "dicas": [
+      "Minha estreia pela seleção principal foi numa repescagem eliminatória sob neve pesada contra a Rússia.",
+      "Perdi a oportunidade de jogar a Eurocopa 2000 por ter fraturado a mão dias antes.",
+      "Fui um dos poucos a ter o privilégio e a longevidade de disputar cinco Copas do Mundo diferentes.",
+      "Fui vice-campeão da Bola de Ouro (Ballon d'Or), algo extremamente raro para jogadores da minha posição.",
+      "No torneio em que fui campeão, fiquei 453 minutos sem que a bola tocasse as redes da minha meta.",
+      "Na Copa que venci, sofri apenas dois gols em todo o campeonato: um gol contra de um colega e um gol de pênalti de Zidane.",
+      "Fui eleito o Vencedor do Troféu Lev Yashin no ano em que garanti a taça mundial.",
+      "Fui um ícone inquestionável, permanecendo em meu clube de coração (Juventus) mesmo quando fomos rebaixados para a segunda divisão.",
+      "Levantei o caneco de campeão do mundo nos pênaltis contra a França em 2006.",
+      "Sou considerado o maior e mais icônico goleiro da história recente do futebol italiano."
+    ]
+  },
+  {
+    "id": 20,
+    "nome": "Fabio Cannavaro",
+    "aceitos": ["fabio cannavaro", "cannavaro"],
+    "nacionalidade": "Itália",
+    "dicas": [
+      "Fui gandula oficial na Copa do Mundo disputada no meu país quando era um jovem garoto de 16 anos.",
+      "Tive a rara honra de carregar a braçadeira de capitão da minha seleção em duas edições diferentes de Copa.",
+      "Iniciei o Mundial pelo qual me consagraria em meio a uma gigantesca crise de corrupção nos clubes do meu país (o 'Calciopoli').",
+      "Apesar de ter apenas 1,76m de altura, meu senso de posicionamento e impulsão eram minhas armas letais na zaga.",
+      "Fui um dos responsáveis por liderar um sistema que sofreu míseros dois gols no Mundial de 2006.",
+      "Venci o prêmio máximo da FIFA e a Bola de Ouro, sendo um dos pouquíssimos jogadores puramente de marcação a conseguir isso.",
+      "Joguei em grandes clubes, com destaques marcantes na Juventus e no Real Madrid.",
+      "Passei por uma imagem imortal, correndo com a taça de campeão nos gramados de Berlim.",
+      "Sou o último zagueiro de ofício a vencer o prêmio de Melhor Jogador do Mundo.",
+      "Fui o xerife e grande capitão da Itália no Tetra Mundial."
+    ]
+  },
+  {
+    "id": 21,
+    "nome": "Xavi Hernández",
+    "aceitos": ["xavi", "xavi hernandez"],
+    "nacionalidade": "Espanha",
+    "dicas": [
+      "Estreei em Copas do Mundo muito cedo, no torneio asiático de 2002, mas amarguei a reserva na maior parte da competição.",
+      "Terminei minha vida como atleta num país do Oriente Médio e logo me tornei treinador lá.",
+      "No Mundial de 2010, fui o jogador que mais acertou passes na competição (foram 599 passes completados).",
+      "Fui eleito por três vezes consecutivas para o 3º lugar do prêmio da Bola de Ouro (Ballon d'Or), esbarrando em gigantes.",
+      "O ritmo da minha seleção ficava sob os meus pés: era eu o responsável por acelerar ou cadenciar cada ataque.",
+      "Muitos consideram que eu fui o arquiteto absoluto e a engrenagem principal de um estilo chamado 'Tiki-Taka'.",
+      "Fiz dupla no clube e na seleção com o autor do gol do nosso título mundial (Iniesta).",
+      "Vesti sempre a emblemática camisa número 8 da seleção e eternizei a camisa 6 em meu clube espanhol.",
+      "Fui revelado pelas divisões de base de La Masia.",
+      "Sou um dos grandes responsáveis por dar à Espanha o seu único título na África do Sul."
+    ]
+  },
+  {
+    "id": 22,
+    "nome": "Iker Casillas",
+    "aceitos": ["iker casillas", "casillas"],
+    "nacionalidade": "Espanha",
+    "dicas": [
+      "Tive sorte para estrear em Copas: o goleiro titular cortou o pé de forma bizarra com um frasco de perfume dias antes do Mundial de 2002.",
+      "Ao longo da minha longa carreira, passei por um momento muito tenso e perdi a titularidade do meu clube por causa de um técnico português.",
+      "Na Copa em que brilhei, minha seleção quebrou a estatística de ser a campeã do mundo com a menor média de gols marcados.",
+      "Fui o capitão pioneiro: a primeira pessoa da história a levantar os troféus da Copa, Eurocopa e Liga dos Campeões.",
+      "Defendi um pênalti vital contra a equipe do Paraguai na tensa partida das quartas de final.",
+      "Beijei minha namorada, que trabalhava como repórter, ao vivo na TV logo após o apito final do título.",
+      "Fui eleito o Melhor Goleiro (Luva de Ouro) do torneio da África do Sul.",
+      "Estiquei a perna direita e fiz uma defesa épica num chute à queima-roupa de Arjen Robben na final do Mundial.",
+      "A torcida e a mídia me deram o apelido de um 'Santo'.",
+      "Fui o lendário capitão de 'La Roja' e eterno ídolo do Real Madrid."
+    ]
+  },
+  {
+    "id": 23,
+    "nome": "Thierry Henry",
+    "aceitos": ["thierry henry", "henry"],
+    "nacionalidade": "França",
+    "dicas": [
+      "Apesar de ser famoso pela técnica, fui expulso logo no meu segundo jogo da Copa, num duelo duro contra o Uruguai.",
+      "Tive a minha imagem mundial manchada nas eliminatórias para 2010, quando descaradamente dominei a bola com a mão para dar a assistência da classificação.",
+      "Em 1998, mesmo sendo um jovem garoto recém-chegado, terminei a competição como o artilheiro do meu país com 3 gols.",
+      "Apesar de ser artilheiro do time no Mundial do nosso título, passei a grande final inteira assistindo o jogo do banco de reservas.",
+      "Fiz parte do humilhante motim dos jogadores da minha seleção contra o técnico na Copa do Mundo de 2010.",
+      "Fui o algoz que cravou a eliminação do Brasil nas quartas de final de 2006 (assistência de Zidane).",
+      "Joguei como titular a final da Copa do Mundo na Alemanha e fui vice-campeão nos pênaltis para a Itália.",
+      "Vesti a camisa de número 12 da minha seleção e fui seu maior artilheiro por muitos e muitos anos.",
+      "Construí um legado mágico vestindo a camisa 14 do Arsenal.",
+      "Sou um dos grandes atacantes da famosa e genial geração francesa das décadas de 1990 e 2000."
+    ]
+  },
+  {
+    "id": 24,
+    "nome": "Michel Platini",
+    "aceitos": ["michel platini", "platini"],
+    "nacionalidade": "França",
+    "dicas": [
+      "Brilhei com a camisa do meu país em três Copas do Mundo diferentes: 1978, 1982 e 1986.",
+      "O destino foi curioso: marquei gol exatamente no dia do meu aniversário em duas partidas diferentes de Copa do Mundo.",
+      "Cheguei pertinho do título, sendo eliminado nas semifinais em duas edições seguidas pela mesma seleção adversária (Alemanha Ocidental).",
+      "Bati e perdi a minha cobrança de pênalti nas quartas de 1986 contra o Brasil, o que me fez quase chorar ali mesmo no campo.",
+      "Passei a usar um estilo inconfundível na carreira com a camisa por fora do calção.",
+      "Recebi a Bola de Ouro de Melhor Jogador da Europa por três anos em sequência na década de 1980.",
+      "Fui o principal expoente e o capitão do elegante meio-campo conhecido como 'O Quadrado Mágico' do meu país.",
+      "Sou a grande lenda histórica que liderou a seleção gaulesa antes do surgimento da geração Zidane.",
+      "Mais de vinte anos após pendurar as chuteiras, me tornei Presidente da UEFA.",
+      "Anos mais tarde, fui varrido do esporte por acusações gravíssimas e suspensões ligadas à FIFA."
+    ]
+  },
+  {
+    "id": 25,
+    "nome": "Just Fontaine",
+    "aceitos": ["just fontaine", "fontaine"],
+    "nacionalidade": "França",
+    "dicas": [
+      "Nasci fora da Europa, na cidade de Marraquexe, no Marrocos, mas vim a defender uma grande seleção do Velho Continente.",
+      "Minha convocação para a Copa foi totalmente acidental, ocasionada pela lesão do atacante titular oficial poucos dias antes da viagem.",
+      "Para minha sorte e desespero, o bico da minha chuteira quebrou antes do torneio e joguei a Copa inteira com as chuteiras do meu reserva.",
+      "Fui o artilheiro do torneio marcando gols em todas as seis partidas que disputei no Mundial da Suécia.",
+      "Minha seleção e meu brilho foram ofuscados pela explosão de um jovem menino brasileiro de 17 anos (Pelé) nas semifinais.",
+      "Na decisão de terceiro lugar, descontei a fúria marcando incríveis quatro gols no time da Alemanha.",
+      "Sofri fraturas fortíssimas nas pernas ao longo dos meus anos seguintes, e isso me obrigou a pendurar as chuteiras aos 28 anos de idade.",
+      "Minha única participação em mundiais foi em 1958.",
+      "Minha equipe terminou aquele torneio com a honrosa medalha de bronze (terceiro lugar).",
+      "Detenho o assombroso recorde, jamais quebrado e tido como intocável, de mais gols em uma única edição de Copa: 13."
+    ]
+  },
+  {
+    "id": 26,
+    "nome": "Roberto Baggio",
+    "aceitos": ["roberto baggio", "baggio"],
+    "nacionalidade": "Itália",
+    "dicas": [
+      "Minha estreia nas redes de Copas aconteceu marcando aquele que foi eleito um dos gols mais lindos da edição de 1990.",
+      "Lutei quase que a vida esportiva inteira contra lesões sérias que dilaceravam os meus joelhos.",
+      "No meu principal Mundial, comecei sem fazer nenhum gol na primeira fase, sendo o herói absoluto e solitário na fase do mata-mata (oitavas, quartas e semi).",
+      "Venci o aclamado prêmio da Bola de Ouro (Ballon d'Or) em 1993.",
+      "Era conhecido pelas multidões, tanto pelo meu futebol requintado, quanto por abraçar abertamente a religião budista.",
+      "Fui convocado em 1998, onde dividi espaço e status, de forma acirrada, com o jovem astro emergente Alessandro Del Piero.",
+      "Converti minhas cobranças nas disputas por penalidades das Copas do Mundo de 1990 e 1998 com classe e frieza.",
+      "Marquei 5 tentos cruciais na campanha que arrastou minha seleção à decisão da Copa dos EUA.",
+      "Ostentava no gramado o inconfundível e marcante penteado apelidado de 'O Rabo de Cavalo Divino' (Il Divin Codino).",
+      "Fiquei com as mãos na cintura, olhando para o chão, após chutar a bola para o céu de Pasadena, entregando o tetra ao Brasil."
+    ]
+  },
+  {
+    "id": 27,
+    "nome": "Lothar Matthäus",
+    "aceitos": ["lothar matthaus", "matthaus"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Fui chamado e estive no banco do meu país em um Mundial quando tinha apenas rápidos e tímidos 21 anos.",
+      "Cheguei muito perto e vivenciei o sabor amargo de perder duas finais consecutivas de Copa do Mundo.",
+      "Meu nome ficou gravado no topo da lista histórica de jogadores de linha por disputar cinco edições impressionantes de Copa (82 a 98).",
+      "Diego Maradona me enalteceu e escreveu oficialmente na sua autobiografia que eu fui o maior rival que ele já enfrentou na vida.",
+      "Mudei taticamente o meu estilo, passando de um meia clássico agressivo a um perfeito líbero no final de minha carreira na seleção.",
+      "Bati e marquei o pênalti solitário que decretou a vitória para meu país na final em um dos mundiais mais retrancados da história.",
+      "Entrei no campo pela Copa da FIFA incríveis 25 vezes, estabelecendo um recorde quase intocável até o surgimento de Messi.",
+      "Recebi de prêmio a primeira edição do 'Melhor Jogador do Mundo' criado oficialmente pela FIFA.",
+      "Vesti a camisa 10 e fui o coração, pulmão e capitão na terceira estrela de minha seleção.",
+      "Comandei a implacável seleção alemã na final contra a Argentina de Maradona na Itália 90."
+    ]
+  },
+  {
+    "id": 28,
+    "nome": "Oliver Kahn",
+    "aceitos": ["oliver kahn", "kahn"],
+    "nacionalidade": "Alemanha",
+    "dicas": [
+      "Fiz as malas para as Copas do Mundo de 1994 e 1998 para apenas treinar e assistir, permanecendo firmemente na reserva sem ver minutos.",
+      "Meses antes do torneio máximo, eu engoli um frango de proporções épicas que traumatizou os torcedores em uma goleada pesada de 5x1 para a Inglaterra.",
+      "Levei na bagagem a honrosa fama do temperamento difícil: vivia esbravejando e rugindo com a minha zaga se algo desse errado.",
+      "Na Copa da minha vida, construímos uma muralha. Nós só fomos sofrer o nosso primeiríssimo gol do torneio na última partida antes da final.",
+      "Fiquei assistindo do banco, como reserva absoluto do Lehmann, o Mundial disputado na minha casa em 2006 (joguei só a inútil disputa de 3º lugar).",
+      "Minha performance absurda debaixo das traves ofuscou até os atacantes, me fazendo vencer a Bola de Ouro (melhor do torneio) daquele ano.",
+      "No jogo do título, fui surpreendido por um rebote fatal ao não segurar com firmeza o chute de fora da área que veio forte das chuteiras do camisa 8 adversário (Rivaldo).",
+      "Terminei o Mundial tristemente sentado recostado no pé da trave, em silêncio após o apito.",
+      "Fui por muitos anos a face e o líder temido tanto da camisa 1 de meu país quanto a camisa 1 do Bayern.",
+      "Fui o gigante goleiro vazado duas vezes por Ronaldo no Japão."
+    ]
+  },
+  {
+    "id": 29,
+    "nome": "Lev Yashin",
+    "aceitos": ["lev yashin", "yashin"],
+    "nacionalidade": "União Soviética",
+    "dicas": [
+      "Trabalhei como operário fabril na juventude, e minhas primeiras experiências guardando redes foram nos ringues perigosos do Hóquei no Gelo.",
+      "Meu início de futebol foi abismalmente ruim: engoli gols estranhos e sofri críticas que me fizeram chorar pensando em desistir de tudo.",
+      "Ganhei uma glória inesquecível ao liderar a equipe na conquista do Ouro nas Olimpíadas.",
+      "Tornei-me um pioneiro e mestre na pequena área: eu saía da linha do gol, antecipava os chutes e comandava minha zaga gritando orientações o tempo todo.",
+      "Um detalhe excêntrico de minha figura em campo é que eu amava vestir meu boné xadrez característico durante as partidas abertas para evitar o sol nos olhos.",
+      "A pressão e a culpa despejada pela mídia em meus ombros depois do meu país cair diante do Chile em 1962 quase destruíram os meus nervos.",
+      "Fui honrado como uma lenda do país a ponto do meu nome batizar a premiação oficial dada aos melhores da minha posição da FIFA durante muito tempo.",
+      "Para manter a classe e os instintos, minha rotina famosa dizia que o meu preparo se tratava de um cigarro no vestiário e uma bebida forte de relaxamento.",
+      "Sou historicamente o dono incontestável de um único e absoluto prêmio Bola de Ouro (Ballon d'Or) entre todos do ofício de segurar chutes com a luva.",
+      "As minhas roupas completamente escuras no gol trouxeram para mim o eterno apelido 'Aranha Negra'."
+    ]
+  },
+  {
+    "id": 30,
+    "nome": "Diego Forlán",
+    "aceitos": ["diego forlan", "forlan", "cachavacha"],
+    "nacionalidade": "Uruguai",
+    "dicas": [
+      "Eu não era uma primeira escolha nas apostas da bola. Em meus dias de moleque, o tênis esteve prestes a se tornar o esporte ao qual eu iria dedicar todo o meu suor.",
+      "A minha linhagem já desfilava talentos: sou descendente (filho e neto) de grandes lendas com glórias internacionais para o mesmo país.",
+      "Marquei as memórias do torcedor da Premier League sendo sempre criticado, visto com desconfiança e falhando miseravelmente para o poderoso Manchester United.",
+      "Deixei a amargura inglesa para trás, indo à península espanhola virar uma temida máquina e conquistar as chuteiras de ouro continentais (no modesto Villarreal e no Atlético).",
+      "Fui às redes marcando um gol solitário num espetacular e surpreendente 3x3 que aconteceu ainda lá no mundial de 2002 na Ásia.",
+      "Me esgueirei sem vaga e amarguei a ausência amarga ao lado da minha nação durante os espetáculos do mundial europeu em 2006.",
+      "Em um cenário de terror para os artilheiros do mundo inteiro, provei meu toque impecável por ser um dos poucos capazes de subjugar, controlar e mandar no ângulo a incontrolável bola chamada Jabulani.",
+      "As atuações épicas com chutes de curvas inesperadas e 5 bolas mortais nas redes colocaram meu povo novamente no pódio e nos holofotes depois de décadas inteiras nas sobras da América do Sul.",
+      "Levantei assombrosamente o troféu máximo da FIFA como Melhor Jogador Eleito daquela Copa em que ficamos nas honrosas semifinais.",
+      "Com a imortal camisa 10 e os cachos esvoaçantes e dourados, montei a frente mágica do Uruguai nas savanas da África de 2010 ao ladinho de Luisito e Edinson."
+    ]
+  },
+  {
+    "id": 31,
+    "nome": "Hristo Stoichkov",
+    "aceitos": ["hristo stoichkov", "stoichkov"],
+    "nacionalidade": "Bulgária",
+    "dicas": [
+      "Poucos anos do meu despontar na juventude, estive prestes a ser banido com suspensão e encerramento para o resto da vida devido ao calor absurdo do meu sangue numa confusão no país que eu nasci.",
+      "As vitórias do amadurecimento aconteceram nas terras espanholas quando fui convocado pelo meu antigo técnico holandês brilhante (Cruyff) para liderar a magia em campo no tal time do Dream Team.",
+      "As polêmicas nos bastidores da minha equipe para a grande Copa aconteciam devido à briga aberta, gritante e furiosa entre os líderes e treinadores em que eu me apoiava de um lado para defender o grupo.",
+      "A primeira partida na América amargou sem rede estufada, porém a magia aconteceu em cascata nos próximos incríveis e seguidos seis duelos mundiais da minha história no relvado do verão de lá.",
+      "As minhas fúrias, as raivas e minhas comemorações colossais tornaram lendários todos os tentos do ataque e o ânimo desportivo para a torcida, a qual batizou a época com meu próprio nome.",
+      "Conquistamos uma das maiores glórias e espantamos os grandes jornalistas quando abafamos com pura imposição um dos mais pesados favoritos, fazendo nossa torcida inteira enlouquecer pelas vitórias sucessivas nas oitavas e quartas.",
+      "O chute mais belo do torneio ficou aclamado numa cobrança impecável numa bola parada e magistral cravada impiedosamente sobre o time campeão da edição anterior.",
+      "As mágoas gigantes me marcaram as falas, porque saímos derrotados pelo craque il Divin Codino italiano, e não perdoei a ausência do apito num escandaloso pênalti contra a nossa camisa no fim.",
+      "No auge absoluto e genial do verão da América, terminei empatado e levantei um prêmio dourado da Chuteira pelo meu placar mortal balançando redes com a histórica bola vermelha.",
+      "De temperamento incendiário e canhota abençoada divina e infernal para as zagas rivais do torneio inesquecível de 94, eu ostentei para o planeta inteiro a camisa mágica número 8."
+    ]
+  },
+  {
+    "id": 32,
+    "nome": "Rivaldo",
+    "aceitos": ["rivaldo", "rivaldo vitor borba", "rivaldo vitor borba ferreira"],
+    "nacionalidade": "Brasil",
+    "dicas": [
+      "Carreguei na infância inteira uma pobreza impiedosa, onde os tempos nas terras secas cobraram parte dos meus dentes e criaram a estrutura torta (as 'cambotas') como traço em minhas fortes pernas de base.",
+      "Levei uma culpa imensa como bode expiatório inteiro pelos erros cruciais que trouxeram a tristeza monumental da queda triste nos jogos sediados na terra norte-americana no período amargo das pratas nas perdas do gol do Ouro.",
+      "O meu nome ficou nos registros da imensa história barcelonista, quando ergui a reverenciada Bola de Ouro pela minha temporada genial no meio das cobranças do torcedor local espanhol da época em 99.",
+      "Fui eu mesmo que entreguei aos torcedores incrédulos e enfurecidos da mídia o maior frisson ao cavar uma punição financeira, um amarelo para minha conta e ainda encenar absurdamente o doloroso impacto facial mesmo as imagens mundiais comprovando o golpe dado nas minhas batatas da perna contra o rival turco nos campos japoneses.",
+      "Pela grandeza tática do esquadrão, a liderança na linha pensante técnica de Scolari admitiu na televisão nos anos da eternidade que o trabalho mais absurdo e cerebral em prol do esquadrão pentacampeão foi arquitetura invisível criada sobre minhas atitudes e minhas cobranças ao elenco inteiro na zona quente do meio e ataque na Ásia.",
+      "A incrível proeza genial minha no embate da Copa na Inglaterra de David Seaman (com drible desconcertante rodando) também marcou os números fantásticos nos livros na conta com 5 espetáculos em rede cheia de bola nos nossos embates decisivos nas fases de campo e mata-mata.",
+      "No meu instante assombroso, fiz as cortinas da mágica no palco final, e a mágica se desenhou num sutil salto (ou popularmente um 'corta-luz') na qual a redonda macia desfilou em mim só resvalando sombra sem a sola da bota.",
+      "Sem egoísta luxúria nos holofotes das luzes da noite final na Copa nos países longes do Japão/Coreia na Copa inteira que passei calado jogando meu auge genial eu não ergui do mundo todo uma mídia justa pra minha história gloriosa com 10 clássica amarela estampada nas omoplatas dos uniformes soltos do Penta e final com vice.",
+      "Fui inquestionavelmente uma das peças centrais do triunfante elenco ofensivo mundial na última taça mundial que a Canarinho de fato trouxe nas mãos de um capitão à casa amarela com minha participação ativa gigante compondo com 2 reis em cena da mesma imponente constelação na linha dos 3 r...",
+      "O inabalável braço silencioso que dividia na época os louros e as grandes honrarias entre 2 astros sorridentes, dentuço e fenômeno que o planeta amava como Deuses."
+    ]
+  }
+]

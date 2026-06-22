@@ -1,0 +1,212 @@
+[
+  { 
+    "id": 1, "manchete": "O troféu da Copa do Mundo ficou escondido dentro de uma caixa de sapatos debaixo de uma cama durante a Segunda Guerra Mundial.", 
+    "real": true, "copa": "Bastidores", "dif": "media",
+    "curiosidade": "Fato! O vice-presidente da FIFA, Ottorino Barassi, escondeu a taça Jules Rimet debaixo da própria cama na Itália para evitar que os nazistas a roubassem durante a guerra." 
+  },
+  { 
+    "id": 2, "manchete": "A Índia desistiu de jogar a Copa do Mundo de 1950 porque a FIFA a proibiu de jogar descalça.", 
+    "real": false, "copa": "1950", "dif": "dificil",
+    "curiosidade": "Fake! Embora a lenda seja muito famosa, a Índia desistiu na verdade por falta de dinheiro para a viagem, falta de tempo para treinar e porque as Olimpíadas eram prioridade na época." 
+  },
+  { 
+    "id": 3, "manchete": "Em 1930, um jogador com apenas um braço marcou um gol na final da Copa do Mundo.", 
+    "real": true, "copa": "1930", "dif": "dificil",
+    "curiosidade": "Fato! O uruguaio Héctor Castro, que perdeu o braço direito em um acidente com uma serra elétrica, marcou o último gol da vitória por 4x2 contra a Argentina na primeira final da história." 
+  },
+  { 
+    "id": 4, "manchete": "A Coreia do Norte é a única seleção na história a nunca ter sofrido gols em uma fase de grupos da Copa.", 
+    "real": false, "copa": "Recordes", "dif": "facil",
+    "curiosidade": "Fake! A Coreia do Norte sofreu uma das maiores goleadas da história (7x0 para Portugal em 2010). A única seleção a ser eliminada sem sofrer gols foi a Suíça, em 2006." 
+  },
+  { 
+    "id": 5, "manchete": "Em 1966, a taça da Copa do Mundo foi roubada em Londres e recuperada dias depois por um cachorro de rua.", 
+    "real": true, "copa": "1966", "dif": "media",
+    "curiosidade": "Fato! A taça foi roubada em uma exposição e encontrada por um cachorro chamado Pickles, enrolada em jornal, em um arbusto no sul de Londres." 
+  },
+  { 
+    "id": 6, "manchete": "Na Copa de 1974, um jogador do Zaire (atual RD Congo) chutou a bola para longe numa cobrança de falta do Brasil porque não sabia as regras do jogo.", 
+    "real": false, "copa": "1974", "dif": "dificil",
+    "curiosidade": "Fake! Mwepu Ilunga conhecia as regras. Ele fez isso de propósito como forma de protesto (e medo), pois o ditador do seu país havia ameaçado a equipe caso levassem uma goleada de mais de 3 gols." 
+  },
+  { 
+    "id": 7, "manchete": "Apenas dois jogadores na história conquistaram a Copa do Mundo como jogador e depois como treinador.", 
+    "real": false, "copa": "Recordes", "dif": "media",
+    "curiosidade": "Fake! Na verdade, são três: Mário Zagallo (Brasil), Franz Beckenbauer (Alemanha) e Didier Deschamps (França)." 
+  },
+  { 
+    "id": 8, "manchete": "O jogador mais jovem a vencer uma Copa do Mundo foi Pelé, com apenas 17 anos em 1958.", 
+    "real": true, "copa": "1958", "dif": "facil",
+    "curiosidade": "Fato! Pelé tinha 17 anos e 249 dias quando foi campeão em 1958, marcando dois gols na final contra a Suécia. Um recorde que perdura até hoje." 
+  },
+  { 
+    "id": 9, "manchete": "Durante a Copa de 1982, um príncipe do Kuwait invadiu o campo e anulou um gol da França.", 
+    "real": true, "copa": "1982", "dif": "dificil",
+    "curiosidade": "Fato! O Sheik Fahad Al-Ahmad Al-Sabah desceu ao gramado reclamando que seus jogadores ouviram um apito na arquibancada. Para evitar problemas diplomáticos, o árbitro bizarramente anulou o gol." 
+  },
+  { 
+    "id": 10, "manchete": "O jogador que marcou o gol mais rápido da história das Copas saiu direto do banco de reservas no segundo tempo.", 
+    "real": false, "copa": "Recordes", "dif": "media",
+    "curiosidade": "Fake! O gol mais rápido foi marcado por Hakan Şükür, da Turquia, com apenas 10.8 segundos de jogo, logo após o apito inicial contra a Coreia do Sul em 2002." 
+  },
+  { 
+    "id": 11, "manchete": "Na Copa de 2006, o árbitro Graham Poll deu três cartões amarelos para o mesmo jogador croata antes de expulsá-lo.", 
+    "real": true, "copa": "2006", "dif": "media",
+    "curiosidade": "Fato! O árbitro inglês esqueceu de anotar o segundo cartão amarelo do zagueiro Josip Šimunić, e só o expulsou quando ele tomou o terceiro cartão no final do jogo." 
+  },
+  { 
+    "id": 12, "manchete": "A Argentina foi campeã em 1986 jogando a final com camisas compradas em um camelô no México.", 
+    "real": false, "copa": "1986", "dif": "dificil",
+    "curiosidade": "Fake! Mas foi quase: Isso aconteceu nas QUARTAS DE FINAL contra a Inglaterra. As camisas oficiais eram quentes demais, então a comissão técnica comprou camisas azuis furadas na rua, bordou o escudo e colou os números." 
+  },
+  { 
+    "id": 13, "manchete": "A final da primeira Copa do Mundo, em 1930, foi jogada com duas bolas diferentes porque os times não entraram em acordo.", 
+    "real": true, "copa": "1930", "dif": "facil",
+    "curiosidade": "Fato! Argentina e Uruguai queriam usar suas próprias bolas. A FIFA decidiu de forma diplomática: o 1º tempo foi jogado com a bola argentina (Tiento) e o 2º com a uruguaia (T-Model)." 
+  },
+  { 
+    "id": 14, "manchete": "Na Copa de 1958, o francês Just Fontaine marcou o recorde histórico de 13 gols jogando com chuteiras emprestadas de um reserva.", 
+    "real": true, "copa": "1958", "dif": "media",
+    "curiosidade": "Fato! As chuteiras de Fontaine rasgaram logo no primeiro treino. O atacante reserva Stéphane Bruey, que calçava o mesmo número, emprestou as suas para ele jogar o torneio inteiro." 
+  },
+  { 
+    "id": 15, "manchete": "O carrasco da Itália em 2002, o sul-coreano Ahn Jung-hwan, foi demitido do seu clube italiano no dia seguinte ao gol que eliminou a Azzurra.", 
+    "real": true, "copa": "2002", "dif": "media",
+    "curiosidade": "Fato! O dono do Perugia, clube italiano onde Ahn jogava, ficou furioso com a eliminação do seu país, chamou o jogador de 'ingrato' e rescindiu o contrato dele publicamente." 
+  },
+  { 
+    "id": 16, "manchete": "Johan Cruyff se recusou a disputar a Copa de 1978 na Argentina em protesto contra a ditadura militar do país sede.", 
+    "real": false, "copa": "1978", "dif": "media",
+    "curiosidade": "Fake! Por muito tempo essa lenda circulou, mas o próprio Cruyff revelou anos depois que não viajou porque ele e sua família sofreram uma tentativa de sequestro à mão armada em Barcelona meses antes." 
+  },
+  { 
+    "id": 17, "manchete": "O jogador que marcou o gol da vitória da Coreia do Norte sobre a Itália em 1966 era, na verdade, um dentista amador.", 
+    "real": false, "copa": "1966", "dif": "dificil",
+    "curiosidade": "Fake! A imprensa italiana inventou essa lenda para aumentar o escárnio e a humilhação da derrota. Pak Doo-ik, autor do gol, era professor de ginástica e cabo do exército norte-coreano." 
+  },
+  { 
+    "id": 18, "manchete": "Na Copa de 1974, Johan Cruyff arrancou uma listra da camisa da seleção holandesa porque tinha patrocínio exclusivo da marca rival.", 
+    "real": true, "copa": "1974", "dif": "dificil",
+    "curiosidade": "Fato! A Holanda era patrocinada pela Adidas (3 listras), mas Cruyff era o garoto-propaganda da Puma. Ele ameaçou não jogar e a federação precisou fazer uma camisa especial só com 2 listras para ele." 
+  },
+  { 
+    "id": 19, "manchete": "O primeiro hat-trick (3 gols num jogo) da história das Copas foi marcado por um jogador dos Estados Unidos.", 
+    "real": true, "copa": "1930", "dif": "dificil",
+    "curiosidade": "Fato! O americano Bert Patenaude marcou os três gols da vitória dos EUA por 3x0 sobre o Paraguai, na edição inaugural de 1930." 
+  },
+  { 
+    "id": 20, "manchete": "O Brasil jogou a Copa de 1938 na França com um craque que marcou um dos gols totalmente descalço.", 
+    "real": true, "copa": "1938", "dif": "media",
+    "curiosidade": "Fato! O lendário Leônidas da Silva marcou um gol de pé descalço na vitória por 6x5 contra a Polônia. A chuteira dele havia arrebentado, chovia muito e o juiz não percebeu na lama." 
+  },
+  { 
+    "id": 21, "manchete": "A cantora Diana Ross perdeu um pênalti de forma bizarra na cerimônia de abertura da Copa do Mundo de 1994.", 
+    "real": true, "copa": "1994", "dif": "facil",
+    "curiosidade": "Fato! O plano era ela chutar a bola para o gol, a rede se romper e a trave quebrar ao meio com efeitos especiais. Mas ela chutou muito para fora e a trave 'quebrou' sozinha de qualquer jeito." 
+  },
+  { 
+    "id": 22, "manchete": "O árbitro que validou o infame gol de mão de Maradona em 1986 ('Mano de Dios') revelou anos depois que era cego de um olho.", 
+    "real": false, "copa": "1986", "dif": "dificil",
+    "curiosidade": "Fake! O árbitro tunisiano Ali Bin Nasser enxergava perfeitamente. Ele se justificou dizendo que esperou o bandeirinha da linha de fundo (que estaria melhor posicionado) apontar a infração." 
+  },
+  { 
+    "id": 23, "manchete": "A Holanda é a única seleção na história a usar todos os seus 23 jogadores convocados em uma única edição de Copa do Mundo.", 
+    "real": true, "copa": "2014", "dif": "media",
+    "curiosidade": "Fato! Na Copa do Brasil em 2014, o técnico Louis van Gaal usou até o 3º goleiro, Michel Vorm, que entrou aos 48 minutos do 2º tempo na disputa de 3º lugar contra o Brasil." 
+  },
+  { 
+    "id": 24, "manchete": "A famosa cabeçada de Zidane em Materazzi na final de 2006 gerou o primeiro e único cartão vermelho da carreira do francês em Copas.", 
+    "real": false, "copa": "2006", "dif": "facil",
+    "curiosidade": "Fake! Zidane já havia sido expulso de forma direta na Copa de 1998, no jogo contra a Arábia Saudita, após dar um pisão covarde em um jogador adversário caído." 
+  },
+  { 
+    "id": 25, "manchete": "A partida entre Chile e Itália em 1962 foi tão brutal que a polícia armada precisou invadir o campo três vezes para separar brigas.", 
+    "real": true, "copa": "1962", "dif": "media",
+    "curiosidade": "Fato! O jogo ficou mundialmente conhecido como 'A Batalha de Santiago'. Houve troca de socos, narizes quebrados, voadoras e a polícia teve que escoltar jogadores para fora de campo." 
+  },
+  { 
+    "id": 26, "manchete": "Na Copa de 1970, Pelé se abaixou para amarrar a chuteira no meio de campo de propósito para fazer propaganda disfarçada para a Puma.", 
+    "real": true, "copa": "1970", "dif": "dificil",
+    "curiosidade": "Fato! Pelé foi pago secretamente para pedir ao árbitro que pausasse o jogo por um segundo, garantindo que todas as câmeras de TV dessem um close mundial nele amarrando as chuteiras da marca." 
+  },
+  { 
+    "id": 27, "manchete": "O brasileiro Rivaldo foi multado pela FIFA em 2002 após simular ter levado uma bolada no rosto quando a bola atingiu sua perna.", 
+    "real": true, "copa": "2002", "dif": "facil",
+    "curiosidade": "Fato! Contra a Turquia, Hakan Ünsal chutou a bola na coxa de Rivaldo. Ele caiu agarrando o rosto agonizando, o turco foi expulso, e a FIFA depois puniu o brasileiro com multa por teatro." 
+  },
+  { 
+    "id": 28, "manchete": "O Rei Carlos II da Romênia escolheu pessoalmente os jogadores do seu país para a Copa de 1930 e garantiu os empregos deles por decreto.", 
+    "real": true, "copa": "1930", "dif": "dificil",
+    "curiosidade": "Fato! Como todos eram operários amadores e temiam perder o emprego pela longa viagem de navio, o Rei interferiu nas convocações e exigiu que as empresas britânicas não os demitissem." 
+  },
+  { 
+    "id": 29, "manchete": "Em 1950, o jornal inglês Daily Mail achou que a derrota por 1x0 para os EUA era um erro do telégrafo e publicou que a Inglaterra havia vencido por 10x1.", 
+    "real": false, "copa": "1950", "dif": "media",
+    "curiosidade": "Fake! Essa é uma das lendas urbanas mais reproduzidas do futebol. Pesquisadores já reviraram os jornais ingleses de 1950 e todos reportaram corretamente a zebra do 1x0, com enorme indignação." 
+  },
+  { 
+    "id": 30, "manchete": "Uma seleção já foi eliminada da fase de grupos da Copa do Mundo unicamente porque tomou mais cartões amarelos que seu adversário direto.", 
+    "real": true, "copa": "2018", "dif": "facil",
+    "curiosidade": "Fato! Em 2018, Senegal e Japão empataram absolutamente em tudo no grupo (pontos, vitórias, saldo e gols marcados). O Japão avançou para as oitavas porque tinha 4 amarelos contra 6 de Senegal." 
+  },
+  { 
+    "id": 31, "manchete": "A Jamaica demitiu seu treinador brasileiro no meio da Copa de 1998 porque ele queria proibir os jogadores de ouvir Bob Marley no ônibus.", 
+    "real": false, "copa": "1998", "dif": "dificil",
+    "curiosidade": "Fake! O técnico Rene Simões nunca proibiu reggae e foi muito amado na ilha. Ele treinou os 'Reggae Boyz' com muito sucesso e o time fez festa mesmo eliminado na primeira fase." 
+  },
+  { 
+    "id": 32, "manchete": "A Arábia Saudita decretou feriado nacional e dia de folga para a população inteira no dia seguinte à sua vitória sobre a Argentina em 2022.", 
+    "real": true, "copa": "2022", "dif": "facil",
+    "curiosidade": "Fato! A virada histórica por 2x1 na fase de grupos fez o Rei Salman assinar um decreto imediato aprovando um feriado para trabalhadores de todos os setores e estudantes do país." 
+  },
+  { 
+    "id": 33, "manchete": "A maior goleada da história das Copas do Mundo foi um humilhante 10 a 1 aplicado pela Hungria em cima de El Salvador.", 
+    "real": true, "copa": "1982", "dif": "media",
+    "curiosidade": "Fato! A surra aconteceu na primeira rodada da Copa de 1982, na Espanha. É a única vez na história dos mundiais da FIFA que uma seleção alcançou a marca de dois dígitos de gols numa única partida." 
+  },
+  { 
+    "id": 34, "manchete": "Em 1934, o atacante Leopold Kielholz jogou e marcou gols pela Suíça usando óculos de grau em campo.", 
+    "real": true, "copa": "1934", "dif": "dificil",
+    "curiosidade": "Fato! O suíço se recusava a jogar sem seus óculos redondos grossos por causa de sua forte miopia. Mesmo assim, ele foi o artilheiro da sua seleção no torneio com três gols." 
+  },
+  { 
+    "id": 35, "manchete": "A Alemanha ganhou a final de 1954 no chamado 'Milagre de Berna' porque inventou chuteiras com travas de rosca para jogar na chuva.", 
+    "real": true, "copa": "1954", "dif": "media",
+    "curiosidade": "Fato! Adolf 'Adi' Dassler, fundador da Adidas e roupeiro da seleção alemã, trocou as travas das chuteiras do time no intervalo para melhorar a tração na lama, ajudando a vencer o poderoso time da Hungria." 
+  },
+  { 
+    "id": 36, "manchete": "Em 1962, um cachorro de rua invadiu o campo no Chile, driblou a defesa e acabou urinando no atacante inglês Jimmy Greaves.", 
+    "real": true, "copa": "1962", "dif": "media",
+    "curiosidade": "Fato! O cão interrompeu o jogo Brasil x Inglaterra. Greaves ficou de quatro para agarrá-lo, mas o bicho se assustou e fez xixi em sua camisa. Garrincha achou tanta graça que levou o cachorro para o Brasil." 
+  },
+  { 
+    "id": 37, "manchete": "Na Copa do Mundo de 1950, um operário escondeu cimento úmido nas traves do Maracanã para que a tinta vermelha secasse a tempo da final.", 
+    "real": false, "copa": "1950", "dif": "dificil",
+    "curiosidade": "Fake! Não havia cimento úmido nas traves e as balizas não eram vermelhas. A lenda se deve ao fato de o Maracanã de fato estar inacabado durante a Copa, operando com andaimes e cheiro forte de obra." 
+  },
+  { 
+    "id": 38, "manchete": "A surpreendente Nova Zelândia, eliminada ainda na fase de grupos, foi a única seleção a terminar a Copa do Mundo de 2010 sem nenhuma derrota.", 
+    "real": true, "copa": "2010", "dif": "facil",
+    "curiosidade": "Fato! Os 'All Whites' empataram seus três jogos e caíram precocemente. Já a Espanha, que se tornaria a grande campeã mundial semanas depois, perdeu sua partida de estreia para a Suíça." 
+  },
+  { 
+    "id": 39, "manchete": "O 'polvo vidente' Paul previu corretamente todos os sete jogos da Alemanha na Copa de 2010, além da grande final entre Espanha e Holanda.", 
+    "real": true, "copa": "2010", "dif": "facil",
+    "curiosidade": "Fato! O polvo inglês (que morava na Alemanha) escolhia entre duas caixas de comida com as bandeiras dos países. Ele cravou incríveis 8 de 8 resultados exatos daquele torneio e virou uma lenda global." 
+  },
+  { 
+    "id": 40, "manchete": "Em 2014, o técnico Felipão solicitou à FIFA que o Brasil jogasse de branco na semifinal contra a Alemanha por superstição, mas a entidade negou.", 
+    "real": false, "copa": "2014", "dif": "media",
+    "curiosidade": "Fake! O Brasil não solicitou jogar de branco contra a Alemanha. A camisa branca na verdade carrega a verdadeira 'maldição' do futebol brasileiro após o Maracanazo de 1950, e o Brasil jogou de amarelo no 7x1." 
+  },
+  { 
+    "id": 41, "manchete": "O atacante russo Oleg Salenko é o primeiro e único jogador na história do esporte a marcar cinco gols em uma mesma partida de Copa do Mundo.", 
+    "real": true, "copa": "1994", "dif": "media",
+    "curiosidade": "Fato! Salenko destruiu a defesa de Camarões e fez 5 na goleada de 6x1. O mais inacreditável é que ele nunca mais marcou nenhum outro gol pela seleção de seu país em toda a carreira." 
+  },
+  { 
+    "id": 42, "manchete": "Durante a Copa de 1990, o volante holandês Frank Rijkaard foi expulso após cuspir na cabeça do atacante alemão Rudi Völler.", 
+    "real": true, "copa": "1990", "dif": "facil",
+    "curiosidade": "Fato! Uma das cenas mais humilhantes da história das Copas. O árbitro expulsou injustamente Völler (que tomou a cusparida), e enquanto caminhavam para o vestiário, Rijkaard cuspiu no alemão novamente." 
+  }
+]

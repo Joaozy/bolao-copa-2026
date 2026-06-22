@@ -238,5 +238,325 @@
       { "id": 180, "nome": "Claudio Caniggia", "aceitos": ["claudio caniggia", "caniggia", "el pajaro"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
       { "id": 181, "nome": "Jorge Valdano", "aceitos": ["jorge valdano", "valdano"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" }
     ]
+  },
+  {
+    "id": 16,
+    "tema": "Últimos 10 Vencedores da Bola de Ouro (Ballon d'Or)",
+    "jogadores": [
+      { "id": 182, "nome": "Lionel Messi", "aceitos": ["lionel messi", "messi"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 183, "nome": "Karim Benzema", "aceitos": ["karim benzema", "benzema"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 184, "nome": "Luka Modrić", "aceitos": ["luka modric", "modric"], "nacionalidade": "Croácia", "flag_url": "https://flagcdn.com/w40/hr.png" },
+      { "id": 185, "nome": "Cristiano Ronaldo", "aceitos": ["cristiano ronaldo", "cr7", "ronaldo"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 186, "nome": "Kaká", "aceitos": ["kaka", "ricardo izecson"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 187, "nome": "Fabio Cannavaro", "aceitos": ["fabio cannavaro", "cannavaro"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 188, "nome": "Ronaldinho", "aceitos": ["ronaldinho", "ronaldinho gaucho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 189, "nome": "Andriy Shevchenko", "aceitos": ["andriy shevchenko", "shevchenko", "sheva"], "nacionalidade": "Ucrânia", "flag_url": "https://flagcdn.com/w40/ua.png" },
+      { "id": 190, "nome": "Pavel Nedvěd", "aceitos": ["pavel nedved", "nedved"], "nacionalidade": "República Tcheca", "flag_url": "https://flagcdn.com/w40/cz.png" },
+      { "id": 191, "nome": "Michael Owen", "aceitos": ["michael owen", "owen"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" }
+    ]
+  },
+  {
+    "id": 17,
+    "tema": "Jogadores com mais partidas pela Seleção Brasileira",
+    "jogadores": [
+      { "id": 192, "nome": "Cafu", "aceitos": ["cafu"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 193, "nome": "Neymar", "aceitos": ["neymar", "neymar jr"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 194, "nome": "Dani Alves", "aceitos": ["dani alves", "daniel alves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 195, "nome": "Roberto Carlos", "aceitos": ["roberto carlos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 196, "nome": "Thiago Silva", "aceitos": ["thiago silva", "monstro"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 197, "nome": "Marquinhos", "aceitos": ["marquinhos", "marcos aoas"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 198, "nome": "Lúcio", "aceitos": ["lucio"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 199, "nome": "Taffarel", "aceitos": ["taffarel", "claudio taffarel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 200, "nome": "Robinho", "aceitos": ["robinho", "robson de souza"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 201, "nome": "Djalma Santos", "aceitos": ["djalma santos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 18,
+    "tema": "Últimos 10 Goleiros Campeões da Copa do Mundo",
+    "jogadores": [
+      { "id": 202, "nome": "Emiliano Martínez", "aceitos": ["emiliano martinez", "dibu martinez", "martinez"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 203, "nome": "Hugo Lloris", "aceitos": ["hugo lloris", "lloris"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 204, "nome": "Manuel Neuer", "aceitos": ["manuel neuer", "neuer"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 205, "nome": "Iker Casillas", "aceitos": ["iker casillas", "casillas", "san iker"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 206, "nome": "Gianluigi Buffon", "aceitos": ["gianluigi buffon", "buffon", "gigi"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 207, "nome": "Marcos", "aceitos": ["marcos", "sao marcos", "marcos silveira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 208, "nome": "Fabien Barthez", "aceitos": ["fabien barthez", "barthez"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 209, "nome": "Cláudio Taffarel", "aceitos": ["taffarel", "claudio taffarel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 210, "nome": "Bodo Illgner", "aceitos": ["bodo illgner", "illgner"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 211, "nome": "Nery Pumpido", "aceitos": ["nery pumpido", "pumpido"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" }
+    ]
+  },
+  {
+    "id": 19,
+    "tema": "Maiores Artilheiros da História da Eurocopa",
+    "jogadores": [
+      { "id": 212, "nome": "Cristiano Ronaldo", "aceitos": ["cristiano ronaldo", "cr7", "ronaldo"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 213, "nome": "Michel Platini", "aceitos": ["michel platini", "platini"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 214, "nome": "Alan Shearer", "aceitos": ["alan shearer", "shearer"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 215, "nome": "Antoine Griezmann", "aceitos": ["antoine griezmann", "griezmann"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 216, "nome": "Álvaro Morata", "aceitos": ["alvaro morata", "morata"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 217, "nome": "Robert Lewandowski", "aceitos": ["robert lewandowski", "lewandowski", "lewa"], "nacionalidade": "Polônia", "flag_url": "https://flagcdn.com/w40/pl.png" },
+      { "id": 218, "nome": "Zlatan Ibrahimović", "aceitos": ["zlatan ibrahimovic", "ibrahimovic", "ibra"], "nacionalidade": "Suécia", "flag_url": "https://flagcdn.com/w40/se.png" },
+      { "id": 219, "nome": "Wayne Rooney", "aceitos": ["wayne rooney", "rooney"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 220, "nome": "Thierry Henry", "aceitos": ["thierry henry", "henry"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 221, "nome": "Romelu Lukaku", "aceitos": ["romelu lukaku", "lukaku"], "nacionalidade": "Bélgica", "flag_url": "https://flagcdn.com/w40/be.png" }
+    ]
+  },
+  {
+    "id": 20,
+    "tema": "Maiores Artilheiros da Seleção Francesa",
+    "jogadores": [
+      { "id": 222, "nome": "Olivier Giroud", "aceitos": ["olivier giroud", "giroud"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 223, "nome": "Thierry Henry", "aceitos": ["thierry henry", "henry"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 224, "nome": "Kylian Mbappé", "aceitos": ["kylian mbappe", "mbappe"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 225, "nome": "Antoine Griezmann", "aceitos": ["antoine griezmann", "griezmann"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 226, "nome": "Michel Platini", "aceitos": ["michel platini", "platini"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 227, "nome": "David Trezeguet", "aceitos": ["david trezeguet", "trezeguet"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 228, "nome": "Karim Benzema", "aceitos": ["karim benzema", "benzema"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 229, "nome": "Zinedine Zidane", "aceitos": ["zinedine zidane", "zidane", "zizou"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 230, "nome": "Just Fontaine", "aceitos": ["just fontaine", "fontaine"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 231, "nome": "Jean-Pierre Papin", "aceitos": ["jean-pierre papin", "papin"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" }
+    ]
+  },
+  {
+    "id": 21,
+    "tema": "Maiores Artilheiros da Seleção Argentina",
+    "jogadores": [
+      { "id": 232, "nome": "Lionel Messi", "aceitos": ["lionel messi", "messi"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 233, "nome": "Gabriel Batistuta", "aceitos": ["gabriel batistuta", "batistuta", "batigol"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 234, "nome": "Sergio Agüero", "aceitos": ["sergio aguero", "aguero", "kun aguero"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 235, "nome": "Hernán Crespo", "aceitos": ["hernan crespo", "crespo"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 236, "nome": "Diego Maradona", "aceitos": ["diego maradona", "maradona"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 237, "nome": "Gonzalo Higuaín", "aceitos": ["gonzalo higuain", "higuain", "pipita"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 238, "nome": "Ángel Di María", "aceitos": ["angel di maria", "di maria", "fideo"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 239, "nome": "Lautaro Martínez", "aceitos": ["lautaro martinez", "lautaro", "el toro"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 240, "nome": "Luis Artime", "aceitos": ["luis artime", "artime"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 241, "nome": "Daniel Passarella", "aceitos": ["daniel passarella", "passarella"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" }
+    ]
+  },
+  {
+    "id": 22,
+    "tema": "Maiores Artilheiros da Seleção Inglesa",
+    "jogadores": [
+      { "id": 242, "nome": "Harry Kane", "aceitos": ["harry kane", "kane"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 243, "nome": "Wayne Rooney", "aceitos": ["wayne rooney", "rooney"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 244, "nome": "Bobby Charlton", "aceitos": ["bobby charlton", "charlton"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 245, "nome": "Gary Lineker", "aceitos": ["gary lineker", "lineker"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 246, "nome": "Jimmy Greaves", "aceitos": ["jimmy greaves", "greaves"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 247, "nome": "Michael Owen", "aceitos": ["michael owen", "owen"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 248, "nome": "Tom Finney", "aceitos": ["tom finney", "finney"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 249, "nome": "Nat Lofthouse", "aceitos": ["nat lofthouse", "lofthouse"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 250, "nome": "Alan Shearer", "aceitos": ["alan shearer", "shearer"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 251, "nome": "Frank Lampard", "aceitos": ["frank lampard", "lampard"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" }
+    ]
+  },
+  {
+    "id": 23,
+    "tema": "Maiores Artilheiros da Seleção Espanhola",
+    "jogadores": [
+      { "id": 252, "nome": "David Villa", "aceitos": ["david villa", "villa"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 253, "nome": "Raúl", "aceitos": ["raul", "raul gonzalez"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 254, "nome": "Fernando Torres", "aceitos": ["fernando torres", "torres", "el nino"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 255, "nome": "David Silva", "aceitos": ["david silva", "silva"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 256, "nome": "Álvaro Morata", "aceitos": ["alvaro morata", "morata"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 257, "nome": "Fernando Hierro", "aceitos": ["fernando hierro", "hierro"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 258, "nome": "Emilio Butragueño", "aceitos": ["emilio butragueno", "butragueno"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 259, "nome": "Fernando Morientes", "aceitos": ["fernando morientes", "morientes"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 260, "nome": "Sergio Ramos", "aceitos": ["sergio ramos", "ramos"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 261, "nome": "Alfredo Di Stéfano", "aceitos": ["alfredo di stefano", "di stefano"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" }
+    ]
+  },
+  {
+    "id": 24,
+    "tema": "Maiores Artilheiros da Seleção Alemã",
+    "jogadores": [
+      { "id": 262, "nome": "Miroslav Klose", "aceitos": ["miroslav klose", "klose"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 263, "nome": "Gerd Müller", "aceitos": ["gerd muller", "muller", "gerd mueller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 264, "nome": "Lukas Podolski", "aceitos": ["lukas podolski", "podolski", "poldi"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 265, "nome": "Rudi Völler", "aceitos": ["rudi voller", "voller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 266, "nome": "Jürgen Klinsmann", "aceitos": ["jurgen klinsmann", "klinsmann"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 267, "nome": "Karl-Heinz Rummenigge", "aceitos": ["karl-heinz rummenigge", "rummenigge"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 268, "nome": "Thomas Müller", "aceitos": ["thomas muller", "muller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 269, "nome": "Fritz Walter", "aceitos": ["fritz walter", "walter"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 270, "nome": "Michael Ballack", "aceitos": ["michael ballack", "ballack"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 271, "nome": "Oliver Bierhoff", "aceitos": ["oliver bierhoff", "bierhoff"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" }
+    ]
+  },
+  {
+    "id": 25,
+    "tema": "Maiores Artilheiros da Seleção Italiana",
+    "jogadores": [
+      { "id": 272, "nome": "Gigi Riva", "aceitos": ["gigi riva", "riva", "luigi riva"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 273, "nome": "Giuseppe Meazza", "aceitos": ["giuseppe meazza", "meazza"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 274, "nome": "Silvio Piola", "aceitos": ["silvio piola", "piola"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 275, "nome": "Roberto Baggio", "aceitos": ["roberto baggio", "baggio"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 276, "nome": "Alessandro Del Piero", "aceitos": ["alessandro del piero", "del piero"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 277, "nome": "Filippo Inzaghi", "aceitos": ["filippo inzaghi", "inzaghi", "pippo inzaghi"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 278, "nome": "Alessandro Altobelli", "aceitos": ["alessandro altobelli", "altobelli"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 279, "nome": "Christian Vieri", "aceitos": ["christian vieri", "vieri", "bobo vieri"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 280, "nome": "Francesco Graziani", "aceitos": ["francesco graziani", "graziani"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 281, "nome": "Francesco Totti", "aceitos": ["francesco totti", "totti"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" }
+    ]
+  },
+  {
+    "id": 26,
+    "tema": "Brasileiros com mais gols na história da Champions League",
+    "jogadores": [
+      { "id": 282, "nome": "Neymar", "aceitos": ["neymar", "neymar jr"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 283, "nome": "Kaká", "aceitos": ["kaka", "ricardo izecson"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 284, "nome": "Rivaldo", "aceitos": ["rivaldo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 285, "nome": "Mário Jardel", "aceitos": ["mario jardel", "jardel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 286, "nome": "Giovane Élber", "aceitos": ["giovane elber", "elber"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 287, "nome": "Gabriel Jesus", "aceitos": ["gabriel jesus", "jesus"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 288, "nome": "Roberto Firmino", "aceitos": ["roberto firmino", "firmino", "bobby firmino"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 289, "nome": "Vinícius Júnior", "aceitos": ["vinicius junior", "vini jr", "vini"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 290, "nome": "Ronaldinho", "aceitos": ["ronaldinho", "ronaldinho gaucho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 291, "nome": "Romário", "aceitos": ["romario", "baixinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 27,
+    "tema": "Jogadores com mais partidas na história da Champions League",
+    "jogadores": [
+      { "id": 292, "nome": "Cristiano Ronaldo", "aceitos": ["cristiano ronaldo", "cr7", "ronaldo"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 293, "nome": "Iker Casillas", "aceitos": ["iker casillas", "casillas"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 294, "nome": "Lionel Messi", "aceitos": ["lionel messi", "messi"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 295, "nome": "Karim Benzema", "aceitos": ["karim benzema", "benzema"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 296, "nome": "Thomas Müller", "aceitos": ["thomas muller", "muller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 297, "nome": "Xavi Hernández", "aceitos": ["xavi", "xavi hernandez"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 298, "nome": "Sergio Ramos", "aceitos": ["sergio ramos", "ramos"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 299, "nome": "Toni Kroos", "aceitos": ["toni kroos", "kroos"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 300, "nome": "Ryan Giggs", "aceitos": ["ryan giggs", "giggs"], "nacionalidade": "País de Gales", "flag_url": "https://flagcdn.com/w40/gb-wls.png" },
+      { "id": 301, "nome": "Manuel Neuer", "aceitos": ["manuel neuer", "neuer"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" }
+    ]
+  },
+  {
+    "id": 28,
+    "tema": "Treinadores com mais títulos de Champions League",
+    "jogadores": [
+      { "id": 302, "nome": "Carlo Ancelotti", "aceitos": ["carlo ancelotti", "ancelotti"], "nacionalidade": "Itália", "flag_url": "https://flagcdn.com/w40/it.png" },
+      { "id": 303, "nome": "Pep Guardiola", "aceitos": ["pep guardiola", "guardiola"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 304, "nome": "Zinedine Zidane", "aceitos": ["zinedine zidane", "zidane", "zizou"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 305, "nome": "Bob Paisley", "aceitos": ["bob paisley", "paisley"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" },
+      { "id": 306, "nome": "José Mourinho", "aceitos": ["jose mourinho", "mourinho", "the special one"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 307, "nome": "Alex Ferguson", "aceitos": ["alex ferguson", "ferguson", "sir alex ferguson"], "nacionalidade": "Escócia", "flag_url": "https://flagcdn.com/w40/gb-sct.png" },
+      { "id": 308, "nome": "Jupp Heynckes", "aceitos": ["jupp heynckes", "heynckes"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 309, "nome": "Vicente del Bosque", "aceitos": ["vicente del bosque", "del bosque"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 310, "nome": "Ottmar Hitzfeld", "aceitos": ["ottmar hitzfeld", "hitzfeld"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 311, "nome": "Brian Clough", "aceitos": ["brian clough", "clough"], "nacionalidade": "Inglaterra", "flag_url": "https://flagcdn.com/w40/gb-eng.png" }
+    ]
+  },
+  {
+    "id": 29,
+    "tema": "Maiores Artilheiros da história do Barcelona",
+    "jogadores": [
+      { "id": 312, "nome": "Lionel Messi", "aceitos": ["lionel messi", "messi"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 313, "nome": "César Rodríguez", "aceitos": ["cesar rodriguez", "cesar"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 314, "nome": "Luis Suárez", "aceitos": ["luis suarez", "suarez", "el pistolero"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 315, "nome": "László Kubala", "aceitos": ["laszlo kubala", "kubala"], "nacionalidade": "Hungria", "flag_url": "https://flagcdn.com/w40/hu.png" },
+      { "id": 316, "nome": "Samuel Eto'o", "aceitos": ["samuel eto'o", "etoo", "eto'o"], "nacionalidade": "Camarões", "flag_url": "https://flagcdn.com/w40/cm.png" },
+      { "id": 317, "nome": "Rivaldo", "aceitos": ["rivaldo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 318, "nome": "Josep Samitier", "aceitos": ["josep samitier", "samitier"], "nacionalidade": "Espanha", "flag_url": "https://flagcdn.com/w40/es.png" },
+      { "id": 319, "nome": "Hristo Stoichkov", "aceitos": ["hristo stoichkov", "stoichkov"], "nacionalidade": "Bulgária", "flag_url": "https://flagcdn.com/w40/bg.png" },
+      { "id": 320, "nome": "Patrick Kluivert", "aceitos": ["patrick kluivert", "kluivert"], "nacionalidade": "Holanda", "flag_url": "https://flagcdn.com/w40/nl.png" },
+      { "id": 321, "nome": "Neymar", "aceitos": ["neymar", "neymar jr"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 30,
+    "tema": "Maiores Artilheiros da história do Bayern de Munique",
+    "jogadores": [
+      { "id": 322, "nome": "Gerd Müller", "aceitos": ["gerd muller", "muller", "gerd mueller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 323, "nome": "Robert Lewandowski", "aceitos": ["robert lewandowski", "lewandowski", "lewa"], "nacionalidade": "Polônia", "flag_url": "https://flagcdn.com/w40/pl.png" },
+      { "id": 324, "nome": "Thomas Müller", "aceitos": ["thomas muller", "muller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 325, "nome": "Karl-Heinz Rummenigge", "aceitos": ["karl-heinz rummenigge", "rummenigge"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 326, "nome": "Roland Wohlfarth", "aceitos": ["roland wohlfarth", "wohlfarth"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 327, "nome": "Dieter Hoeneß", "aceitos": ["dieter hoeness", "hoeness"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 328, "nome": "Arjen Robben", "aceitos": ["arjen robben", "robben"], "nacionalidade": "Holanda", "flag_url": "https://flagcdn.com/w40/nl.png" },
+      { "id": 329, "nome": "Claudio Pizarro", "aceitos": ["claudio pizarro", "pizarro"], "nacionalidade": "Peru", "flag_url": "https://flagcdn.com/w40/pe.png" },
+      { "id": 330, "nome": "Giovane Élber", "aceitos": ["giovane elber", "elber"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 331, "nome": "Mario Gómez", "aceitos": ["mario gomez", "gomez"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" }
+    ]
+  },
+  {
+    "id": 31,
+    "tema": "Brasileiros com mais gols na História da Premier League",
+    "jogadores": [
+      { "id": 332, "nome": "Roberto Firmino", "aceitos": ["roberto firmino", "firmino", "bobby firmino"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 333, "nome": "Gabriel Jesus", "aceitos": ["gabriel jesus", "jesus"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 334, "nome": "Richarlison", "aceitos": ["richarlison", "pombo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 335, "nome": "Philippe Coutinho", "aceitos": ["philippe coutinho", "coutinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 336, "nome": "Willian", "aceitos": ["willian", "willian borges"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 337, "nome": "Gabriel Martinelli", "aceitos": ["gabriel martinelli", "martinelli"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 338, "nome": "Raphinha", "aceitos": ["raphinha"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 339, "nome": "Lucas Moura", "aceitos": ["lucas moura", "lucas"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 340, "nome": "Juninho Paulista", "aceitos": ["juninho paulista", "juninho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 341, "nome": "Douglas Luiz", "aceitos": ["douglas luiz", "douglas"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 32,
+    "tema": "Jogadores com mais Gols em uma única edição de Copa do Mundo",
+    "jogadores": [
+      { "id": 342, "nome": "Just Fontaine", "aceitos": ["just fontaine", "fontaine"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 343, "nome": "Sándor Kocsis", "aceitos": ["sandor kocsis", "kocsis"], "nacionalidade": "Hungria", "flag_url": "https://flagcdn.com/w40/hu.png" },
+      { "id": 344, "nome": "Gerd Müller", "aceitos": ["gerd muller", "muller", "gerd mueller"], "nacionalidade": "Alemanha", "flag_url": "https://flagcdn.com/w40/de.png" },
+      { "id": 345, "nome": "Eusébio", "aceitos": ["eusebio", "pantera negra"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 346, "nome": "Ademir de Menezes", "aceitos": ["ademir de menezes", "ademir", "ademir menezes"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 347, "nome": "Ronaldo", "aceitos": ["ronaldo", "ronaldo fenomeno", "fenomeno"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 348, "nome": "Guillermo Stábile", "aceitos": ["guillermo stabile", "stabile", "el filtrador"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 349, "nome": "Kylian Mbappé", "aceitos": ["kylian mbappe", "mbappe"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 350, "nome": "Leônidas da Silva", "aceitos": ["leonidas da silva", "leonidas", "diamante negro"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 351, "nome": "Jairzinho", "aceitos": ["jairzinho", "furacao"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 33,
+    "tema": "Jogadores com mais partidas em Copas do Mundo pelo Brasil",
+    "jogadores": [
+      { "id": 352, "nome": "Cafu", "aceitos": ["cafu", "marcos evangelista"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 353, "nome": "Ronaldo", "aceitos": ["ronaldo", "ronaldo fenomeno", "fenomeno"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 354, "nome": "Cláudio Taffarel", "aceitos": ["claudio taffarel", "taffarel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 355, "nome": "Dunga", "aceitos": ["dunga", "carlos caetano"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 356, "nome": "Roberto Carlos", "aceitos": ["roberto carlos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 357, "nome": "Neymar", "aceitos": ["neymar", "neymar jr"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 358, "nome": "Jairzinho", "aceitos": ["jairzinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 359, "nome": "Pelé", "aceitos": ["pele", "edson arantes"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 360, "nome": "Thiago Silva", "aceitos": ["thiago silva", "monstro"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 361, "nome": "Gilberto Silva", "aceitos": ["gilberto silva"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 34,
+    "tema": "Últimos 10 Camisas 9 da Seleção Brasileira em Copas do Mundo",
+    "jogadores": [
+      { "id": 362, "nome": "Richarlison", "aceitos": ["richarlison", "pombo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 363, "nome": "Gabriel Jesus", "aceitos": ["gabriel jesus", "jesus"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 364, "nome": "Fred", "aceitos": ["fred", "frederico chaves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 365, "nome": "Luís Fabiano", "aceitos": ["luis fabiano", "fabuloso"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 366, "nome": "Ronaldo", "aceitos": ["ronaldo", "fenomeno"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 367, "nome": "Zinho", "aceitos": ["zinho", "crizam cesar"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 368, "nome": "Careca", "aceitos": ["careca", "antonio de oliveira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 369, "nome": "Serginho Chulapa", "aceitos": ["serginho chulapa", "chulapa", "sergio bernardino"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 370, "nome": "Reinaldo", "aceitos": ["reinaldo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 371, "nome": "Tostão", "aceitos": ["tostao", "eduardo goncalves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 35,
+    "tema": "Últimos 10 Vencedores do Prêmio Puskás da FIFA",
+    "jogadores": [
+      { "id": 372, "nome": "Guilherme Madruga", "aceitos": ["guilherme madruga", "madruga"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 373, "nome": "Marcin Oleksy", "aceitos": ["marcin oleksy", "oleksy"], "nacionalidade": "Polônia", "flag_url": "https://flagcdn.com/w40/pl.png" },
+      { "id": 374, "nome": "Erik Lamela", "aceitos": ["erik lamela", "lamela"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 375, "nome": "Son Heung-min", "aceitos": ["son heung-min", "son", "sonny"], "nacionalidade": "Coreia do Sul", "flag_url": "https://flagcdn.com/w40/kr.png" },
+      { "id": 376, "nome": "Daniel Zsóri", "aceitos": ["daniel zsori", "zsori"], "nacionalidade": "Hungria", "flag_url": "https://flagcdn.com/w40/hu.png" },
+      { "id": 377, "nome": "Mohamed Salah", "aceitos": ["mohamed salah", "salah"], "nacionalidade": "Egito", "flag_url": "https://flagcdn.com/w40/eg.png" },
+      { "id": 378, "nome": "Olivier Giroud", "aceitos": ["olivier giroud", "giroud"], "nacionalidade": "França", "flag_url": "https://flagcdn.com/w40/fr.png" },
+      { "id": 379, "nome": "Mohd Faiz Subri", "aceitos": ["mohd faiz subri", "faiz subri", "subri"], "nacionalidade": "Malásia", "flag_url": "https://flagcdn.com/w40/my.png" },
+      { "id": 380, "nome": "Wendell Lira", "aceitos": ["wendell lira", "lira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 381, "nome": "James Rodríguez", "aceitos": ["james rodriguez", "james"], "nacionalidade": "Colômbia", "flag_url": "https://flagcdn.com/w40/co.png" }
+    ]
   }
 ]

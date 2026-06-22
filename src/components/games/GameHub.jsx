@@ -7,6 +7,9 @@ import QuemEOCraque from './QuemEOCraque';
 import TecnicoPorUmDia from './TecnicoPorUmDia';
 import Top10 from './Top10';
 import CopaLeilao from './CopaLeilao';
+import FatoOuFake from './FatoOuFake';
+import DetetiveCopa from './DetetiveCopa';
+import GenioBagre from './GenioBagre';
 
 const GAMES = [
   {
@@ -57,6 +60,27 @@ const GAMES = [
     title: 'Técnico por 1 Dia',
     subtitle: 'Tome as decisões à beira do campo e leve o time à glória',
     badge: 'Simulador',
+  },
+  {
+    id: 'ff',
+    icon: '🧐',
+    title: 'Fato ou Fake?',
+    subtitle: 'Descubra a verdade sobre lendas absurdas das Copas',
+    badge: 'Quiz',
+  },
+  {
+    id: 'detetive',
+    icon: '🕵️‍♂️',
+    title: 'Detetive Copa',
+    subtitle: 'Qual jogador cometeu esse crime absurdo nos bastidores?',
+    badge: 'Investigação',
+  },
+  {
+    id: 'bagre',
+    icon: '🧤',
+    title: 'Gênio ou Bagre',
+    subtitle: 'Aglomere coragem na disputa de pênaltis final',
+    badge: 'Ação',
   }
 ];
 
@@ -84,6 +108,15 @@ export default function GameHub() {
   );
   if (activeGame === 'leilao') return (
     <GameWithBack onBack={() => setActiveGame(null)}><CopaLeilao /></GameWithBack>
+  );
+  if (activeGame === 'ff') return (
+    <GameWithBack onBack={() => setActiveGame(null)}><FatoOuFake /></GameWithBack>
+  );
+  if (activeGame === 'detetive') return (
+    <GameWithBack onBack={() => setActiveGame(null)}><DetetiveCopa /></GameWithBack>
+  );
+  if (activeGame === 'bagre') return (
+    <GameWithBack onBack={() => setActiveGame(null)}><GenioBagre /></GameWithBack>
   );
 
   return (
