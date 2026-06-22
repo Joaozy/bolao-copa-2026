@@ -2,37 +2,83 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import JOGADORES_COPA from '@/components/games/dados/jogadoresCopa.json';
 
-const DIRS = ['L', 'C', 'R'];
 const MAX_RODADAS = 5;
+const VELOCIDADE_BARRA = 2.2;
+
+const GOL_MSGS_EU = [
+  "⚡ GOLAÇO! Indefensável!",
+  "🔥 OOOHHH QUE CANTOOOOO!",
+  "💥 NA GAVETA! Goleiro nem se mexeu!",
+  "🚀 GOOOOL! Que chutaço!",
+];
+const DEF_MSGS_CPU = [
+  "🧤 DEFESAÇA! Espalmado!",
+  "👊 DEFENDEU! Que reflexo!",
+  "🛡️ VOOU! Salvou o time!",
+];
+const GOL_MSGS_CPU = [
+  "😭 GOL DELES! Pulou pro lado errado...",
+  "💀 SOFRIDO! Você foi enganado!",
+  "🎭 ELE TE OLHOU E CHUTOU NO OUTRO LADO!",
+];
+const DEF_MSGS_EU = [
+  "🧤 DEFESAÇA! Reflexo incrível!",
+  "✋ ESPALMOU! Incrível!",
+  "🦸 SUPER GOLEIRO! Que salto!",
+];
+
+function getRating(eu, cpu) {
+  const saldo = eu - cpu;
+  if (eu === MAX_RODADAS && cpu === 0) return { label:'GÊNIO ABSOLUTO', emoji:'🏆', cor:'#f2c14e', desc:'Perfeito! Uma lenda da marca da cal.' };
+  if (saldo >= 3) return { label:'GÊNIO', emoji:'🏆', cor:'#f2c14e', desc:'Dominou de ponta a ponta. Artilheiro e goleiro!' };
+  if (saldo >= 1) return { label:'BOA EXIBIÇÃO', emoji:'⚽', cor:'#86efac', desc:'Bom jogo! Saiu na frente no saldo.' };
+  if (saldo === 0) return { label:'ZERO A ZERO DE BRIOS', emoji:'🤝', cor:'#a5b4fc', desc:'Nenhum levou a melhor. Repetição?' };
+  if (saldo === -1) return { label:'BAGRE', emoji:'🐟', cor:'#fca5a5', desc:'Perdeu mais do que ganhou. Precisa treinar.' };
+  return { label:'BAGRE LENDÁRIO', emoji:'🐡', cor:'#fb923c', desc:'Histórico de incompetência. Nenhuma seleção te quer.' };
+}
+
+function randomMsg(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 export default function GenioBagre() {
-  const [step, setStep] = useState('setup'); // setup, playing, gameover
+  const [step, setStep]   = useState('setup');
   const [rodada, setRodada] = useState(1);
   const [placar, setPlacar] = useState({ eu: 0, cpu: 0 });
-  const [turno, setTurno] = useState('chute'); // 'chute' ou 'defesa'
-  
-  // Adversários
-  const [gkRival, setGkRival] = useState(null);
+  const [turno, setTurno]   = useState('chute');
+
+  // Rivais (do banco)
+  const [gkRival, setGkRival]   = useState(null);
   const [batRival, setBatRival] = useState(null);
 
-  // Estados Visuais (O Campo)
-  const [posBola, setPosBola] = useState({ x: 50, y: 100, scale: 1 }); // x% e y%
-  const [posGk, setPosGk] = useState(50); // 50% = centro
-  const [mensagemCampo, setMensagemCampo] = useState('');
+  // Visual
+  const [mensagem, setMensagem] = useState('');
+  const [mensagemTipo, setMensagemTipo] = useState('normal'); // gol_eu | gol_cpu | defesa | miss
+  const [mostrarMsg, setMostrarMsg] = useState(false);
+  const [bolaEstado, setBolaEstado] = useState('idle'); // idle | voando_gol | voando_fora | parado_gk
+  const [bolaLado, setBolaLado]   = useState('C');   // L | C | R (para animacao)
+  const [gkLado, setGkLado]       = useState('C');   // posicao do goleiro
+  const [fieldFlash, setFieldFlash] = useState(null); // 'green' | 'red' | null
 
-  // ----------------------------------------------------
-  // MECÂNICA 1: O CHUTE (BARRA DE PRECISÃO)
-  // ----------------------------------------------------
-  const [barPos, setBarPos] = useState(50);
-  const barDir = useRef(1); // 1 = indo pra direita, -1 = indo pra esquerda
-  const reqRef = useRef(null);
+  // Barra de precisão
+  const [barPos, setBarPos]         = useState(50);
   const [chuteTravado, setChuteTravado] = useState(false);
+  const barDir    = useRef(1);
+  const reqRef    = useRef(null);
 
+  // Defesa QTE
+  const [alvoDefesa, setAlvoDefesa]     = useState(null);
+  const [tempoDefesa, setTempoDefesa]   = useState(100);
+  const [defesaTravada, setDefesaTravada] = useState(true);
+  const [preparandoAtaque, setPreparandoAtaque] = useState(false);
+  const defTimerRef   = useRef(null);
+  const reacaoRef     = useRef(null);
+  const chuteCpuRef   = useRef(null);
+
+  // ── Barra de Precisão ─────────────────────────────────────────────────────
   const animarBarra = useCallback(() => {
-    setBarPos((prev) => {
-      let next = prev + (barDir.current * 2.5); // Velocidade da barra
+    setBarPos(prev => {
+      let next = prev + barDir.current * VELOCIDADE_BARRA;
       if (next >= 100) { next = 100; barDir.current = -1; }
-      if (next <= 0) { next = 0; barDir.current = 1; }
+      if (next <= 0)   { next = 0;   barDir.current = 1; }
       return next;
     });
     reqRef.current = requestAnimationFrame(animarBarra);
@@ -45,324 +91,492 @@ export default function GenioBagre() {
     return () => cancelAnimationFrame(reqRef.current);
   }, [step, turno, chuteTravado, animarBarra]);
 
+  const flash = (tipo) => {
+    setFieldFlash(tipo);
+    setTimeout(() => setFieldFlash(null), 600);
+  };
+
+  const mostrarMensagem = (txt, tipo, ms = 2400) => {
+    setMensagem(txt); setMensagemTipo(tipo); setMostrarMsg(true);
+    return new Promise(r => setTimeout(() => { setMostrarMsg(false); r(); }, ms));
+  };
+
+  // ── Chutar ─────────────────────────────────────────────────────────────────
   const dispararChute = async () => {
+    if (chuteTravado) return;
     setChuteTravado(true);
     cancelAnimationFrame(reqRef.current);
-    
-    // Calcula a precisão (o centro perfeito é 50)
-    const precisao = Math.abs(50 - barPos);
-    
-    // Goleiro da CPU decide pular aleatoriamente
-    const puloGk = DIRS[Math.floor(Math.random() * DIRS.length)];
-    const gkX = puloGk === 'L' ? 20 : puloGk === 'R' ? 80 : 50;
-    setPosGk(gkX);
 
-    // Animando a bola baseada na barra
-    setPosBola({ x: barPos, y: 30, scale: 0.5 }); // A bola voa pro gol (y:30)
+    const precisao = Math.abs(50 - barPos);
+    const puloGk  = ['L','C','R'][Math.floor(Math.random() * 3)];
+    const ladoChute = barPos < 38 ? 'L' : barPos > 62 ? 'R' : 'C';
+
+    setGkLado(puloGk);
+    setBolaLado(ladoChute);
 
     let gol = false;
-    let msg = "";
+    let msgTxt = '';
+    let msgTipo = '';
 
     if (precisao <= 10) {
-      // PERFEITO! Na gaveta, o goleiro não pega nem se pular certo
-      gol = true;
-      msg = "🔥 GOLAÇO! NA GAVETA! Indefensável!";
-    } else if (precisao > 35) {
+      // GAVETA — indefensável
+      gol = true; setBolaEstado('voando_gol');
+      msgTxt = randomMsg(GOL_MSGS_EU); msgTipo = 'gol_eu';
+      flash('green');
+    } else if (precisao > 37) {
       // ISOLOU
-      gol = false;
-      setPosBola({ x: barPos, y: -20, scale: 0.3 }); // Bola vai pra arquibancada
-      msg = "❌ ISOLOU! Mandou a bola na lua!";
+      setBolaEstado('voando_fora');
+      msgTxt = '😱 ISOLOU! Mandou pra arquibancada!'; msgTipo = 'miss';
+      flash('red');
     } else {
-      // CHUTE MÉDIO - O goleiro pode pegar se pular pro lado certo
-      // Lado esquerdo da barra = L, Lado Direito = R, Centro = C
-      const ladoChute = barPos < 40 ? 'L' : barPos > 60 ? 'R' : 'C';
       if (ladoChute === puloGk) {
-        gol = false;
-        setPosBola({ x: barPos, y: 40, scale: 0.6 }); // Bola bate no goleiro
-        msg = "🧤 DEFESAÇA DO GOLEIRO!";
+        setBolaEstado('parado_gk'); msgTxt = randomMsg(DEF_MSGS_CPU); msgTipo = 'defesa';
       } else {
-        gol = true;
-        msg = "⚽ GOL! Goleiro foi para o lado errado!";
+        gol = true; setBolaEstado('voando_gol'); msgTxt = randomMsg(GOL_MSGS_EU); msgTipo = 'gol_eu';
+        flash('green');
       }
     }
 
-    setMensagemCampo(msg);
     if (gol) setPlacar(p => ({ ...p, eu: p.eu + 1 }));
+    await mostrarMensagem(msgTxt, msgTipo);
 
-    // Troca de turno
-    setTimeout(() => {
-      setTurno('defesa');
-      setPosBola({ x: 50, y: 100, scale: 1 });
-      setPosGk(50);
-      setMensagemCampo("Sua vez de defender! Prepare-se!");
-    }, 2500);
+    setBolaEstado('idle'); setGkLado('C');
+    setTurno('defesa');
+    await new Promise(r => setTimeout(r, 400));
   };
 
-  // ----------------------------------------------------
-  // MECÂNICA 2: A DEFESA (REFLEXO RÁPIDO)
-  // ----------------------------------------------------
-  const [alvoDefesa, setAlvoDefesa] = useState(null); // 'L', 'C', 'R'
-  const [tempoDefesa, setTempoDefesa] = useState(100); // 100% caindo para 0
-  const [defesaTravada, setDefesaTravada] = useState(true);
-  const defTimerRef = useRef(null);
-  const reacaoTimerRef = useRef(null);
-
+  // ── Defesa QTE ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (step === 'playing' && turno === 'defesa') {
-      setAlvoDefesa(null);
-      setTempoDefesa(100);
-      setDefesaTravada(true);
+    if (step !== 'playing' || turno !== 'defesa') return;
+    setAlvoDefesa(null); setTempoDefesa(100); setDefesaTravada(true);
+    setPreparandoAtaque(true);
 
-      // O adversário se prepara... Tensão...
-      const delay = Math.floor(Math.random() * 1500) + 1000; // 1s a 2.5s
-      
-      defTimerRef.current = setTimeout(() => {
-        // Revela onde a CPU vai bater
-        const chuteCpu = DIRS[Math.floor(Math.random() * DIRS.length)];
-        setAlvoDefesa(chuteCpu);
-        setDefesaTravada(false);
-        setMensagemCampo("👆 PULE AGORA!");
+    const delay = 1000 + Math.random() * 1800;
+    defTimerRef.current = setTimeout(() => {
+      setPreparandoAtaque(false);
+      const lado = ['L','C','R'][Math.floor(Math.random() * 3)];
+      chuteCpuRef.current = lado;
+      setAlvoDefesa(lado); setDefesaTravada(false);
 
-        // Cronômetro do reflexo do jogador (600ms para reagir)
-        let t = 100;
-        reacaoTimerRef.current = setInterval(() => {
-          t -= 5;
-          setTempoDefesa(t);
-          if (t <= 0) {
-            clearInterval(reacaoTimerRef.current);
-            processarDefesa(null, chuteCpu); // Tempo esgotado
-          }
-        }, 30); // 30ms * 20 = 600ms total
-      }, delay);
-    }
-    return () => { clearTimeout(defTimerRef.current); clearInterval(reacaoTimerRef.current); };
+      let t = 100;
+      reacaoRef.current = setInterval(() => {
+        t -= 5;
+        setTempoDefesa(t);
+        if (t <= 0) {
+          clearInterval(reacaoRef.current);
+          processarDefesa(null);
+        }
+      }, 35); // 35ms * 20 = 700ms total
+    }, delay);
+
+    return () => { clearTimeout(defTimerRef.current); clearInterval(reacaoRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, turno]);
 
-  const processarDefesa = (minhaEscolha, chuteCpu) => {
-    if (defesaTravada) return;
+  const processarDefesa = async (minhaEscolha) => {
+    if (defesaTravada && minhaEscolha !== null) return;
     setDefesaTravada(true);
-    clearInterval(reacaoTimerRef.current);
+    clearInterval(reacaoRef.current);
+    const chuteCpu = chuteCpuRef.current || 'C';
 
-    // Animando goleiro (você)
-    const gkX = minhaEscolha === 'L' ? 20 : minhaEscolha === 'R' ? 80 : 50;
-    if (minhaEscolha) setPosGk(gkX);
-
-    // Animando bola (CPU)
-    const bolaX = chuteCpu === 'L' ? 20 : chuteCpu === 'R' ? 80 : 50;
-    setPosBola({ x: bolaX, y: 30, scale: 0.5 });
+    setBolaLado(chuteCpu);
+    setBolaEstado('voando_gol');
+    if (minhaEscolha) setGkLado(minhaEscolha);
 
     let gol = false;
-    let msg = "";
+    let msgTxt = '';
+    let msgTipo = '';
 
     if (!minhaEscolha) {
-      gol = true;
-      msg = "⏳ Muito lento! Você congelou! GOL DELES!";
+      gol = true; msgTxt = '⏳ CONGELOU! Nem tentou defender!'; msgTipo = 'gol_cpu';
+      flash('red');
     } else if (minhaEscolha === chuteCpu) {
-      gol = false;
-      msg = "🧤 ESPALMOU! QUE DEFESAÇA!";
-      setPosBola({ x: bolaX, y: 40, scale: 0.6 }); // Bola para no goleiro
+      setBolaEstado('parado_gk'); msgTxt = randomMsg(DEF_MSGS_EU); msgTipo = 'gol_eu';
+      flash('green');
     } else {
-      gol = true;
-      msg = "⚽ GOL! Você pulou pro lado errado!";
+      gol = true; msgTxt = randomMsg(GOL_MSGS_CPU); msgTipo = 'gol_cpu';
+      flash('red');
     }
 
-    setMensagemCampo(msg);
-    setAlvoDefesa(null);
     if (gol) setPlacar(p => ({ ...p, cpu: p.cpu + 1 }));
+    setAlvoDefesa(null);
+    await mostrarMensagem(msgTxt, msgTipo);
 
-    // Troca de turno ou fim
-    setTimeout(() => {
-      if (rodada === MAX_RODADAS) {
-        setStep('gameover');
-      } else {
-        setRodada(r => r + 1);
-        setTurno('chute');
-        setPosBola({ x: 50, y: 100, scale: 1 });
-        setPosGk(50);
-        setMensagemCampo('');
-        setChuteTravado(false);
-      }
-    }, 2500);
+    setBolaEstado('idle'); setGkLado('C');
+
+    if (rodada === MAX_RODADAS) {
+      setStep('gameover');
+    } else {
+      setRodada(r => r + 1);
+      setTurno('chute');
+      setChuteTravado(false);
+    }
   };
 
-
+  // ── Iniciar ────────────────────────────────────────────────────────────────
   const iniciar = () => {
-    // Sorteia os rivais da base para dar "rosto" ao jogo
-    const goleiros = JOGADORES_COPA.filter(p => p.pos1 === 'GOL' && p.overall >= 80);
-    const atacantes = JOGADORES_COPA.filter(p => p.pos1 === 'CA' || p.pos1 === 'SA');
-    setGkRival(goleiros[Math.floor(Math.random() * goleiros.length)]);
-    setBatRival(atacantes[Math.floor(Math.random() * atacantes.length)]);
-
-    setRodada(1); 
-    setPlacar({ eu: 0, cpu: 0 }); 
-    setTurno('chute'); 
-    setChuteTravado(false);
-    setPosBola({ x: 50, y: 100, scale: 1 });
-    setPosGk(50);
-    setMensagemCampo('');
+    const gols = JOGADORES_COPA.filter(p => p.pos1 === 'GOL' && p.overall >= 80);
+    const atas = JOGADORES_COPA.filter(p => ['CA','SA','PE','PD'].includes(p.pos1) && p.overall >= 82);
+    setGkRival(gols[Math.floor(Math.random() * gols.length)]);
+    setBatRival(atas[Math.floor(Math.random() * atas.length)]);
+    setRodada(1); setPlacar({ eu: 0, cpu: 0 });
+    setTurno('chute'); setChuteTravado(false);
+    setBolaEstado('idle'); setGkLado('C'); setMostrarMsg(false);
     setStep('playing');
   };
 
+  // ── Helpers visuais ────────────────────────────────────────────────────────
+  const gkX = gkLado === 'L' ? 20 : gkLado === 'R' ? 80 : 50;
+  const bolaX = bolaLado === 'L' ? 22 : bolaLado === 'R' ? 78 : 50;
+  const bolaY = bolaEstado === 'idle' ? 86 : bolaEstado === 'voando_fora' ? -10 : bolaEstado === 'parado_gk' ? 28 : 22;
+  const bolaScale = bolaEstado === 'idle' ? 1 : bolaEstado === 'voando_fora' ? 0.3 : 0.55;
+  const rating = step === 'gameover' ? getRating(placar.eu, placar.cpu) : null;
+
+  const barZone = barPos < 25 ? 'red' : barPos < 40 ? 'yellow' : barPos <= 60 ? 'green' : barPos < 75 ? 'yellow' : 'red';
+  const barCor  = barZone === 'green' ? '#22c55e' : barZone === 'yellow' ? '#eab308' : '#ef4444';
+
   return (
-    <div style={{ minHeight:'100vh', background:'#08111f', color:'#f4f1ea', fontFamily:"'Inter', sans-serif", padding: '20px 16px 60px', overflow: 'hidden' }}>
+    <div style={{ minHeight:'100vh', background:'#08111f', color:'#f4f1ea', fontFamily:"'Inter',sans-serif", overflowX:'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
-        .gb-btn { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; text-transform: uppercase; padding: 18px 48px; border-radius: 10px; border: none; background: linear-gradient(135deg, #f2c14e, #c9941f); color: #1a1300; cursor: pointer; transition: transform 0.1s; }
-        .gb-btn:hover { transform: scale(1.05); }
-        .gb-btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; }
-        
-        /* O Campo e Gol CSS Art */
-        .gb-campo { position: relative; width: 100%; max-width: 500px; margin: 0 auto; height: 320px; background: repeating-linear-gradient(0deg, #123524 0 20px, #1d5c3c 20px 40px); border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); box-shadow: inset 0 20px 50px rgba(0,0,0,0.5); }
-        .gb-area { position: absolute; bottom: -20px; left: 10%; right: 10%; height: 120px; border: 3px solid rgba(255,255,255,0.4); border-bottom: none; }
-        .gb-marca { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: rgba(255,255,255,0.7); border-radius: 50%; }
-        
-        .gb-gol-trave { position: absolute; top: 40px; left: 15%; right: 15%; height: 120px; border: 8px solid #fff; border-bottom: none; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0 10px, transparent 10px 20px); border-radius: 4px 4px 0 0; }
-        
-        .gb-bola { position: absolute; width: 32px; height: 32px; font-size: 28px; line-height: 1; transform: translate(-50%, -50%); transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 10; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
-        .gb-gk { position: absolute; top: 120px; width: 60px; height: 60px; font-size: 50px; line-height: 1; transform: translate(-50%, -50%); transition: left 0.3s ease-out; z-index: 5; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
-        
-        .gb-alvo { position: absolute; font-size: 40px; transform: translate(-50%, -50%); animation: piscar 0.2s infinite alternate; z-index: 8; opacity: 0.8; }
-        @keyframes piscar { from { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } }
+        *{box-sizing:border-box;}
+        .gb{max-width:500px;margin:0 auto;padding:20px 14px 60px;}
+        .gb-h1{font-family:'Oswald',sans-serif;font-size:clamp(28px,8vw,52px);text-transform:uppercase;
+          text-align:center;margin:0;background:linear-gradient(160deg,#fff 30%,#f2c14e);
+          -webkit-background-clip:text;background-clip:text;color:transparent;}
 
-        /* Barra de Precisão */
-        .gb-bar-container { width: 100%; height: 36px; background: #222; border-radius: 999px; margin-top: 20px; position: relative; border: 2px solid #444; overflow: hidden; }
-        .gb-bar-zones { position: absolute; inset: 0; display: flex; }
-        .gb-zone-red { flex: 2; background: #ef4444; }
-        .gb-zone-yellow { flex: 2; background: #eab308; }
-        .gb-zone-green { flex: 2; background: #22c55e; }
-        .gb-cursor { position: absolute; top: 0; bottom: 0; width: 8px; background: #fff; transform: translateX(-50%); box-shadow: 0 0 10px #fff; }
+        /* Campo */
+        .gb-campo{position:relative;width:100%;height:300px;
+          background:radial-gradient(ellipse at 50% 110%,#1a6b3a 0%,#0f4424 40%,#0a3318 100%);
+          border-radius:16px;overflow:hidden;border:2px solid rgba(255,255,255,.12);
+          box-shadow:inset 0 -30px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.05);}
         
-        /* Controles de Defesa */
-        .gb-def-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .gb-def-btn { padding: 24px 0; background: #111; border: 2px solid #444; border-radius: 12px; color: #fff; font-size: 24px; cursor: pointer; transition: background 0.1s; }
-        .gb-def-btn:hover:not(:disabled) { background: #222; border-color: #f2c14e; }
-        .gb-def-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Campo flash overlay */
+        .gb-flash{position:absolute;inset:0;z-index:25;pointer-events:none;border-radius:14px;
+          transition:opacity .15s;opacity:0;}
+        .gb-flash.green{background:rgba(34,197,94,.3);opacity:1;}
+        .gb-flash.red{background:rgba(239,68,68,.25);opacity:1;}
+
+        /* Grama listrada */
+        .gb-grama{position:absolute;inset:0;
+          background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 30px,rgba(0,0,0,.12) 30px 60px);}
+
+        /* Trave + rede */
+        .gb-gol-wrap{position:absolute;top:18px;left:12%;right:12%;}
+        .gb-rede{width:100%;height:90px;
+          background:repeating-linear-gradient(90deg,rgba(255,255,255,.15) 0 2px,transparent 2px 24px),
+                      repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0 2px,transparent 2px 18px);
+          border-radius:4px 4px 0 0;background-color:rgba(0,0,0,.3);}
+        .gb-trave-h{position:absolute;top:0;left:0;right:0;height:9px;
+          background:linear-gradient(180deg,#fff 0%,#ddd 100%);border-radius:4px;
+          box-shadow:0 2px 8px rgba(0,0,0,.5);}
+        .gb-trave-l{position:absolute;left:-9px;top:0;bottom:-6px;width:9px;
+          background:linear-gradient(90deg,#ddd,#fff);border-radius:4px;
+          box-shadow:-2px 0 6px rgba(0,0,0,.3);}
+        .gb-trave-r{position:absolute;right:-9px;top:0;bottom:-6px;width:9px;
+          background:linear-gradient(-90deg,#ddd,#fff);border-radius:4px;
+          box-shadow:2px 0 6px rgba(0,0,0,.3);}
+
+        /* Linhas do campo */
+        .gb-area{position:absolute;bottom:-4px;left:6%;right:6%;height:100px;
+          border:2px solid rgba(255,255,255,.3);border-bottom:none;border-radius:0;}
+        .gb-ponto{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+          width:8px;height:8px;background:rgba(255,255,255,.5);border-radius:50%;}
+
+        /* Goleiro */
+        .gb-gk{position:absolute;font-size:40px;line-height:1;
+          transform:translate(-50%,-50%);z-index:10;
+          transition:left .25s cubic-bezier(.17,.67,.5,1.2);
+          filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));}
+
+        /* Bola */
+        .gb-bola{position:absolute;font-size:30px;line-height:1;
+          transform:translate(-50%,-50%);z-index:12;
+          transition:left .35s ease-in, top .35s cubic-bezier(.22,.61,.36,1), transform .35s ease;
+          filter:drop-shadow(0 4px 8px rgba(0,0,0,.7));}
+
+        /* Alvo */
+        .gb-alvo{position:absolute;font-size:36px;line-height:1;
+          transform:translate(-50%,-50%);z-index:8;
+          animation:gb-alvo .18s ease-in-out infinite alternate;}
+        @keyframes gb-alvo{from{transform:translate(-50%,-50%) scale(.85);opacity:.6;}to{transform:translate(-50%,-50%) scale(1.15);opacity:1;}}
+
+        /* Mensagem overlay */
+        .gb-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+          z-index:30;background:rgba(0,0,0,.55);border-radius:14px;animation:gb-msg-in .2s ease;}
+        @keyframes gb-msg-in{from{opacity:0;}to{opacity:1;}}
+        .gb-msg-text{font-family:'Oswald',sans-serif;font-size:clamp(20px,5vw,32px);text-transform:uppercase;
+          text-align:center;padding:14px 20px;border-radius:12px;letter-spacing:.03em;
+          max-width:90%;border:2px solid transparent;}
+        .gb-msg-text.gol_eu{color:#86efac;border-color:rgba(34,197,94,.4);background:rgba(0,20,8,.7);}
+        .gb-msg-text.gol_cpu{color:#fca5a5;border-color:rgba(239,68,68,.4);background:rgba(20,0,0,.7);}
+        .gb-msg-text.defesa{color:#86efac;border-color:rgba(34,197,94,.4);background:rgba(0,20,8,.7);}
+        .gb-msg-text.miss{color:#fca5a5;border-color:rgba(239,68,68,.4);background:rgba(20,0,0,.7);}
+
+        /* Placar */
+        .gb-placar{display:flex;justify-content:space-between;align-items:center;
+          background:#0d1a2e;border:1px solid rgba(244,241,234,.12);border-radius:12px;
+          padding:14px 20px;margin-bottom:14px;}
+        .gb-placar-lado{text-align:center;flex:1;}
+        .gb-placar-nome{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;
+          letter-spacing:.1em;color:rgba(244,241,234,.45);margin-bottom:4px;}
+        .gb-placar-gols{font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;line-height:1;}
+        .gb-placar-centro{text-align:center;padding:0 12px;}
+        .gb-rodada{font-family:'JetBrains Mono',monospace;font-size:11px;color:#f2c14e;
+          text-transform:uppercase;letter-spacing:.1em;}
+        .gb-turno{font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;margin-top:4px;}
+
+        /* Barra de precisão */
+        .gb-bar-wrap{position:relative;height:40px;background:#111;border-radius:999px;
+          overflow:hidden;border:2px solid rgba(244,241,234,.15);margin-bottom:4px;}
+        .gb-bar-zones{position:absolute;inset:0;display:flex;}
+        .gb-bz{flex:1;}
+        .gb-cursor{position:absolute;top:0;bottom:0;width:7px;background:#fff;
+          transform:translateX(-50%);border-radius:999px;box-shadow:0 0 12px #fff,0 0 4px rgba(255,255,255,.8);}
+        .gb-bar-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;
+          letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;color:rgba(244,241,234,.5);}
+
+        /* Botões */
+        .gb-btn{font-family:'Oswald',sans-serif;font-size:18px;text-transform:uppercase;padding:16px;
+          border-radius:10px;border:none;cursor:pointer;transition:all .12s;width:100%;display:block;margin-top:10px;}
+        .gb-btn.chutar{background:linear-gradient(135deg,#f2c14e,#c9941f);color:#1a1300;}
+        .gb-btn.chutar:hover:not(:disabled){transform:scale(1.02);}
+        .gb-btn.chutar:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+        .gb-btn.reiniciar{background:linear-gradient(135deg,#f2c14e,#c9941f);color:#1a1300;margin-top:20px;}
+        .gb-btn.reiniciar:hover{transform:translateY(-2px);}
+
+        /* Defesa */
+        .gb-def-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+        .gb-def-btn{padding:22px 0;background:#0d1a2e;border:2px solid rgba(244,241,234,.2);
+          border-radius:12px;color:#f4f1ea;font-size:28px;cursor:pointer;transition:all .1s;}
+        .gb-def-btn:not(:disabled):hover{background:rgba(244,241,234,.08);border-color:#f2c14e;transform:scale(1.06);}
+        .gb-def-btn:disabled{opacity:.35;cursor:not-allowed;}
+        .gb-def-timer{height:6px;background:rgba(244,241,234,.08);border-radius:999px;overflow:hidden;margin:10px 0;}
+        .gb-def-timer-fill{height:100%;border-radius:999px;transition:width .04s linear,background .3s;}
+
+        /* Rival info */
+        .gb-rival{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);
+          border:1px solid rgba(244,241,234,.08);border-radius:8px;padding:8px 12px;margin-bottom:10px;}
+        .gb-rival-flag{width:22px;height:14px;object-fit:cover;border-radius:2px;}
+        .gb-rival-name{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;}
+        .gb-rival-ovr{font-family:'JetBrains Mono',monospace;font-size:10px;
+          color:rgba(244,241,234,.45);margin-left:auto;}
+
+        /* Gameover */
+        .gb-final{text-align:center;padding:28px 20px;border-radius:14px;animation:gb-pop .4s ease;}
+        @keyframes gb-pop{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+        .gb-final-label{font-family:'Oswald',sans-serif;font-size:clamp(28px,8vw,52px);
+          text-transform:uppercase;font-weight:700;margin:6px 0;}
+        .gb-final-placar{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;
+          line-height:1;margin:6px 0;}
+
+        @media(max-width:400px){.gb-def-btn{padding:16px 0;font-size:22px;}}
       `}</style>
 
-      <h1 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 40, textAlign: 'center', color: '#f2c14e', margin:0, textTransform: 'uppercase' }}>Gênio ou Bagre</h1>
-      <p style={{ textAlign: 'center', color: 'rgba(255,255,255,.6)', margin: '4px 0 24px' }}>Reflexo e sangue frio na marca da cal.</p>
+      <div className="gb">
+        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:'.22em', textTransform:'uppercase', color:'#f2c14e', textAlign:'center', marginBottom:4 }}>Copa do Mundo 2026</p>
+        <h1 className="gb-h1">Gênio ou Bagre?</h1>
+        <p style={{ textAlign:'center', color:'rgba(244,241,234,.45)', fontSize:12, fontFamily:"'JetBrains Mono',monospace", margin:'6px 0 20px' }}>
+          {MAX_RODADAS} rodadas · Pare a barra · Defenda com reflexo
+        </p>
 
-      {step === 'setup' && (
-        <div style={{ textAlign: 'center', marginTop: 60 }}>
-          <div style={{ background: 'rgba(255,255,255,.05)', padding: 24, borderRadius: 16, maxWidth: 500, margin: '0 auto 40px', textAlign: 'left', lineHeight: 1.6 }}>
-             <h3 style={{ color: '#f2c14e', marginTop: 0 }}>Como Jogar:</h3>
-             <p>🟢 <strong>Chutando:</strong> Uma barra se moverá rapidamente. Clique em "CHUTAR" para pará-la. Pare na zona verde para um golaço indefensável. No vermelho, a bola vai pra arquibancada!</p>
-             <p>🧤 <strong>Defendendo:</strong> O alvo do adversário vai piscar na tela. Você tem uma fração de segundo para clicar no botão correspondente (Esquerda, Centro ou Direita) e fazer a defesa.</p>
-          </div>
-          <button className="gb-btn" onClick={iniciar}>Bora pro Jogo!</button>
-        </div>
-      )}
-
-      {step === 'playing' && (
-        <div style={{ maxWidth: 500, margin: '0 auto' }}>
-          
-          {/* PLACAR */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0d1a2e', padding: '16px 24px', borderRadius: 12, border: '2px solid rgba(242,193,78,.3)', marginBottom: 20 }}>
-             <div style={{ textAlign: 'center' }}>
-               <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)' }}>VOCÊ</div>
-               <div style={{ fontSize: 32, fontFamily: "'Oswald',sans-serif", color: '#fff' }}>{placar.eu}</div>
-             </div>
-             <div style={{ textAlign: 'center' }}>
-               <div style={{ fontSize: 12, color: '#f2c14e', fontFamily: "'JetBrains Mono',monospace" }}>RODADA {rodada}/5</div>
-               <div style={{ fontSize: 14, fontWeight: 'bold', color: turno === 'chute' ? '#6fd17a' : '#5fa8d3', marginTop: 8 }}>
-                 {turno === 'chute' ? 'VOCÊ BATE' : 'VOCÊ DEFENDE'}
-               </div>
-             </div>
-             <div style={{ textAlign: 'center' }}>
-               <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)' }}>CPU</div>
-               <div style={{ fontSize: 32, fontFamily: "'Oswald',sans-serif", color: '#ff8a93' }}>{placar.cpu}</div>
-             </div>
-          </div>
-
-          {/* O CAMPO 3D */}
-          <div className="gb-campo">
-            <div className="gb-area" />
-            <div className="gb-marca" />
-            <div className="gb-gol-trave" />
-            
-            {/* Goleiro Animado */}
-            <div className="gb-gk" style={{ left: `${posGk}%` }}>
-               {turno === 'chute' ? (posGk === 50 ? '🧍' : '🤸') : '🧤'}
-            </div>
-
-            {/* Alvo da Defesa (Pisca quando a CPU vai chutar) */}
-            {alvoDefesa && (
-               <div className="gb-alvo" style={{ 
-                 top: '80px', 
-                 left: alvoDefesa === 'L' ? '25%' : alvoDefesa === 'R' ? '75%' : '50%' 
-               }}>
-                 🎯
-               </div>
-            )}
-
-            {/* Bola Animada */}
-            <div className="gb-bola" style={{ left: `${posBola.x}%`, top: `${posBola.y}%`, transform: `translate(-50%, -50%) scale(${posBola.scale})` }}>
-              ⚽
-            </div>
-            
-            {/* Mensagem central */}
-            {mensagemCampo && (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.8)', padding: '12px 24px', borderRadius: 8, fontSize: 20, fontWeight: 'bold', fontFamily: "'Oswald',sans-serif", width: '90%', textAlign: 'center', zIndex: 20, border: '1px solid #f2c14e' }}>
-                {mensagemCampo}
-              </div>
-            )}
-          </div>
-
-          {/* CONTROLES */}
-          <div style={{ marginTop: 24, minHeight: 120 }}>
-            {turno === 'chute' ? (
-              // Controles do Chute
-              <div>
-                <p style={{ textAlign: 'center', fontSize: 14, color: 'rgba(255,255,255,.6)', margin: '0 0 8px' }}>Pressione na área verde para o chute perfeito!</p>
-                <div className="gb-bar-container">
-                   <div className="gb-bar-zones">
-                     <div className="gb-zone-red" />
-                     <div className="gb-zone-yellow" />
-                     <div className="gb-zone-green" />
-                     <div className="gb-zone-yellow" />
-                     <div className="gb-zone-red" />
-                   </div>
-                   <div className="gb-cursor" style={{ left: `${barPos}%` }} />
-                </div>
-                <button className="gb-btn" style={{ width: '100%', marginTop: 16 }} onClick={dispararChute} disabled={chuteTravado}>
-                  {chuteTravado ? 'AGUARDE...' : '⚽ CHUTAR!'}
-                </button>
-              </div>
-            ) : (
-              // Controles de Defesa
-              <div>
-                <p style={{ textAlign: 'center', fontSize: 14, color: alvoDefesa ? '#ff5252' : 'rgba(255,255,255,.6)', fontWeight: alvoDefesa ? 'bold' : 'normal', margin: '0 0 8px' }}>
-                  {alvoDefesa ? `RÁPIDO! ${Math.ceil(tempoDefesa)}%` : `Aguarde o chute de ${batRival?.name}...`}
-                </p>
-                
-                {/* Barra de Tempo do Reflexo */}
-                {alvoDefesa && (
-                  <div style={{ width: '100%', height: 8, background: '#333', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ width: `${tempoDefesa}%`, height: '100%', background: tempoDefesa > 50 ? '#22c55e' : tempoDefesa > 25 ? '#eab308' : '#ef4444' }} />
+        {/* ── Setup ── */}
+        {step === 'setup' && (
+          <div style={{ background:'rgba(255,255,255,.035)', border:'1px solid rgba(244,241,234,.1)', borderRadius:14, padding:22 }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:14, marginBottom:20 }}>
+              {[
+                ['⚽', 'Você bate', 'Uma barra corre. Clique em CHUTAR quando estiver na zona verde — é gaveta! Vermelho = isolou.'],
+                ['🧤', 'Você defende', 'Aguarde o ataque da CPU. Quando o alvo piscar no gol, clique na direção correta em < 700ms.'],
+              ].map(([e,t,d]) => (
+                <div key={t} style={{ display:'flex', gap:12, padding:'12px 14px', background:'rgba(255,255,255,.04)', borderRadius:10 }}>
+                  <span style={{ fontSize:24, flexShrink:0 }}>{e}</span>
+                  <div>
+                    <div style={{ fontFamily:"'Oswald',sans-serif", fontSize:16, textTransform:'uppercase', marginBottom:3 }}>{t}</div>
+                    <div style={{ fontSize:12, color:'rgba(244,241,234,.55)', lineHeight:1.5 }}>{d}</div>
                   </div>
-                )}
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'center', marginBottom:18 }}>
+              {[['🏆 Gênio','saldo ≥ +3'],['⚽ Boa Exibição','saldo +1/+2'],['🤝 Zero de Brios','empatou'],['🐟 Bagre','saldo -1'],['🐡 Bagre Lendário','saldo ≤ -2']].map(([e,r]) => (
+                <div key={e} style={{ textAlign:'center', background:'rgba(255,255,255,.04)', borderRadius:8, padding:'7px 10px', fontSize:11 }}>
+                  <div style={{ fontWeight:700 }}>{e}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'rgba(244,241,234,.4)', marginTop:2 }}>{r}</div>
+                </div>
+              ))}
+            </div>
+            <button className="gb-btn chutar" onClick={iniciar}>⚽ Bora pro Jogo!</button>
+          </div>
+        )}
 
-                <div className="gb-def-grid">
-                  <button className="gb-def-btn" disabled={defesaTravada} onClick={() => processarDefesa('L')}>⬅️</button>
-                  <button className="gb-def-btn" disabled={defesaTravada} onClick={() => processarDefesa('C')}>⬆️</button>
-                  <button className="gb-def-btn" disabled={defesaTravada} onClick={() => processarDefesa('R')}>➡️</button>
+        {/* ── Playing ── */}
+        {step === 'playing' && (
+          <div>
+            {/* Placar */}
+            <div className="gb-placar">
+              <div className="gb-placar-lado">
+                <div className="gb-placar-nome">Você</div>
+                <div className="gb-placar-gols" style={{ color:'#86efac' }}>{placar.eu}</div>
+              </div>
+              <div className="gb-placar-centro">
+                <div className="gb-rodada">Rodada {rodada}/{MAX_RODADAS}</div>
+                <div className="gb-turno" style={{ color: turno==='chute' ? '#f2c14e' : '#5fa8d3' }}>
+                  {turno === 'chute' ? '⚽ Você bate' : '🧤 Você defende'}
                 </div>
               </div>
+              <div className="gb-placar-lado">
+                <div className="gb-placar-nome">CPU</div>
+                <div className="gb-placar-gols" style={{ color:'#fca5a5' }}>{placar.cpu}</div>
+              </div>
+            </div>
+
+            {/* Rival info */}
+            {turno === 'chute' && gkRival && (
+              <div className="gb-rival">
+                <span style={{ fontSize:16 }}>🧤</span>
+                <div>
+                  <div className="gb-rival-name">{gkRival.name}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'rgba(244,241,234,.4)' }}>Goleiro rival</div>
+                </div>
+                <span className="gb-rival-ovr">OVR {gkRival.overall}</span>
+              </div>
             )}
+            {turno === 'defesa' && batRival && (
+              <div className="gb-rival">
+                <span style={{ fontSize:16 }}>⚽</span>
+                <div>
+                  <div className="gb-rival-name">{batRival.name}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'rgba(244,241,234,.4)' }}>Cobrador rival</div>
+                </div>
+                <span className="gb-rival-ovr">OVR {batRival.overall}</span>
+              </div>
+            )}
+
+            {/* Campo */}
+            <div className="gb-campo">
+              <div className="gb-grama" />
+              <div className={`gb-flash ${fieldFlash || ''}`} />
+
+              {/* Gol estrutura */}
+              <div className="gb-gol-wrap">
+                <div className="gb-rede" />
+                <div className="gb-trave-h" />
+                <div className="gb-trave-l" />
+                <div className="gb-trave-r" />
+              </div>
+
+              {/* Linhas */}
+              <div className="gb-area" />
+              <div className="gb-ponto" />
+
+              {/* Goleiro */}
+              <div className="gb-gk" style={{ left:`${gkX}%`, top:'44%' }}>
+                {turno === 'chute'
+                  ? (gkLado !== 'C' ? '🤸' : '🧍')
+                  : '🧤'}
+              </div>
+
+              {/* Alvo QTE */}
+              {alvoDefesa && (
+                <div className="gb-alvo" style={{
+                  top:'32%',
+                  left: alvoDefesa === 'L' ? '28%' : alvoDefesa === 'R' ? '72%' : '50%',
+                }}>🎯</div>
+              )}
+
+              {/* Bola */}
+              <div className="gb-bola" style={{
+                left: bolaEstado === 'idle' ? '50%' : `${bolaX}%`,
+                top: `${bolaY}%`,
+                transform: `translate(-50%,-50%) scale(${bolaScale})`,
+              }}>⚽</div>
+
+              {/* Mensagem overlay */}
+              {mostrarMsg && (
+                <div className="gb-msg">
+                  <div className={`gb-msg-text ${mensagemTipo}`}>{mensagem}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Controles */}
+            <div style={{ marginTop:14 }}>
+              {turno === 'chute' ? (
+                <div>
+                  <div className="gb-bar-label">
+                    <span style={{ color:barCor }}>
+                      {barZone === 'green' ? '🔥 Zona perfeita — SOLTE AGORA!' : barZone === 'yellow' ? '⚡ Zona boa' : '💀 Zona ruim'}
+                    </span>
+                  </div>
+                  <div className="gb-bar-wrap">
+                    <div className="gb-bar-zones">
+                      <div className="gb-bz" style={{ background:'#ef4444' }} />
+                      <div className="gb-bz" style={{ background:'#f97316' }} />
+                      <div className="gb-bz" style={{ background:'#eab308' }} />
+                      <div className="gb-bz" style={{ background:'#22c55e' }} />
+                      <div className="gb-bz" style={{ background:'#22c55e' }} />
+                      <div className="gb-bz" style={{ background:'#eab308' }} />
+                      <div className="gb-bz" style={{ background:'#f97316' }} />
+                      <div className="gb-bz" style={{ background:'#ef4444' }} />
+                    </div>
+                    <div className="gb-cursor" style={{ left:`${barPos}%` }} />
+                  </div>
+                  <button className="gb-btn chutar" onClick={dispararChute} disabled={chuteTravado || mostrarMsg}>
+                    {chuteTravado ? '...' : '⚽ CHUTAR!'}
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:12,
+                    color: alvoDefesa ? '#f97316' : 'rgba(244,241,234,.5)',
+                    fontWeight: alvoDefesa ? 700 : 400, marginBottom:8, minHeight:20 }}>
+                    {mostrarMsg ? '' : preparandoAtaque ? `${batRival?.name || 'Cobrador'} está se preparando...` : alvoDefesa ? '🚨 RÁPIDO! ESCOLHA O LADO!' : ''}
+                  </div>
+                  {alvoDefesa && (
+                    <div className="gb-def-timer">
+                      <div className="gb-def-timer-fill" style={{
+                        width:`${tempoDefesa}%`,
+                        background: tempoDefesa > 50 ? '#22c55e' : tempoDefesa > 25 ? '#eab308' : '#ef4444',
+                      }} />
+                    </div>
+                  )}
+                  <div className="gb-def-grid">
+                    {[['L','⬅️'],['C','⬆️'],['R','➡️']].map(([dir, icon]) => (
+                      <button key={dir} className="gb-def-btn"
+                        disabled={defesaTravada || mostrarMsg}
+                        onClick={() => processarDefesa(dir)}>
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+        )}
 
-        </div>
-      )}
-
-      {step === 'gameover' && (
-        <div style={{ textAlign: 'center', marginTop: 40, background: '#1c180e', padding: 40, borderRadius: 16, border: '2px solid #f2c14e', maxWidth: 500, margin: '40px auto 0' }}>
-           <h2 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 40, color: placar.eu > placar.cpu ? '#6fd17a' : placar.eu === placar.cpu ? '#eab308' : '#ff8a93', margin: '0 0 10px' }}>
-             {placar.eu > placar.cpu ? '🏆 VOCÊ VENCEU!' : placar.eu === placar.cpu ? '⚖️ EMPATE!' : '😔 DERROTA...'}
-           </h2>
-           <p style={{ fontSize: 24, fontWeight: 'bold' }}>Placar Final: {placar.eu} x {placar.cpu}</p>
-           <button className="gb-btn" onClick={iniciar} style={{ marginTop: 24, width: '100%' }}>Cobrar Novamente</button>
-        </div>
-      )}
+        {/* ── Gameover ── */}
+        {step === 'gameover' && rating && (
+          <div>
+            <div className="gb-final" style={{ background: rating.cor + '12', border:`1px solid ${rating.cor}40`, marginBottom:14 }}>
+              <div style={{ fontSize:56 }}>{rating.emoji}</div>
+              <h2 className="gb-final-label" style={{ color:rating.cor }}>{rating.label}</h2>
+              <div className="gb-final-placar">{placar.eu} × {placar.cpu}</div>
+              <p style={{ fontSize:13, color:'rgba(244,241,234,.55)', margin:'4px 0 18px' }}>{rating.desc}</p>
+            </div>
+            {/* Mini histórico por rounds */}
+            <div style={{ display:'flex', gap:6, justifyContent:'center', marginBottom:16 }}>
+              {Array.from({length:MAX_RODADAS}).map((_,i) => (
+                <div key={i} style={{ textAlign:'center' }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'rgba(244,241,234,.3)', marginBottom:3 }}>R{i+1}</div>
+                  <div style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>⚽</div>
+                </div>
+              ))}
+            </div>
+            <button className="gb-btn reiniciar" onClick={iniciar}>🔄 Cobrar de novo</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
