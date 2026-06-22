@@ -94,6 +94,10 @@ export default function CopaLeilao() {
   const [historico, setHistorico] = useState([]);
   const [resultado, setResultado] = useState(null);
   const [carregando, setCarregando] = useState(false);
+  const [torneio, setTorneio] = useState([]); // [{ fase, adversario, placar, venceu }]
+  const [torneioLogs, setTorneioLogs] = useState([]);
+  const [torneioRodada, setTorneioRodada] = useState(0); // 0=quartas,1=semi,2=final
+  const [torneioStatus, setTorneioStatus] = useState('jogando'); // 'jogando'|'ganhou'|'perdeu'
 
   const timerRef    = useRef(null);
   const ativoRef    = useRef(false);
@@ -232,23 +236,94 @@ export default function CopaLeilao() {
     await new Promise(r => setTimeout(r, 800));
   }, [executarGuerraIA]);
 
+  // ── Simula um jogo do torneio e retorna { gEu, gAdv } ─────────────────────
+  const simJogo = (meuOVR, advOVR) => {
+    const pEu  = Math.max(0.18, Math.min(0.62, 0.38 + (meuOVR - advOVR) * 0.018));
+    const pAdv = Math.max(0.10, Math.min(0.50, 0.28 + (advOVR - meuOVR) * 0.018));
+    const cEu  = 3 + Math.round(pEu * 3);
+    const cAdv = 2 + Math.round(pAdv * 3);
+    let gEu = 0, gAdv = 0;
+    for (let i = 0; i < cEu; i++)  if (Math.random() < pEu)  gEu++;
+    for (let i = 0; i < cAdv; i++) if (Math.random() < pAdv) gAdv++;
+    if (gEu === gAdv) { if (Math.random() < 0.55) gEu++; else gAdv++; } // golden goal - sem pênaltis
+    return { gEu, gAdv };
+  };
+
   useEffect(() => {
     if (step !== 'leilao' || pool.length === 0) return;
     (async () => {
+      // ── Leilão: continua ATÉ o jogador ter 11 ──────────────────────────────
+      const allPoolIds = new Set();
       for (let i = 0; i < pool.length; i++) {
         setLeilaoIdx(i); idxRef.current = i;
+        allPoolIds.add(pool[i].id);
         await leiloarJogador(pool[i]);
         if (gameRef.current.meuTime.length >= SQUAD_SIZE) break;
       }
+
+      // Se o jogador ainda não tem 11 (pool esgotou), preenche com sobras
+      if (gameRef.current.meuTime.length < SQUAD_SIZE) {
+        const usados = new Set([
+          ...gameRef.current.meuTime.map(p => p.id),
+          ...Object.values(gameRef.current.aiTimes).flat().map(p => p.id),
+        ]);
+        const sobras = pool.filter(p => !usados.has(p.id));
+        let idx = 0;
+        while (gameRef.current.meuTime.length < SQUAD_SIZE && idx < sobras.length) {
+          const p = sobras[idx++];
+          gameRef.current.meuTime = [...gameRef.current.meuTime, p];
+          setMeuTime(t => [...t, p]);
+        }
+      }
+
+      // ── Preenche times das IAs com jogadores aleatórios se necessário ──────
+      const usadosGlobal = new Set([
+        ...gameRef.current.meuTime.map(p => p.id),
+        ...Object.values(gameRef.current.aiTimes).flat().map(p => p.id),
+      ]);
+      const disponiveis = pool.filter(p => !usadosGlobal.has(p.id));
+      let fillIdx = 0;
+      for (const ai of AIS) {
+        const needed = SQUAD_SIZE - gameRef.current.aiTimes[ai.id].length;
+        if (needed > 0) {
+          const extras = [];
+          for (let k = 0; k < needed && fillIdx < disponiveis.length; k++) {
+            extras.push(disponiveis[fillIdx++]);
+          }
+          if (extras.length) {
+            gameRef.current.aiTimes[ai.id] = [...gameRef.current.aiTimes[ai.id], ...extras];
+            setAiTimes(t => ({ ...t, [ai.id]: [...t[ai.id], ...extras] }));
+          }
+        }
+      }
+
+      // ── Ordena as 3 IAs por força para o torneio ───────────────────────────
+      const aisOrdenados = [...AIS].sort(
+        (a, b) => calcForce(gameRef.current.aiTimes[a.id]) - calcForce(gameRef.current.aiTimes[b.id])
+      );
+      // Quartas: vs fraco | Semi: vs médio | Final: vs forte
+      const fases = ['⚔️ Quartas de Final', '🔥 Semifinal', '🏆 Grande Final'];
+      const meuOVR = calcForce(gameRef.current.meuTime);
+      const jogos = [];
+      let vivo = true;
+
+      for (let f = 0; f < 3; f++) {
+        const ai    = aisOrdenados[f];
+        const advOVR = calcForce(gameRef.current.aiTimes[ai.id]);
+        const { gEu, gAdv } = simJogo(meuOVR, advOVR);
+        const venceu = gEu > gAdv;
+        jogos.push({ fase: fases[f], ai, gEu, gAdv, meuOVR, advOVR, venceu });
+        if (!venceu) { vivo = false; break; }
+      }
+
+      setResultado({
+        meuTime: [...gameRef.current.meuTime],
+        aiTimes: { ...gameRef.current.aiTimes },
+        jogos,
+        campeao: vivo,
+        meuOVR,
+      });
       setStep('resultado');
-      const melhorAI = AIS.reduce((best, ai) => calcForce(gameRef.current.aiTimes[ai.id]) > calcForce(gameRef.current.aiTimes[best.id]) ? ai : best, AIS[0]);
-      const mF  = calcForce(gameRef.current.meuTime);
-      const aF  = calcForce(gameRef.current.aiTimes[melhorAI.id]);
-      const diff = (mF - aF) * 0.018;
-      const pEu  = Math.max(0.20, Math.min(0.65, 0.40 + diff));
-      const gEu  = Math.floor(Math.random() * 4);
-      const gAdv = Math.random() < (1 - pEu) ? Math.max(0, gEu - Math.floor(Math.random() * 2)) : Math.max(0, gEu - 2 + Math.floor(Math.random() * 3));
-      setResultado({ melhorAI, meuForce: mF, advForce: aF, sim: { gEu, gAdv: Math.max(0, gAdv) }, meuTime:[...gameRef.current.meuTime], aiTime:[...gameRef.current.aiTimes[melhorAI.id]] });
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, pool]);
@@ -518,47 +593,72 @@ export default function CopaLeilao() {
           </div>
         )}
 
-        {/* Resultado */}
+        {/* Resultado — 3 jogos do torneio */}
         {step === 'resultado' && resultado && (
-          <div style={{ marginTop:20 }}>
-            <div className="lei-card" style={{ padding:20 }}>
-              <p style={{ fontFamily:"'Oswald',sans-serif", fontSize:17, textTransform:'uppercase', textAlign:'center', color:'#f2c14e', margin:'0 0 14px' }}>⚽ Simulação Final</p>
-              <div className="lei-result-grid">
-                <div>
-                  <p style={{ fontFamily:"'Oswald',sans-serif", fontSize:13, textTransform:'uppercase', marginBottom:8, color:'#f2c14e' }}>Seu Time · OVR {resultado.meuForce}</p>
-                  <div className="lei-result-col">
-                    {resultado.meuTime.sort((a, b) => b.overall - a.overall).map(p => (
-                      <div key={p.id} className="lei-result-player">
-                        <span>{p.name.split(' ').pop()}</span>
-                        <span style={{ color:'#f2c14e' }}>{p.overall}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ textAlign:'center', paddingTop:28 }}>
-                  <div className="lei-score" style={{ color: resultado.sim.gEu > resultado.sim.gAdv ? '#86efac' : resultado.sim.gEu < resultado.sim.gAdv ? '#ff8a93' : '#f4f1ea' }}>
-                    {resultado.sim.gEu}<br/>×<br/>{resultado.sim.gAdv}
-                  </div>
-                  <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'rgba(244,241,234,.4)', marginTop:8 }}>
-                    {resultado.sim.gEu > resultado.sim.gAdv ? '🏆 VOCÊ VENCEU' : resultado.sim.gEu < resultado.sim.gAdv ? '😔 DERROTA' : '🤝 EMPATE'}
+          <div style={{ marginTop:16 }}>
+            {/* Cabeçalho */}
+            <div style={{ textAlign:'center', marginBottom:18 }}>
+              {resultado.campeao ? (
+                <>
+                  <div style={{ fontSize:54 }}>🏆</div>
+                  <h2 style={{ fontFamily:"'Oswald',sans-serif", fontSize:32, textTransform:'uppercase', color:'#f2c14e', margin:'6px 0 4px' }}>CAMPEÃO!</h2>
+                  <p style={{ color:'rgba(244,241,234,.55)', fontSize:13 }}>Você venceu os 3 confrontos e levantou a taça!</p>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize:48 }}>😔</div>
+                  <h2 style={{ fontFamily:"'Oswald',sans-serif", fontSize:28, textTransform:'uppercase', color:'#ff8a93', margin:'6px 0 4px' }}>Eliminado</h2>
+                  <p style={{ color:'rgba(244,241,234,.55)', fontSize:13 }}>
+                    Eliminado na {resultado.jogos[resultado.jogos.length - 1]?.fase}
                   </p>
-                </div>
-                <div>
-                  <p style={{ fontFamily:"'Oswald',sans-serif", fontSize:13, textTransform:'uppercase', marginBottom:8, color:resultado.melhorAI.cor }}>
-                    {resultado.melhorAI.emoji} {resultado.melhorAI.nome} · OVR {resultado.advForce}
-                  </p>
-                  <div className="lei-result-col">
-                    {resultado.aiTime.sort((a, b) => b.overall - a.overall).map(p => (
-                      <div key={p.id} className="lei-result-player">
-                        <span>{p.name.split(' ').pop()}</span>
-                        <span style={{ color:resultado.melhorAI.cor }}>{p.overall}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <button className="lei-btn-main" onClick={reiniciar} style={{ marginTop:18 }}>🔄 Novo Leilão</button>
+                </>
+              )}
             </div>
+
+            {/* Jogos */}
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:14 }}>
+              {resultado.jogos.map((jogo, i) => (
+                <div key={i} className="lei-card" style={{ padding:'14px 16px' }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, textTransform:'uppercase', letterSpacing:'.14em', color: jogo.venceu ? '#6fd17a' : '#ff5252', marginBottom:6 }}>
+                    {jogo.fase} · {jogo.venceu ? '✓ Classificado' : '✗ Eliminado'}
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', alignItems:'center', gap:8 }}>
+                    <div>
+                      <div style={{ fontFamily:"'Oswald',sans-serif", fontSize:14, fontWeight:700, color:'#f2c14e' }}>Você</div>
+                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'rgba(244,241,234,.4)' }}>OVR {jogo.meuOVR}</div>
+                    </div>
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:"'Oswald',sans-serif", fontSize:28, fontWeight:700, color: jogo.venceu ? '#86efac' : '#ff8a93', lineHeight:1 }}>
+                        {jogo.gEu} × {jogo.gAdv}
+                      </div>
+                    </div>
+                    <div style={{ textAlign:'right' }}>
+                      <div style={{ fontFamily:"'Oswald',sans-serif", fontSize:14, fontWeight:700, color: jogo.ai.cor }}>
+                        {jogo.ai.emoji} {jogo.ai.nome}
+                      </div>
+                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'rgba(244,241,234,.4)' }}>OVR {jogo.advOVR}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Meu time */}
+            <div className="lei-card" style={{ padding:14, marginBottom:14 }}>
+              <p style={{ fontFamily:"'Oswald',sans-serif", fontSize:13, textTransform:'uppercase', color:'#f2c14e', margin:'0 0 8px' }}>
+                Seu XI · OVR {resultado.meuOVR}
+              </p>
+              <div className="lei-result-col">
+                {resultado.meuTime.sort((a, b) => b.overall - a.overall).map(p => (
+                  <div key={p.id} className="lei-result-player">
+                    <span>{p.name}</span>
+                    <span style={{ color:'#f2c14e' }}>{p.overall}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button className="lei-btn-main" onClick={reiniciar}>🔄 Novo Leilão</button>
           </div>
         )}
       </div>

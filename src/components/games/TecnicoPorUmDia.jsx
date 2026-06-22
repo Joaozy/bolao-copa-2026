@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { SELECOES_COPA, TIERS_FIXOS, loadCopaTimes } from '@/components/games/gameConstants';
-import DECISOES from '@/components/games/dados/decisoesTecnico.json';
 import JOGADORES_COPA from '@/components/games/dados/jogadoresCopa.json';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -104,12 +103,109 @@ export default function TecnicoPorUmDia() {
     setStep('pre_jogo');
   };
 
-  // ── Pedido de decisão tática ──────────────────────────────────────────────
-  const pedirDecisao = (fase) => {
-    const opts = DECISOES.filter(d => d.fase === fase);
-    const evt  = opts.length ? opts[Math.floor(Math.random() * opts.length)] : null;
-    if (!evt) return Promise.resolve({ label: 'Manter', atk: 0, def: 0 });
+  // ── Decisão tática 100% contextual — placar + minuto definem as opções ─────
+  const gerarDecisaoContextual = (minuto, score, nomeEu, nomeAdv) => {
+    const diff = score.eu - score.adv;
+    const ganhandoPor = diff;
+    const G = diff > 0, P = diff < 0;
+    const pl = `${score.eu}×${score.adv}`;
 
+    if (minuto <= 32) {
+      // ── 30' — ajuste do 1T ──────────────────────────────────────────────────
+      if (G) return {
+        titulo: `30' — Na frente do placar (${pl})`,
+        texto: `${nomeEu} vence por ${diff} gol(s). Como quer administrar o restante do 1T?`,
+        opcoes: [
+          { label: 'Manter o esquema — estamos bem assim', atk: 0.02, def: 0.02 },
+          { label: 'Recuar a linha e preservar o resultado', atk: -0.02, def: 0.07 },
+          { label: ganhandoPor >= 2 ? 'Ampliar antes do intervalo!' : 'Pressionar e fechar o 1T melhor', atk: 0.07, def: -0.03 },
+        ],
+      };
+      if (P) return {
+        titulo: `30' — Estamos perdendo (${pl})`,
+        texto: `${nomeAdv} está na frente. É cedo, mas precisa reagir já no 1T!`,
+        opcoes: [
+          { label: 'Mudar para esquema mais ofensivo agora', atk: 0.08, def: -0.03 },
+          { label: 'Manter a calma — ainda temos 60 minutos', atk: 0.01, def: 0.01 },
+          { label: 'Fechar mais e sair nos contra-ataques', atk: 0.01, def: 0.06 },
+        ],
+      };
+      return {
+        titulo: `30' — Jogo equilibrado (${pl})`,
+        texto: 'Empate até agora. Como quer dominar a segunda parte do 1T?',
+        opcoes: [
+          { label: 'Pressing alto — roubar bola e atacar rápido', atk: 0.05, def: 0.01 },
+          { label: 'Bolas longas direto para os atacantes', atk: 0.04, def: -0.01 },
+          { label: 'Paciência — organizar o meio-campo primeiro', atk: 0.01, def: 0.04 },
+        ],
+      };
+    }
+
+    if (minuto <= 47) {
+      // ── Intervalo ────────────────────────────────────────────────────────────
+      if (G) return {
+        titulo: `Intervalo — Vencendo! (${pl})`,
+        texto: `${nomeEu} chega ao vestiário na frente. O que mudar (ou não) para o 2T?`,
+        opcoes: [
+          { label: 'Recuar o bloco e segurar o resultado', atk: -0.03, def: 0.09 },
+          { label: 'Manter a intensidade do 1T', atk: 0.03, def: 0.03 },
+          { label: 'Atacar desde o início do 2T e matar o jogo', atk: 0.09, def: -0.04 },
+        ],
+      };
+      if (P) return {
+        titulo: `Intervalo — Precisamos reagir! (${pl})`,
+        texto: `${nomeAdv} vence o 1T. Quais são as ordens para o 2T?`,
+        opcoes: [
+          { label: 'Entrada de atacante — tirar um volante', atk: 0.10, def: -0.04 },
+          { label: 'Pressão máxima logo na saída do intervalo', atk: 0.07, def: -0.01 },
+          { label: 'Ajustar a marcação e explorar os flancos', atk: 0.04, def: 0.05 },
+        ],
+      };
+      return {
+        titulo: `Intervalo — Jogo empatado (${pl})`,
+        texto: 'Nenhum gol até aqui. O 2T precisa ser diferente.',
+        opcoes: [
+          { label: 'Bola mais direta — colocar pressão no adversário', atk: 0.06, def: 0.01 },
+          { label: 'Mudar o meia — mais criatividade no ataque', atk: 0.07, def: -0.01 },
+          { label: 'Solidez defensiva e esperar o erro deles', atk: -0.01, def: 0.07 },
+        ],
+      };
+    }
+
+    // ── 75' — reta final ─────────────────────────────────────────────────────
+    if (G) return {
+      titulo: `75' — Segurando a vantagem (${pl})`,
+      texto: `Faltam 15 minutos. ${nomeEu} vence por ${diff} gol(s). Como fechar?`,
+      opcoes: [
+        { label: ganhandoPor >= 2 ? 'Bloco baixo — jogo fechado até o apito' : 'Recuar — defender o resultado', atk: -0.05, def: 0.12 },
+        { label: 'Segurar a posse e não arriscar', atk: 0.01, def: 0.05 },
+        { label: 'Ampliar o placar agora para matar o jogo', atk: 0.08, def: -0.05 },
+      ],
+    };
+    if (P) return {
+      titulo: `75' — Precisamos do gol! (${pl})`,
+      texto: `Faltam 15 minutos e estamos perdendo por ${Math.abs(diff)}. Tudo ou nada!`,
+      opcoes: [
+        { label: '🔥 Pressão TOTAL — todo mundo no ataque!', atk: 0.13, def: -0.09 },
+        { label: diff === -1 ? 'Forçar o empate e ir para os pênaltis' : 'Bolas na área — goleiro vai nos escanteios', atk: 0.08, def: -0.05 },
+        { label: 'Contra-ataques rápidos — inteligência ao invés de desespero', atk: 0.05, def: -0.01 },
+      ],
+    };
+    return {
+      titulo: `75' — Quem vai querer mais? (${pl})`,
+      texto: `Empate ${pl} faltando 15 minutos. A decisão pode custar a Copa.`,
+      opcoes: [
+        { label: 'Arriscar tudo pelo gol da vitória', atk: 0.11, def: -0.07 },
+        { label: 'Segurar o empate e ir para os pênaltis', atk: -0.04, def: 0.09 },
+        { label: 'Jogo inteligente — criar espaços aos poucos', atk: 0.04, def: 0.03 },
+      ],
+    };
+  };
+
+  const pedirDecisao = (minuto, score) => {
+    const nome = myTeamRef.current?.name || 'Seu Time';
+    const adv  = advTeamRef.current?.name || 'Adversário';
+    const evt  = gerarDecisaoContextual(minuto, score, nome, adv);
     return new Promise(resolve => {
       resolverRef.current = resolve;
       setDecisaoAtual(evt);
@@ -201,7 +297,7 @@ export default function TecnicoPorUmDia() {
 
     // Decisão aos 30'
     await addLog('⏱ Pausa tática — técnico entra em campo!', 'aviso', 400);
-    const d30 = await pedirDecisao('pressao');
+    const d30 = await pedirDecisao(30, scoreRef.current);
     bonusRef.current = { atk: bonusRef.current.atk + (d30.atk || 0) * 100, def: bonusRef.current.def + (d30.def || 0) * 100 };
     await addLog(`🗣 Técnico: "${d30.label}"`, 'instrucao', 700);
 
@@ -214,7 +310,7 @@ export default function TecnicoPorUmDia() {
     );
 
     // Decisão do intervalo
-    const d45 = await pedirDecisao('intervalo');
+    const d45 = await pedirDecisao(45, scoreRef.current);
     bonusRef.current = { atk: bonusRef.current.atk + (d45.atk || 0) * 100, def: bonusRef.current.def + (d45.def || 0) * 100 };
     await addLog(`🗣 Técnico: "${d45.label}"`, 'instrucao', 700);
 
@@ -224,7 +320,7 @@ export default function TecnicoPorUmDia() {
 
     // Decisão aos 75'
     await addLog('⏱ Minuto 75 — instrução final!', 'aviso', 400);
-    const d75 = await pedirDecisao('pressao');
+    const d75 = await pedirDecisao(75, scoreRef.current);
     bonusRef.current = { atk: bonusRef.current.atk + (d75.atk || 0) * 100, def: bonusRef.current.def + (d75.def || 0) * 100 };
     await addLog(`🗣 Técnico: "${d75.label}"`, 'instrucao', 700);
 

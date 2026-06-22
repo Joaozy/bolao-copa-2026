@@ -27,6 +27,7 @@ export default function Admin() {
   const [allProfiles, setAllProfiles] = useState([]) 
   const [banners, setBanners] = useState([])
   const [sponsors, setSponsors] = useState([])
+  const [allBets, setAllBets] = useState([]) // 🔥 ESTADO ADICIONADO PARA OS PALPITES
 
   useEffect(() => {
     async function checkAdminAccess() {
@@ -51,14 +52,16 @@ export default function Admin() {
   }
 
   async function fetchAllData() {
-    const [c, t, g, eRaw, pRaw, b, s] = await Promise.all([
+    // 🔥 ADICIONADO A BUSCA NA TABELA 'bets'
+    const [c, t, g, eRaw, pRaw, b, s, betsRaw] = await Promise.all([
       supabase.from('competitions').select('*').order('id'),
       supabase.from('teams').select('*').order('name'),
       supabase.from('games').select(`*, competition:competitions(name), team_a:teams!team_a_id(name, badge_url, flag_code), team_b:teams!team_b_id(name, badge_url, flag_code)`).order('start_time', { ascending: false }),
       supabase.from('enrollments').select('*'), 
       supabase.from('profiles').select('*').order('email'),
       supabase.from('banners').select('*').order('order_index'),
-      supabase.from('sponsors').select('*').order('order_index')
+      supabase.from('sponsors').select('*').order('order_index'),
+      supabase.from('bets').select('*') // Trazendo todos os palpites
     ])
     
     setCompetitions(c.data || [])
@@ -67,6 +70,7 @@ export default function Admin() {
     setAllProfiles(pRaw.data || [])
     setBanners(b.data || [])
     setSponsors(s.data || [])
+    setAllBets(betsRaw.data || []) // Guardando os palpites no estado
 
     const profilesMap = {}
     pRaw.data?.forEach(p => profilesMap[p.id] = p)
@@ -115,7 +119,16 @@ export default function Admin() {
         {activeTab === 'teams' && <TabTeams teams={teams} fetchAllData={fetchAllData} />}
         {activeTab === 'banners' && <TabBanners banners={banners} fetchAllData={fetchAllData} />}
         {activeTab === 'sponsors' && <TabSponsors sponsors={sponsors} fetchAllData={fetchAllData} />}
-        {activeTab === 'palpites' && <TabPalpites allProfiles={allProfiles} games={games} />}
+        
+        {/* 🔥 AQUI ESTAVA O ERRO: Faltava passar as inscrições e os palpites! */}
+        {activeTab === 'palpites' && (
+          <TabPalpites 
+            allProfiles={allProfiles} 
+            games={games} 
+            enrollments={enrollments} 
+            allBets={allBets} 
+          />
+        )}
       </div>
     </div>
   )
