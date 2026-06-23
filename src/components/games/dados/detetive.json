@@ -113,7 +113,7 @@
     "aceitos": ["kylian mbappe", "mbappe"],
     "nacionalidade": "França",
     "dicas": [
-      "Dooei todo o salário que ganhei na minha primeira Copa do Mundo para uma instituição de caridade.",
+      "Doei todo o salário que ganhei na minha primeira Copa do Mundo para uma instituição de caridade.",
       "Fui o segundo jogador mais jovem da história a marcar gol em uma final de Copa.",
       "Fui eleito o Melhor Jogador Jovem de uma edição de Copa do Mundo.",
       "Marquei dois gols contra a Argentina nas oitavas de final da minha primeira Copa.",
@@ -532,10 +532,10 @@
       "Marquei as memórias do torcedor da Premier League sendo sempre criticado, visto com desconfiança e falhando miseravelmente para o poderoso Manchester United.",
       "Deixei a amargura inglesa para trás, indo à península espanhola virar uma temida máquina e conquistar as chuteiras de ouro continentais (no modesto Villarreal e no Atlético).",
       "Fui às redes marcando um gol solitário num espetacular e surpreendente 3x3 que aconteceu ainda lá no mundial de 2002 na Ásia.",
-      "Me esgueirei sem vaga e amarguei a ausência amarga ao lado da minha nação durante os espetáculos do mundial europeu em 2006.",
-      "Em um cenário de terror para os artilheiros do mundo inteiro, provei meu toque impecável por ser um dos poucos capazes de subjugar, controlar e mandar no ângulo a incontrolável bola chamada Jabulani.",
-      "As atuações épicas com chutes de curvas inesperadas e 5 bolas mortais nas redes colocaram meu povo novamente no pódio e nos holofotes depois de décadas inteiras nas sobras da América do Sul.",
-      "Levantei assombrosamente o troféu máximo da FIFA como Melhor Jogador Eleito daquela Copa em que ficamos nas honrosas semifinais.",
+      "Não fui convocado para a Copa de 2006 na Alemanha.",
+      "A bola Jabulani da Copa de 2010 era famosa por ser incontrolável. Eu fui um dos únicos a dominar e finalizar bem com ela.",
+      "Minhas atuações e 5 gols na Copa de 2010 colocaram o Uruguai nas semifinais pela primeira vez em décadas.",
+      "Fui eleito o Melhor Jogador da Copa de 2010, mesmo com o Uruguai terminando em 4° lugar.",
       "Com a imortal camisa 10 e os cachos esvoaçantes e dourados, montei a frente mágica do Uruguai nas savanas da África de 2010 ao ladinho de Luisito e Edinson."
     ]
   },
@@ -545,16 +545,16 @@
     "aceitos": ["hristo stoichkov", "stoichkov"],
     "nacionalidade": "Bulgária",
     "dicas": [
-      "Poucos anos do meu despontar na juventude, estive prestes a ser banido com suspensão e encerramento para o resto da vida devido ao calor absurdo do meu sangue numa confusão no país que eu nasci.",
-      "As vitórias do amadurecimento aconteceram nas terras espanholas quando fui convocado pelo meu antigo técnico holandês brilhante (Cruyff) para liderar a magia em campo no tal time do Dream Team.",
-      "As polêmicas nos bastidores da minha equipe para a grande Copa aconteciam devido à briga aberta, gritante e furiosa entre os líderes e treinadores em que eu me apoiava de um lado para defender o grupo.",
-      "A primeira partida na América amargou sem rede estufada, porém a magia aconteceu em cascata nos próximos incríveis e seguidos seis duelos mundiais da minha história no relvado do verão de lá.",
-      "As minhas fúrias, as raivas e minhas comemorações colossais tornaram lendários todos os tentos do ataque e o ânimo desportivo para a torcida, a qual batizou a época com meu próprio nome.",
-      "Conquistamos uma das maiores glórias e espantamos os grandes jornalistas quando abafamos com pura imposição um dos mais pesados favoritos, fazendo nossa torcida inteira enlouquecer pelas vitórias sucessivas nas oitavas e quartas.",
-      "O chute mais belo do torneio ficou aclamado numa cobrança impecável numa bola parada e magistral cravada impiedosamente sobre o time campeão da edição anterior.",
-      "As mágoas gigantes me marcaram as falas, porque saímos derrotados pelo craque il Divin Codino italiano, e não perdoei a ausência do apito num escandaloso pênalti contra a nossa camisa no fim.",
-      "No auge absoluto e genial do verão da América, terminei empatado e levantei um prêmio dourado da Chuteira pelo meu placar mortal balançando redes com a histórica bola vermelha.",
-      "De temperamento incendiário e canhota abençoada divina e infernal para as zagas rivais do torneio inesquecível de 94, eu ostentei para o planeta inteiro a camisa mágica número 8."
+      "No início da carreira, quase fui suspenso para sempre depois de me envolver numa briga violenta num jogo na Bulgária.",
+      "Fui para o Barcelona de Cruyff e me tornei um dos pilares do famoso 'Dream Team' blaugrana.",
+      "Antes da Copa de 94, briguei publicamente com o técnico da seleção nos bastidores. Era famoso pelo temperamento.",
+      "Não marquei no primeiro jogo da Copa de 94, mas depois anotei em todos os outros seis jogos do torneio.",
+      "A torcida búlgara batizou aquela Copa com o meu nome. Era o ídolo e o líder de toda a geração.",
+      "Eliminamos Alemanha e Argentina nas oitavas e quartas. Foi uma das maiores zebras da história da Copa.",
+      "Marquei o gol mais bonito do torneio: uma falta perfeita contra a Alemanha, campeã da Copa anterior.",
+      "Fomos eliminados pela Itália na semifinal. Até hoje acredito que nos roubaram um pênalti no fim do jogo.",
+      "Terminei a Copa de 94 como artilheiro empatado com 6 gols e recebi a Chuteira de Ouro.",
+      "Temperamento explosivo, pé esquerdo letal e a camisa 8. Esse era eu na inesquecível Copa de 94."
     ]
   },
   {
@@ -563,16 +563,34 @@
     "aceitos": ["rivaldo", "rivaldo vitor borba", "rivaldo vitor borba ferreira"],
     "nacionalidade": "Brasil",
     "dicas": [
-      "Carreguei na infância inteira uma pobreza impiedosa, onde os tempos nas terras secas cobraram parte dos meus dentes e criaram a estrutura torta (as 'cambotas') como traço em minhas fortes pernas de base.",
-      "Levei uma culpa imensa como bode expiatório inteiro pelos erros cruciais que trouxeram a tristeza monumental da queda triste nos jogos sediados na terra norte-americana no período amargo das pratas nas perdas do gol do Ouro.",
-      "O meu nome ficou nos registros da imensa história barcelonista, quando ergui a reverenciada Bola de Ouro pela minha temporada genial no meio das cobranças do torcedor local espanhol da época em 99.",
-      "Fui eu mesmo que entreguei aos torcedores incrédulos e enfurecidos da mídia o maior frisson ao cavar uma punição financeira, um amarelo para minha conta e ainda encenar absurdamente o doloroso impacto facial mesmo as imagens mundiais comprovando o golpe dado nas minhas batatas da perna contra o rival turco nos campos japoneses.",
-      "Pela grandeza tática do esquadrão, a liderança na linha pensante técnica de Scolari admitiu na televisão nos anos da eternidade que o trabalho mais absurdo e cerebral em prol do esquadrão pentacampeão foi arquitetura invisível criada sobre minhas atitudes e minhas cobranças ao elenco inteiro na zona quente do meio e ataque na Ásia.",
-      "A incrível proeza genial minha no embate da Copa na Inglaterra de David Seaman (com drible desconcertante rodando) também marcou os números fantásticos nos livros na conta com 5 espetáculos em rede cheia de bola nos nossos embates decisivos nas fases de campo e mata-mata.",
-      "No meu instante assombroso, fiz as cortinas da mágica no palco final, e a mágica se desenhou num sutil salto (ou popularmente um 'corta-luz') na qual a redonda macia desfilou em mim só resvalando sombra sem a sola da bota.",
-      "Sem egoísta luxúria nos holofotes das luzes da noite final na Copa nos países longes do Japão/Coreia na Copa inteira que passei calado jogando meu auge genial eu não ergui do mundo todo uma mídia justa pra minha história gloriosa com 10 clássica amarela estampada nas omoplatas dos uniformes soltos do Penta e final com vice.",
-      "Fui inquestionavelmente uma das peças centrais do triunfante elenco ofensivo mundial na última taça mundial que a Canarinho de fato trouxe nas mãos de um capitão à casa amarela com minha participação ativa gigante compondo com 2 reis em cena da mesma imponente constelação na linha dos 3 r...",
-      "O inabalável braço silencioso que dividia na época os louros e as grandes honrarias entre 2 astros sorridentes, dentuço e fenômeno que o planeta amava como Deuses."
+      "Cresci na pobreza extrema no Nordeste do Brasil. Passei dificuldades físicas sérias na infância, mas nada me impediu de chegar ao topo.",
+      "Fui apontado como culpado por uma eliminação importante do Brasil. A imprensa fez de mim o bode expiatório.",
+      "Ganhei a Bola de Ouro em 1999, mesmo sendo vaiado por parte da torcida do meu próprio clube na época.",
+      "Na Copa de 2002, fingi levar uma bola no rosto quando ela bateu na minha perna. O turco foi expulso. Polêmica mundial.",
+      "O técnico Scolari afirmou que minha liderança nos bastidores foi fundamental para o Brasil ganhar o Penta em 2002.",
+      "Na Copa de 2002, marquei 5 gols — incluindo um chute de longe histórico contra o goleiro David Seaman da Inglaterra.",
+      "Na final, dei um 'corta-luz' para o segundo gol de Ronaldo. A bola passou por mim sem tocar no pé — foi intencional.",
+      "Usei a camisa 10 no penta de 2002. Fui essencial, mas Ronaldo ficou com toda a atenção da mídia.",
+      "Fui uma das três peças centrais do ataque do Brasil campeão, formando a linha dos '3 Rs'.",
+      "Sou o 'R' mais experiente da trinca dos '3 Rs': eu, Ronaldo Fenômeno e Ronaldinho Gaúcho."
+    ]
+  },
+  {
+    "id": 32,
+    "nome": "Emiliano Martínez",
+    "aceitos": ["emiliano martinez", "dibu", "dibu martinez", "martinez"],
+    "nacionalidade": "Argentina",
+    "dicas": [
+      "Fiquei 10 anos no Arsenal sem jogar direito. A maior seca de suplente da história do clube.",
+      "Só virei titular porque o goleiro alemão do meu time se machucou feio. Obrigado, Bernd Leno.",
+      "Antes de virar estrela, rodei emprestado por Reading e Sheffield United nas divisões de baixo da Inglaterra.",
+      "Nas penalidades da Copa América contra a Colômbia, gritei pro cobrador: 'Mira que te como, hermano.' Ele errou.",
+      "Minha tática nos pênaltis é simples: falar tanto, dançar tanto e assustar tanto que o cobrador treme antes de bater.",
+      "Na final do Qatar 2022, nos acréscimos, defendi o chute do Kolo Muani com o pé. Foi a última jogada antes do título.",
+      "Na premiação da Copa, peguei a Luva de Ouro e fiz um gesto obsceno com ela na frente de todo mundo. Os franceses vaiaram. Não me arrependo.",
+      "Quando defendo pênalti, faço uma dança soltando os ombros que já virou meu símbolo. A torcida pirou com isso.",
+      "Hoje defendo o gol do Aston Villa, em Villa Park. Os torcedores dos Villans me adoram.",
+      "Sou o goleiro titular da Argentina campeã do mundo em 2022. Todo mundo me chama de Dibu."
     ]
   },
   {
@@ -601,7 +619,7 @@
     "dicas": [
       "Quando deixei o meu primeiro clube formador para rumar à Alemanha, eles decidiram retirar a minha camisola 22, apesar de eu ter apenas 17 anos.",
       "Fiz a minha estreia na equipa principal do Birmingham City com uns tenros 16 anos de idade.",
-      "Destacei-me no panorama europeu ao dominar o meio-campo com a camisola amarela e preta do Borussia Dortmund.",
+      "Destaquei-me no panorama europeu ao dominar o meio-campo com a camisola amarela e preta do Borussia Dortmund.",
       "Fui o merecido vencedor do prémio 'Golden Boy' para o melhor jogador jovem a atuar no continente europeu.",
       "Na minha primeira época em Espanha, tive um impacto imediato, marcando golos decisivos nos dois 'El Clásicos' do campeonato.",
       "Fiquei famoso por comemorar os meus golos parado, de braços bem abertos e cabeça erguida para a plateia.",
@@ -835,7 +853,7 @@
     "dicas": [
       "Estranhamente para o futebolista luso, eu preferi abandonar o país e ir iniciar a carreira no futebol principal de Itália num modesto clube: o Novara.",
       "As minhas longas deambulações no Cálcio mantiveram-me longe dos jornais, atuando em clubes como Udinese e UC Sampdoria até à chamada a Alvalade.",
-      "Destrocei completametne a história do futebol luso no último ano pela casa de leão ao peito: fiz mais golos diretos e oficiais numa época que qualquer outro médio do planeta.",
+      "Destrocei completamente a história do futebol luso no último ano pelo Sporting: fiz mais golos diretos e oficiais numa época que qualquer outro médio do planeta.",
       "Desembarquei em Inglaterra a meio da chuvosa temporada (janeiro de 2020) e imediatamente levantei, impulsionei e revigorei o ânimo desanimado dos meus companheiros.",
       "Desenvolvi a minha caraterística paragem nos doze passos — dou um vistoso salto e olho fixamente para o guarda-redes para lhe ler os pés antes de finalizar.",
       "O meu rosto nas transmissões está rotineiramente transfigurado em desespero, de tanto exigir garra e de gritar táticas com qualquer elemento na minha equipa.",
@@ -851,16 +869,16 @@
     "aceitos": ["alisson becker", "alisson", "alisson ramses"],
     "nacionalidade": "Brasil",
     "dicas": [
-      "Nasci com o sangue da defesa no corpo: as luvas estiveram sempre próximas na juventude, uma vez que o meu próprio irmão mais velho (Muriel) era guarda-redes nas mesmas lides sul-americanas.",
-      "Nos inícios difíceis no Calcio transalpino, vi as luzes e o som vindos do duro e desconfortável banco de reservas, ofuscado pela primazia de um tal de Wojciech Szczęsny.",
-      "Com grande espetáculo de saltos, agilidade e bravura, conduzi o emblema romano na assustadora missão vitoriosa de arrancar o Barcelona da Liga dos Campeões na eliminatória mágica em Roma.",
-      "A eternidade foi minha ao encabeçar a lista cobiçada para erguer, de todo primeiro lugar, o cintilante e glorioso Prémio de Melhor Guarda-Redes do Mundo.",
-      "Em 2021, comemorava o jogo sob uma aflição desastrosa de empate. Larguei a barra, cheguei às poças das redes, pulei na imensidão e desviei num incrível golo o ar cruzado duma bola pontapeada ao fim do canto final do relógio.",
-      "Na minha estante de tesouros erguem-se a honraria dos ouros sul-americanos na Copa América 2019 e a imensa Liga dos Campeões gloriosa britânica num só fulgurante par de meses de sonho.",
-      "Para espanto de muitos que apenas olham aos calções rasgados, fora dos portões pratico viola com harmonia e apresento regularmente um farto cabelo em face da habitual barba frondosa dos sábios.",
-      "Assumi a titularidade imperturbável do colete n°1 nos dois passados embates russos e das áridas Arábias sob a bandeira amarela pátria nas copas canarinhas mundiais.",
-      "Tenho o prestígio inquebrantável na área grande para escudar todos os escorregões nos campos temidos da relva na cidade britânica da lenda de Anfield Road.",
-      "Ajo nos duelos semanais para a fúria da águia 'Liver Bird' deitada no emblema, com a majestosa camisola amarrada para a meta sagrada do Liverpool Football Club."
+      "O futebol sempre correu na família: meu irmão mais velho, Muriel, também é goleiro profissional e jogou no Brasil.",
+      "Cheguei à Roma como reserva de Wojciech Szczęsny, mas logo tomei a posição e virei titular absoluto.",
+      "Fui goleiro titular da Roma quando eliminamos o Barcelona da Champions de forma épica em casa, virant o placar em 2018.",
+      "Fui o primeiro goleiro da história a ganhar o Troféu Yachine — o prêmio de melhor goleiro do mundo da FIFA.",
+      "Em 2021, subi para cobrar escanteio no último minuto de um jogo importante do Liverpool e marquei de cabeça. Um goleiro marcando gol.",
+      "Em 2019, venci a Copa América com o Brasil e a Liga dos Campeões com o Liverpool com semanas de diferença.",
+      "Fora dos campos, toco violão e sou conhecido pela barba e pelos cabelos compridos.",
+      "Fui o goleiro titular do Brasil nas Copas de 2018 (Rússia) e 2022 (Qatar).",
+      "Sou considerado o melhor goleiro da Premier League e titular absoluto do Liverpool em Anfield.",
+      "Defendo as redes do Liverpool Football Club, clube no qual sou ídolo e referência."
     ]
   },
   {
@@ -869,16 +887,16 @@
     "aceitos": ["lautaro martinez", "lautaro", "el toro"],
     "nacionalidade": "Argentina",
     "dicas": [
-      "Em tempos de inocente adolescente na pátria do sul, hesitei fortemente e as cestas do basquetebol seduziram o suor em contenda à relva dos campos de relva, até de optar a fundo em calçar pontapés no desporto rei.",
-      "A explosão fenomenal de agilidade desabrochou nas exibições sob as listas alvi-celestes envergando o emblema lendário do sul chamado Racing Club de Avellaneda.",
-      "Iniciei o duro campeonato transalpino como discreta sobra europeia ao ver desde fora do pódio o esplendor deslumbrante na artilharia do capitão compatriota chamado Icardi no banco à frente do mister.",
-      "Subi arduamente degrau na ribalta do Milão central até as fitas honoríficas amarrarem nas veias dos braços em título intocável sendo chefe e aclamado capitão de guerra a negro e a azul da Lombardia.",
-      "Nos campos tristonhos da final do mundo do Qatar em 22, falhei inúmeras grandes apostas na primeira mão sofrendo vaias mas, com os dentes furiosos do orgulho, fulminei de chumbo um implacável e inquestionável remate que tirou de prova o sonho cor-de-laranja nas penalidades perigosas da morte final dos Países Baixos das Quartas do Oriente Médio nas Copas do relógio da areia.",
-      "No glorioso campeonato verde em 23/24, eu passei as semanas esmagando o fundo da corda nos guarda-redes alheios e abocanhei o artilheiro do torneio conduzindo toda equipa triunfal a coroa final italiana da época de estrelas (Scudetto d’Ouro).",
-      "No verão reluzente e suado na Copa América nos EUA 2024, vi chegar o prémio para todo golo quando eu afirmei a lança heroicamente ao subir a grama na substituição desesperada já em relógio prolongado para afastar a perigosa zebra cor de sangue dos colombianos amargos da américa escura latina e dourada em Copas mundiais.",
-      "Pela impressionante entrega explosiva, cabeceamento temeroso sem dó da redonda no escuro da área e arranques robustos no espaço dos centímetros suados dos adversários do campeonato de glórias fui para todo o povoado batizado e amado de 'El Toro'.",
-      "Visto e levo nos peitos sagrados da malha gloriosa negra da Inter central as pesadas dezenas da história em número imortal dos pés de ícones o 10 em destaque.",
-      "Ao cruzar a pátria azul num mundo argentino de sonho nas áreas somo forças destemidas do país amarrado perto a linha com Julián Álvarez pelo título sul de copas divinas de ataque feroz e brutal da glória celeste da taça e o Mundial gigante e final das lendas sagradas da taça amada e cobiçada aos fãs das copas dos deuses a Argentina amada do meu peito no futebol glorioso de luz."
+      "Quando jovem, quase escolhi o basquete antes de decidir focar no futebol.",
+      "Me revelei no Racing Club, um dos grandes clubes da Argentina.",
+      "Cheguei à Europa como reserva de Icardi na Inter de Milão. Demorei para conquistar meu espaço.",
+      "Virei capitão e principal artilheiro da Inter, conquistando o título italiano.",
+      "Na Copa de 2022, errei várias chances no jogo contra a Holanda, mas nas penalidades cobrei o pênalti decisivo que eliminou os holandeses nas quartas.",
+      "Fui o artilheiro da Serie A na temporada 2023/24, levando a Inter ao Scudetto.",
+      "Na Copa América 2024, entrei como substituto nos acréscimos da final e marquei o gol da vitória contra a Colômbia.",
+      "A torcida me chama de 'El Toro' pela minha força, explosão e jogo físico dentro da área.",
+      "Uso a camisa 10 na Inter de Milão.",
+      "Sou o centroavante titular da Argentina campeã do mundo em 2022, formando um ataque letal com Julián Álvarez e Messi."
     ]
   },
   {
@@ -887,16 +905,16 @@
     "aceitos": ["pedri", "pedro gonzalez lopez"],
     "nacionalidade": "Espanha",
     "dicas": [
-      "Comecei a encantar os treinadores vindos do centro do arquipélago mágico quente do mar salgado: a minha juventude de esplendor teve luz própria ao abrigo insular exótico num tal clube de amarelo sob fama do sol em Las Palmas.",
-      "Eu não possuo na pele um carimbo dourado que carateriza tantas super estrelas barcelonesas na relva mítica da formação – eu cheguei de pronto e assinei os anos finais jovens, aterrando na casa como jovem contratado pela modesta quantia para subir na Catalunha.",
-      "As pautas de jogo iniciais levaram um momento assombroso num curto raio de estrelas ao passar os doces momentos na arena distribuindo toques aos deuses para o gênio ímpar Lionel a quem reverenciava no colo da memória.",
-      "Um dos cenários impressionantes da estória assombrosa das lides na era jovem europeia revelou-se na inacreditável conta e desgaste hercúleo: saltei relvas para defender 73 batalhas oficias intensas de provas, Liga, país europeu na Taça (Euro), aos duros exaustivos dias das Olimpíadas do astro sol asiático num só compasso no calendário extenuante longo sem respiros de glória numa temporada assustadora do recorde mortal num relvado ímpar e esgotado.",
-      "Pagaria as faturas sombrias dos louros insanos dessa mesma conta nos invernos das luas amargas da sala médica espanhola por durar as horas amargas entre lesões sombrias sem descanso longo em ruturas que arrastaram épocas das nuvens por amargos estalidos num músculo em três duros treinos nas batalhas cruéis das luas tristes nos doutores tristes de luz nas copas mundiais de gelo...",
-      "As passagens raras para coroação divina ergueram o cobiçado Troféu de Golden Boy aos céus em prêmio de ouro no ano estelar europeu a que se seguiria as estrelas raras do Kopa de sonho europeu nas premiações francesas.",
-      "Fui vítima trágica que chocou corações perante o planeta europeu no Euro no palco na relva da casa teutónica a estalar em fúria dos joelhos no piso num percalço assombroso com as travas duras num combate rude e perigoso com Kroos ao lado esquerdo ao pódio triste da glória na lesão europeia e final para sempre amarga do adeus das oitavas no sonho final ibérico de cruz no chão.",
-      "O dom majestoso natural perante e domar no curto das meias medidas curtas remete sem engano no cérebro do relvado saudades de um passado ao ver semelhanças e as comparações justas de magia divina imortal na casa amada do meu ídolo de juventude: Iniesta das graças da Espanha de encanto.",
-      "E eu vesti sem desonra no presente tempo do manto barcelonista uma mágica e valiosa camisola sagrada no qual assenta na pátria ibérica o legado final de oito em azul e vermelho na história ao clube catalão.",
-      "Nasci Pedro e, com carinho da torcida amada em casa, hoje o meio campo ibérico da seleção espanhola vive de luz e arte pelo garoto da nova trinca real dourada e companheiro leal incansável e talentoso ao lado do Lamine amado Yamal."
+      "Me revelei nas categorias do Las Palmas, nas Ilhas Canárias.",
+      "Ao contrário de outras estrelas do Barcelona, não fui formado na La Masia. Fui contratado vindo de fora.",
+      "Logo na minha chegada ao Barcelona, já jogava ao lado de Messi, meu grande ídolo de infância.",
+      "Disputei 73 partidas oficiais em uma única temporada — entre La Liga, Eurocopa e Olimpíadas de Tóquio. Um recorde absurdo de desgaste para um jovem.",
+      "Paguei o preço desse desgaste: sofri lesões sérias que me tiraram de campo por longos períodos nas temporadas seguintes.",
+      "Ganhei o prêmio Golden Boy e o Kopa Trophy, os principais reconhecimentos ao melhor jovem do futebol europeu.",
+      "Me machuquei gravemente jogando contra a Alemanha no Euro 2024, num choque com Toni Kroos. Tive que sair de campo nas oitavas.",
+      "Pela minha habilidade de jogar em espaços pequenos e controlar o ritmo do jogo, muitos me comparam ao ídolo Andrés Iniesta.",
+      "Uso a camisa 8 do Barcelona.",
+      "Me chamo Pedro, mas todos me conhecem como Pedri. Sou a grande referência do meio-campo da Espanha ao lado do jovem Lamine Yamal."
     ]
   },
   {
@@ -905,16 +923,16 @@
     "aceitos": ["lamine yamal", "yamal", "lamine yamal nasraoui ebana"],
     "nacionalidade": "Espanha",
     "dicas": [
-      "Uma curiosidade viral espantou a internet numa fotografia nostálgica, tirada numa banheira pela UNICEF, onde um sorridente ídolo de nome Messi lavava sorridente, nos carinhos da infância, uma criança de bochechas que se tornaria uma lenda do relvado atual.",
-      "As minhas origens multiculturais orgulham-se através dos meus pais, ostentando as bandeiras das terras marroquinas de areia nos passos da vida no pai das Arábias, aos encantos nas savanas da África Ocidental pelo sangue e terra da mãe (Guiné Equatorial).",
-      "Surgiu de um prodígio abençoado que não precisou treinar nos campos de fora nem desceu as luzes das portas vizinhas: saltei perante toda a linha das velhas e famosas formações da canteira amada num templo barcelonista da Catalunha chamada casa em 'La Masia'.",
-      "Em dias insanos das notícias no gramado sem parar do tempo jovem perante um desfile imortal para destruir lendas dos séculos, entrei em relvado principal do país ibérico na La Liga e quebrei assombrosos e inquestionáveis marcos sagrados em idades puras aos impressionantes e tenros míseros 15 anos nos relvados oficias e históricos do meu clube em Espanha num golo genial jovem amado de esperança.",
-      "Fiz parangonas históricas no jornal internacional no percurso assombroso do calor europeu recente quando levantei em arco, de fora espetacular com as magias do meu pé canivete esquerdo e, da rua fria, assinalou um dos golos mágicos celestiais que perfurou com arte as redes das meias-finais de forma fenomenal frente às armaduras da vizinha equipa francesa num duelo histórico do Euro no gramado alemão.",
-      "Durante o percurso mágico em terras teutónicas na prova brilhante europeia, na reclusão hoteleira eu passava noites estranhas à beira dos exames do tempo escolar da escola do secundário em livros amargos no canto final nas chamadas com o meu professor no meio da fase do desporto de topo.",
-      "Fiz uma dupla sensacional letal de dribles e fantasia das alas num entrosamento espetacular formidável perante todo continente nas relvas europeias e ataque ibérico ao par genial talentoso de sangue Nico em par veloz nos dois extremos do gramado.",
-      "Para homenagear com reverências e a alma intocável as vielas humildes do meu humilde bairro onde o meu sangue cresceu e batalhei no chão de rua e tijolo, festejo sempre nas vitórias gloriosas, juntando orgulhosos dedos na face desenhando uma mágica alusão imortal a “304” – código e marca de amor postal às minhas ruas amadas.",
-      "A idade tenra não reteve a taça amada em terras ricas no dia mais histórico nas finais: tornei-me oficialmente a criança maravilha, ou o jogador de talento mais jovem na Terra do desporto em finais europeus da UEFA, ganhando a medalha e erguendo do pódio em alto brado a glória gloriosa em ouro celestial aos 17 aninhos de idade.",
-      "Após a prova das glórias, na partida amada dos ares ao novo relógio barcelonista as homenagens divinas entregaram com o peso nobres nas linhas a antiga, e outrora usada em Lionel e deuses da equipa de Barcelona nas luzes de Espanha a honrosa camisola no formato mágico sagrado do glorioso e genial número 19 em campo no pódio direito barcelonês nas relvas no clube."
+      "Existe uma foto viral minha bebê sendo banhado por Messi num projeto da UNICEF. Na época ninguém sabia que eu seria seu companheiro de seleção anos depois.",
+      "Tenho raízes africanas: meu pai é marroquino e minha mãe é da Guiné Equatorial.",
+      "Fui formado na La Masia, a famosa academia de futebol do Barcelona.",
+      "Com apenas 15 anos, me tornei um dos mais jovens a estrear e marcar pela La Liga na história do Barcelona.",
+      "Marquei um golaço de fora da área contra a França na semifinal do Euro 2024 — um dos gols mais bonitos do torneio.",
+      "Durante o Euro 2024, ainda era obrigado a fazer videochamadas com professores para acompanhar as aulas do colégio — tinha apenas 17 anos.",
+      "Formei uma dupla eletrizante com Nico Williams nos dois flancos da Espanha durante o Euro 2024.",
+      "Quando marco, comemoro mostrando o número '304' com os dedos — o código postal do bairro onde cresci em Barcelona.",
+      "Com 17 anos, me tornei o jogador mais jovem a jogar e ganhar uma final de Eurocopa na história.",
+      "No Barcelona, uso a camisa 19 — o mesmo número que Messi usou no início da sua carreira no clube."
     ]
   },
   {
@@ -923,16 +941,16 @@
     "aceitos": ["emiliano martinez", "dibu", "dibu martinez", "martinez"],
     "nacionalidade": "Argentina",
     "dicas": [
-      "No meu passado longo num percurso europeu frustrado sem sol ou oportunidades divinas nas terras de Sua Majestade nas neblinas inglesas, gastei dez penosos e ocultos dez anos silenciosos amarrado nas amarguras do suplente profundo sob o teto da glória e casa em Londres no banco sem cor do Arsenal.",
-      "A glória dourada apareceu disfarçada nos contornos sombrios e bizarros das portas do destino fatal: a fatídica lesão horrível perante o colega alemão de luvas em Londres nas defesas de Bernd Leno concedeu, de supetão no golo, as valiosas e merecidas chaves preciosas do relvado que sonhei em lides nas balizas do primeiro nível aos gramados ingleses do futebol do sol do fim em anos sombrios em jogo na capital do reino em ouro.",
-      "Durante o exílio no gelo frio nas divisas londrinas amarguei a sina nas duras relvas perigosas inglesas em divisões rudes pelo empréstimo de times e suor como nas glórias menores no Reading das terras locais de luz nos relvados pequenos do futebol suado ou nas malhas roxas no pódio fraco do Sheffield em anos perigosos do futebol fraco na liga e o suor sem luz das provas secundárias na Europa amargurada em relva de frio.",
-      "Fui o temível terror da grande Colômbia da linha de fogo de penáltis sem medo em que ecoou as falas divinas amargas do grito nas áreas sul americanas nas semi finais na selva gloriosa da América perante o relvado a ecoar 'Mira que te como, hermano' pelo calor sem lei nas batalhas cruéis das disputas amargas sul da relva.",
-      "Tive momentos sombrios que causavam confusões mentais extremas perante cobradores rivais numa estratégia de caos calculada, onde deitava palavras duras e danças sarcásticas assustadoras durante a hora tensa do juiz para travar a alma pura daquele pobre desgraçado que avançava 11 metros num abismo profundo aos penalties de terror em ouro da relva sagrada no pódio das redes sul de relva amada em taça da minha pátria alviceleste nas glórias dos pódios mundiais em jogos nas arenas de sangue amado no sol divinal do mundo e no pódio de relva.",
-      "Num dos desfechos infartantes em terra rica arábica na final da Copa em 122 minutos gloriosos da lenda, no Qatar sublime e amado, ao calar do tempo estendi a perna em milagre do céu numa parada divina assombrosa à frente da marca no remate fulminante sem defesa e amargo que vinha da chuteira cruel voadora gaulesa cruel e rápida cruel nas lides em bico amargo pelo matador cruel adversário final do futebol chamado Muani a quem parei a bala do relógio num ato impiedoso genial do relvado amargo cruel de sangue nos gramados árabes aos pés do gol no fim das épocas das estrelas da arena amada da glória dos deuses árabes nas Copas amadas do futebol no pódio mundial das estrelas...",
-      "Protagonizei um escândalo mundial e polémico aos ecrãs na entrega dos dourados prémios dourados debaixo de apupos franceses após pegar do palco em braço a cobiçada Luva dourada do pódio para posicionar o símbolo na zona amarga inferior num momento nojento de gozo da arena amada de festa no momento mais insano absurdo genial cobiçado e inesquecível de escárnio no gramado e glória das luzes de fama mundial num riso divino dos ídolos do pódio amado de ouro amargo mundial divino de ouro na vida nas lides gloriosas da glória e da amargura ao relvado do astro Rei em ouro e fogo divino na vida das copas em pódio amado do mundo desportivo da lenda no pódio glorioso e polémico de relvas sagradas da bola e glórias do esporte...",
-      "Ao celebrar, num momento de caos nos nervos em que a bola da fúria cruel esbarrava as luvas ou morria por fora amarga ao cair dos pés adversários em penáltis cruéis na grande taça gloriosa das vitórias e defesas, executei e tornei imortal num riso da plateia gloriosa da pátria a peculiar e dancinha esquisita de soltos ombros na grande glória da arena aos festejos insanos de glória amada da vitória de ouro nos trópicos da fama da relva mundial ao grito da minha equipa argentina em pódio.",
-      "Nos relvados recheados dos pódios da capital das glórias eu guardo com fama absoluta as portas imortais em lides pelo adorado e cobiçado emblema sagrado nas fúrias dos Villans na relva amada inglesa para o orgulhoso e fanático estádio inconfundível de gritos gloriosos chamado gloriosamente nas bocas da glória e das lendas de ouro em Villa Park na era divina e rica do meu clube formidável inglês na relva no pódio em Inglaterra.",
-      "Com enorme estatura que fecha todo o gol das vitórias da minha adorada Argentina ao meu coração glorioso em glória, todos conhecem a fúria em ouro do meu desporto e sou adorado pelas massas da minha pátria alviceleste por todo o amor da glória amada num nome curto carinhoso de televisão amada que me batiza ao coração eterno genial sagrado e glorioso e de ouro adorado nos corações da lenda amada e apelido divinal para sempre dos ídolos com o nome genial em ouro: Dibu."
+      "Fiquei 10 anos no Arsenal sem jogar direito. A maior seca de suplente da história do clube.",
+      "Só virei titular porque o goleiro alemão do meu time se machucou feio. Obrigado, Bernd Leno.",
+      "Antes de virar estrela, rodei emprestado por Reading e Sheffield United nas divisões de baixo da Inglaterra.",
+      "Nas penalidades da Copa América contra a Colômbia, gritei pro cobrador: 'Mira que te como, hermano.' Ele errou.",
+      "Minha tática nos pênaltis é simples: falar tanto, dançar tanto e assustar tanto que o cobrador treme antes de bater.",
+      "Na final do Qatar 2022, nos acréscimos, defendi o chute do Kolo Muani com o pé. Foi a última jogada antes do título.",
+      "Na premiação da Copa, peguei a Luva de Ouro e fiz um gesto obsceno com ela na frente de todo mundo. Os franceses vaiaram. Não me arrependo.",
+      "Quando defendo pênalti, faço uma dança soltando os ombros que já virou meu símbolo. A torcida pirou com isso.",
+      "Hoje defendo o gol do Aston Villa, em Villa Park. Os torcedores dos Villans me adoram.",
+      "Sou o goleiro titular da Argentina campeã do mundo em 2022. Todo mundo me chama de Dibu."
     ]
   }
 ]
