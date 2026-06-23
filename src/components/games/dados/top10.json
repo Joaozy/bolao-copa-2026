@@ -558,5 +558,165 @@
       { "id": 380, "nome": "Wendell Lira", "aceitos": ["wendell lira", "lira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
       { "id": 381, "nome": "James Rodríguez", "aceitos": ["james rodriguez", "james"], "nacionalidade": "Colômbia", "flag_url": "https://flagcdn.com/w40/co.png" }
     ]
+  },
+  {
+    "id": 36,
+    "tema": "Maiores Marcadores da História do Brasileirão (Geral)",
+    "jogadores": [
+      { "id": 382, "nome": "Roberto Dinamite", "aceitos": ["roberto dinamite", "dinamite"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 383, "nome": "Fred", "aceitos": ["fred", "frederico chaves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 384, "nome": "Romário", "aceitos": ["romario", "baixinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 385, "nome": "Edmundo", "aceitos": ["edmundo", "animal"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 386, "nome": "Zico", "aceitos": ["zico", "arthur antunes"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 387, "nome": "Diego Souza", "aceitos": ["diego souza"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 388, "nome": "Túlio Maravilha", "aceitos": ["tulio", "tulio maravilha"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 389, "nome": "Serginho Chulapa", "aceitos": ["serginho chulapa", "chulapa"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 390, "nome": "Washington", "aceitos": ["washington", "coracao valente"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 391, "nome": "Gabigol", "aceitos": ["gabigol", "gabriel barbosa", "gabriel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 37,
+    "tema": "Maiores Marcadores da Era dos Pontos Corridos do Brasileirão (desde 2003)",
+    "jogadores": [
+      { "id": 392, "nome": "Fred", "aceitos": ["fred", "frederico chaves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 393, "nome": "Diego Souza", "aceitos": ["diego souza"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 394, "nome": "Gabigol", "aceitos": ["gabigol", "gabriel barbosa", "gabriel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 395, "nome": "Wellington Paulista", "aceitos": ["wellington paulista", "paulista"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 396, "nome": "Borges", "aceitos": ["borges"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 397, "nome": "Alecsandro", "aceitos": ["alecsandro", "alecgol"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 398, "nome": "Washington", "aceitos": ["washington", "coracao valente"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 399, "nome": "Rafael Moura", "aceitos": ["rafael moura", "he-man"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 400, "nome": "Luís Fabiano", "aceitos": ["luis fabiano", "fabuloso"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 401, "nome": "Roger", "aceitos": ["roger", "roger rodrigues"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 38,
+    "tema": "Estrangeiros com mais golos na História do Brasileirão",
+    "jogadores": [
+      { "id": 402, "nome": "Dejan Petković", "aceitos": ["dejan petkovic", "petkovic", "pet"], "nacionalidade": "Sérvia", "flag_url": "https://flagcdn.com/w40/rs.png" },
+      { "id": 403, "nome": "Germán Cano", "aceitos": ["german cano", "cano"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 404, "nome": "Paolo Guerrero", "aceitos": ["paolo guerrero", "guerrero"], "nacionalidade": "Peru", "flag_url": "https://flagcdn.com/w40/pe.png" },
+      { "id": 405, "nome": "Giorgian De Arrascaeta", "aceitos": ["giorgian de arrascaeta", "arrascaeta"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 406, "nome": "Víctor Aristizábal", "aceitos": ["victor aristizabal", "aristizabal"], "nacionalidade": "Colômbia", "flag_url": "https://flagcdn.com/w40/co.png" },
+      { "id": 407, "nome": "Andrés D'Alessandro", "aceitos": ["andres d'alessandro", "d'alessandro", "dalessandro"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 408, "nome": "Hernán Barcos", "aceitos": ["hernan barcos", "barcos", "pirata"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 409, "nome": "Marcelo Moreno", "aceitos": ["marcelo moreno", "moreno"], "nacionalidade": "Bolívia", "flag_url": "https://flagcdn.com/w40/bo.png" },
+      { "id": 410, "nome": "Jonathan Calleri", "aceitos": ["jonathan calleri", "calleri"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 411, "nome": "Darío Conca", "aceitos": ["dario conca", "conca"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" }
+    ]
+  },
+  {
+    "id": 39,
+    "tema": "Jogadores com mais partidas disputadas na História do Brasileirão",
+    "jogadores": [
+      { "id": 412, "nome": "Fábio", "aceitos": ["fabio", "fabio maciel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 413, "nome": "Rogério Ceni", "aceitos": ["rogerio ceni", "ceni"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 414, "nome": "Diego Souza", "aceitos": ["diego souza"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 415, "nome": "Wellington Paulista", "aceitos": ["wellington paulista", "paulista"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 416, "nome": "Fábio Santos", "aceitos": ["fabio santos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 417, "nome": "Cássio", "aceitos": ["cassio", "cassio ramos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 418, "nome": "Leonardo Moura", "aceitos": ["leonardo moura", "leo moura"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 419, "nome": "Victor", "aceitos": ["victor", "sao victor"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 420, "nome": "Márcio Araújo", "aceitos": ["marcio araujo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 421, "nome": "Fagner", "aceitos": ["fagner"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 40,
+    "tema": "Últimos 10 Vencedores da Bola de Ouro (Prémio Craque do Brasileirão CBF)",
+    "jogadores": [
+      { "id": 422, "nome": "Luis Suárez", "aceitos": ["luis suarez", "suarez", "el pistolero"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 423, "nome": "Gustavo Scarpa", "aceitos": ["gustavo scarpa", "scarpa"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 424, "nome": "Hulk", "aceitos": ["hulk", "givanildo"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 425, "nome": "Claudinho", "aceitos": ["claudinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 426, "nome": "Bruno Henrique", "aceitos": ["bruno henrique", "bh"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 427, "nome": "Dudu", "aceitos": ["dudu", "eduardo pereira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 428, "nome": "Jô", "aceitos": ["jo", "joao alves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 429, "nome": "Gabriel Jesus", "aceitos": ["gabriel jesus", "jesus"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 430, "nome": "Renato Augusto", "aceitos": ["renato augusto"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 431, "nome": "Éverton Ribeiro", "aceitos": ["everton ribeiro", "miteiro"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 41,
+    "tema": "Últimos 10 Artilheiros do Brasileirão (Melhores Marcadores por Edição)",
+    "jogadores": [
+      { "id": 432, "nome": "Paulinho", "aceitos": ["paulinho", "paulo henrique"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 433, "nome": "Germán Cano", "aceitos": ["german cano", "cano"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 434, "nome": "Hulk", "aceitos": ["hulk"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 435, "nome": "Claudinho", "aceitos": ["claudinho"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 436, "nome": "Luciano", "aceitos": ["luciano"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 437, "nome": "Gabigol", "aceitos": ["gabigol", "gabriel barbosa", "gabriel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 438, "nome": "Jô", "aceitos": ["jo", "joao alves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 439, "nome": "Henrique Dourado", "aceitos": ["henrique dourado", "ceifador"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 440, "nome": "Fred", "aceitos": ["fred", "frederico chaves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 441, "nome": "Ricardo Oliveira", "aceitos": ["ricardo oliveira", "pastor"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 42,
+    "tema": "Treinadores com mais Títulos do Campeonato Brasileiro",
+    "jogadores": [
+      { "id": 442, "nome": "Vanderlei Luxemburgo", "aceitos": ["vanderlei luxemburgo", "luxemburgo", "luxa"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 443, "nome": "Lula", "aceitos": ["lula", "luis alonso perez"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 444, "nome": "Muricy Ramalho", "aceitos": ["muricy ramalho", "muricy"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 445, "nome": "Rubens Minelli", "aceitos": ["rubens minelli", "minelli"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 446, "nome": "Ênio Andrade", "aceitos": ["enio andrade", "enio"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 447, "nome": "Telê Santana", "aceitos": ["tele santana", "tele", "mestre tele"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 448, "nome": "Cuca", "aceitos": ["cuca", "alexi stival"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 449, "nome": "Abel Ferreira", "aceitos": ["abel ferreira", "abel"], "nacionalidade": "Portugal", "flag_url": "https://flagcdn.com/w40/pt.png" },
+      { "id": 450, "nome": "Marcelo Oliveira", "aceitos": ["marcelo oliveira"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 451, "nome": "Tite", "aceitos": ["tite", "adenor", "adenor leonardo bachi"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 43,
+    "tema": "Últimos 10 Guarda-redes Campeões do Brasileirão (Era dos Pontos Corridos)",
+    "jogadores": [
+      { "id": 452, "nome": "Weverton", "aceitos": ["weverton"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 453, "nome": "Everson", "aceitos": ["everson"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 454, "nome": "Diego Alves", "aceitos": ["diego alves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 455, "nome": "Cássio", "aceitos": ["cassio", "cassio ramos"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 456, "nome": "Fernando Prass", "aceitos": ["fernando prass", "prass"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 457, "nome": "Diego Cavalieri", "aceitos": ["diego cavalieri", "cavalieri"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 458, "nome": "Júlio César", "aceitos": ["julio cesar"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 459, "nome": "Bruno", "aceitos": ["bruno", "bruno fernandes"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 460, "nome": "Rogério Ceni", "aceitos": ["rogerio ceni", "ceni"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 461, "nome": "Fábio", "aceitos": ["fabio", "fabio maciel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
+  },
+  {
+    "id": 44,
+    "tema": "Maiores Marcadores da História da Taça Libertadores (Geral)",
+    "jogadores": [
+      { "id": 462, "nome": "Alberto Spencer", "aceitos": ["alberto spencer", "spencer"], "nacionalidade": "Equador", "flag_url": "https://flagcdn.com/w40/ec.png" },
+      { "id": 463, "nome": "Fernando Morena", "aceitos": ["fernando morena", "morena"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 464, "nome": "Pedro Virgilio Rocha", "aceitos": ["pedro virgilio rocha", "pedro rocha"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 465, "nome": "Daniel Onega", "aceitos": ["daniel onega", "onega"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 466, "nome": "Gabigol", "aceitos": ["gabigol", "gabriel barbosa", "gabriel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 467, "nome": "Julio Morales", "aceitos": ["julio morales", "morales"], "nacionalidade": "Uruguai", "flag_url": "https://flagcdn.com/w40/uy.png" },
+      { "id": 468, "nome": "Antony de Ávila", "aceitos": ["antony de avila", "de avila"], "nacionalidade": "Colômbia", "flag_url": "https://flagcdn.com/w40/co.png" },
+      { "id": 469, "nome": "Luizão", "aceitos": ["luizao"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 470, "nome": "Juan Carlos Sarnari", "aceitos": ["juan carlos sarnari", "sarnari"], "nacionalidade": "Argentina", "flag_url": "https://flagcdn.com/w40/ar.png" },
+      { "id": 471, "nome": "Miguel Borja", "aceitos": ["miguel borja", "borja"], "nacionalidade": "Colômbia", "flag_url": "https://flagcdn.com/w40/co.png" }
+    ]
+  },
+  {
+    "id": 45,
+    "tema": "Brasileiros com mais golos na História da Taça Libertadores",
+    "jogadores": [
+      { "id": 472, "nome": "Gabigol", "aceitos": ["gabigol", "gabriel barbosa", "gabriel"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 473, "nome": "Luizão", "aceitos": ["luizao"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 474, "nome": "Palhinha", "aceitos": ["palhinha"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 475, "nome": "Fred", "aceitos": ["fred", "frederico chaves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 476, "nome": "Pedro", "aceitos": ["pedro", "pedro guilherme"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 477, "nome": "Célio Taveira", "aceitos": ["celio taveira", "celio"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 478, "nome": "Rony", "aceitos": ["rony", "ronielson"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 479, "nome": "Bruno Henrique", "aceitos": ["bruno henrique", "bh"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 480, "nome": "Jairzinho", "aceitos": ["jairzinho", "furacao"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" },
+      { "id": 481, "nome": "Guilherme", "aceitos": ["guilherme", "guilherme alves"], "nacionalidade": "Brasil", "flag_url": "https://flagcdn.com/w40/br.png" }
+    ]
   }
 ]

@@ -20,7 +20,7 @@ export default function DetetiveCopa() {
   const [step, setStep] = useState('setup'); // setup, playing, round_result, gameover
   const [misteriosDaPartida, setMisteriosDaPartida] = useState([]);
   
-  // 🧠 NOVO: Pool de Autocomplete (Jogadores 2026 + Lendas do Detetive)
+  // Pool de Autocomplete Limpo (Jogadores 2026 + Lendas sem duplicatas)
   const [poolBusca, setPoolBusca] = useState([]);
 
   // Estados Globais da Partida
@@ -42,29 +42,46 @@ export default function DetetiveCopa() {
     async function prepararBancoDeBusca() {
       const times = await loadCopaTimes();
       
-      // Mapeia os times para tentar puxar a bandeira das lendas, se o nome bater
       const timesMapByName = {};
-      times.forEach(t => { timesMapByName[t.name.toLowerCase()] = t; });
+      times.forEach(t => { timesMapByName[normalizarTexto(t.name)] = t; });
 
-      // 1. Pega os jogadores da Copa atual
+      // 1. Transforma Lendas em Perfis
+      const lendasInjetadas = DETETIVE_DB.map(lenda => ({
+        id: `lenda-${lenda.id}`,
+        name: lenda.nome,
+        team_name: lenda.nacionalidade,
+        badge_url: timesMapByName[normalizarTexto(lenda.nacionalidade)]?.badge_url || null,
+        pos1: 'ÍCONE',
+        overall: 99
+      }));
+
+      // 2. Prepara os jogadores atuais
       const atuais = JOGADORES_COPA.map(j => ({
         ...j,
         team_name: times.find(t => String(t.id) === String(j.team_id))?.name || 'Nação',
         badge_url: times.find(t => String(t.id) === String(j.team_id))?.badge_url || null
       }));
 
-      // 2. Transforma o nosso banco de lendas em "Perfis" pesquisáveis
-      const lendasInjetadas = DETETIVE_DB.map(lenda => ({
-        id: `lenda-${lenda.id}`,
-        name: lenda.nome,
-        team_name: lenda.nacionalidade,
-        badge_url: timesMapByName[lenda.nacionalidade.toLowerCase()]?.badge_url || null,
-        pos1: 'ÍCONE', // Classe especial para eles!
-        overall: 99    // Força máxima
-      }));
+      // 3. 🔥 FILTRO ANTI-DUPLICATAS 🔥
+      // Remove da lista atual qualquer jogador que já tenha uma versão Lenda (mesmo país e nome compatível)
+      const atuaisFiltrados = atuais.filter(atual => {
+        const nomeAtualLimpo = normalizarTexto(atual.name);
+        const paisAtualLimpo = normalizarTexto(atual.team_name);
 
-      // 3. Mistura tudo no estado que a barra de pesquisa vai ler
-      setPoolBusca([...atuais, ...lendasInjetadas]);
+        const isDuplicata = DETETIVE_DB.some(lenda => {
+          const termosLenda = normalizarTexto(lenda.nome).split(' ');
+          // Se todos os termos do nome da Lenda estiverem no nome do Atual (ex: lionel e messi em "MESSI Lionel")
+          const temTodosTermos = termosLenda.every(termo => nomeAtualLimpo.includes(termo));
+          const mesmoPais = paisAtualLimpo === normalizarTexto(lenda.nacionalidade);
+          
+          return temTodosTermos && mesmoPais;
+        });
+
+        return !isDuplicata;
+      });
+
+      // 4. Junta tudo num banco limpo
+      setPoolBusca([...atuaisFiltrados, ...lendasInjetadas]);
     }
     prepararBancoDeBusca();
   }, []);
@@ -92,7 +109,6 @@ export default function DetetiveCopa() {
     setInput(texto);
     if (texto.length >= 3) {
       const t = normalizarTexto(texto);
-      // 🔥 Agora ele filtra pelo nosso Banco Misto (Atual + Lendas)
       const filtrados = poolBusca.filter(j => normalizarTexto(j.name).includes(t)).slice(0, 6);
       setSugestoes(filtrados);
     } else {
@@ -100,13 +116,24 @@ export default function DetetiveCopa() {
     }
   };
 
-  const avaliarPalpite = (nomeSugerido) => {
+  const avaliarPalpite = (jogadorSugerido) => {
     setInput("");
     setSugestoes([]);
-    const nomeLimpo = normalizarTexto(nomeSugerido);
+    const nomeLimpo = normalizarTexto(jogadorSugerido.name);
 
-    // Verifica se acertou baseado no array "aceitos" da lenda
-    const acertou = misterioAtual.aceitos.map(a => normalizarTexto(a)).includes(nomeLimpo);
+    let acertou = false;
+
+    // Validação 1: O ID bateu diretamente com o ID da lenda atual? (Suprema Certeza)
+    if (jogadorSugerido.id === `lenda-${misterioAtual.id}`) {
+      acertou = true;
+    } 
+    // Validação 2: Fallback textual (Se ele achou alguém compatível nos aliases)
+    else {
+      acertou = misterioAtual.aceitos.some(a => {
+        const aceitoLimpo = normalizarTexto(a);
+        return nomeLimpo.includes(aceitoLimpo) || aceitoLimpo.includes(nomeLimpo);
+      });
+    }
 
     if (acertou) {
       const pontos = (11 - tentativa) * 10; 
@@ -114,7 +141,7 @@ export default function DetetiveCopa() {
       setPontuacaoTotal(prev => prev + pontos);
       setStep('round_result');
     } else {
-      setPalpitesErrados(prev => [...prev, nomeSugerido]);
+      setPalpitesErrados(prev => [...prev, jogadorSugerido.name]);
       if (tentativa < 10) {
         setTentativa(prev => prev + 1);
         if (inputRef.current) inputRef.current.focus();
@@ -217,7 +244,7 @@ export default function DetetiveCopa() {
               {sugestoes.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, borderRadius: 8, marginTop: 4, overflow: 'hidden', border: '1px solid #333' }}>
                   {sugestoes.map(j => (
-                    <div key={j.id} className="det-sug" onClick={() => avaliarPalpite(j.name)}>
+                    <div key={j.id} className="det-sug" onClick={() => avaliarPalpite(j)}>
                       {j.badge_url && <img src={j.badge_url} alt="" style={{ width: 24, borderRadius: 2 }} />}
                       <span style={{ fontSize: 16, flex: 1 }}>{j.name}</span>
                       {j.pos1 === 'ÍCONE' && (
