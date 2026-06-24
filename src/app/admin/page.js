@@ -57,8 +57,8 @@ export default function Admin() {
       supabase.from('competitions').select('*').order('id'),
       supabase.from('teams').select('*').order('name'),
       supabase.from('games').select(`*, competition:competitions(name), team_a:teams!team_a_id(name, badge_url, flag_code), team_b:teams!team_b_id(name, badge_url, flag_code)`).order('start_time', { ascending: false }),
-      supabase.from('enrollments').select('*'), 
-      supabase.from('profiles').select('*').order('email'),
+      supabase.from('enrollments').select('*').limit(10000), 
+      supabase.from('profiles').select('*').order('email').limit(10000),
       supabase.from('banners').select('*').order('order_index'),
       supabase.from('sponsors').select('*').order('order_index'),
       supabase.from('bets').select('*').limit(50000) // Trazendo todos os palpites
@@ -120,7 +120,7 @@ export default function Admin() {
         {activeTab === 'banners' && <TabBanners banners={banners} fetchAllData={fetchAllData} />}
         {activeTab === 'sponsors' && <TabSponsors sponsors={sponsors} fetchAllData={fetchAllData} />}
         
-        // 🔥 AGORA ELE PASSA A FUNÇÃO FETCHALLDATA PARA O FILHO! 
+        
         {activeTab === 'palpites' && (
           <TabPalpites 
             allProfiles={allProfiles} 
