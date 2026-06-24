@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useCallback } from 'react';
-import PERGUNTAS from './dados/perguntasCopa.json';
+import PERGUNTAS from '@/components/games/dados/perguntasCopa.json';
 
 // ─── Prêmios ────────────────────────────────────────────────────────────────
 const PREMIOS = [
