@@ -192,8 +192,15 @@ export default function CentralDeJogos() {
       `)
       .eq('game_id', game.id);
 
+    // --- LOGS DE DIAGNÓSTICO ---
+    if (error) {
+      console.error("ERRO AO BUSCAR PALPITES NO SUPABASE:", error);
+    } else {
+      console.log(`Buscando palpites pro jogo ID ${game.id}. Retornou:`, data);
+    }
+    // ---------------------------
+
     if (data && !error) {
-        // Ordenar: Se o jogo acabou ou tá ao vivo, ordena quem tá pontuando mais
         const sortedBets = data.sort((a, b) => {
             const hasMatchData = (game.status_short && game.status_short !== 'NS') || (game.score_a !== null && game.score_b !== null);
             let ptsA = a.points_awarded || 0;
@@ -203,7 +210,7 @@ export default function CentralDeJogos() {
                 ptsA = calcularPontosAoVivo(a.guess_score_a, a.guess_score_b, game.score_a, game.score_b) || 0;
                 ptsB = calcularPontosAoVivo(b.guess_score_a, b.guess_score_b, game.score_a, game.score_b) || 0;
             }
-            return ptsB - ptsA; // Decrescente
+            return ptsB - ptsA; 
         });
         setGameBets(sortedBets);
     }
