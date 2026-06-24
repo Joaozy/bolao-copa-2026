@@ -35,9 +35,9 @@
     "id": 5,
     "question": "Quem é o maior artilheiro de toda a história das Copas do Mundo masculinas?",
     "options": ["Pelé", "Ronaldo Nazário", "Miroslav Klose", "Lionel Messi"],
-    "answerIndex": 2,
+    "answerIndex": 3,
     "difficulty": "medio",
-    "var_hint": "O VAR detectou que o recordista é um atacante alemão que somou 16 gols ao longo de quatro Copas."
+    "var_hint": "O VAR detectou que o recordista é um baixinho que joga por uma equipe sulamericana, tem o apelido de ET."
   },
   {
     "id": 6,
