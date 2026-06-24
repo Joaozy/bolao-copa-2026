@@ -96,7 +96,7 @@ export default function GameHub() {
   const [activeGame, setActiveGame] = useState(null);
 
   // Roteador de Jogos
-  if (activeGame === 'show-do-copa') return (
+  if (activeGame === 'show-da-copa') return (
     <GameWithBack onBack={() => setActiveGame(null)}><ShowDaCopa /></GameWithBack>
   );
   if (activeGame === 'draft') return (
