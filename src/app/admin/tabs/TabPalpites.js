@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 
-export default function TabPalpites({ allProfiles, games, allBets = [], enrollments = [] }) {
+export default function TabPalpites({ allProfiles, games, allBets = [], enrollments = [], fetchAllData }) {
   // Estados da injeção manual
   const [selectedUser, setSelectedUser] = useState('')
   const [selectedGame, setSelectedGame] = useState('')
@@ -54,10 +54,12 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
 
   // Palpites do jogo auditado (Correção de tipo de dado aplicando Number)
   const betsForAuditGame = allBets.filter(b => Number(b.game_id) === Number(auditGame))
-  const usersWhoBetIds = betsForAuditGame.map(b => b.user_id)
+  
+  // 🔥 BLINDAGEM DE TIPOS NA AUDITORIA
+  const usersWhoBetIds = betsForAuditGame.map(b => String(b.user_id).trim())
   
   // Quem está inscrito mas NÃO palpitou ainda neste jogo
-  const missingUsers = enrolledProfilesForAudit.filter(p => !usersWhoBetIds.includes(p.id))
+  const missingUsers = enrolledProfilesForAudit.filter(p => !usersWhoBetIds.includes(String(p.id).trim()))
 
   // Lista de participantes da auditoria filtrados pela digitação
   const filteredProfilesForAudit = enrolledProfilesForAudit.filter(p => {
@@ -66,7 +68,7 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
   })
 
   // Palpite do participante específico consultado na auditoria
-  const selectedUserBet = auditUser ? betsForAuditGame.find(b => b.user_id === auditUser) : null
+  const selectedUserBet = auditUser ? betsForAuditGame.find(b => String(b.user_id).trim() === String(auditUser).trim()) : null
 
 
   const handleSubmit = async (e) => {
@@ -93,6 +95,10 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
         setStatus('✅ Palpite injetado com sucesso!')
         setScoreA('')
         setScoreB('')
+        
+        // 🔥 A MÁGICA DO SINCRONISMO ACONTECE AQUI:
+        if (fetchAllData) await fetchAllData()
+        
       } else {
         setStatus(`❌ Erro: ${data.error}`)
       }
