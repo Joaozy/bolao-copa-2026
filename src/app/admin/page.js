@@ -61,7 +61,7 @@ export default function Admin() {
       supabase.from('profiles').select('*').order('email'),
       supabase.from('banners').select('*').order('order_index'),
       supabase.from('sponsors').select('*').order('order_index'),
-      supabase.from('bets').select('*') // Trazendo todos os palpites
+      supabase.from('bets').select('*').limit(50000) // Trazendo todos os palpites
     ])
     
     setCompetitions(c.data || [])
