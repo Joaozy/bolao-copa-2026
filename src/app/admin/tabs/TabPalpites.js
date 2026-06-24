@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 
-export default function TabPalpites({ allProfiles, games, allBets = [], enrollments = [] }) {
+export default function TabPalpites({ allProfiles, games, allBets = [], enrollments = [], fetchAllData }) {
   // Estados da injeção manual
   const [selectedUser, setSelectedUser] = useState('')
   const [selectedGame, setSelectedGame] = useState('')
@@ -16,6 +16,9 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
   const [auditGame, setAuditGame] = useState('')
   const [auditUser, setAuditUser] = useState('')
   const [auditUserSearch, setAuditUserSearch] = useState('')
+  
+  // Estado do botão de recarregar
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Organiza os usuários por ordem alfabética
   const sortedProfiles = [...(allProfiles || [])].sort((a, b) => {
@@ -33,7 +36,7 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
   const injectionCompetitionId = chosenInjectionGame?.competition_id
 
   const enrolledProfilesForInjection = sortedProfiles.filter(p => {
-    if (!injectionCompetitionId || !enrollments.length) return true // Se não escolheu jogo, mostra todos
+    if (!injectionCompetitionId || !enrollments.length) return true 
     return enrollments.some(e => e.user_id === p.id && Number(e.competition_id) === Number(injectionCompetitionId))
   })
 
@@ -52,21 +55,18 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
     return enrollments.some(e => e.user_id === p.id && Number(e.competition_id) === Number(auditCompetitionId))
   })
 
-  // Palpites do jogo auditado (Correção de tipo de dado aplicando Number)
   const betsForAuditGame = allBets.filter(b => Number(b.game_id) === Number(auditGame))
-  const usersWhoBetIds = betsForAuditGame.map(b => b.user_id)
+  const usersWhoBetIds = betsForAuditGame.map(b => String(b.user_id).trim())
   
   // Quem está inscrito mas NÃO palpitou ainda neste jogo
-  const missingUsers = enrolledProfilesForAudit.filter(p => !usersWhoBetIds.includes(p.id))
+  const missingUsers = enrolledProfilesForAudit.filter(p => !usersWhoBetIds.includes(String(p.id).trim()))
 
-  // Lista de participantes da auditoria filtrados pela digitação
   const filteredProfilesForAudit = enrolledProfilesForAudit.filter(p => {
     const termo = auditUserSearch.toLowerCase()
     return (p.nickname || '').toLowerCase().includes(termo) || (p.email || '').toLowerCase().includes(termo)
   })
 
-  // Palpite do participante específico consultado na auditoria
-  const selectedUserBet = auditUser ? betsForAuditGame.find(b => b.user_id === auditUser) : null
+  const selectedUserBet = auditUser ? betsForAuditGame.find(b => String(b.user_id).trim() === String(auditUser).trim()) : null
 
 
   const handleSubmit = async (e) => {
@@ -93,6 +93,7 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
         setStatus('✅ Palpite injetado com sucesso!')
         setScoreA('')
         setScoreB('')
+        if (fetchAllData) await fetchAllData()
       } else {
         setStatus(`❌ Erro: ${data.error}`)
       }
@@ -101,6 +102,14 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Função para recarregar dados manualmente
+  const handleRefresh = async () => {
+    if (!fetchAllData) return
+    setIsRefreshing(true)
+    await fetchAllData()
+    setIsRefreshing(false)
   }
 
   return (
@@ -114,7 +123,6 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Seleção de Jogo Primeiro */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">1º Selecione a Partida</label>
             <select 
@@ -123,7 +131,7 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
               value={selectedGame} 
               onChange={(e) => {
                 setSelectedGame(e.target.value)
-                setSelectedUser('') // Reseta usuário para evitar misturar competições
+                setSelectedUser('') 
               }}
             >
               <option value="">Selecione o confronto...</option>
@@ -135,11 +143,8 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
             </select>
           </div>
 
-          {/* Seleção de Usuário com Busca */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">2º Participante</label>
-            
-            {/* Campo de digitação para buscar */}
             <input 
               type="text"
               placeholder="🔍 Digite o nome para filtrar..."
@@ -166,7 +171,6 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
             )}
           </div>
 
-          {/* Placar */}
           <div className="flex gap-4 items-center bg-gray-900 p-4 rounded-md border border-gray-700">
             <div className="flex-1">
               <label className="block text-sm text-center font-medium text-gray-400 mb-2">Mandante</label>
@@ -187,7 +191,6 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
             </div>
           </div>
 
-          {/* Checkbox da Burladinha */}
           <div className="flex items-center p-4 bg-yellow-900/30 rounded border border-yellow-700/50">
             <input 
               type="checkbox" 
@@ -226,7 +229,6 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
         </h2>
 
         <div className="space-y-6">
-          {/* Seleção do Jogo para Auditoria */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Escolha a Partida para auditar</label>
             <select 
@@ -250,11 +252,9 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
           {auditGame && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Coluna A: Pesquisa Individual */}
               <div className="bg-gray-900 p-4 rounded-md border border-gray-700">
                 <label className="block text-sm font-medium text-gray-300 mb-2">Verificar Participante Inscrito</label>
                 
-                {/* Filtro de digitação para auditoria */}
                 <input 
                   type="text"
                   placeholder="🔍 Digite para buscar..."
@@ -290,13 +290,23 @@ export default function TabPalpites({ allProfiles, games, allBets = [], enrollme
                 )}
               </div>
 
-              {/* Coluna B: Lista de Inadimplentes */}
               <div className="bg-gray-900 p-4 rounded-md border border-gray-700 flex flex-col">
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-300">Faltam Palpitar (Inscritos)</label>
-                  <span className="bg-red-900/80 text-red-300 text-xs px-2 py-1 rounded font-bold">
-                    {missingUsers.length} pendentes
-                  </span>
+                  <label className="block text-sm font-medium text-gray-300">Faltam Palpitar</label>
+                  
+                  {/* Container com o Botão de Atualizar e a Badge */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleRefresh}
+                      disabled={isRefreshing}
+                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {isRefreshing ? '⏳ Buscando...' : '🔄 Atualizar'}
+                    </button>
+                    <span className="bg-red-900/80 text-red-300 text-xs px-2 py-1 rounded font-bold">
+                      {missingUsers.length} pendentes
+                    </span>
+                  </div>
                 </div>
                 
                 <div className="flex-1 overflow-y-auto max-h-48 pr-2">
