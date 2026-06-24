@@ -10,8 +10,16 @@ import CopaLeilao from './CopaLeilao';
 import FatoOuFake from './FatoOuFake';
 import DetetiveCopa from './DetetiveCopa';
 import GenioBagre from './GenioBagre';
+import ShowDaCopa from './ShowDaCopa';
 
 const GAMES = [
+  {
+    id: 'show-da-copa',
+    icon: '📺',
+    title: 'Show da Copa',
+    subtitle: 'Teste seus conhecimentos sobre as Copas e busque 1 Milhão',
+    badge: 'Quiz'
+  },
   {
     id: 'draft',
     icon: '🎲',
@@ -38,7 +46,7 @@ const GAMES = [
     icon: '👤',
     title: 'Quem é o Craque?',
     subtitle: 'Descubra o jogador misterioso com dicas a cada palpite',
-    badge: 'Diário',
+    badge: 'Advinhação',
   },
   {
     id: 'top10',
@@ -72,7 +80,7 @@ const GAMES = [
     id: 'detetive',
     icon: '🕵️‍♂️',
     title: 'Detetive Copa',
-    subtitle: 'Qual jogador cometeu esse crime absurdo nos bastidores?',
+    subtitle: 'Tente acertar o craque atraves de semelhança entre outros jogadores.',
     badge: 'Investigação',
   },
   {
@@ -88,6 +96,9 @@ export default function GameHub() {
   const [activeGame, setActiveGame] = useState(null);
 
   // Roteador de Jogos
+  if (activeGame === 'show-do-copa') return (
+    <GameWithBack onBack={() => setActiveGame(null)}><ShowDaCopa /></GameWithBack>
+  );
   if (activeGame === 'draft') return (
     <GameWithBack onBack={() => setActiveGame(null)}><Game7x0 /></GameWithBack>
   );

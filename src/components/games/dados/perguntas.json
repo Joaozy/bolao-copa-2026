@@ -1,0 +1,882 @@
+[
+  {
+    "id": 1,
+    "question": "Quantas Copas do Mundo a Seleção Brasileira masculina conquistou até hoje?",
+    "options": ["3", "4", "5", "6"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O VAR confirma: O Brasil se tornou a única seleção a ostentar o título de pentacampeã mundial após a Copa de 2002."
+  },
+  {
+    "id": 2,
+    "question": "Qual país sediou a Copa do Mundo de 2014, onde a Alemanha foi campeã?",
+    "options": ["África do Sul", "Brasil", "Rússia", "Catar"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A análise do lance indica que o torneio ocorreu em território sul-americano, terminando no estádio do Maracanã."
+  },
+  {
+    "id": 3,
+    "question": "Quem é amplamente conhecido como o 'Rei do Futebol' e conquistou três Copas pelo Brasil?",
+    "options": ["Zico", "Ronaldo", "Romário", "Pelé"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "O painel do VAR aponta que o atleta vestia a mítica camisa 10 e estreou em Copas em 1958, na Suécia."
+  },
+  {
+    "id": 4,
+    "question": "Qual destas seleções europeias conquistou a Copa do Mundo de 2010 na África do Sul?",
+    "options": ["Espanha", "Holanda", "Alemanha", "França"],
+    "answerIndex": 0,
+    "difficulty": "facil",
+    "var_hint": "A revisão mostra o famoso gol de Andrés Iniesta na prorrogação da grande final."
+  },
+  {
+    "id": 5,
+    "question": "Quem é o maior artilheiro de toda a história das Copas do Mundo masculinas?",
+    "options": ["Pelé", "Ronaldo Nazário", "Miroslav Klose", "Lionel Messi"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O VAR detectou que o recordista é um atacante alemão que somou 16 gols ao longo de quatro Copas."
+  },
+  {
+    "id": 6,
+    "question": "Em qual Copa do Mundo a Seleção Brasileira sofreu a histórica derrota de 7 a 1 para a Alemanha?",
+    "options": ["2006", "2010", "2014", "2018"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O lance fatídico ocorreu na semifinal do torneio disputado em solo brasileiro."
+  },
+  {
+    "id": 7,
+    "question": "Qual jogador argentino marcou o famoso gol conhecido como 'A Mão de Deus' na Copa de 1986?",
+    "options": ["Lionel Messi", "Diego Maradona", "Gabriel Batistuta", "Mario Kempes"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR revisou o toque de mão contra a Inglaterra nas quartas de final do México."
+  },
+  {
+    "id": 8,
+    "question": "Qual seleção detém o recorde de passar uma Copa inteira sem sofrer um único gol, sendo eliminada nos pênaltis?",
+    "options": ["Suíça (2006)", "Itália (1990)", "França (1998)", "Brasil (1986)"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "O VAR aponta para a seleção europeia que caiu nas oitavas de final contra a Ucrânia após empatar em 0 a 0."
+  },
+  {
+    "id": 9,
+    "question": "Quem foi o goleiro premiado com a Bola de Ouro de melhor jogador do torneio na Copa de 2002?",
+    "options": ["Marcos", "Gianluigi Buffon", "Oliver Kahn", "Iker Casillas"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O painel mostra que, apesar da falha na final contra o Brasil, o capitão alemão levou o prêmio individual."
+  },
+  {
+    "id": 10,
+    "question": "Qual jogador marcou o milésimo gol da história das Copas do Mundo em 1978?",
+    "options": ["Rob Rensenbrink", "Pelé", "Gerd Müller", "Teófilo Cubillas"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "O VAR checou os arquivos de 1978: o gol histórico foi marcado por um atacante da Holanda, em cobrança de pênalti contra a Escócia."
+  },
+  {
+    "id": 11,
+    "question": "Qual animal foi o mascote da Copa do Mundo de 2014, realizada no Brasil?",
+    "options": ["Arara-azul", "Tatu-bola", "Mico-leão-dourado", "Onça-pintada"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "O VAR analisou o lance e confirmou: o mascote se chamava Fuleco e tem a habilidade de virar uma bolinha para se defender."
+  },
+  {
+    "id": 12,
+    "question": "A seleção de qual país é famosa pelo apelido de 'A Celeste'?",
+    "options": ["Argentina", "Espanha", "Itália", "Uruguai"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "O áudio do VAR confirma que a equipe veste azul-claro, é bicampeã mundial e vizinha do sul do Brasil."
+  },
+  {
+    "id": 13,
+    "question": "Qual país do Oriente Médio foi a sede da Copa do Mundo de 2022?",
+    "options": ["Arábia Saudita", "Emirados Árabes", "Catar", "Irã"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A revisão mostra estádios climatizados e uma final épica entre Argentina e França."
+  },
+  {
+    "id": 14,
+    "question": "Qual jogador brasileiro teve a honra de erguer a taça como capitão do penta em 2002?",
+    "options": ["Ronaldo", "Roberto Carlos", "Rivaldo", "Cafu"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "O VAR recuperou a imagem: ele subiu no pedestal e gritou 'Regina, eu te amo!' ao levantar o troféu."
+  },
+  {
+    "id": 15,
+    "question": "Qual a cor principal do uniforme titular da Seleção da Holanda?",
+    "options": ["Azul", "Laranja", "Branco", "Vermelho"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A checagem de cor do VAR aponta para o apelido histórico da seleção: 'A Laranja Mecânica'."
+  },
+  {
+    "id": 16,
+    "question": "Qual instrumento musical plástico ensurdecedor virou símbolo da Copa de 2010?",
+    "options": ["Caxirola", "Zabumba", "Vuvuzela", "Reco-reco"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O microfone do VAR captou um som parecido com um enxame de abelhas o jogo inteiro."
+  },
+  {
+    "id": 17,
+    "question": "Quantos jogadores compõem o time titular de uma seleção no início de uma partida?",
+    "options": ["9", "10", "11", "12"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A regra é clara no livro da FIFA: são 10 jogadores de linha e 1 goleiro."
+  },
+  {
+    "id": 18,
+    "question": "Qual técnico brasileiro comandou a Seleção nas Copas de 2018 e 2022?",
+    "options": ["Luiz Felipe Scolari", "Dunga", "Mano Menezes", "Tite"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "O VAR aponta para o treinador que construiu sua carreira de sucesso no Corinthians antes de ir para a Seleção."
+  },
+  {
+    "id": 19,
+    "question": "A França ganhou sua primeira Copa do Mundo jogando em qual país?",
+    "options": ["França", "Brasil", "Itália", "Alemanha"],
+    "answerIndex": 0,
+    "difficulty": "facil",
+    "var_hint": "A revisão mostra Zinedine Zidane brilhando em 1998, jogando com o apoio de sua própria torcida."
+  },
+  {
+    "id": 20,
+    "question": "Qual é a única seleção que participou de TODAS as edições da Copa do Mundo?",
+    "options": ["Alemanha", "Itália", "Brasil", "Argentina"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O VAR analisou os registros desde 1930 e confirmou: os únicos pentacampeões nunca faltaram a uma festa."
+  },
+  {
+    "id": 21,
+    "question": "A primeira fase da Copa do Mundo, onde os times são divididos, é chamada de Fase de:",
+    "options": ["Grupos", "Pontos Corridos", "Oitavas", "Classificação"],
+    "answerIndex": 0,
+    "difficulty": "facil",
+    "var_hint": "O regulamento no monitor do VAR mostra chaves com 4 seleções jogando entre si."
+  },
+  {
+    "id": 22,
+    "question": "O famoso jogo entre Brasil 2x0 Alemanha foi a final de qual Copa do Mundo?",
+    "options": ["1994", "1998", "2002", "2006"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O lance checado mostra Ronaldo marcando os dois gols em Yokohama, no Japão."
+  },
+  {
+    "id": 23,
+    "question": "Qual fenômeno natural quase tirou Ronaldo da final da Copa de 1998 horas antes do jogo?",
+    "options": ["Alergia grave", "Convulsão", "Intoxicação alimentar", "Gripe H1N1"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "O VAR médico revisou o caso que até hoje gera teorias da conspiração envolvendo o camisa 9 no hotel."
+  },
+  {
+    "id": 24,
+    "question": "Qual seleção campeã é chamada pelos seus torcedores de 'Les Bleus'?",
+    "options": ["Itália", "França", "Uruguai", "Argentina"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A tradução do áudio do VAR confirma que o apelido significa 'Os Azuis' em francês."
+  },
+  {
+    "id": 25,
+    "question": "Na fase de 'mata-mata', se o jogo terminar empatado após prorrogação, a decisão vai para:",
+    "options": ["Sorteio", "Gol de Ouro", "Pênaltis", "Novo jogo no dia seguinte"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A câmera do VAR foca na marca de cal a 11 metros do gol."
+  },
+  {
+    "id": 26,
+    "question": "Na final da Copa de 1994, qual jogador italiano isolou o pênalti decisivo, dando o título ao Brasil?",
+    "options": ["Paolo Maldini", "Roberto Baggio", "Franco Baresi", "Alessandro Del Piero"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR recuperou a imagem do camisa 10 da Itália, de rabo de cavalo, olhando para o chão após o chute."
+  },
+  {
+    "id": 27,
+    "question": "Na Copa de 2014, o atacante Luis Suárez, do Uruguai, foi punido por qual atitude contra o zagueiro Chiellini?",
+    "options": ["Cuspiu no rosto", "Deu uma cotovelada", "Deu uma mordida", "Pisou no tornozelo"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "A checagem de imagem mostrou marcas de dentes no ombro do jogador italiano."
+  },
+  {
+    "id": 28,
+    "question": "Em qual edição da Copa do Mundo o sistema do VAR foi utilizado de forma oficial pela primeira vez?",
+    "options": ["2010 (África do Sul)", "2014 (Brasil)", "2018 (Rússia)", "2022 (Catar)"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "Nós fomos chamados oficialmente para trabalhar nesta edição vencida pela França de Mbappé."
+  },
+  {
+    "id": 29,
+    "question": "Qual foi a única Copa do Mundo da história a ter uma sede dividida entre dois países?",
+    "options": ["2002 (Japão/Coreia do Sul)", "1994 (EUA/México)", "2010 (África do Sul/Nigéria)", "1974 (Alemanha Ocidental/Oriental)"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "O VAR analisou a logística: foi o primeiro mundial sediado no continente asiático."
+  },
+  {
+    "id": 30,
+    "question": "Na trágica final da Copa de 2006, Zinedine Zidane foi expulso após dar uma cabeçada em qual jogador?",
+    "options": ["Fabio Cannavaro", "Marco Materazzi", "Andrea Pirlo", "Gennaro Gattuso"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR confirma a agressão no peito do zagueiro que também havia marcado o gol de empate da Itália."
+  },
+  {
+    "id": 31,
+    "question": "Quantos gols o atacante Ronaldo marcou para ser o artilheiro isolado e herói da Copa de 2002?",
+    "options": ["6 gols", "7 gols", "8 gols", "9 gols"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "A análise estatística confirma que ele quebrou a 'maldição' de nenhum artilheiro passar de 6 gols nas Copas anteriores."
+  },
+  {
+    "id": 32,
+    "question": "Qual país europeu é famoso pelo apelido de 'Diabos Vermelhos' no futebol?",
+    "options": ["Bélgica", "Espanha", "Dinamarca", "Croácia"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "O VAR focou no time de Kevin De Bruyne e Romelu Lukaku, que eliminou o Brasil em 2018."
+  },
+  {
+    "id": 33,
+    "question": "Qual jovem jogador francês brilhou na Copa de 2018, ganhando o prêmio de melhor atleta jovem do torneio?",
+    "options": ["Antoine Griezmann", "Paul Pogba", "Ousmane Dembélé", "Kylian Mbappé"],
+    "answerIndex": 3,
+    "difficulty": "medio",
+    "var_hint": "A medição de velocidade do VAR mostra o camisa 10 voando em campo contra a Argentina nas oitavas."
+  },
+  {
+    "id": 34,
+    "question": "O histórico jogo conhecido como 'Tragédia do Sarriá', onde o Brasil perdeu por 3x2 para a Itália de Paolo Rossi, ocorreu em qual Copa?",
+    "options": ["1978", "1982", "1986", "1990"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR atesta que a fantástica seleção de Zico e Sócrates caiu na edição sediada na Espanha."
+  },
+  {
+    "id": 35,
+    "question": "Qual o adversário que o Brasil derrotou na final da Copa do Mundo de 1994 para se tornar tetracampeão?",
+    "options": ["Alemanha", "Itália", "Holanda", "Argentina"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "A análise tática aponta para a seleção vestida de azul, em uma final decidida nos pênaltis sob sol forte nos EUA."
+  },
+  {
+    "id": 36,
+    "question": "Qual seleção conquistou a Copa de 1978 jogando em casa?",
+    "options": ["Argentina", "Itália", "Uruguai", "Inglaterra"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "O lance de Mario Kempes foi revisado e garantiu o primeiro título mundial dessa equipe."
+  },
+  {
+    "id": 37,
+    "question": "Quantas seleções nacionais participaram oficialmente da Copa do Mundo de 2022 no Catar?",
+    "options": ["24", "28", "32", "48"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O VAR calculou o chaveamento: 8 grupos com 4 times cada. Esta foi a última Copa com esse formato."
+  },
+  {
+    "id": 38,
+    "question": "Qual ex-jogador e técnico foi o responsável pelo título mundial da Argentina em 1986?",
+    "options": ["César Luis Menotti", "Carlos Bilardo", "Diego Maradona", "Jorge Sampaoli"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR analisou a prancheta do estrategista que montou o time em volta da genialidade de Maradona."
+  },
+  {
+    "id": 39,
+    "question": "Em qual país a Seleção Brasileira perdeu a final para os donos da casa, de virada, em 1950, no famoso 'Maracanazo'?",
+    "options": ["Argentina", "Uruguai", "Itália", "Inglaterra"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "A checagem mostra que Alcides Ghiggia calou as 200 mil pessoas que assistiam ao jogo no Brasil."
+  },
+  {
+    "id": 40,
+    "question": "Qual mascote da Copa de 1998, na França, era um simpático galo azul?",
+    "options": ["Goleo", "Footix", "Zakumi", "Juanito"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O sistema de áudio identificou o mascote cujo nome termina em 'ix', em referência aos antigos gauleses."
+  },
+  {
+    "id": 41,
+    "question": "Qual goleiro ficou famoso por defender uma bola escorpião contra a Inglaterra na década de 90, e jogou a Copa de 1990?",
+    "options": ["José Luis Chilavert", "Claudio Taffarel", "Jorge Campos", "René Higuita"],
+    "answerIndex": 3,
+    "difficulty": "medio",
+    "var_hint": "O VAR identificou o excêntrico goleiro colombiano que tentou driblar Roger Milla e falhou feio."
+  },
+  {
+    "id": 42,
+    "question": "Quem marcou o gol decisivo da Alemanha na prorrogação da final da Copa de 2014?",
+    "options": ["Thomas Müller", "Miroslav Klose", "Mario Götze", "Toni Kroos"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "A linha do VAR mostra ele dominando no peito o cruzamento de Schürrle antes de bater de esquerda."
+  },
+  {
+    "id": 43,
+    "question": "Em 1966, a Inglaterra venceu a Alemanha numa final polêmica graças a um gol fantasma atribuído a qual jogador?",
+    "options": ["Geoff Hurst", "Bobby Charlton", "Gary Lineker", "Gordon Banks"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "Infelizmente eu, o VAR, não existia naquela época para avisar que a bola dele bateu no travessão e não entrou."
+  },
+  {
+    "id": 44,
+    "question": "A taça Jules Rimet original foi roubada em 1966 na Inglaterra e encontrada dias depois. Quem encontrou a taça?",
+    "options": ["Scotland Yard", "Um cachorro chamado Pickles", "Um policial de trânsito", "A rainha Elizabeth"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "As imagens mostram um cãozinho farejando um pacote enrolado em jornais debaixo da cerca de um jardim."
+  },
+  {
+    "id": 45,
+    "question": "Qual país tem a triste marca de ter chegado a 3 finais de Copa do Mundo, mas nunca ter sido campeão?",
+    "options": ["Hungria", "Holanda", "Tchecoslováquia", "Croácia"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "A equipe vice-campeã em 1974, 1978 e 2010 entra no relatório de lances azarados do VAR."
+  },
+  {
+    "id": 46,
+    "question": "Quem detém o absurdo recorde de mais gols marcados em uma ÚNICA edição de Copa do Mundo, com 13 tentos?",
+    "options": ["Gerd Müller", "Sándor Kocsis", "Just Fontaine", "Pelé"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O arquivo do VAR indica que a façanha ocorreu em 1958 por um jogador da seleção francesa."
+  },
+  {
+    "id": 47,
+    "question": "Qual foi o primeiro país africano a se classificar para uma Copa do Mundo (em 1934)?",
+    "options": ["Camarões", "Marrocos", "Nigéria", "Egito"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "A checagem mostra que eles participaram do torneio na Itália muito antes dos leões de Camarões ou Nigéria."
+  },
+  {
+    "id": 48,
+    "question": "Qual jogador da Rússia tem o recorde de marcar impressionantes 5 gols na mesma partida de Copa (1994, contra Camarões)?",
+    "options": ["Oleg Salenko", "Lev Yashin", "Andrey Arshavin", "Valery Karpin"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "A revisão mostra que mesmo com esse recorde absoluto, a equipe dele foi eliminada na primeira fase."
+  },
+  {
+    "id": 49,
+    "question": "Quem marcou oficialmente o primeiro gol da história das Copas do Mundo em 1930?",
+    "options": ["Guillermo Stábile (ARG)", "Héctor Castro (URU)", "Lucien Laurent (FRA)", "Preguinho (BRA)"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O primeiro replay do VAR detectou que foi contra o México, marcado por um meio-campista da equipe francesa."
+  },
+  {
+    "id": 50,
+    "question": "Qual seleção detém a façanha de ser eliminada da Copa do Mundo (2010) de forma invicta, após empatar seus três jogos?",
+    "options": ["Itália", "Paraguai", "África do Sul", "Nova Zelândia"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "O país da Oceania, conhecido pelo rugby, caiu na fase de grupos sem perder, ao contrário da campeã Espanha que teve uma derrota."
+  },
+  {
+    "id": 51,
+    "question": "Em qual partida foi marcado o gol mais rápido da história das Copas (10,8 segundos por Hakan Şükür)?",
+    "options": ["Coreia do Sul x Turquia (2002)", "Inglaterra x Suécia (2006)", "Alemanha x Holanda (1974)", "Bélgica x Rússia (2014)"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "O relógio do VAR parou no décimo de segundo durante a disputa de terceiro lugar da edição asiática."
+  },
+  {
+    "id": 52,
+    "question": "Qual jogador se tornou o mais velho a disputar uma partida de Copa do Mundo aos 45 anos, na Rússia (2018)?",
+    "options": ["Roger Milla (Camarões)", "Essam El Hadary (Egito)", "Faryd Mondragón (Colômbia)", "Dino Zoff (Itália)"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "O atleta em questão atuou como goleiro e ainda defendeu um pênalti na sua única partida do torneio."
+  },
+  {
+    "id": 53,
+    "question": "Apenas três pessoas no mundo conquistaram a Copa como jogador e como técnico por seus países. Qual destes nomes NÃO faz parte desse trio?",
+    "options": ["Johan Cruyff", "Mário Zagallo", "Franz Beckenbauer", "Didier Deschamps"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "O VAR analisou a galeria de taças e confirmou que o holandês foi vice como jogador e nunca venceu como técnico de seleção."
+  },
+  {
+    "id": 54,
+    "question": "A Índia se classificou e foi convidada para a Copa do Mundo de 1950, no Brasil, mas não participou por qual suposto motivo exótico?",
+    "options": ["A viagem de barco duraria 3 meses", "Não aceitavam a estampa da bola", "A FIFA os proibiu de jogar descalços", "Perderam os passaportes no porto"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O documento oficial relata problemas financeiros, mas o folclore do VAR indica uma regra rígida de vestimenta."
+  },
+  {
+    "id": 55,
+    "question": "Qual país surpreendeu ao se tornar o primeiro time europeu a ser desclassificado na primeira fase em que defendia seu título?",
+    "options": ["França (2002)", "Espanha (2014)", "Alemanha (2018)", "Itália (1950)"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "A análise temporal volta a 1950, onde o time viajou de barco até o Brasil se recuperando da tragédia aérea de Superga."
+  },
+  {
+    "id": 56,
+    "question": "Em toda a história das Copas, qual foi o primeiro estádio a ter a honra de sediar DUAS grandes decisões (1970 e 1986)?",
+    "options": ["Estádio de Wembley", "Estádio do Maracanã", "Estádio Azteca", "Estádio Olímpico de Berlim"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O palco gigante coroou Pelé e Maradona na Cidade do México."
+  },
+  {
+    "id": 57,
+    "question": "Quantas seleções nacionais participaram da primeiríssima Copa do Mundo no Uruguai em 1930?",
+    "options": ["8", "13", "16", "24"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "Devido às dificuldades de travessia do oceano no período, o número foi baixo e quebrado (ímpar)."
+  },
+  {
+    "id": 58,
+    "question": "Qual jogador mantém até hoje o recorde de mais cartões acumulados em sua trajetória de Copas do Mundo?",
+    "options": ["Felipe Melo", "Zinedine Zidane", "Sergio Ramos", "Javier Mascherano"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "O VAR analisou a ficha corrida: o volante argentino recebeu 7 cartões somando quatro mundiais que disputou."
+  },
+  {
+    "id": 59,
+    "question": "Qual craque ganhou a Bola de Ouro de melhor jogador da Copa, mesmo perdendo um pênalti na final em que sua equipe perdeu o título?",
+    "options": ["Roberto Baggio (1994)", "Luka Modric (2018)", "Ronaldo (1998)", "Lionel Messi (2014)"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "Embora Messi tenha ganho o troféu no vice de 2014, o atacante citado nesta análise perdeu o penalti na disputa final."
+  },
+  {
+    "id": 60,
+    "question": "Qual treinador italiano foi campeão mundial de forma invicta nas duas Copas que disputou, vencendo os torneios de 1934 e 1938?",
+    "options": ["Enzo Bearzot", "Marcello Lippi", "Vittorio Pozzo", "Giovanni Trapattoni"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O registro técnico da FIFA mostra que ele é o único técnico bicampeão consecutivo por seleções na história."
+  },
+  {
+    "id": 61,
+    "question": "A bola oficial da Copa do Mundo de 2010, na África do Sul, famosa por suas curvas imprevisíveis, foi batizada de:",
+    "options": ["Brazuca", "Tango", "Jabulani", "Telstar"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O VAR analisou a trajetória estranha e confirma o nome da bola, que significa 'celebrar' em idioma zulu."
+  },
+  {
+    "id": 62,
+    "question": "Qual destas três sedes receberá a Copa do Mundo de 2026 junto com o México e os Estados Unidos?",
+    "options": ["Brasil", "Inglaterra", "Canadá", "França"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A análise geográfica do VAR confirma que as sedes formam a América do Norte inteira."
+  },
+  {
+    "id": 63,
+    "question": "O grito histórico 'É TETRA! É TETRA!' de Galvão Bueno ocorreu após a final disputada em qual país?",
+    "options": ["Japão", "Estados Unidos", "França", "Coreia do Sul"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A câmera do VAR mostra Galvão e Pelé abraçados na cabine de transmissão do estádio Rose Bowl."
+  },
+  {
+    "id": 64,
+    "question": "A Seleção do Japão costuma usar qual cor como principal em seu uniforme nas Copas?",
+    "options": ["Vermelho", "Branco", "Amarelo", "Azul"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "Eles são conhecidos como os 'Samurais' e usam uma cor que não está presente na bandeira do país."
+  },
+  {
+    "id": 65,
+    "question": "Qual cantora pop ficou mundialmente marcada pela música-tema 'Waka Waka' na Copa de 2010?",
+    "options": ["Beyoncé", "Katy Perry", "Shakira", "Rihanna"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O microfone do VAR captou o hit da cantora colombiana que marcou uma geração."
+  },
+  {
+    "id": 66,
+    "question": "A taça atual da Copa do Mundo FIFA retrata duas figuras humanas segurando o quê?",
+    "options": ["Uma bola de futebol", "O globo terrestre", "Uma coroa de louros", "Uma taça de vinho"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A imagem do troféu no monitor do VAR exibe claramente os continentes esculpidos em ouro."
+  },
+  {
+    "id": 67,
+    "question": "Na Copa do Brasil em 2014, os árbitros começaram a usar um equipamento novo para marcar faltas e barreiras. O que era?",
+    "options": ["Um rádio transmissor", "Câmera no peito", "Spray de espuma", "Apito eletrônico"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A revisão mostra o árbitro desenhando uma linha branca no gramado que desaparece em poucos minutos."
+  },
+  {
+    "id": 68,
+    "question": "Qual camisa formou a famosa e letal dupla de ataque do Brasil com Romário na Copa de 1994?",
+    "options": ["Ronaldo", "Müller", "Edmundo", "Bebeto"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "O VAR recuperou a comemoração 'embalando o neném' feita por ele na beira do campo."
+  },
+  {
+    "id": 69,
+    "question": "A seleção da Croácia é facilmente reconhecida em Copas por seu uniforme com estampas em:",
+    "options": ["Listras verticais", "Xadrez quadriculado", "Bolinhas brancas", "Estrelas vermelhas"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A imagem checada lembra muito um tabuleiro de jogo clássico nas cores vermelho e branco."
+  },
+  {
+    "id": 70,
+    "question": "Cristiano Ronaldo, um dos maiores jogadores da história, defende as cores de qual nação nas Copas?",
+    "options": ["Espanha", "Itália", "Portugal", "Inglaterra"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "O VAR checou o passaporte do gajo: ele defende a equipe da Península Ibérica de cor vermelha e verde."
+  },
+  {
+    "id": 71,
+    "question": "A final de qual Copa do Mundo contou com um impressionante show de luzes e drones em 2022?",
+    "options": ["Brasil", "Rússia", "África do Sul", "Catar"],
+    "answerIndex": 3,
+    "difficulty": "facil",
+    "var_hint": "A revisão foca nos estádios luxuosos e na primeira Copa disputada no final do ano."
+  },
+  {
+    "id": 72,
+    "question": "A seleção do Marrocos chocou o mundo em 2022 ao eliminar gigantes europeus. Que cor domina seu uniforme principal?",
+    "options": ["Verde", "Azul", "Vermelho", "Preto"],
+    "answerIndex": 2,
+    "difficulty": "facil",
+    "var_hint": "A cor vibrante reflete a estrela e o fundo principal da bandeira do país africano."
+  },
+  {
+    "id": 73,
+    "question": "Qual destas grandes seleções surpreendentemente NÃO conseguiu se classificar para a Copa do Catar em 2022?",
+    "options": ["Itália", "Alemanha", "Uruguai", "Portugal"],
+    "answerIndex": 0,
+    "difficulty": "facil",
+    "var_hint": "O VAR lamenta informar que a Azurra, tetra campeã mundial, ficou de fora pela segunda vez consecutiva."
+  },
+  {
+    "id": 74,
+    "question": "Qual fenômeno natural quase paralisou a Copa de 1962, no Chile, poucos anos antes do torneio?",
+    "options": ["Tsunami", "Terremoto", "Furação", "Neve extrema"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A checagem técnica relata o maior evento sísmico já registrado na história, em Valdívia."
+  },
+  {
+    "id": 75,
+    "question": "Como é chamada a penalidade máxima aplicada quando um jogador comete falta dentro de sua própria área?",
+    "options": ["Tiro livre indireto", "Pênalti", "Escanteio", "Cartão vermelho direto"],
+    "answerIndex": 1,
+    "difficulty": "facil",
+    "var_hint": "A linha do VAR mostra a bola colocada exatamente a 11 metros de distância do goleiro."
+  },
+  {
+    "id": 76,
+    "question": "Na Copa da África do Sul em 2010, um polvo ficou famoso no mundo todo por 'prever' os resultados. Qual era o nome dele?",
+    "options": ["Paul", "Otto", "Jack", "Will"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "As imagens do aquário mostram o molusco escolhendo a caixa vencedora com precisão assustadora."
+  },
+  {
+    "id": 77,
+    "question": "Qual lateral-direito histórico disputou TRÊS finais de Copa do Mundo seguidas pelo Brasil (94, 98 e 02)?",
+    "options": ["Jorginho", "Maicon", "Daniel Alves", "Cafu"],
+    "answerIndex": 3,
+    "difficulty": "medio",
+    "var_hint": "O VAR analisou a escalação e destaca o eterno capitão que subiu na bancada para erguer a taça em 2002."
+  },
+  {
+    "id": 78,
+    "question": "O inesquecível gol de placa em que Pelé dá um chapéu no zagueiro na grande área ocorreu na final de qual Copa?",
+    "options": ["1958", "1962", "1966", "1970"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "A revisão temporal mostra um adolescente de 17 anos brilhando na Suécia."
+  },
+  {
+    "id": 79,
+    "question": "Em 1998, Taffarel defendeu duas cobranças de pênalti na semifinal, ajudando o Brasil a eliminar qual seleção?",
+    "options": ["França", "Alemanha", "Holanda", "Itália"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O lance checado narra Galvão Bueno gritando 'Sai que é sua Taffarel' contra a seleção Laranja."
+  },
+  {
+    "id": 80,
+    "question": "Qual jogo da Copa de 2006 ficou conhecido como 'A Batalha de Nuremberg' por distribuir impressionantes 4 cartões vermelhos e 16 amarelos?",
+    "options": ["Alemanha x Argentina", "Portugal x Holanda", "Itália x França", "Espanha x França"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O painel de arbitragem quase pifou anotando tantas faltas violentas entre lusitanos e holandeses."
+  },
+  {
+    "id": 81,
+    "question": "Qual seleção asiática surpreendeu o mundo ao alcançar as semifinais na Copa de 2002, sob arbitragens polêmicas?",
+    "options": ["Japão", "Arábia Saudita", "China", "Coreia do Sul"],
+    "answerIndex": 3,
+    "difficulty": "medio",
+    "var_hint": "Eles eliminaram a Itália e a Espanha jogando diante da própria torcida apaixonada."
+  },
+  {
+    "id": 82,
+    "question": "Em 2010, o Uruguai eliminou Gana nos pênaltis graças a uma defesa da bola em cima da linha com a mão feita por qual jogador?",
+    "options": ["Diego Forlán", "Edinson Cavani", "Luis Suárez", "Diego Godín"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O VAR confere o momento exato em que o camisa 9 se transforma em goleiro no último minuto da prorrogação."
+  },
+  {
+    "id": 83,
+    "question": "Quem marcou o gol épico que deu à Espanha seu único título mundial na prorrogação da Copa de 2010?",
+    "options": ["David Villa", "Xavi Hernández", "Fernando Torres", "Andrés Iniesta"],
+    "answerIndex": 3,
+    "difficulty": "medio",
+    "var_hint": "A câmera foca no camisa 6, que homenageou o amigo falecido Dani Jarque em sua camisa de baixo após o gol."
+  },
+  {
+    "id": 84,
+    "question": "Qual astro brasileiro era carinhosamente apelidado de 'Anjo das Pernas Tortas' e destruiu as defesas na Copa de 1962?",
+    "options": ["Garrincha", "Rivelino", "Jairzinho", "Tostão"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "As pernas assimétricas do camisa 7 balançaram adversários e garantiram o bi para o Brasil no Chile."
+  },
+  {
+    "id": 85,
+    "question": "Na vitória do Brasil sobre a Inglaterra em 2002, Ronaldinho Gaúcho surpreendeu ao marcar um golaço de:",
+    "options": ["Bicicleta", "Falta de muito longe", "Letra", "Meio de campo"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O VAR checou a incrível trajetória da bola encobrindo o alto goleiro David Seaman."
+  },
+  {
+    "id": 86,
+    "question": "Na Copa de 1990, o icônico e excêntrico goleiro René Higuita perdeu a bola no meio de campo e sofreu o gol da eliminação. Quem marcou?",
+    "options": ["Roger Milla (Camarões)", "Diego Maradona (Argentina)", "Lothar Matthäus (Alemanha)", "Gary Lineker (Inglaterra)"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "A imagem revisada mostra o atacante camaronês desarmando o goleiro fora da área."
+  },
+  {
+    "id": 87,
+    "question": "A taça Jules Rimet, erguida pelo Brasil em 1970, foi infelizmente roubada e derretida em 1983. Qual era o seu material principal?",
+    "options": ["Prata", "Ouro", "Bronze", "Aço Inoxidável"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "O relatório policial indica que a cobiça pelo material dourado e valioso motivou a destruição da taça."
+  },
+  {
+    "id": 88,
+    "question": "Qual genial jogador liderou a lendária equipe da Holanda conhecida como 'Carrossel Holandês' em 1974?",
+    "options": ["Ruud Gullit", "Marco van Basten", "Johan Cruyff", "Dennis Bergkamp"],
+    "answerIndex": 2,
+    "difficulty": "medio",
+    "var_hint": "O VAR foca no icônico camisa 14, considerado um dos jogadores mais inteligentes da história."
+  },
+  {
+    "id": 89,
+    "question": "Em 1950, a final entre Brasil e Uruguai não foi tecnicamente uma final de mata-mata. O que era?",
+    "options": ["Decisão por pênaltis direta", "Último jogo de um quadrangular final", "Melhor de 3 partidas", "Sorteio de cara ou coroa"],
+    "answerIndex": 1,
+    "difficulty": "medio",
+    "var_hint": "A revisão do regulamento de 1950 atesta que o Brasil jogava apenas pelo empate em pontos naquela fase."
+  },
+  {
+    "id": 90,
+    "question": "Lionel Messi passou Diego Maradona e quebrou o recorde de mais jogos disputados como qual função em Copas do Mundo?",
+    "options": ["Capitão", "Reserva", "Goleador", "Técnico interino"],
+    "answerIndex": 0,
+    "difficulty": "medio",
+    "var_hint": "A contagem oficial destaca a braçadeira amarrada no braço do craque por mais de 16 jogos."
+  },
+  {
+    "id": 91,
+    "question": "Qual jogador conseguiu a inacreditável marca de marcar gol em TODOS os jogos de uma única campanha de título mundial?",
+    "options": ["Just Fontaine (1958)", "Jairzinho (1970)", "Ronaldo (2002)", "Pelé (1970)"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "O sistema do VAR confirma o feito lendário do 'Furacão' brasileiro na Copa do México."
+  },
+  {
+    "id": 92,
+    "question": "Em qual edição da Copa do Mundo foram introduzidos, pela primeira vez na história, os cartões Amarelo e Vermelho?",
+    "options": ["1962 (Chile)", "1966 (Inglaterra)", "1970 (México)", "1974 (Alemanha Ocidental)"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "A invenção foi do árbitro inglês Ken Aston, inspirada nas luzes dos semáforos de trânsito, estreando no México."
+  },
+  {
+    "id": 93,
+    "question": "Qual nação europeia se classificou e foi sorteada para a Copa de 2006, mas deixou de existir semanas antes do torneio começar?",
+    "options": ["União Soviética", "Iugoslávia", "Tchecoslováquia", "Sérvia e Montenegro"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "O VAR analisou os mapas: os dois países votaram pela separação, mas jogaram juntos na Copa porque já estavam inscritos."
+  },
+  {
+    "id": 94,
+    "question": "Quem tem o recorde de jogador mais jovem a entrar em campo em uma partida de Copa do Mundo, com 17 anos e 41 dias?",
+    "options": ["Pelé (Brasil)", "Norman Whiteside (Irlanda do Norte)", "Samuel Eto'o (Camarões)", "Gavi (Espanha)"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "Apesar de Pelé ser o mais jovem a fazer gol na final, esse atleta norte-irlandês bateu o recorde de jogar, em 1982."
+  },
+  {
+    "id": 95,
+    "question": "Qual foi a primeira edição da Copa do Mundo em que os jogadores tiveram que usar números obrigatórios impressos nas costas das camisas?",
+    "options": ["1934 (Itália)", "1950 (Brasil)", "1954 (Suíça)", "1958 (Suécia)"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "A revisão de imagem confirma que na primeira Copa disputada no Maracanã, os atletas já traziam numeração visível."
+  },
+  {
+    "id": 96,
+    "question": "A icônica e perfeita jogada coletiva que resultou no quarto gol do Brasil na final de 1970 foi finalizada por qual jogador?",
+    "options": ["Rivellino", "Tostão", "Pelé", "Carlos Alberto Torres"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "A imagem mostra o capitão do tri chegando como um raio pelo lado direito para afundar a rede da Itália."
+  },
+  {
+    "id": 97,
+    "question": "O árbitro com olhar assustador e careca brilhante que apitou a final da Copa de 2002 entre Brasil e Alemanha foi:",
+    "options": ["Howard Webb", "Nestor Pitana", "Pierluigi Collina", "Horacio Elizondo"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O VAR reverencia este italiano que é considerado por muitos como o melhor árbitro de todos os tempos."
+  },
+  {
+    "id": 98,
+    "question": "Em 1994, o russo Oleg Salenko foi artilheiro da Copa com 6 gols, mas ele dividiu a chuteira de ouro com qual outro atacante letal?",
+    "options": ["Roberto Baggio", "Hristo Stoichkov", "Romário", "Jürgen Klinsmann"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "As estatísticas do VAR apontam o búlgaro craque do Barcelona como o co-artilheiro do torneio."
+  },
+  {
+    "id": 99,
+    "question": "Qual foi a primeira partida da história das Copas do Mundo a ser jogada em um estádio totalmente coberto (indoor)?",
+    "options": ["Schalke Arena (2006)", "Sapporo Dome (2002)", "Pontiac Silverdome (1994)", "Astrodome (1994)"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O clima na Copa dos Estados Unidos obrigou a realização de partidas num estádio com teto de fibra de vidro."
+  },
+  {
+    "id": 100,
+    "question": "Qual foi o lendário goleiro titular da Máquina de 1970 do Brasil, sofrendo apenas 7 gols em 6 partidas?",
+    "options": ["Gylmar dos Santos Neves", "Emerson Leão", "Félix", "Castilho"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O VAR analisou a ficha do guarda-redes do Fluminense, muito criticado antes da Copa, mas que fechou o gol no México."
+  },
+  {
+    "id": 101,
+    "question": "Qual país boicotou a Copa de 1938 por se revoltar contra a decisão da FIFA de sediar o torneio na Europa pela segunda vez consecutiva?",
+    "options": ["Brasil", "Uruguai", "Inglaterra", "Argentina"],
+    "answerIndex": 3,
+    "difficulty": "dificil",
+    "var_hint": "A checagem histórica diz que a seleção hermana esperava receber o torneio que acabou indo para a França."
+  },
+  {
+    "id": 102,
+    "question": "O atual e cobiçado Troféu da Copa do Mundo FIFA, desenhado por Silvio Gazzaniga, foi fabricado originalmente em qual país?",
+    "options": ["Suíça", "França", "Itália", "Alemanha"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "A revisão logística confirma que o prêmio dourado saiu de uma fábrica sediada em Milão."
+  },
+  {
+    "id": 103,
+    "question": "Qual goleiro detém o recorde absoluto de mais minutos sem sofrer gols (517 min) em uma mesma edição de Copa do Mundo (1990)?",
+    "options": ["Oliver Kahn", "Gianluigi Buffon", "Walter Zenga", "Cláudio Taffarel"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O arqueiro italiano frustrou os ataques adversários até sofrer um gol da Argentina de Caniggia nas semifinais."
+  },
+  {
+    "id": 104,
+    "question": "Qual jogador britânico tem seu nome eternizado por marcar um 'hat-trick' (3 gols) em uma grande final de Copa do Mundo (1966)?",
+    "options": ["Bobby Charlton", "Geoff Hurst", "Gary Lineker", "Gordon Banks"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "O VAR nunca aprovou aquele polêmico segundo gol na trave, mas o árbitro confirmou e ele fez três gols naquele dia."
+  },
+  {
+    "id": 105,
+    "question": "Quem era o capitão responsável por erguer a primeira taça do mundo vencida pelo Brasil, em 1958?",
+    "options": ["Didi", "Pelé", "Bellini", "Zito"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "Foi este lendário zagueiro que inventou o gesto de levantar o troféu sobre a cabeça para os fotógrafos."
+  },
+  {
+    "id": 106,
+    "question": "Nas semifinais da Copa de 1982, Harald Schumacher, da Alemanha, cometeu uma falta brutíssima que apagou qual jogador da França em campo?",
+    "options": ["Patrick Battiston", "Michel Platini", "Jean Tigana", "Alain Giresse"],
+    "answerIndex": 0,
+    "difficulty": "dificil",
+    "var_hint": "O VAR acusa o erro grosseiro do árbitro que sequer marcou falta quando o francês saiu sem três dentes e em coma."
+  },
+  {
+    "id": 107,
+    "question": "O único jogador até hoje a representar DUAS seleções diferentes em finais de Copa do Mundo foi Luis Monti. Quais países?",
+    "options": ["Itália e Espanha", "Argentina e Itália", "Uruguai e Argentina", "Alemanha e Áustria"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "A documentação atesta que ele perdeu a final em 1930 e naturalizou-se para vencer a final em 1934."
+  },
+  {
+    "id": 108,
+    "question": "Em qual ano a Seleção do México conquistou sua melhor campanha na história, chegando às quartas de final pela segunda vez?",
+    "options": ["1970", "1986", "1994", "2014"],
+    "answerIndex": 1,
+    "difficulty": "dificil",
+    "var_hint": "O VAR checou o histórico: as duas únicas vezes que chegaram tão longe foram nas edições que sediaram (1970 e esta outra)."
+  },
+  {
+    "id": 109,
+    "question": "Quantos gols o Brasil sofreu na sua trágica eliminação para a Itália ('Tragédia do Sarriá') na Copa de 1982?",
+    "options": ["1", "2", "3", "4"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O placar final de Paolo Rossi e companhia foi a dolorosa derrota brasileira por 3 a 2."
+  },
+  {
+    "id": 110,
+    "question": "Antes da tecnologia atual da bola rolar com chips internos, qual foi a primeira Copa a usar a 'Tecnologia da Linha do Gol' (Goal-line)?",
+    "options": ["2006 (Alemanha)", "2010 (África do Sul)", "2014 (Brasil)", "2018 (Rússia)"],
+    "answerIndex": 2,
+    "difficulty": "dificil",
+    "var_hint": "O famoso relógio do árbitro vibrando para avisar se foi gol ou não, estreou nos gramados brasileiros."
+  }
+]
