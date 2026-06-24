@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useCallback } from 'react';
-import PERGUNTAS from '@/components/games/dados/perguntasCopa.json';
+import PERGUNTAS from './dados/perguntasCopa.json';
 
 // ─── Prêmios ────────────────────────────────────────────────────────────────
 const PREMIOS = [
@@ -347,7 +347,7 @@ Faça opiniões divergentes — não 100% certeiros. Os nomes são: ${UNI_NOMES.
           <div style={{ fontSize:'clamp(72px,18vw,120px)', animation:'trophyFloat 2.8s ease-in-out infinite', marginBottom:8 }}>🏆</div>
           <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:'.3em', textTransform:'uppercase', color:'#f2c14e', marginBottom:6 }}>Copa do Mundo</p>
           <h1 style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:'clamp(36px,10vw,72px)', textTransform:'uppercase', margin:'0 0 4px', background:'linear-gradient(135deg,#fff 30%,#f2c14e)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'introGlow 2.5s ease-in-out infinite' }}>
-            SHOW DO MILHÃO
+            SHOW DA COPA
           </h1>
           <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'rgba(244,241,234,.4)', marginBottom:36 }}>da Copa</p>
 
@@ -374,7 +374,7 @@ Faça opiniões divergentes — não 100% certeiros. Os nomes são: ${UNI_NOMES.
               {/* Header */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
                 <div>
-                  <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:'.2em', textTransform:'uppercase', color:'#f2c14e', margin:0 }}>Show do Milhão da Copa</p>
+                  <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:'.2em', textTransform:'uppercase', color:'#f2c14e', margin:0 }}>Show da Copa</p>
                   <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:nivelCor, marginTop:3 }}>
                     Pergunta {qIdx+1}/15 · Nível {nivelAtual}
                   </div>
