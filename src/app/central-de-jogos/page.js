@@ -39,11 +39,8 @@ const notStartedStatuses = ['NS', 'TBD', 'PST'];
 
 const categorizeGame = (g) => {
   if (g.is_finished) return 2; // 2º Prioridade: Terminados
-  
   const isNotStarted = notStartedStatuses.includes(g.status_short) || (!g.status_short && new Date(g.start_time) > new Date());
-  
   if (!isNotStarted && !g.is_finished) return 1; // 1º Prioridade: Ao Vivo
-  
   return 3; // 3º Prioridade: Futuros
 };
 
@@ -51,22 +48,15 @@ const sortGames = (gamesArray) => {
   return [...gamesArray].sort((a, b) => {
     const catA = categorizeGame(a);
     const catB = categorizeGame(b);
-
-    // Se forem de categorias diferentes, ordena pela prioridade (1, 2 ou 3)
     if (catA !== catB) return catA - catB; 
-
     const timeA = new Date(a.start_time).getTime();
     const timeB = new Date(b.start_time).getTime();
-
-    // Se for jogo futuro (3), o mais próximo de acontecer aparece primeiro
     if (catA === 3) return timeA - timeB;
-    
-    // Se for ao vivo (1) ou terminado (2), o mais recente aparece primeiro
     return timeB - timeA; 
   });
 };
 
-export default function Calendario() {
+export default function CentralDeJogos() {
   const [games, setGames] = useState([])
   const [userBetsMap, setUserBetsMap] = useState({}) 
   const [loading, setLoading] = useState(true)
@@ -81,6 +71,12 @@ export default function Calendario() {
 
   // DADOS FILTRADOS
   const [filteredGames, setFilteredGames] = useState([])
+
+  // MODAL DE PALPITES
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedGameForModal, setSelectedGameForModal] = useState(null)
+  const [gameBets, setGameBets] = useState([])
+  const [loadingBets, setLoadingBets] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -107,7 +103,6 @@ export default function Calendario() {
         setUserBetsMap(betsMap)
       }
 
-      // Removemos o .order() do Supabase pois o Javascript vai fazer a ordenação inteligente
       const { data: gamesData } = await supabase
         .from('games')
         .select(`
@@ -118,7 +113,7 @@ export default function Calendario() {
         .eq('competition_id', selectedCompId)
 
       if (gamesData) {
-        const sortedData = sortGames(gamesData) // Aplica a ordenação
+        const sortedData = sortGames(gamesData)
         setGames(sortedData)
         setFilteredGames(sortedData)
         
@@ -140,7 +135,13 @@ export default function Calendario() {
                 }
                 return g
             })
-            // Reordena dinamicamente se o status do jogo mudar (ex: começou agora)
+            // Se o jogo que sofreu update estiver aberto no modal, atualiza os dados dele no modal
+            setSelectedGameForModal(currentSelected => {
+                if (currentSelected && currentSelected.id === payload.new.id) {
+                    return { ...currentSelected, ...payload.new }
+                }
+                return currentSelected;
+            })
             return sortGames(updated)
         })
       })
@@ -175,11 +176,45 @@ export default function Calendario() {
       return ''
   }
 
+  // --- NOVA FUNÇÃO: ABRIR MODAL DE PALPITES ---
+  const abrirModalPalpites = async (game) => {
+    setSelectedGameForModal(game);
+    setIsModalOpen(true);
+    setLoadingBets(true);
+
+    const { data, error } = await supabase
+      .from('bets')
+      .select(`
+        guess_score_a,
+        guess_score_b,
+        points_awarded,
+        profiles (nickname, avatar_url)
+      `)
+      .eq('game_id', game.id);
+
+    if (data && !error) {
+        // Ordenar: Se o jogo acabou ou tá ao vivo, ordena quem tá pontuando mais
+        const sortedBets = data.sort((a, b) => {
+            const hasMatchData = (game.status_short && game.status_short !== 'NS') || (game.score_a !== null && game.score_b !== null);
+            let ptsA = a.points_awarded || 0;
+            let ptsB = b.points_awarded || 0;
+            
+            if (hasMatchData && !game.is_finished) {
+                ptsA = calcularPontosAoVivo(a.guess_score_a, a.guess_score_b, game.score_a, game.score_b) || 0;
+                ptsB = calcularPontosAoVivo(b.guess_score_a, b.guess_score_b, game.score_a, game.score_b) || 0;
+            }
+            return ptsB - ptsA; // Decrescente
+        });
+        setGameBets(sortedBets);
+    }
+    setLoadingBets(false);
+  }
+
   if (loading && competitions.length === 0) return <div className="text-white text-center p-10">Carregando...</div>
 
   return (
-    <div className="p-4 pb-24 flex flex-col items-center min-h-screen bg-gray-900 text-white">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-6 mt-4 text-center">📅 Calendário de Jogos</h1>
+    <div className="p-4 pb-24 flex flex-col items-center min-h-screen bg-gray-900 text-white relative">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-6 mt-4 text-center">📅 Central de Jogos</h1>
 
       <div className="w-full max-w-4xl mb-4 overflow-x-auto no-scrollbar">
         <div className="flex justify-center space-x-2 pb-2 min-w-max">
@@ -226,13 +261,16 @@ export default function Calendario() {
           }
 
           const timeText = isLive ? formatGameTime(game.status_short, game.elapsed) : 'FIM'
-
           const nomeTraduzidoA = traducoesPaises[game.team_a?.name] || game.team_a?.name || '---'
           const nomeTraduzidoB = traducoesPaises[game.team_b?.name] || game.team_b?.name || '---'
 
           return (
-            <div key={game.id} className="relative flex flex-col items-center"> 
-              <div className="pointer-events-none opacity-90 w-full z-10">
+            <div 
+              key={game.id} 
+              className="relative flex flex-col items-center cursor-pointer transition-transform hover:scale-[1.02]"
+              onClick={() => abrirModalPalpites(game)}
+            > 
+              <div className="w-full z-10 opacity-95">
                 <GameCard 
                   game={{
                     ...game, 
@@ -249,7 +287,7 @@ export default function Calendario() {
 
               {hasMatchData && livePoints !== null && (
                 <div className={`
-                  mt-[-12px] pt-4 pb-1 px-6 rounded-b-xl text-[10px] font-bold uppercase tracking-wider shadow-lg z-0 border-x border-b transform transition-all animate-fade-in
+                  mt-[-12px] pt-4 pb-1 px-6 rounded-b-xl text-[10px] font-bold uppercase tracking-wider shadow-lg z-0 border-x border-b transform transition-all
                   ${livePoints === 10 ? 'bg-yellow-600 border-yellow-400 text-white' : 
                     livePoints >= 5 ? 'bg-green-600 border-green-400 text-white' :
                     'bg-red-900 border-red-500 text-red-200'}
@@ -257,11 +295,102 @@ export default function Calendario() {
                    Sua Pontuação: +{livePoints} pts
                 </div>
               )}
+              
+              {/* Indicador de clique para ver palpites */}
+              <div className="absolute top-2 right-2 z-20 bg-gray-800 text-gray-400 text-[10px] px-2 py-1 rounded border border-gray-600 opacity-80">
+                  Ver palpites 👁️
+              </div>
             </div>
           )
         })}
         {filteredGames.length === 0 && <p className="text-gray-500 mt-4 text-center">Nenhum jogo encontrado.</p>}
       </div>
+
+      {/* --- MODAL DE PALPITES (BOTTOM SHEET ESTILO A FOTO) --- */}
+      {isModalOpen && selectedGameForModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-black bg-opacity-75 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
+          <div className="bg-gray-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh] shadow-2xl border-t border-gray-600 sm:border animate-slide-up">
+            
+            {/* Cabecalho do Modal */}
+            <div className="p-4 border-b border-gray-700 relative flex flex-col items-center">
+              <div className="w-12 h-1 bg-gray-600 rounded-full mb-3 sm:hidden"></div> {/* Pill de arrastar mobile */}
+              <button onClick={() => setIsModalOpen(false)} className="absolute right-4 top-4 text-gray-400 hover:text-white font-bold text-xl">&times;</button>
+              
+              <h3 className="text-gray-400 text-xs font-bold uppercase mb-2">Palpites da Partida</h3>
+              
+              {/* Placar Real no topo do Modal */}
+              <div className="flex items-center gap-3 font-bold text-lg">
+                <span className="text-gray-200">{traducoesPaises[selectedGameForModal.team_a?.name] || selectedGameForModal.team_a?.name}</span>
+                <span className="bg-gray-900 px-3 py-1 rounded text-yellow-400">
+                  {(selectedGameForModal.score_a !== null ? selectedGameForModal.score_a : '-')} x {(selectedGameForModal.score_b !== null ? selectedGameForModal.score_b : '-')}
+                </span>
+                <span className="text-gray-200">{traducoesPaises[selectedGameForModal.team_b?.name] || selectedGameForModal.team_b?.name}</span>
+              </div>
+              
+              {(!selectedGameForModal.is_finished && selectedGameForModal.score_a !== null) && (
+                <span className="mt-2 text-[10px] bg-red-600 text-white px-2 py-0.5 rounded animate-pulse">AO VIVO</span>
+              )}
+            </div>
+
+            {/* Lista de Palpites */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+              {loadingBets ? (
+                <div className="text-center text-gray-400 py-10">Buscando palpites da galera...</div>
+              ) : gameBets.length === 0 ? (
+                <div className="text-center text-gray-400 py-10">Ninguém palpitou neste jogo ainda.</div>
+              ) : (
+                gameBets.map((bet, idx) => {
+                  const hasMatchData = (selectedGameForModal.status_short && selectedGameForModal.status_short !== 'NS') || (selectedGameForModal.score_a !== null && selectedGameForModal.score_b !== null);
+                  
+                  let displayPoints = bet.points_awarded || 0;
+                  // Recalcula ao vivo se não acabou
+                  if (hasMatchData && !selectedGameForModal.is_finished) {
+                     displayPoints = calcularPontosAoVivo(bet.guess_score_a, bet.guess_score_b, selectedGameForModal.score_a, selectedGameForModal.score_b) || 0;
+                  }
+
+                  // Cor condicional da pontuação
+                  const pointsColor = displayPoints === 10 ? 'text-yellow-400' : displayPoints >= 5 ? 'text-green-400' : 'text-gray-500';
+
+                  return (
+                    <div key={idx} className="flex items-center justify-between bg-gray-900 p-3 rounded-lg border border-gray-700">
+                      {/* Avatar e Nome */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {bet.profiles?.avatar_url ? (
+                          <img src={bet.profiles.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
+                            {bet.profiles?.nickname?.charAt(0).toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <span className="text-sm font-semibold text-gray-200 truncate">{bet.profiles?.nickname || 'Sem nome'}</span>
+                      </div>
+
+                      {/* Palpite do Usuário */}
+                      <div className="flex items-center justify-center px-4">
+                         <span className="text-md font-bold tracking-widest text-white">
+                           {bet.guess_score_a} <span className="text-gray-500 mx-1">:</span> {bet.guess_score_b}
+                         </span>
+                      </div>
+
+                      {/* Pontuação */}
+                      <div className="w-12 text-right">
+                         <div className={`bg-gray-800 rounded px-2 py-1 text-xs font-bold ${pointsColor}`}>
+                           {hasMatchData ? displayPoints : '-'}
+                         </div>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+            
+            {/* Fecha botão mobile */}
+            <div className="p-4 border-t border-gray-700 sm:hidden">
+                <button onClick={() => setIsModalOpen(false)} className="w-full py-3 bg-gray-700 rounded-lg text-white font-bold hover:bg-gray-600">Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

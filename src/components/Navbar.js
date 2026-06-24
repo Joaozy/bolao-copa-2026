@@ -38,7 +38,7 @@ export default function Navbar() {
 
   const menuItems = [
     { name: '⚽ Palpitar', path: '/' },
-    { name: '📅 Calendário', path: '/finalizados' },
+    { name: '📅 Central de Jogos', path: '/central-de-jogos' },
     { name: '📊 Tabelas', path: '/tabelas' },
     { name: '🏆 Ranking', path: '/ranking' },
     { name: '👤 Perfil', path: '/perfil' },
