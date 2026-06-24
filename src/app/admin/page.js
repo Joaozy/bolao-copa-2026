@@ -120,15 +120,17 @@ export default function Admin() {
         {activeTab === 'banners' && <TabBanners banners={banners} fetchAllData={fetchAllData} />}
         {activeTab === 'sponsors' && <TabSponsors sponsors={sponsors} fetchAllData={fetchAllData} />}
         
-        {/* 🔥 AQUI ESTAVA O ERRO: Faltava passar as inscrições e os palpites! */}
+        // 🔥 AGORA ELE PASSA A FUNÇÃO FETCHALLDATA PARA O FILHO! 
         {activeTab === 'palpites' && (
           <TabPalpites 
             allProfiles={allProfiles} 
             games={games} 
             enrollments={enrollments} 
             allBets={allBets} 
+            fetchAllData={fetchAllData} 
           />
         )}
+
       </div>
     </div>
   )
