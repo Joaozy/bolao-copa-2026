@@ -1,202 +1,2752 @@
 [
-  {"id":1,"nivel":"facil","pergunta":"Qual país sediou a Copa do Mundo de 2022?","opcoes":{"A":"Rússia","B":"Qatar","C":"Arábia Saudita","D":"Emirados Árabes"},"resposta":"B","dica":"Foi a primeira Copa realizada no Oriente Médio"},
-  {"id":2,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 2022?","opcoes":{"A":"Argentina","B":"França","C":"Marrocos","D":"Croácia"},"resposta":"A","dica":"Derrotou a atual campeã nos pênaltis após empate por 3x3"},
-  {"id":3,"nivel":"facil","pergunta":"Quantos títulos mundiais o Brasil possui?","opcoes":{"A":"4","B":"6","C":"3","D":"5"},"resposta":"D","dica":"Mais títulos que qualquer outra seleção na história"},
-  {"id":4,"nivel":"facil","pergunta":"Qual é o maior artilheiro da história das Copas do Mundo, com 16 gols?","opcoes":{"A":"Ronaldo Fenômeno","B":"Miroslav Klose","C":"Pelé","D":"Gerd Müller"},"resposta":"B","dica":"Jogador alemão que marcou gols em 4 Copas diferentes"},
-  {"id":5,"nivel":"facil","pergunta":"Em qual país foi realizada a primeira Copa do Mundo, em 1930?","opcoes":{"A":"Uruguai","B":"Brasil","C":"Argentina","D":"Chile"},"resposta":"A","dica":"A seleção da casa também foi campeã naquele ano"},
-  {"id":6,"nivel":"facil","pergunta":"Qual jogador ganhou a Bola de Ouro na Copa de 2022?","opcoes":{"A":"Mbappé","B":"Modric","C":"Lionel Messi","D":"Julián Álvarez"},"resposta":"C","dica":"Foi sua segunda Bola de Ouro em Copas do Mundo"},
-  {"id":7,"nivel":"facil","pergunta":"Em qual estádio ocorreu o histórico 7x1 do Brasil para a Alemanha?","opcoes":{"A":"Maracanã","B":"Arena Corinthians","C":"Castelão","D":"Mineirão"},"resposta":"D","dica":"Localizado em Belo Horizonte, foi na semifinal de 2014"},
-  {"id":8,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 2018?","opcoes":{"A":"Argentina","B":"França","C":"Croácia","D":"Bélgica"},"resposta":"B","dica":"Derrotou a Croácia por 4x2 na final em Moscou"},
-  {"id":9,"nivel":"facil","pergunta":"Em qual ano Pelé venceu sua primeira Copa do Mundo?","opcoes":{"A":"1954","B":"1958","C":"1962","D":"1966"},"resposta":"B","dica":"Tinha apenas 17 anos e marcou 6 gols no torneio"},
-  {"id":10,"nivel":"facil","pergunta":"Qual jogador marcou o famoso 'Gol do Século' na Copa de 1986?","opcoes":{"A":"Platini","B":"Valdano","C":"Maradona","D":"Burruchaga"},"resposta":"C","dica":"O mesmo jogador que marcou a 'Mão de Deus' naquele jogo contra a Inglaterra"},
-  {"id":11,"nivel":"facil","pergunta":"Em qual continente foi realizada a Copa do Mundo de 2010?","opcoes":{"A":"Ásia","B":"América","C":"Europa","D":"África"},"resposta":"D","dica":"Foi a primeira Copa realizada no continente africano"},
-  {"id":12,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 2010?","opcoes":{"A":"Brasil","B":"Holanda","C":"Espanha","D":"Alemanha"},"resposta":"C","dica":"Venceu a Copa pela primeira e única vez na história"},
-  {"id":13,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 2006?","opcoes":{"A":"França","B":"Itália","C":"Alemanha","D":"Portugal"},"resposta":"B","dica":"Venceu nos pênaltis após empate por 1x1 com a França"},
-  {"id":14,"nivel":"facil","pergunta":"Qual seleção ganhou a Copa do Mundo sediada no Brasil em 2014?","opcoes":{"A":"Argentina","B":"Brasil","C":"Alemanha","D":"Holanda"},"resposta":"C","dica":"A mesma seleção que aplicou o 7x1 no Brasil"},
-  {"id":15,"nivel":"facil","pergunta":"Quantos gols Ronaldo Fenômeno marcou na final da Copa de 2002?","opcoes":{"A":"1","B":"2","C":"3","D":"4"},"resposta":"B","dica":"Os dois gols foram na vitória do Brasil por 2x0 sobre a Alemanha"},
-  {"id":16,"nivel":"facil","pergunta":"Qual país sediou a Copa de 2002 junto com a Coreia do Sul?","opcoes":{"A":"China","B":"Japão","C":"Tailândia","D":"Indonésia"},"resposta":"B","dica":"Primeira Copa realizada na Ásia, com dois países co-anfitriões"},
-  {"id":17,"nivel":"facil","pergunta":"Quantas seleções disputarão a Copa do Mundo de 2026?","opcoes":{"A":"32","B":"40","C":"48","D":"36"},"resposta":"C","dica":"Um aumento de 16 seleções em relação ao formato anterior"},
-  {"id":18,"nivel":"facil","pergunta":"Qual é o único jogador a ter vencido 3 Copas do Mundo como jogador?","opcoes":{"A":"Cafu","B":"Pelé","C":"Zagallo","D":"Garrincha"},"resposta":"B","dica":"Conquistou em 1958, 1962 e 1970"},
-  {"id":19,"nivel":"facil","pergunta":"Qual é o nome atual do troféu entregue ao campeão da Copa do Mundo?","opcoes":{"A":"Taça Jules Rimet","B":"Taça FIFA","C":"Copa de Ouro","D":"Troféu do Mundo"},"resposta":"B","dica":"Substituiu a Taça Jules Rimet após o Brasil vencer pela terceira vez em 1970"},
-  {"id":20,"nivel":"facil","pergunta":"Qual mascote representou a Copa do Mundo do Brasil em 2014?","opcoes":{"A":"Zabivaka","B":"La'eeb","C":"Zakumi","D":"Fuleco"},"resposta":"D","dica":"Era um tatu-bola, animal típico e ameaçado do Brasil"},
-  {"id":21,"nivel":"facil","pergunta":"Qual jogador marcou o gol decisivo da Alemanha na prorrogação da final de 2014?","opcoes":{"A":"Thomas Müller","B":"Toni Kroos","C":"Mario Götze","D":"Miroslav Klose"},"resposta":"C","dica":"Substituiu Klose e marcou de voleio no segundo tempo da prorrogação"},
-  {"id":22,"nivel":"facil","pergunta":"Quantas vezes a Argentina venceu a Copa do Mundo?","opcoes":{"A":"1","B":"2","C":"3","D":"4"},"resposta":"C","dica":"Em 1978, 1986 e 2022"},
-  {"id":23,"nivel":"facil","pergunta":"Em qual ano aconteceu o famoso 'Maracanazo', quando o Uruguai venceu o Brasil?","opcoes":{"A":"1934","B":"1946","C":"1950","D":"1954"},"resposta":"C","dica":"Foi no Rio de Janeiro, no último jogo da fase final da Copa"},
-  {"id":24,"nivel":"facil","pergunta":"Em qual posição jogava o lateral Roberto Carlos?","opcoes":{"A":"Lateral-direito","B":"Zagueiro","C":"Volante","D":"Lateral-esquerdo"},"resposta":"D","dica":"Famoso pelas cobranças de falta com efeito impossível"},
-  {"id":25,"nivel":"facil","pergunta":"Qual jogador deu a famosa cabeçada em Marco Materazzi na final da Copa de 2006?","opcoes":{"A":"Thierry Henry","B":"Trezeguet","C":"Zidane","D":"Ribéry"},"resposta":"C","dica":"Foi sua última ação como jogador profissional antes de ser expulso"},
-  {"id":26,"nivel":"facil","pergunta":"Qual seleção africana chegou às semifinais pela primeira vez na Copa de 2022?","opcoes":{"A":"Senegal","B":"Costa do Marfim","C":"Camarões","D":"Marrocos"},"resposta":"D","dica":"Eliminaram Portugal nas quartas de final"},
-  {"id":27,"nivel":"facil","pergunta":"Qual jogador ganhou a Chuteira de Ouro (artilheiro) na Copa de 2022?","opcoes":{"A":"Messi","B":"Giroud","C":"Mbappé","D":"Julián Álvarez"},"resposta":"C","dica":"Marcou 8 gols, incluindo um hat-trick na final contra a Argentina"},
-  {"id":28,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 1998?","opcoes":{"A":"Brasil","B":"França","C":"Croácia","D":"Holanda"},"resposta":"B","dica":"Sediou o torneio e venceu com dois gols de Zidane na final"},
-  {"id":29,"nivel":"facil","pergunta":"Qual país sediou a Copa do Mundo de 1994?","opcoes":{"A":"México","B":"Canadá","C":"Brasil","D":"Estados Unidos"},"resposta":"D","dica":"O Brasil venceu nos pênaltis e conquistou o tetracampeonato"},
-  {"id":30,"nivel":"facil","pergunta":"Em qual país foi realizada a Copa do Mundo de 2006?","opcoes":{"A":"Alemanha","B":"Áustria","C":"Suíça","D":"França"},"resposta":"A","dica":"A seleção da casa saiu nas semifinais, vencendo o 3º lugar"},
-  {"id":31,"nivel":"facil","pergunta":"Qual é o apelido da Seleção Argentina?","opcoes":{"A":"Los Diables Rojos","B":"La Furia","C":"La Albiceleste","D":"La Roja"},"resposta":"C","dica":"Significa 'branca e celeste', as cores de sua camisa"},
-  {"id":32,"nivel":"facil","pergunta":"Qual jogador é apelidado de 'Fenômeno'?","opcoes":{"A":"Ronaldinho","B":"Ronaldo Nazário","C":"Roberto Carlos","D":"Kaká"},"resposta":"B","dica":"Marcou 8 gols na Copa de 2002 e foi eleito o melhor do mundo"},
-  {"id":33,"nivel":"facil","pergunta":"Qual seleção perdeu a final da Copa de 2022 para a Argentina?","opcoes":{"A":"Croácia","B":"Espanha","C":"França","D":"Alemanha"},"resposta":"C","dica":"O placar final foi 4x2 nos pênaltis após 3x3 no tempo regulamentar"},
-  {"id":34,"nivel":"facil","pergunta":"Quantas Copas do Mundo a Alemanha/Alemanha Ocidental venceu?","opcoes":{"A":"3","B":"4","C":"5","D":"2"},"resposta":"B","dica":"1954, 1974, 1990 e 2014"},
-  {"id":35,"nivel":"facil","pergunta":"Que animal era o mascote Fuleco da Copa do Brasil de 2014?","opcoes":{"A":"Onça","B":"Boto","C":"Tatu-bola","D":"Arara"},"resposta":"C","dica":"Um animal típico do Brasil ameaçado de extinção"},
-  {"id":36,"nivel":"facil","pergunta":"Qual jogador francês deu a assistência para o gol que eliminou o Brasil na Copa de 2006?","opcoes":{"A":"Ribéry","B":"Henry","C":"Zidane","D":"Vieira"},"resposta":"C","dica":"O mesmo jogador que depois deu a cabeçada em Materazzi na final"},
-  {"id":37,"nivel":"facil","pergunta":"Qual seleção foi campeã da Copa de 1994?","opcoes":{"A":"Itália","B":"Brasil","C":"Suécia","D":"Bulgária"},"resposta":"B","dica":"Tetracampeonato após 24 anos sem título"},
-  {"id":38,"nivel":"facil","pergunta":"Qual foi o resultado da semifinal do Brasil na Copa de 2022?","opcoes":{"A":"Brasil venceu","B":"Empate e eliminação nos pênaltis","C":"Brasil perdeu no tempo normal","D":"Brasil foi eliminado por WO"},"resposta":"B","dica":"A Croácia eliminou o Brasil nos pênaltis nas quartas de final"},
-  {"id":39,"nivel":"facil","pergunta":"Qual é o apelido da Seleção Brasileira?","opcoes":{"A":"La Celeste","B":"Os Guerreiros","C":"Seleção Canarinho","D":"Esquadrão de Ouro"},"resposta":"C","dica":"Por causa da cor amarela da camisa titular"},
-  {"id":40,"nivel":"facil","pergunta":"Em qual Copa Neymar ficou com o título de artilheiro da Seleção Brasileira?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"D","dica":"Marcou 2 gols e deu 2 assistências, mas o Brasil foi eliminado nas quartas"},
-  {"id":41,"nivel":"facil","pergunta":"Qual é a cor predominante da camisa titular da Seleção Alemã?","opcoes":{"A":"Preta","B":"Branca","C":"Vermelha","D":"Cinza"},"resposta":"B","dica":"O branco representa a pureza e tradição do futebol alemão"},
-  {"id":42,"nivel":"facil","pergunta":"Qual Copa do Mundo marcou o retorno do Brasil ao pódio após 24 anos?","opcoes":{"A":"1982","B":"1986","C":"1990","D":"1994"},"resposta":"D","dica":"O tetra foi conquistado nos Estados Unidos com Romário e Bebeto"},
-  {"id":43,"nivel":"facil","pergunta":"Em qual posição jogava Cafu, capitão do Brasil pentacampeão?","opcoes":{"A":"Lateral-esquerdo","B":"Zagueiro","C":"Lateral-direito","D":"Volante"},"resposta":"C","dica":"Considerado o melhor lateral-direito da história do futebol"},
-  {"id":44,"nivel":"facil","pergunta":"Qual mascote representou a Copa de 2022 no Qatar?","opcoes":{"A":"Zabivaka","B":"Fuleco","C":"La'eeb","D":"Zakumi"},"resposta":"C","dica":"Era um espírito etéreo branco, representando os valores qataris"},
-  {"id":45,"nivel":"facil","pergunta":"Qual país sediou a Copa do Mundo de 1990?","opcoes":{"A":"Alemanha","B":"França","C":"Espanha","D":"Itália"},"resposta":"D","dica":"A seleção da casa foi eliminada pela Argentina nas semifinais"},
-  {"id":46,"nivel":"facil","pergunta":"Qual jogador ficou famoso pelas comemorações ao defender pênaltis na Copa de 2022?","opcoes":{"A":"Alisson","B":"Courtois","C":"Emiliano Martínez","D":"Manuel Neuer"},"resposta":"C","dica":"Goleiro argentino apelidado de 'Dibu', muito animado e provocativo"},
-  {"id":47,"nivel":"facil","pergunta":"Em qual Copa do Mundo o Brasil fez sua pior campanha como anfitrião?","opcoes":{"A":"1950","B":"1970","C":"2014","D":"1982"},"resposta":"C","dica":"Levou 7x1 da Alemanha na semifinal no Mineirão"},
-  {"id":48,"nivel":"facil","pergunta":"Qual seleção foi vice-campeã da Copa de 2014?","opcoes":{"A":"Brasil","B":"Holanda","C":"Argentina","D":"Colômbia"},"resposta":"C","dica":"Perdeu por 1x0 para a Alemanha no tempo extra"},
-  {"id":49,"nivel":"facil","pergunta":"Qual jogador marcou os dois gols da Argentina na final de 2022 no tempo normal?","opcoes":{"A":"Lautaro Martínez","B":"Di María e Messi","C":"Messi","D":"Álvarez e Di María"},"resposta":"B","dica":"Um marcou cedo no primeiro tempo, o outro abriu 2x0"},
-  {"id":50,"nivel":"facil","pergunta":"Quantas vezes o Uruguai venceu a Copa do Mundo?","opcoes":{"A":"1","B":"2","C":"3","D":"4"},"resposta":"B","dica":"Em 1930 e 1950, incluindo o famoso Maracanazo"},
-  {"id":51,"nivel":"facil","pergunta":"Qual o gol mais famoso do Brasil na Copa de 1970?","opcoes":{"A":"Gol de falta de Rivelino","B":"Gol de cabeça de Pelé","C":"Gol coletivo de Carlos Alberto","D":"Gol de bicicleta de Jairzinho"},"resposta":"C","dica":"Uma jogada de nove passes terminou com Carlos Alberto chutando de fora na final"},
-  {"id":52,"nivel":"facil","pergunta":"Qual é o maior artilheiro da história da Seleção Brasileira?","opcoes":{"A":"Pelé","B":"Romário","C":"Ronaldo","D":"Neymar"},"resposta":"D","dica":"Superou o recorde de Pelé em 2023 com 79 gols"},
-  {"id":53,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 1986?","opcoes":{"A":"Brasil","B":"Argentina","C":"Alemanha Ocidental","D":"França"},"resposta":"B","dica":"Com Maradona como estrela, no México"},
-  {"id":54,"nivel":"facil","pergunta":"Qual seleção eliminou o Brasil nas quartas de final da Copa de 2018?","opcoes":{"A":"França","B":"Bélgica","C":"Holanda","D":"Uruguai"},"resposta":"B","dica":"Venceu por 2x1 com gol de De Bruyne e um gol contra de Fernandinho"},
-  {"id":55,"nivel":"facil","pergunta":"Em qual Copa do Mundo jogaram juntos Ronaldo, Ronaldinho e Rivaldo — os '3 Rs'?","opcoes":{"A":"1998","B":"2002","C":"2006","D":"2010"},"resposta":"B","dica":"No Japão e Coreia do Sul, onde o Brasil se tornou pentacampeão"},
-  {"id":56,"nivel":"facil","pergunta":"Qual é o único jogador a marcar um hat-trick em uma final de Copa do Mundo antes de Mbappé?","opcoes":{"A":"Pelé","B":"Ronaldo","C":"Geoff Hurst","D":"Just Fontaine"},"resposta":"C","dica":"Inglês que marcou 3 gols na final de 1966 contra a Alemanha Ocidental"},
-  {"id":57,"nivel":"facil","pergunta":"Em qual país foi realizada a Copa do Mundo de 1966?","opcoes":{"A":"Itália","B":"França","C":"Espanha","D":"Inglaterra"},"resposta":"D","dica":"A seleção da casa ganhou seu único título mundial"},
-  {"id":58,"nivel":"facil","pergunta":"Qual é o gol mais rápido da história das Copas, marcado em apenas 11 segundos?","opcoes":{"A":"Bryan Robson (1982)","B":"Hakan Şükür (2002)","C":"Clint Dempsey (2014)","D":"Josip Šimunić (2006)"},"resposta":"B","dica":"Turco marcou contra a Coreia do Sul no jogo pelo 3º lugar em 2002"},
-  {"id":59,"nivel":"facil","pergunta":"Qual jogador foi expulso na final da Copa de 2006 após dar uma cabeçada?","opcoes":{"A":"Trezeguet","B":"Ribéry","C":"Henry","D":"Zidane"},"resposta":"D","dica":"Foi sua última ação como jogador profissional"},
-  {"id":60,"nivel":"facil","pergunta":"Qual Copa do Mundo foi a primeira realizada na África?","opcoes":{"A":"2006","B":"2010","C":"2014","D":"2018"},"resposta":"B","dica":"Realizada na África do Sul, a Espanha foi campeã"},
-  {"id":61,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 1978?","opcoes":{"A":"Brasil","B":"Holanda","C":"Argentina","D":"Peru"},"resposta":"C","dica":"Primeira conquista argentina, realizada em Buenos Aires"},
-  {"id":62,"nivel":"facil","pergunta":"Qual jogador italiano foi protagonista em uma cabeçada recebida na final de 2006?","opcoes":{"A":"Pirlo","B":"Totti","C":"Materazzi","D":"Del Piero"},"resposta":"C","dica":"Marcou o gol do empate E sofreu a famosa cabeçada de Zidane"},
-  {"id":63,"nivel":"facil","pergunta":"Qual foi o resultado final da Copa de 1970 (Brasil x Itália)?","opcoes":{"A":"Brasil 3x1 Itália","B":"Brasil 4x1 Itália","C":"Brasil 2x1 Itália","D":"Brasil 3x0 Itália"},"resposta":"A","dica":"Carlos Alberto marcou o quarto e último gol em uma jogada coletiva histórica... espera, eram 3 gols!"},
-  {"id":64,"nivel":"facil","pergunta":"Qual seleção tem mais vice-campeonatos na história das Copas do Mundo?","opcoes":{"A":"Brasil","B":"Argentina","C":"Alemanha","D":"Holanda"},"resposta":"C","dica":"A Alemanha/Alemanha Ocidental tem 4 vice-campeonatos"},
-  {"id":65,"nivel":"facil","pergunta":"Em que ano foi realizada a última Copa do Mundo com apenas 24 seleções?","opcoes":{"A":"1990","B":"1994","C":"1998","D":"2002"},"resposta":"A","dica":"A Copa de 1994 foi a primeira com 24 seleções, e a de 1998 aumentou para 32"},
-  {"id":66,"nivel":"facil","pergunta":"Qual time eliminou o Brasil da Copa de 2022?","opcoes":{"A":"Sérvia","B":"Suíça","C":"Croácia","D":"Argentina"},"resposta":"C","dica":"Empatou por 1x1 no tempo normal e venceu nos pênaltis nas quartas de final"},
-  {"id":67,"nivel":"facil","pergunta":"Qual jogador marcou o gol decisivo nos pênaltis para a Argentina ser campeã de 2022?","opcoes":{"A":"Messi","B":"Lautaro Martínez","C":"Gonzalo Montiel","D":"De Paul"},"resposta":"C","dica":"Foi o lateral-direito que converteu o último pênalti"},
-  {"id":68,"nivel":"facil","pergunta":"Qual Copa do Mundo estreou o sistema de árbitro de vídeo (VAR)?","opcoes":{"A":"2014","B":"2018","C":"2022","D":"2010"},"resposta":"B","dica":"Introduzido na Copa da Rússia, após a polêmica do gol fantasma de Lampard em 2010"},
-  {"id":69,"nivel":"facil","pergunta":"Qual jogador italiano é lembrado pela careta após fazer o gol que deu o título da Copa de 1982?","opcoes":{"A":"Rossi","B":"Tardelli","C":"Zoff","D":"Conti"},"resposta":"B","dica":"Sua comemoração gritando com os braços abertos se tornou uma das mais famosas da história"},
-  {"id":70,"nivel":"facil","pergunta":"Qual é o nome completo de Pelé?","opcoes":{"A":"Nelson Arantes do Nascimento","B":"Edson Arantes do Nascimento","C":"Arantes Edson Santos","D":"Edson Santos Arantes"},"resposta":"B","dica":"Nasceu em Três Corações, Minas Gerais, em 1940"},
-  {"id":71,"nivel":"facil","pergunta":"Qual seleção foi vice-campeã da Copa do Mundo de 2018?","opcoes":{"A":"Bélgica","B":"Croácia","C":"Inglaterra","D":"Holanda"},"resposta":"B","dica":"Modric foi eleito o melhor jogador da Copa mesmo perdendo a final"},
-  {"id":72,"nivel":"facil","pergunta":"Em qual Copa Garrincha foi eleito o melhor jogador do torneio?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"B","dica":"No Chile, ele praticamente ganhou a Copa sozinho após a lesão de Pelé"},
-  {"id":73,"nivel":"facil","pergunta":"Qual seleção venceu a Copa do Mundo de 1982?","opcoes":{"A":"Brasil","B":"Alemanha Ocidental","C":"Espanha","D":"Itália"},"resposta":"D","dica":"Paolo Rossi marcou o hat-trick que eliminou o Brasil nas quartas"},
-  {"id":74,"nivel":"facil","pergunta":"Em qual posição jogava Diego Maradona?","opcoes":{"A":"Centroavante","B":"Meia-atacante","C":"Lateral","D":"Volante"},"resposta":"B","dica":"Camisa 10 por excelência, com liberdade para criar e finalizar"},
-  {"id":75,"nivel":"facil","pergunta":"Qual foi a primeira Copa do Mundo realizada simultaneamente em dois países?","opcoes":{"A":"1990","B":"1994","C":"1998","D":"2002"},"resposta":"D","dica":"Japão e Coreia do Sul foram os co-anfitriões"},
-  {"id":76,"nivel":"facil","pergunta":"Qual seleção eliminou a Alemanha na fase de grupos da Copa de 2022?","opcoes":{"A":"Costa Rica","B":"Espanha","C":"Japão","D":"Marrocos"},"resposta":"C","dica":"Venceu por 2x1 em uma incrível virada no segundo tempo"},
-  {"id":77,"nivel":"facil","pergunta":"Qual foi o resultado da final da Copa de 2018 entre França e Croácia?","opcoes":{"A":"3x2","B":"2x1","C":"4x2","D":"3x1"},"resposta":"C","dica":"Pogba e Mbappé marcaram para a França; Mandzukic marcou contra e a favor"},
-  {"id":78,"nivel":"facil","pergunta":"Qual é o país de origem de Lionel Messi?","opcoes":{"A":"Uruguai","B":"Chile","C":"Brasil","D":"Argentina"},"resposta":"D","dica":"Nasceu em Rosário, Argentina, em 1987"},
-  {"id":79,"nivel":"facil","pergunta":"Qual Copa do Mundo foi realizada no Brasil em 1950?","opcoes":{"A":"A primeira Copa após a 2ª Guerra","B":"Copa Jules Rimet","C":"Copa comemorativa","D":"Copa Pan-americana"},"resposta":"A","dica":"Foi a primeira Copa após a Segunda Guerra Mundial, em 1938 a última"},
-  {"id":80,"nivel":"facil","pergunta":"Qual seleção asiática chegou às semifinais da Copa pela primeira vez em 2002?","opcoes":{"A":"Japão","B":"China","C":"Coreia do Sul","D":"Austrália"},"resposta":"C","dica":"Sediou a Copa junto com o Japão e surpreendeu chegando ao top 4"},
-  {"id":81,"nivel":"facil","pergunta":"Qual jogador argentino é dono do apelido 'La Pulga' (A Pulga)?","opcoes":{"A":"Di María","B":"Messi","C":"Agüero","D":"Icardi"},"resposta":"B","dica":"Apelido dado por sua baixa estatura e agilidade incomparável"},
-  {"id":82,"nivel":"facil","pergunta":"Qual Copa do Mundo foi a primeira transmitida ao vivo pela televisão?","opcoes":{"A":"1950","B":"1954","C":"1958","D":"1962"},"resposta":"B","dica":"Realizada na Suíça, marcou o início da era televisiva do futebol"},
-  {"id":83,"nivel":"facil","pergunta":"Qual jogador recebeu a Luva de Ouro (melhor goleiro) na Copa de 2022?","opcoes":{"A":"Courtois","B":"Lloris","C":"Alisson","D":"Emiliano Martínez"},"resposta":"D","dica":"O 'Dibu' fez defesas decisivas nas penalidades contra a Holanda e a França"},
-  {"id":84,"nivel":"facil","pergunta":"Em qual Copa do Mundo Neymar se lesionou e o Brasil foi eliminado?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"B","dica":"Ele fraturou a vértebra e não disputou a semifinal contra a Alemanha"},
-  {"id":85,"nivel":"facil","pergunta":"Qual país da Ásia foi o primeiro a chegar às quartas de final de uma Copa (1966)?","opcoes":{"A":"Japão","B":"China","C":"Coreia do Norte","D":"Coreia do Sul"},"resposta":"C","dica":"Surpreendeu o mundo eliminando a Itália na fase de grupos"},
-  {"id":101,"nivel":"medio","pergunta":"Qual jogador marcou o gol decisivo da Espanha na prorrogação da final de 2010?","opcoes":{"A":"Xavi","B":"David Villa","C":"Andrés Iniesta","D":"Fernando Torres"},"resposta":"C","dica":"O gol saiu aos 116 minutos da prorrogação, contra a Holanda"},
-  {"id":102,"nivel":"medio","pergunta":"Qual era o nome do técnico da Alemanha no fatídico 7x1?","opcoes":{"A":"Hansi Flick","B":"Jürgen Klinsmann","C":"Otto Rehhagel","D":"Joachim Löw"},"resposta":"D","dica":"Era técnico da seleção desde 2004 e levou a Alemanha ao título em 2014"},
-  {"id":103,"nivel":"medio","pergunta":"Qual jogador colombiano ganhou a Bola de Bronze e a Chuteira de Ouro na Copa de 2014?","opcoes":{"A":"Falcao","B":"Cuadrado","C":"James Rodríguez","D":"Bacca"},"resposta":"C","dica":"Marcou 6 gols no torneio, incluindo um voleio icônico contra o Uruguai"},
-  {"id":104,"nivel":"medio","pergunta":"Qual foi o resultado da semifinal mais icônica da Copa de 1982, quando a Itália eliminou o Brasil?","opcoes":{"A":"Brasil 1x2 Itália","B":"Brasil 2x3 Itália","C":"Brasil 1x3 Itália","D":"Brasil 0x2 Itália"},"resposta":"B","dica":"Paolo Rossi marcou hat-trick contra a 'Seleção mais bonita que nunca ganhou'"},
-  {"id":105,"nivel":"medio","pergunta":"Em qual Copa do Mundo o Senegal surpreendeu ao eliminar o campeão vigente na fase de grupos?","opcoes":{"A":"1998","B":"2002","C":"2006","D":"2010"},"resposta":"B","dica":"Veneceu a França (campeã em 1998) por 1x0 logo no primeiro jogo"},
-  {"id":106,"nivel":"medio","pergunta":"Qual treinador levou o Brasil ao Pentacampeonato em 2002?","opcoes":{"A":"Carlos Alberto Parreira","B":"Zagallo","C":"Luiz Felipe Scolari","D":"Telê Santana"},"resposta":"C","dica":"'Felipão' foi responsável pela estratégia dos '3 Rs'"},
-  {"id":107,"nivel":"medio","pergunta":"Qual Copa do Mundo foi marcada pela 'Batalha de Santiago', um dos jogos mais violentos da história?","opcoes":{"A":"1950","B":"1954","C":"1958","D":"1962"},"resposta":"D","dica":"Chile x Itália com expulsões, brigas e intervenção policial"},
-  {"id":108,"nivel":"medio","pergunta":"Qual artilheiro marcou 11 gols na Copa de 1954, recorde de uma única edição até 1958?","opcoes":{"A":"Ferenc Puskás","B":"Sándor Kocsis","C":"Morlock","D":"Hidetkuti"},"resposta":"B","dica":"Jogador húngaro que mesmo assim perdeu a final para a Alemanha Ocidental"},
-  {"id":109,"nivel":"medio","pergunta":"Qual jogador italiano perdeu o pênalti decisivo na final da Copa de 1994 contra o Brasil?","opcoes":{"A":"Paolo Maldini","B":"Demetrio Albertini","C":"Franco Baresi","D":"Roberto Baggio"},"resposta":"D","dica":"Chutou por cima do gol com a taça praticamente nas mãos dos adversários"},
-  {"id":110,"nivel":"medio","pergunta":"Qual Copa do Mundo foi a primeira a introduzir pênaltis como método de desempate?","opcoes":{"A":"1974","B":"1978","C":"1982","D":"1986"},"resposta":"C","dica":"A Alemanha Ocidental venceu a França por 5x4 nas primeiras penalidades da história do torneio"},
-  {"id":111,"nivel":"medio","pergunta":"Qual o nome do técnico do Brasil na Copa de 2014 que enfrentou o 7x1?","opcoes":{"A":"Tite","B":"Dunga","C":"Luiz Felipe Scolari","D":"Mano Menezes"},"resposta":"C","dica":"O mesmo 'Felipão' que conquistou o Penta em 2002 retornou para 2014"},
-  {"id":112,"nivel":"medio","pergunta":"Qual jogador marcou dois gols consecutivos da Alemanha em apenas 2 minutos no 7x1?","opcoes":{"A":"Thomas Müller","B":"Miroslav Klose","C":"Toni Kroos","D":"André Schürrle"},"resposta":"C","dica":"Marcou os gols do 3-0 e 4-0 em sequência nos minutos 24 e 26"},
-  {"id":113,"nivel":"medio","pergunta":"Em qual Copa do Mundo Luis Suárez foi suspenso por morder um adversário?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"B","dica":"Mordeu o italiano Giorgio Chiellini durante a fase de grupos"},
-  {"id":114,"nivel":"medio","pergunta":"Qual foi o resultado da final da Copa de 1998 (França x Brasil)?","opcoes":{"A":"Brasil 0x2 França","B":"Brasil 0x3 França","C":"Brasil 1x3 França","D":"Brasil 0x4 França"},"resposta":"B","dica":"Zidane marcou dois gols de cabeça no primeiro tempo"},
-  {"id":115,"nivel":"medio","pergunta":"Qual jogador sul-americano ganhou a Bola de Ouro (melhor jogador) na Copa de 2010?","opcoes":{"A":"Xavi","B":"Iniesta","C":"Messi","D":"Diego Forlán"},"resposta":"D","dica":"Uruguaio que impressionou com gols de fora da área, mesmo com o Uruguai em 4º lugar"},
-  {"id":116,"nivel":"medio","pergunta":"Qual seleção foi a surpresa da Copa de 1950, chegando às semifinais como a primeira da América do Norte?","opcoes":{"A":"México","B":"Cuba","C":"Estados Unidos","D":"Costa Rica"},"resposta":"C","dica":"Venceu a Inglaterra por 1x0 em uma das maiores zebras da história"},
-  {"id":117,"nivel":"medio","pergunta":"Qual Copa do Mundo usou pela primeira vez a tecnologia de sensor de gol (Goal-Line Technology)?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"B","dica":"Introduzida após a polêmica do gol fantasma de Frank Lampard em 2010"},
-  {"id":118,"nivel":"medio","pergunta":"Qual era o nome do goleiro brasileiro campeão na Copa de 1994 que defendeu o pênalti de Roberto Baggio?","opcoes":{"A":"Marcos","B":"Dida","C":"Taffarel","D":"Victor"},"resposta":"C","dica":"Taffarel também foi goleiro do Brasil em 1998"},
-  {"id":119,"nivel":"medio","pergunta":"Qual jogador argentino foi eleito o melhor jogador da Copa de 2014, mesmo sem ser campeão?","opcoes":{"A":"Higuain","B":"Messi","C":"Mascherano","D":"Di María"},"resposta":"B","dica":"Foi eleito apesar de a Argentina ter perdido a final para a Alemanha"},
-  {"id":120,"nivel":"medio","pergunta":"Qual Copa do Mundo marcou a expulsão histórica de Maradona por doping?","opcoes":{"A":"1990","B":"1994","C":"1986","D":"1998"},"resposta":"B","dica":"Foi expulso do torneio após teste antidoping positivo para efedrina"},
-  {"id":121,"nivel":"medio","pergunta":"Qual jogador britânico marcou um golaço histórico de longa distância eliminando o Brasil nas quartas de 2002?","opcoes":{"A":"Beckham","B":"Owen","C":"Scholes","D":"Ronaldinho (contra)"},"resposta":"D","dica":"Foi Ronaldinho quem marcou, com uma falta por cobertura que enganou Seaman — mas ele era brasileiro!"},
-  {"id":122,"nivel":"medio","pergunta":"Qual seleção foi a primeira campeã bicampeã do mundo, vencendo as Copas de 1934 e 1938?","opcoes":{"A":"Brasil","B":"Uruguai","C":"Itália","D":"Alemanha"},"resposta":"C","dica":"As duas primeiras Copas realizadas na Europa foram vencidas pelo mesmo país"},
-  {"id":123,"nivel":"medio","pergunta":"Qual jogador marcou o gol do título espanhol na semifinal de 2010 contra a Alemanha?","opcoes":{"A":"Iniesta","B":"Torres","C":"Villa","D":"Puyol"},"resposta":"D","dica":"O zagueiro e capitão marcou de cabeça num escanteio"},
-  {"id":124,"nivel":"medio","pergunta":"Em que Copa do Mundo a seleção do Camarões foi o primeiro time africano a chegar às quartas de final?","opcoes":{"A":"1982","B":"1986","C":"1990","D":"1994"},"resposta":"C","dica":"Roger Milla ficou famoso pelas comemorações ao lado do poste do escanteio"},
-  {"id":125,"nivel":"medio","pergunta":"Qual seleção derrotou Portugal por 6x1 nas oitavas de final da Copa de 2022?","opcoes":{"A":"Espanha","B":"Marrocos","C":"Suíça","D":"Portugal venceu por 6x1"},"resposta":"D","dica":"Foi PORTUGAL que venceu a Suíça por 6x1 com hat-trick de Gonçalo Ramos"},
-  {"id":126,"nivel":"medio","pergunta":"Em qual Copa do Mundo Ronaldo Fenômeno sofreu uma convulsão misteriosa antes da final?","opcoes":{"A":"1994","B":"1998","C":"2002","D":"2006"},"resposta":"B","dica":"Mesmo assim jogou a final, mas o Brasil perdeu por 3x0 para a França"},
-  {"id":127,"nivel":"medio","pergunta":"Qual jogador croata marcou um gol contra E um gol a favor na final da Copa de 2018?","opcoes":{"A":"Modric","B":"Perisic","C":"Mandzukić","D":"Rakitić"},"resposta":"C","dica":"Primeiro fez contra para a França, depois marcou o gol de honra da Croácia"},
-  {"id":128,"nivel":"medio","pergunta":"Qual Copa do Mundo foi a primeira a usar as câmeras de replay em transmissões de TV?","opcoes":{"A":"1958","B":"1966","C":"1970","D":"1974"},"resposta":"B","dica":"Foi na Copa de 1966 que a tecnologia de replay permitiu rever os lances com clareza"},
-  {"id":129,"nivel":"medio","pergunta":"Qual técnico levou a Croácia às semifinais em 2018 e ao 3º lugar em 2022?","opcoes":{"A":"Slaven Bilić","B":"Niko Kovač","C":"Zlatko Dalić","D":"Igor Štimac"},"resposta":"C","dica":"Assumiu a seleção em 2017 e a transformou em uma das melhores do mundo"},
-  {"id":130,"nivel":"medio","pergunta":"Qual foi a Copa que primeiro exibiu o gol fantasma controverso, que só seria reconhecido tecnologicamente depois?","opcoes":{"A":"2006","B":"2010","C":"2014","D":"2018"},"resposta":"B","dica":"Frank Lampard chutou e a bola bateu na trave por dentro, mas o árbitro não viu"},
-  {"id":131,"nivel":"medio","pergunta":"Em que Copa do Mundo Pelé sofreu lesões propositais e o Brasil foi eliminado na fase de grupos?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"C","dica":"Na Copa da Inglaterra, Pelé foi derrubado repetidamente e o Brasil caiu na fase de grupos"},
-  {"id":132,"nivel":"medio","pergunta":"Qual Copa do Mundo teve o menor número de gols por jogo em média (2.21), famosa pelo futebol defensivo?","opcoes":{"A":"1986","B":"1990","C":"1994","D":"1978"},"resposta":"B","dica":"A Copa da Itália foi criticada pelo futebol chato, o que motivou mudanças nas regras"},
-  {"id":133,"nivel":"medio","pergunta":"Qual jogador marcou o hat-trick que deixou a Alemanha Ocidental fora da Copa de 1994 nas eliminatórias?","opcoes":{"A":"Era Jorge","B":"Não houve — a Alemanha se classificou","C":"Christo Stoichkov","D":"Carlos Valderrama"},"resposta":"B","dica":"A Alemanha se classificou normalmente para 1994 como campeã em exercício"},
-  {"id":134,"nivel":"medio","pergunta":"Qual seleção foi desclassificada da Copa de 2022 na fase de grupos sendo a campeã vigente?","opcoes":{"A":"França não, Brasil não...","B":"Nenhuma seleção campeã foi eliminada na fase de grupos em 2022","C":"França","D":"Alemanha"},"resposta":"B","dica":"A França, campeã de 2018, passou dos grupos em 2022"},
-  {"id":135,"nivel":"medio","pergunta":"Em que Copa do Mundo a seleção da Algéria surpreendeu ao eliminar a Alemanha... chegando às oitavas?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"B","dica":"A Argélia chegou às oitavas de 2014, perdendo para a Alemanha por 2x1 na prorrogação"},
-  {"id":136,"nivel":"medio","pergunta":"Qual foi o gol mais rápido marcado por um reserva saindo do banco na Copa de 2014?","opcoes":{"A":"Gol de Schürrle contra o Brasil","B":"Gol de Götze na final","C":"Gol de Van Persie contra a Espanha","D":"Gol de James contra o Uruguai"},"resposta":"B","dica":"Götze entrou no lugar de Klose e marcou o gol do título na prorrogação"},
-  {"id":137,"nivel":"medio","pergunta":"Qual Copa do Mundo teve a primeira penalidade (pênalti) cobrada na história do torneio?","opcoes":{"A":"1930","B":"1934","C":"1938","D":"1950"},"resposta":"B","dica":"Foi na Copa da Itália de 1934"},
-  {"id":138,"nivel":"medio","pergunta":"Qual jogador do Senegal ficou famoso por QUASE dar um chapéu no goleiro na Copa de 2022?","opcoes":{"A":"Sadio Mané","B":"Cheikhou Kouyaté","C":"Idrissa Gueye","D":"Ismaïla Sarr"},"resposta":"D","dica":"Tentou um chip quando o goleiro saiu, mas errou"},
-  {"id":139,"nivel":"medio","pergunta":"Qual Copa do Mundo foi a primeira a ter transmissão ao vivo em cores?","opcoes":{"A":"1966","B":"1970","C":"1974","D":"1978"},"resposta":"B","dica":"Foi no México em 1970, exibindo pela primeira vez as cores do futebol ao mundo"},
-  {"id":140,"nivel":"medio","pergunta":"Qual jogador da Bulgária empatou o artilhariado com Salenko na Copa de 1994, com 6 gols?","opcoes":{"A":"Emil Kostadinov","B":"Nasko Sirakov","C":"Hristo Stoichkov","D":"Yordan Letchkov"},"resposta":"C","dica":"Astro do Barcelona que levou a Bulgária às semifinais pela primeira vez"},
-  {"id":141,"nivel":"medio","pergunta":"Em qual Copa do Mundo a seleção do Japão surpreendeu ao eliminar a Espanha?","opcoes":{"A":"2018","B":"2022","C":"2014","D":"2010"},"resposta":"B","dica":"Venceu por 2x1 com uma virada no segundo tempo"},
-  {"id":142,"nivel":"medio","pergunta":"Qual foi o placar quando a Arábia Saudita venceu a Argentina na Copa de 2022?","opcoes":{"A":"1x0","B":"2x0","C":"1x2","D":"2x1"},"resposta":"D","dica":"Uma das maiores zebras da Copa de 2022, com a Argentina perdendo a estreia"},
-  {"id":143,"nivel":"medio","pergunta":"Qual jogador espanhol é o maior artilheiro de Copas na história da seleção com 9 gols?","opcoes":{"A":"Fernando Torres","B":"Raúl","C":"David Villa","D":"Iniesta"},"resposta":"C","dica":"O 'Killer' marcou em 2006 e 2010, sendo decisivo no título espanhol"},
-  {"id":144,"nivel":"medio","pergunta":"Em qual Copa do Mundo Eusébio ficou em 3º lugar com Portugal, sendo o artilheiro com 9 gols?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"C","dica":"Portugal fez sua melhor Copa até 2022, com o artilheiro português mais famoso"},
-  {"id":145,"nivel":"medio","pergunta":"Qual seleção venceu a disputa pelo 3º lugar na Copa de 2014?","opcoes":{"A":"Argentina","B":"Brasil","C":"Holanda","D":"Colômbia"},"resposta":"C","dica":"Derrotou o Brasil por 3x0 na partida mais dolorosa para o anfitrião"},
-  {"id":146,"nivel":"medio","pergunta":"Qual Copa do Mundo foi a primeira realizada no Hemisfério Sul fora da América do Sul?","opcoes":{"A":"1994","B":"2002","C":"2006","D":"2010"},"resposta":"D","dica":"A África do Sul foi o primeiro país africano a sediar o evento"},
-  {"id":147,"nivel":"medio","pergunta":"Qual jogador alemão marcou o gol que eliminou o Brasil na semifinal de 2014 — o primeiro gol do 7x1?","opcoes":{"A":"Klose","B":"Kroos","C":"Müller","D":"Schürrle"},"resposta":"C","dica":"O 'Raumdeuter' abriu o placar no 11º minuto com um cabeceio"},
-  {"id":148,"nivel":"medio","pergunta":"Qual Copa do Mundo terminou com a Itália sendo bicampeã, vencendo em casa?","opcoes":{"A":"1934","B":"1938","C":"1950","D":"1954"},"resposta":"A","dica":"Mussolini pressionou para que a Itália vencesse a Copa realizada em seu país"},
-  {"id":149,"nivel":"medio","pergunta":"Qual jogador holandês ficou famoso pela 'Virada de Cruyff' (Cruyff Turn) na Copa de 1974?","opcoes":{"A":"Neeskens","B":"Rensenbrink","C":"Rep","D":"Johan Cruyff"},"resposta":"D","dica":"O drible consistia em fingir o cruzamento e girar para o outro lado"},
-  {"id":150,"nivel":"medio","pergunta":"Qual Copa do Mundo marcou a estreia da Argentina como bicampeã após vencer em casa em 1986?","opcoes":{"A":"Holanda foi vice em 1974 e 1978","B":"Argentina conquistou em 1978 e 1986","C":"Brasil ganhou em 1994 e 2002","D":"Alemanha venceu em 1974 e 1990"},"resposta":"B","dica":"Maradona foi o grande herói de ambos os títulos argentinos no século XX"},
-  {"id":151,"nivel":"medio","pergunta":"Qual seleção foi eliminada da Copa de 2018 na fase de grupos sendo a campeã vigente?","opcoes":{"A":"Brasil","B":"Espanha","C":"Portugal","D":"Alemanha"},"resposta":"D","dica":"A campeã de 2014 caiu no grupo da México, Suécia e Coreia do Sul"},
-  {"id":152,"nivel":"medio","pergunta":"Em qual Copa do Mundo o Brasil venceu a Copa com Garrincha e Pelé jogando juntos pela última vez?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"B","dica":"O Brasil nunca perdeu quando os dois jogaram juntos"},
-  {"id":153,"nivel":"medio","pergunta":"Qual é o recorde de mais Copas disputadas por um jogador (5 Copas)?","opcoes":{"A":"Apenas Messi e Ronaldo","B":"Vários jogadores incluindo Buffon e Márquez","C":"Somente Cafu e Roberto Carlos","D":"Apenas Pelé"},"resposta":"B","dica":"Messi, Ronaldo (CR7), Buffon, Rafael Márquez e outros disputaram 5 Copas"},
-  {"id":154,"nivel":"medio","pergunta":"Qual seleção surpreendeu ao vencer o Grupo F da Copa de 2022 que tinha Bélgica, Croácia e Marrocos?","opcoes":{"A":"Bélgica","B":"Marrocos","C":"Croácia","D":"Canadá"},"resposta":"B","dica":"O Marrocos terminou o grupo na frente de Bélgica e Croácia"},
-  {"id":155,"nivel":"medio","pergunta":"Em qual Copa a Russia surpreendeu chegando às quartas de final como país-sede?","opcoes":{"A":"2014","B":"2018","C":"2022","D":"2010"},"resposta":"B","dica":"Foram eliminados pela Croácia nos pênaltis em casa"},
-  {"id":156,"nivel":"medio","pergunta":"Qual Copa do Mundo foi marcada pela derrota da Itália para a Coreia do Norte na fase de grupos?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"C","dica":"Uma das maiores zebras da história, na Copa da Inglaterra"},
-  {"id":157,"nivel":"medio","pergunta":"Qual jogador australiano ficou famoso pelos cabeceios e marcou gols em 3 Copas diferentes?","opcoes":{"A":"Kewell","B":"Viduka","C":"Cahill","D":"Schwarzer"},"resposta":"C","dica":"Tim Cahill marcou em 2006, 2010 e 2014"},
-  {"id":158,"nivel":"medio","pergunta":"Qual Copa do Mundo apresentou o uniforme branco do Brasil pela primeira vez — e também foi a última?","opcoes":{"A":"1938","B":"1950","C":"1954","D":"1958"},"resposta":"B","dica":"Após o Maracanazo de 1950, o Brasil mudou para o uniforme amarelo"},
-  {"id":159,"nivel":"medio","pergunta":"Qual Copa do Mundo registrou o primeiro hat-trick da história do torneio?","opcoes":{"A":"1930","B":"1934","C":"1938","D":"1950"},"resposta":"A","dica":"O americano Bert Patenaude marcou 3 gols, embora reconhecido oficialmente só depois"},
-  {"id":160,"nivel":"medio","pergunta":"Qual Copa do Mundo ficou marcada por um jogador morder o adversário, sendo esse o terceiro incidente de mordida do mesmo jogador?","opcoes":{"A":"2010","B":"2014","C":"2018","D":"2022"},"resposta":"B","dica":"Luis Suárez mordeu Chiellini, mas o Uruguai não foi desclassificado"},
-  {"id":161,"nivel":"medio","pergunta":"Qual foi a Copa do Mundo em que a seleção brasileira usou o uniforme branco — e não quis mais usar após o Maracanazo?","opcoes":{"A":"1934","B":"1938","C":"1946","D":"1950"},"resposta":"D","dica":"O branco ficou associado ao trauma da derrota para o Uruguai"},
-  {"id":162,"nivel":"medio","pergunta":"Qual é o nome do estádio onde foi disputada a final da Copa do Mundo de 2022?","opcoes":{"A":"Estádio Khalifa","B":"Lusail Stadium","C":"Al Bayt Stadium","D":"Al Janoub Stadium"},"resposta":"B","dica":"Com capacidade para 92.000 espectadores em Lusail, Qatar"},
-  {"id":163,"nivel":"medio","pergunta":"Qual jogador francês marcou o primeiro gol do Brasil na Copa de 1998, sendo o herói improvávelmente?","opcoes":{"A":"Desailly","B":"Petit","C":"Deschamps","D":"Zidane"},"resposta":"D","dica":"Zidane marcou dois gols de cabeça contra o Brasil na final"},
-  {"id":164,"nivel":"medio","pergunta":"Em qual Copa do Mundo a Alemanha goleou a Arábia Saudita por 8x0?","opcoes":{"A":"1998","B":"2002","C":"2006","D":"2010"},"resposta":"B","dica":"Foi na Copa do Japão/Coreia, na fase de grupos"},
-  {"id":165,"nivel":"medio","pergunta":"Qual jogador foi o artilheiro da Copa de 2006 com 5 gols?","opcoes":{"A":"Ronaldo","B":"Zidane","C":"Miroslav Klose","D":"Thierry Henry"},"resposta":"C","dica":"O alemão marcou 5 gols antes de se tornar o maior artilheiro da história em 2014"},
-  {"id":166,"nivel":"medio","pergunta":"Qual Copa do Mundo foi a primeira com 32 seleções participantes?","opcoes":{"A":"1994","B":"1998","C":"2002","D":"2006"},"resposta":"B","dica":"A Copa da França em 1998 expandiu o torneio de 24 para 32 equipes"},
-  {"id":167,"nivel":"medio","pergunta":"Qual seleção europeia foi eliminada por um pênalti polêmico de Thierry Henry nas eliminatórias da Copa de 2010?","opcoes":{"A":"Irlanda","B":"Polônia","C":"Escócia","D":"Dinamarca"},"resposta":"A","dica":"Henry claramente usou a mão para controlar antes de cruzar para o gol decisivo"},
-  {"id":168,"nivel":"medio","pergunta":"Em qual Copa do Mundo a Holanda chegou à final pela segunda vez consecutiva?","opcoes":{"A":"1974","B":"1978","C":"1982","D":"1986"},"resposta":"B","dica":"Perderam para a Argentina em 1974 e novamente em 1978"},
-  {"id":169,"nivel":"medio","pergunta":"Qual seleção africana surpreendeu ao eliminar a Colômbia na Copa de 1990?","opcoes":{"A":"Egito","B":"Argélia","C":"Camarões","D":"Senegal"},"resposta":"C","dica":"Roger Milla marcou na prorrogação e o Camarões chegou às quartas"},
-  {"id":170,"nivel":"medio","pergunta":"Qual Copa do Mundo marcou o retiro do 'Futebol Total' holandês com Johan Cruyff?","opcoes":{"A":"1974","B":"1978","C":"1982","D":"1986"},"resposta":"A","dica":"Cruyff jogou e foi eleito o melhor jogador, mas a Holanda perdeu a final"},
-  {"id":171,"nivel":"medio","pergunta":"Em qual Copa do Mundo o Brasil venceu seu primeiro título com o técnico Flávio Costa?","opcoes":{"A":"1930","B":"1938","C":"1950","D":"Nunca ganhou com Flávio Costa"},"resposta":"D","dica":"O Brasil de 1950 tinha Flávio Costa como técnico, mas perdeu o Maracanazo"},
-  {"id":172,"nivel":"medio","pergunta":"Qual jogador inglês marcou gol em 4 Copas do Mundo diferentes entre 1986 e 1998?","opcoes":{"A":"Gary Lineker","B":"Alan Shearer","C":"Peter Beardsley","D":"David Platt"},"resposta":"A","dica":"Marcou em 1986, ficou invicto e marcou em... na verdade são 3 Copas (86, 90)"},
-  {"id":173,"nivel":"medio","pergunta":"Qual Copa do Mundo foi marcada pelo icônico 'Gol do Século' e o gol de 'Mão de Deus'?","opcoes":{"A":"1982","B":"1986","C":"1990","D":"1994"},"resposta":"B","dica":"Ambos os gols foram marcados por Maradona contra a Inglaterra nas quartas"},
-  {"id":174,"nivel":"medio","pergunta":"Qual seleção foi campeã do mundo em 1934, em sua própria Copa, com influência política de Mussolini?","opcoes":{"A":"Alemanha","B":"Brasil","C":"Itália","D":"França"},"resposta":"C","dica":"A Itália também venceu a Copa seguinte, em 1938, sendo bicampeã"},
-  {"id":175,"nivel":"medio","pergunta":"Qual jogador brasileiro comemorou gol na Copa de 1994 segurando um bebê imaginário com Romário?","opcoes":{"A":"Mazinho","B":"Zinho","C":"Bebeto","D":"Edmundo"},"resposta":"C","dica":"Comemorou assim após o nascimento de seu filho, criando uma das comemorações mais famosas"},
-  {"id":201,"nivel":"dificil","pergunta":"Qual foi a maior goleada de uma Copa do Mundo, que ocorreu em 1982?","opcoes":{"A":"Alemanha 7x1 Brasil (2014)","B":"Hungria 10x1 El Salvador (1982)","C":"Hungria 9x0 Coreia do Sul (1954)","D":"Brasil 6x0 Bolívia (1974)"},"resposta":"B","dica":"Aconteceu na Copa da Espanha, ainda é o maior placar da história"},
-  {"id":202,"nivel":"dificil","pergunta":"Qual foi o primeiro gol da história das Copas do Mundo, marcado em 1930?","opcoes":{"A":"Marcado por um argentino","B":"Marcado por um americano","C":"Marcado por um francês","D":"Marcado por um uruguaio"},"resposta":"C","dica":"Lucien Laurent marcou para a França contra o México em 13 de julho de 1930"},
-  {"id":203,"nivel":"dificil","pergunta":"Qual é a única Copa do Mundo sem fase final tradicional — usando round-robin em vez de semifinais?","opcoes":{"A":"1934","B":"1938","C":"1950","D":"1954"},"resposta":"C","dica":"O 'Maracanazo' foi tecnicamente o último jogo do round-robin, não uma 'final'"},
-  {"id":204,"nivel":"dificil","pergunta":"Qual jogador é o único a ter sido expulso em duas Copas do Mundo diferentes?","opcoes":{"A":"Maradona","B":"Zidane","C":"Rigobert Song","D":"Riquelme"},"resposta":"C","dica":"O camaronês foi expulso em 1994 (contra o Brasil) e em 1998 (contra o Chile)"},
-  {"id":205,"nivel":"dificil","pergunta":"Em qual Copa do Mundo a seleção anfitriã foi a primeira a ser eliminada na fase de grupos?","opcoes":{"A":"1966 (Inglaterra)","B":"2002 (Japão/Coreia do Sul)","C":"2010 (África do Sul)","D":"2022 (Qatar)"},"resposta":"D","dica":"O Qatar foi o primeiro país-sede a ser eliminado logo na fase de grupos"},
-  {"id":206,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a ter mais de 50 gols marcados no torneio inteiro?","opcoes":{"A":"1930","B":"1934","C":"1938","D":"1950"},"resposta":"C","dica":"Em 1938 na França, 84 gols em 18 jogos quebraram o recorde"},
-  {"id":207,"nivel":"dificil","pergunta":"Qual jogador húngaro foi artilheiro com 11 gols na Copa de 1954 e é o segundo maior da história em uma única edição?","opcoes":{"A":"Ferenc Puskás","B":"Sándor Kocsis","C":"Nándor Hidegkuti","D":"Zoltán Czibor"},"resposta":"B","dica":"Marcou 11 gols em 5 jogos, recorde depois superado apenas por Fontaine com 13 em 1958"},
-  {"id":208,"nivel":"dificil","pergunta":"Qual foi o único país a participar de uma Copa do Mundo sem ser filiado à FIFA?","opcoes":{"A":"Israel","B":"Taiwan","C":"Não existe esse caso","D":"Palestine"},"resposta":"C","dica":"Todos os participantes de Copas do Mundo foram filiados à FIFA na época"},
-  {"id":209,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira disputada por 16 equipes e com formato exclusivamente eliminatório?","opcoes":{"A":"1930","B":"1934","C":"1938","D":"1950"},"resposta":"B","dica":"Em 1934, 16 equipes jogaram em mata-mata sem fase de grupos"},
-  {"id":210,"nivel":"dificil","pergunta":"Qual atacante alemão marcou 10 gols na Copa de 1970, segunda maior pontuação em uma única edição?","opcoes":{"A":"Uwe Seeler","B":"Helmut Haller","C":"Gerd Müller","D":"Jürgen Grabowski"},"resposta":"C","dica":"O 'Bombardeiro da Nação' marcou 10 em 6 jogos, tornando-se lenda antes de 1974"},
-  {"id":211,"nivel":"dificil","pergunta":"Qual Copa do Mundo marcou a primeira transmissão ao vivo via satélite para outros continentes?","opcoes":{"A":"1962","B":"1966","C":"1970","D":"1974"},"resposta":"C","dica":"O México em 1970 foi a primeira Copa transmitida ao vivo via satélite para o mundo todo"},
-  {"id":212,"nivel":"dificil","pergunta":"Qual seleção venceu o 3º lugar na Copa de 1930, na primeira edição do torneio?","opcoes":{"A":"A Holanda","B":"EUA e Iugoslávia (empatados)","C":"A Argentina (teve 3º lugar)","D":"Não houve jogo pelo 3º lugar em 1930"},"resposta":"D","dica":"Em 1930, não houve disputa de terceiro lugar — EUA e Iugoslávia foram considerados 3ºs"},
-  {"id":213,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a não contar com a participação de qualquer seleção da América do Sul?","opcoes":{"A":"1930","B":"1934","C":"1938","D":"Nunca houve"},"resposta":"B","dica":"Em 1934, Argentina, Uruguai e outras sul-americanas boicotaram por obrigação de disputar eliminatórias"},
-  {"id":214,"nivel":"dificil","pergunta":"Qual foi a Copa do Mundo em que a Turquia marcou o gol mais rápido da história em apenas 11 segundos?","opcoes":{"A":"1998","B":"2002","C":"2006","D":"2010"},"resposta":"B","dica":"Hakan Şükür marcou contra a Coreia do Sul no jogo pelo 3º lugar na Copa de 2002"},
-  {"id":215,"nivel":"dificil","pergunta":"Em qual Copa do Mundo Franz Beckenbauer jogou uma semifinal heroicamente com o ombro deslocado e braço em tipoia?","opcoes":{"A":"1966","B":"1970","C":"1974","D":"1978"},"resposta":"B","dica":"Foi na Copa do México, na famosa partida contra a Itália que terminou 4x3"},
-  {"id":216,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a única realizada nas duas Américas pelo mesmo torneio em países diferentes?","opcoes":{"A":"A de 2026 será a primeira","B":"Já aconteceu em 2002","C":"Em 1994","D":"Em 1986 foi no México e EUA"},"resposta":"A","dica":"Em 2026, EUA, México e Canadá serão co-anfitriões pela primeira vez na América do Norte"},
-  {"id":217,"nivel":"dificil","pergunta":"Qual é o jogador com mais partidas disputadas na história das Copas do Mundo?","opcoes":{"A":"Ronaldo (CR7)","B":"Lothar Matthäus","C":"Lionel Messi","D":"Rafael Márquez"},"resposta":"C","dica":"Com 26 partidas, Messi ultrapassou Lothar Matthäus em 2022"},
-  {"id":218,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira em que o Brasil entrou como favorito pela imprensa mundial?","opcoes":{"A":"1950","B":"1954","C":"1958","D":"1962"},"resposta":"C","dica":"Em 1958, o Brasil tinha a melhor seleção com Pelé, Garrincha e Didi, e realmente venceu"},
-  {"id":219,"nivel":"dificil","pergunta":"Quantos jogos ao total foram disputados na primeira Copa do Mundo de 1930?","opcoes":{"A":"13","B":"17","C":"18","D":"21"},"resposta":"C","dica":"Com 13 equipes em 4 grupos e fase final, foram 18 partidas no total"},
-  {"id":220,"nivel":"dificil","pergunta":"Qual seleção europeia foi eliminada por El Salvador na Copa de 1982, após sofrer um dos maiores vexames?","opcoes":{"A":"Hungria","B":"Holanda","C":"Bélgica","D":"Não existe; foi El Salvador que levou 10x1"},"resposta":"D","dica":"Foi exatamente o contrário: El Salvador perdeu por 10x1 para a Hungria, não eliminou ninguém"},
-  {"id":221,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a contar com árbitros de outros continentes?","opcoes":{"A":"1934","B":"1938","C":"1950","D":"1954"},"resposta":"C","dica":"Em 1950 no Brasil, árbitros de outros continentes foram escalados pela primeira vez"},
-  {"id":222,"nivel":"dificil","pergunta":"Qual jogador é o único a ter marcado gols em CINCO Copas do Mundo diferentes?","opcoes":{"A":"Messi","B":"Cristiano Ronaldo","C":"Pelé","D":"Uwe Seeler ou Miroslav Klose"},"resposta":"B","dica":"Cristiano Ronaldo marcou em 2006, 2010, 2014, 2018 e 2022"},
-  {"id":223,"nivel":"dificil","pergunta":"Em qual Copa do Mundo a Seleção Brasileira usou a cor azul como uniforme alternativo que ficou famosa?","opcoes":{"A":"1954","B":"1958","C":"1962","D":"1966"},"resposta":"B","dica":"Em 1958 na Suécia, o Brasil usou azul por conflito de cores com a seleção local"},
-  {"id":224,"nivel":"dificil","pergunta":"Qual técnico é o único a ter levado a Copa do Mundo como jogador E como técnico, sendo o primeiro?","opcoes":{"A":"Beckenbauer","B":"Zagallo","C":"Deschamps","D":"Zagallo foi o primeiro, depois Beckenbauer"},"resposta":"D","dica":"Mario Zagallo (Brasil) foi o primeiro a conseguir isso, em 1958/62 como jogador e 1970 como técnico"},
-  {"id":225,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi cancelada devido à Segunda Guerra Mundial?","opcoes":{"A":"1942","B":"1946","C":"Ambas 1942 e 1946","D":"Nenhuma foi cancelada"},"resposta":"C","dica":"As edições de 1942 (prevista para o Brasil) e 1946 foram canceladas por causa da guerra"},
-  {"id":226,"nivel":"dificil","pergunta":"Qual seleção marcou o gol autogol mais famoso da história das Copas, com consequências trágicas para o jogador?","opcoes":{"A":"México (1994)","B":"Colômbia (1994)","C":"Brasil (2014)","D":"França (1998)"},"resposta":"B","dica":"Andrés Escobar marcou contra para eliminar a Colômbia e foi assassinado ao voltar ao país"},
-  {"id":227,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a ter cartões amarelos e vermelhos como forma de disciplina?","opcoes":{"A":"1966","B":"1970","C":"1974","D":"1978"},"resposta":"B","dica":"O árbitro inglês Ken Aston inventou os cartões após a Copa de 1966 e foram introduzidos em 1970"},
-  {"id":228,"nivel":"dificil","pergunta":"Quantos países africanos participaram da Copa do Mundo de 1974?","opcoes":{"A":"1","B":"2","C":"3","D":"0"},"resposta":"A","dica":"O Zaire (hoje Congo) foi o único representante africano em 1974, levando 9x0 da Iugoslávia"},
-  {"id":229,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a única em que o campeão não cedeu nenhum gol contra?","opcoes":{"A":"Brasil 1970","B":"Alemanha 1974","C":"Argentina 1978","D":"Itália 1982"},"resposta":"A","dica":"O Brasil de 1970 venceu todos os 6 jogos sem conceder nenhum gol contra — feito histórico inigualável"},
-  {"id":230,"nivel":"dificil","pergunta":"Qual é o recorde de gols marcados em uma única partida por um único jogador em Copas do Mundo?","opcoes":{"A":"4 gols","B":"5 gols","C":"6 gols","D":"7 gols"},"resposta":"B","dica":"Oleg Salenko marcou 5 gols para a Rússia contra Camarões em 1994 — único recorde individual"},
-  {"id":231,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a ser disputada na Ásia?","opcoes":{"A":"1994","B":"1998","C":"2002","D":"2006"},"resposta":"C","dica":"Japão e Coreia do Sul co-sediaram a primeira Copa asiática em 2002"},
-  {"id":232,"nivel":"dificil","pergunta":"Qual seleçao detém o recorde de mais gols marcados em uma única Copa do Mundo com 27 gols?","opcoes":{"A":"Brasil 1970","B":"Hungria 1954","C":"França 1958","D":"Alemanha 2014"},"resposta":"B","dica":"A Hungria de Kocsis e Puskás marcou 27 gols em 1954, mesmo perdendo a final"},
-  {"id":233,"nivel":"dificil","pergunta":"Em qual Copa do Mundo foi realizado o primeiro jogo noturno com iluminação artificial?","opcoes":{"A":"1958","B":"1962","C":"1966","D":"1970"},"resposta":"C","dica":"Em 1966, na Copa da Inglaterra, foram usados holofotes para jogos à noite pela primeira vez"},
-  {"id":234,"nivel":"dificil","pergunta":"Qual é o único país a ter sediado a Copa do Mundo duas vezes?","opcoes":{"A":"Apenas Itália","B":"Apenas México","C":"Itália e México","D":"Itália, México e Brasil"},"resposta":"C","dica":"Itália sediou em 1934 e 1990; México em 1970 e 1986 — e sediará novamente em 2026"},
-  {"id":235,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira disputada com 5 substituições por equipe?","opcoes":{"A":"2014","B":"2018","C":"2022","D":"2026"},"resposta":"C","dica":"Em 2022 no Qatar, pela primeira vez a FIFA permitiu 5 substituições em Copas"},
-  {"id":236,"nivel":"dificil","pergunta":"Qual jogador marcou o gol de pênalti mais rápido na história das Copas (no 1º minuto)?","opcoes":{"A":"Pelé","B":"Paolo Rossi","C":"Hakan Şükür","D":"Bryan Robson"},"resposta":"D","dica":"Bryan Robson marcou para a Inglaterra contra a França em 1982, no 27º segundo de jogo"},
-  {"id":237,"nivel":"dificil","pergunta":"Qual foi a Copa do Mundo com o maior número de gols por jogo em média (5.38 gols/jogo)?","opcoes":{"A":"1934","B":"1938","C":"1954","D":"1958"},"resposta":"C","dica":"Em 1954 na Suíça, a média de gols foi a mais alta da história com equipes como Hungria e Alemanha"},
-  {"id":238,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a última a ter a Taça Jules Rimet como troféu entregue ao campeão?","opcoes":{"A":"1966","B":"1970","C":"1974","D":"1978"},"resposta":"B","dica":"O Brasil ganhou a Taça Jules Rimet permanentemente em 1970 por ser tricampeão"},
-  {"id":239,"nivel":"dificil","pergunta":"Qual é o país que ficou de fora da Copa de 1950 e 1954 por razões políticas e foi readmitido em 1966?","opcoes":{"A":"Alemanha (leste)","B":"China","C":"Japão","D":"União Soviética"},"resposta":"A","dica":"A Alemanha Oriental não participou das primeiras Copas do pós-guerra, sendo readmitida em 1966"},
-  {"id":240,"nivel":"dificil","pergunta":"Qual Copa do Mundo foi a primeira a ter câmeras de dentro do gol (atrás da rede)?","opcoes":{"A":"2006","B":"2010","C":"2014","D":"2018"},"resposta":"C","dica":"Em 2014 no Brasil, câmeras foram colocadas atrás dos gols para análise de lances duvidosos"}
+  {
+    "id": 1,
+    "nivel": "facil",
+    "pergunta": "Qual país sediou a Copa do Mundo de 2022?",
+    "opcoes": {
+      "A": "Rússia",
+      "B": "Qatar",
+      "C": "Arábia Saudita",
+      "D": "Emirados Árabes"
+    },
+    "resposta": "B",
+    "dica": "Foi a primeira Copa realizada no Oriente Médio"
+  },
+  {
+    "id": 2,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 2022?",
+    "opcoes": {
+      "A": "Argentina",
+      "B": "França",
+      "C": "Marrocos",
+      "D": "Croácia"
+    },
+    "resposta": "A",
+    "dica": "Derrotou a atual campeã nos pênaltis após empate por 3x3"
+  },
+  {
+    "id": 3,
+    "nivel": "facil",
+    "pergunta": "Quantos títulos mundiais o Brasil possui?",
+    "opcoes": {
+      "A": "4",
+      "B": "6",
+      "C": "3",
+      "D": "5"
+    },
+    "resposta": "D",
+    "dica": "Mais títulos que qualquer outra seleção na história"
+  },
+  {
+    "id": 4,
+    "nivel": "facil",
+    "pergunta": "Qual jogador era o maior artilheiro da história das Copas até 2022, com 16 gols?",
+    "opcoes": {
+      "A": "Ronaldo Fenômeno",
+      "B": "Miroslav Klose",
+      "C": "Pelé",
+      "D": "Gerd Müller"
+    },
+    "resposta": "B",
+    "dica": "Alemão que marcou em 4 Copas (2002, 2006, 2010, 2014). Em 2026 foi superado por Messi (18 gols)"
+  },
+  {
+    "id": 5,
+    "nivel": "facil",
+    "pergunta": "Em qual país foi realizada a primeira Copa do Mundo, em 1930?",
+    "opcoes": {
+      "A": "Uruguai",
+      "B": "Brasil",
+      "C": "Argentina",
+      "D": "Chile"
+    },
+    "resposta": "A",
+    "dica": "A seleção da casa também foi campeã naquele ano"
+  },
+  {
+    "id": 6,
+    "nivel": "facil",
+    "pergunta": "Qual jogador ganhou a Bola de Ouro na Copa de 2022?",
+    "opcoes": {
+      "A": "Mbappé",
+      "B": "Modric",
+      "C": "Lionel Messi",
+      "D": "Julián Álvarez"
+    },
+    "resposta": "C",
+    "dica": "Foi sua segunda Bola de Ouro em Copas do Mundo"
+  },
+  {
+    "id": 7,
+    "nivel": "facil",
+    "pergunta": "Em qual estádio ocorreu o histórico 7x1 do Brasil para a Alemanha?",
+    "opcoes": {
+      "A": "Maracanã",
+      "B": "Arena Corinthians",
+      "C": "Castelão",
+      "D": "Mineirão"
+    },
+    "resposta": "D",
+    "dica": "Localizado em Belo Horizonte, foi na semifinal de 2014"
+  },
+  {
+    "id": 8,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 2018?",
+    "opcoes": {
+      "A": "Argentina",
+      "B": "França",
+      "C": "Croácia",
+      "D": "Bélgica"
+    },
+    "resposta": "B",
+    "dica": "Derrotou a Croácia por 4x2 na final em Moscou"
+  },
+  {
+    "id": 9,
+    "nivel": "facil",
+    "pergunta": "Em qual ano Pelé venceu sua primeira Copa do Mundo?",
+    "opcoes": {
+      "A": "1954",
+      "B": "1958",
+      "C": "1962",
+      "D": "1966"
+    },
+    "resposta": "B",
+    "dica": "Tinha apenas 17 anos e marcou 6 gols no torneio"
+  },
+  {
+    "id": 10,
+    "nivel": "facil",
+    "pergunta": "Qual jogador marcou o famoso 'Gol do Século' na Copa de 1986?",
+    "opcoes": {
+      "A": "Platini",
+      "B": "Valdano",
+      "C": "Maradona",
+      "D": "Burruchaga"
+    },
+    "resposta": "C",
+    "dica": "O mesmo jogador que marcou a 'Mão de Deus' naquele jogo contra a Inglaterra"
+  },
+  {
+    "id": 11,
+    "nivel": "facil",
+    "pergunta": "Em qual continente foi realizada a Copa do Mundo de 2010?",
+    "opcoes": {
+      "A": "Ásia",
+      "B": "América",
+      "C": "Europa",
+      "D": "África"
+    },
+    "resposta": "D",
+    "dica": "Foi a primeira Copa realizada no continente africano"
+  },
+  {
+    "id": 12,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 2010?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Holanda",
+      "C": "Espanha",
+      "D": "Alemanha"
+    },
+    "resposta": "C",
+    "dica": "Venceu a Copa pela primeira e única vez na história"
+  },
+  {
+    "id": 13,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 2006?",
+    "opcoes": {
+      "A": "França",
+      "B": "Itália",
+      "C": "Alemanha",
+      "D": "Portugal"
+    },
+    "resposta": "B",
+    "dica": "Venceu nos pênaltis após empate por 1x1 com a França"
+  },
+  {
+    "id": 14,
+    "nivel": "facil",
+    "pergunta": "Qual seleção ganhou a Copa do Mundo sediada no Brasil em 2014?",
+    "opcoes": {
+      "A": "Argentina",
+      "B": "Brasil",
+      "C": "Alemanha",
+      "D": "Holanda"
+    },
+    "resposta": "C",
+    "dica": "A mesma seleção que aplicou o 7x1 no Brasil"
+  },
+  {
+    "id": 15,
+    "nivel": "facil",
+    "pergunta": "Quantos gols Ronaldo Fenômeno marcou na final da Copa de 2002?",
+    "opcoes": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "resposta": "B",
+    "dica": "Os dois gols foram na vitória do Brasil por 2x0 sobre a Alemanha"
+  },
+  {
+    "id": 16,
+    "nivel": "facil",
+    "pergunta": "Qual país sediou a Copa de 2002 junto com a Coreia do Sul?",
+    "opcoes": {
+      "A": "China",
+      "B": "Japão",
+      "C": "Tailândia",
+      "D": "Indonésia"
+    },
+    "resposta": "B",
+    "dica": "Primeira Copa realizada na Ásia, com dois países co-anfitriões"
+  },
+  {
+    "id": 17,
+    "nivel": "facil",
+    "pergunta": "Quantas seleções disputarão a Copa do Mundo de 2026?",
+    "opcoes": {
+      "A": "32",
+      "B": "40",
+      "C": "48",
+      "D": "36"
+    },
+    "resposta": "C",
+    "dica": "Um aumento de 16 seleções em relação ao formato anterior"
+  },
+  {
+    "id": 18,
+    "nivel": "facil",
+    "pergunta": "Qual é o único jogador a ter vencido 3 Copas do Mundo como jogador?",
+    "opcoes": {
+      "A": "Cafu",
+      "B": "Pelé",
+      "C": "Zagallo",
+      "D": "Garrincha"
+    },
+    "resposta": "B",
+    "dica": "Conquistou em 1958, 1962 e 1970"
+  },
+  {
+    "id": 19,
+    "nivel": "facil",
+    "pergunta": "Qual é o nome atual do troféu entregue ao campeão da Copa do Mundo?",
+    "opcoes": {
+      "A": "Taça Jules Rimet",
+      "B": "Taça FIFA",
+      "C": "Copa de Ouro",
+      "D": "Troféu do Mundo"
+    },
+    "resposta": "B",
+    "dica": "Substituiu a Taça Jules Rimet após o Brasil vencer pela terceira vez em 1970"
+  },
+  {
+    "id": 20,
+    "nivel": "facil",
+    "pergunta": "Qual mascote representou a Copa do Mundo do Brasil em 2014?",
+    "opcoes": {
+      "A": "Zabivaka",
+      "B": "La'eeb",
+      "C": "Zakumi",
+      "D": "Fuleco"
+    },
+    "resposta": "D",
+    "dica": "Era um tatu-bola, animal típico e ameaçado do Brasil"
+  },
+  {
+    "id": 21,
+    "nivel": "facil",
+    "pergunta": "Qual jogador marcou o gol decisivo da Alemanha na prorrogação da final de 2014?",
+    "opcoes": {
+      "A": "Thomas Müller",
+      "B": "Toni Kroos",
+      "C": "Mario Götze",
+      "D": "Miroslav Klose"
+    },
+    "resposta": "C",
+    "dica": "Substituiu Klose e marcou de voleio no segundo tempo da prorrogação"
+  },
+  {
+    "id": 22,
+    "nivel": "facil",
+    "pergunta": "Quantas vezes a Argentina venceu a Copa do Mundo?",
+    "opcoes": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "resposta": "C",
+    "dica": "Em 1978, 1986 e 2022"
+  },
+  {
+    "id": 23,
+    "nivel": "facil",
+    "pergunta": "Em qual ano aconteceu o famoso 'Maracanazo', quando o Uruguai venceu o Brasil?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1946",
+      "C": "1950",
+      "D": "1954"
+    },
+    "resposta": "C",
+    "dica": "Foi no Rio de Janeiro, no último jogo da fase final da Copa"
+  },
+  {
+    "id": 24,
+    "nivel": "facil",
+    "pergunta": "Em qual posição jogava o lateral Roberto Carlos?",
+    "opcoes": {
+      "A": "Lateral-direito",
+      "B": "Zagueiro",
+      "C": "Volante",
+      "D": "Lateral-esquerdo"
+    },
+    "resposta": "D",
+    "dica": "Famoso pelas cobranças de falta com efeito impossível"
+  },
+  {
+    "id": 25,
+    "nivel": "facil",
+    "pergunta": "Qual jogador deu a famosa cabeçada em Marco Materazzi na final da Copa de 2006?",
+    "opcoes": {
+      "A": "Thierry Henry",
+      "B": "Trezeguet",
+      "C": "Zidane",
+      "D": "Ribéry"
+    },
+    "resposta": "C",
+    "dica": "Foi sua última ação como jogador profissional antes de ser expulso"
+  },
+  {
+    "id": 26,
+    "nivel": "facil",
+    "pergunta": "Qual seleção africana chegou às semifinais pela primeira vez na Copa de 2022?",
+    "opcoes": {
+      "A": "Senegal",
+      "B": "Costa do Marfim",
+      "C": "Camarões",
+      "D": "Marrocos"
+    },
+    "resposta": "D",
+    "dica": "Eliminaram Portugal nas quartas de final"
+  },
+  {
+    "id": 27,
+    "nivel": "facil",
+    "pergunta": "Qual jogador ganhou a Chuteira de Ouro (artilheiro) na Copa de 2022?",
+    "opcoes": {
+      "A": "Messi",
+      "B": "Giroud",
+      "C": "Mbappé",
+      "D": "Julián Álvarez"
+    },
+    "resposta": "C",
+    "dica": "Marcou 8 gols, incluindo um hat-trick na final contra a Argentina"
+  },
+  {
+    "id": 28,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 1998?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "França",
+      "C": "Croácia",
+      "D": "Holanda"
+    },
+    "resposta": "B",
+    "dica": "Sediou o torneio e venceu com dois gols de Zidane na final"
+  },
+  {
+    "id": 29,
+    "nivel": "facil",
+    "pergunta": "Qual país sediou a Copa do Mundo de 1994?",
+    "opcoes": {
+      "A": "México",
+      "B": "Canadá",
+      "C": "Brasil",
+      "D": "Estados Unidos"
+    },
+    "resposta": "D",
+    "dica": "O Brasil venceu nos pênaltis e conquistou o tetracampeonato"
+  },
+  {
+    "id": 30,
+    "nivel": "facil",
+    "pergunta": "Em qual país foi realizada a Copa do Mundo de 2006?",
+    "opcoes": {
+      "A": "Alemanha",
+      "B": "Áustria",
+      "C": "Suíça",
+      "D": "França"
+    },
+    "resposta": "A",
+    "dica": "A seleção da casa saiu nas semifinais, vencendo o 3º lugar"
+  },
+  {
+    "id": 31,
+    "nivel": "facil",
+    "pergunta": "Qual é o apelido da Seleção Argentina?",
+    "opcoes": {
+      "A": "Los Diables Rojos",
+      "B": "La Furia",
+      "C": "La Albiceleste",
+      "D": "La Roja"
+    },
+    "resposta": "C",
+    "dica": "Significa 'branca e celeste', as cores de sua camisa"
+  },
+  {
+    "id": 32,
+    "nivel": "facil",
+    "pergunta": "Qual jogador é apelidado de 'Fenômeno'?",
+    "opcoes": {
+      "A": "Ronaldinho",
+      "B": "Ronaldo Nazário",
+      "C": "Roberto Carlos",
+      "D": "Kaká"
+    },
+    "resposta": "B",
+    "dica": "Marcou 8 gols na Copa de 2002 e foi eleito o melhor do mundo"
+  },
+  {
+    "id": 33,
+    "nivel": "facil",
+    "pergunta": "Qual seleção perdeu a final da Copa de 2022 para a Argentina?",
+    "opcoes": {
+      "A": "Croácia",
+      "B": "Espanha",
+      "C": "França",
+      "D": "Alemanha"
+    },
+    "resposta": "C",
+    "dica": "O placar final foi 4x2 nos pênaltis após 3x3 no tempo regulamentar"
+  },
+  {
+    "id": 34,
+    "nivel": "facil",
+    "pergunta": "Quantas Copas do Mundo a Alemanha/Alemanha Ocidental venceu?",
+    "opcoes": {
+      "A": "3",
+      "B": "4",
+      "C": "5",
+      "D": "2"
+    },
+    "resposta": "B",
+    "dica": "1954, 1974, 1990 e 2014"
+  },
+  {
+    "id": 35,
+    "nivel": "facil",
+    "pergunta": "Que animal era o mascote Fuleco da Copa do Brasil de 2014?",
+    "opcoes": {
+      "A": "Onça",
+      "B": "Boto",
+      "C": "Tatu-bola",
+      "D": "Arara"
+    },
+    "resposta": "C",
+    "dica": "Um animal típico do Brasil ameaçado de extinção"
+  },
+  {
+    "id": 36,
+    "nivel": "facil",
+    "pergunta": "Qual jogador francês deu a assistência para o gol que eliminou o Brasil na Copa de 2006?",
+    "opcoes": {
+      "A": "Ribéry",
+      "B": "Henry",
+      "C": "Zidane",
+      "D": "Vieira"
+    },
+    "resposta": "C",
+    "dica": "O mesmo jogador que depois deu a cabeçada em Materazzi na final"
+  },
+  {
+    "id": 37,
+    "nivel": "facil",
+    "pergunta": "Qual seleção foi campeã da Copa de 1994?",
+    "opcoes": {
+      "A": "Itália",
+      "B": "Brasil",
+      "C": "Suécia",
+      "D": "Bulgária"
+    },
+    "resposta": "B",
+    "dica": "Tetracampeonato após 24 anos sem título"
+  },
+  {
+    "id": 38,
+    "nivel": "facil",
+    "pergunta": "Qual foi o resultado das quartas de final do Brasil na Copa de 2022?",
+    "opcoes": {
+      "A": "Brasil venceu",
+      "B": "Empate e eliminação nos pênaltis",
+      "C": "Brasil perdeu no tempo normal",
+      "D": "Brasil foi eliminado por WO"
+    },
+    "resposta": "B",
+    "dica": "A Croácia empatou 1x1 no tempo normal e venceu nos pênaltis nas quartas de final"
+  },
+  {
+    "id": 39,
+    "nivel": "facil",
+    "pergunta": "Qual é o apelido da Seleção Brasileira?",
+    "opcoes": {
+      "A": "La Celeste",
+      "B": "Os Guerreiros",
+      "C": "Seleção Canarinho",
+      "D": "Esquadrão de Ouro"
+    },
+    "resposta": "C",
+    "dica": "Por causa da cor amarela da camisa titular"
+  },
+  {
+    "id": 40,
+    "nivel": "facil",
+    "pergunta": "Em qual Copa Neymar ficou com o título de artilheiro da Seleção Brasileira?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "D",
+    "dica": "Marcou 2 gols e deu 2 assistências, mas o Brasil foi eliminado nas quartas"
+  },
+  {
+    "id": 41,
+    "nivel": "facil",
+    "pergunta": "Qual é a cor predominante da camisa titular da Seleção Alemã?",
+    "opcoes": {
+      "A": "Preta",
+      "B": "Branca",
+      "C": "Vermelha",
+      "D": "Cinza"
+    },
+    "resposta": "B",
+    "dica": "O branco representa a pureza e tradição do futebol alemão"
+  },
+  {
+    "id": 42,
+    "nivel": "facil",
+    "pergunta": "Qual Copa do Mundo marcou o retorno do Brasil ao pódio após 24 anos?",
+    "opcoes": {
+      "A": "1982",
+      "B": "1986",
+      "C": "1990",
+      "D": "1994"
+    },
+    "resposta": "D",
+    "dica": "O tetra foi conquistado nos Estados Unidos com Romário e Bebeto"
+  },
+  {
+    "id": 43,
+    "nivel": "facil",
+    "pergunta": "Em qual posição jogava Cafu, capitão do Brasil pentacampeão?",
+    "opcoes": {
+      "A": "Lateral-esquerdo",
+      "B": "Zagueiro",
+      "C": "Lateral-direito",
+      "D": "Volante"
+    },
+    "resposta": "C",
+    "dica": "Considerado o melhor lateral-direito da história do futebol"
+  },
+  {
+    "id": 44,
+    "nivel": "facil",
+    "pergunta": "Qual mascote representou a Copa de 2022 no Qatar?",
+    "opcoes": {
+      "A": "Zabivaka",
+      "B": "Fuleco",
+      "C": "La'eeb",
+      "D": "Zakumi"
+    },
+    "resposta": "C",
+    "dica": "Era um espírito etéreo branco, representando os valores qataris"
+  },
+  {
+    "id": 45,
+    "nivel": "facil",
+    "pergunta": "Qual país sediou a Copa do Mundo de 1990?",
+    "opcoes": {
+      "A": "Alemanha",
+      "B": "França",
+      "C": "Espanha",
+      "D": "Itália"
+    },
+    "resposta": "D",
+    "dica": "A seleção da casa foi eliminada pela Argentina nas semifinais"
+  },
+  {
+    "id": 46,
+    "nivel": "facil",
+    "pergunta": "Qual jogador ficou famoso pelas comemorações ao defender pênaltis na Copa de 2022?",
+    "opcoes": {
+      "A": "Alisson",
+      "B": "Courtois",
+      "C": "Emiliano Martínez",
+      "D": "Manuel Neuer"
+    },
+    "resposta": "C",
+    "dica": "Goleiro argentino apelidado de 'Dibu', muito animado e provocativo"
+  },
+  {
+    "id": 47,
+    "nivel": "facil",
+    "pergunta": "Em qual Copa do Mundo o Brasil fez sua pior campanha como anfitrião?",
+    "opcoes": {
+      "A": "1950",
+      "B": "1970",
+      "C": "2014",
+      "D": "1982"
+    },
+    "resposta": "C",
+    "dica": "Levou 7x1 da Alemanha na semifinal no Mineirão"
+  },
+  {
+    "id": 48,
+    "nivel": "facil",
+    "pergunta": "Qual seleção foi vice-campeã da Copa de 2014?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Holanda",
+      "C": "Argentina",
+      "D": "Colômbia"
+    },
+    "resposta": "C",
+    "dica": "Perdeu por 1x0 para a Alemanha no tempo extra"
+  },
+  {
+    "id": 49,
+    "nivel": "facil",
+    "pergunta": "Qual jogador marcou os dois gols da Argentina na final de 2022 no tempo normal?",
+    "opcoes": {
+      "A": "Lautaro Martínez",
+      "B": "Di María e Messi",
+      "C": "Messi",
+      "D": "Álvarez e Di María"
+    },
+    "resposta": "B",
+    "dica": "Um marcou cedo no primeiro tempo, o outro abriu 2x0"
+  },
+  {
+    "id": 50,
+    "nivel": "facil",
+    "pergunta": "Quantas vezes o Uruguai venceu a Copa do Mundo?",
+    "opcoes": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "resposta": "B",
+    "dica": "Em 1930 e 1950, incluindo o famoso Maracanazo"
+  },
+  {
+    "id": 51,
+    "nivel": "facil",
+    "pergunta": "Qual o gol mais famoso do Brasil na Copa de 1970?",
+    "opcoes": {
+      "A": "Gol de falta de Rivelino",
+      "B": "Gol de cabeça de Pelé",
+      "C": "Gol coletivo de Carlos Alberto",
+      "D": "Gol de bicicleta de Jairzinho"
+    },
+    "resposta": "C",
+    "dica": "Uma jogada de nove passes terminou com Carlos Alberto chutando de fora na final"
+  },
+  {
+    "id": 52,
+    "nivel": "facil",
+    "pergunta": "Qual é o maior artilheiro da história da Seleção Brasileira?",
+    "opcoes": {
+      "A": "Pelé",
+      "B": "Romário",
+      "C": "Ronaldo",
+      "D": "Neymar"
+    },
+    "resposta": "D",
+    "dica": "Superou o recorde de Pelé em 2023 com 79 gols"
+  },
+  {
+    "id": 53,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 1986?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Argentina",
+      "C": "Alemanha Ocidental",
+      "D": "França"
+    },
+    "resposta": "B",
+    "dica": "Com Maradona como estrela, no México"
+  },
+  {
+    "id": 54,
+    "nivel": "facil",
+    "pergunta": "Qual seleção eliminou o Brasil nas quartas de final da Copa de 2018?",
+    "opcoes": {
+      "A": "França",
+      "B": "Bélgica",
+      "C": "Holanda",
+      "D": "Uruguai"
+    },
+    "resposta": "B",
+    "dica": "Venceu por 2x1 com gol de De Bruyne e um gol contra de Fernandinho"
+  },
+  {
+    "id": 55,
+    "nivel": "facil",
+    "pergunta": "Em qual Copa do Mundo jogaram juntos Ronaldo, Ronaldinho e Rivaldo — os '3 Rs'?",
+    "opcoes": {
+      "A": "1998",
+      "B": "2002",
+      "C": "2006",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "No Japão e Coreia do Sul, onde o Brasil se tornou pentacampeão"
+  },
+  {
+    "id": 56,
+    "nivel": "facil",
+    "pergunta": "Qual é o único jogador a marcar um hat-trick em uma final de Copa do Mundo antes de Mbappé?",
+    "opcoes": {
+      "A": "Pelé",
+      "B": "Ronaldo",
+      "C": "Geoff Hurst",
+      "D": "Just Fontaine"
+    },
+    "resposta": "C",
+    "dica": "Inglês que marcou 3 gols na final de 1966 contra a Alemanha Ocidental"
+  },
+  {
+    "id": 57,
+    "nivel": "facil",
+    "pergunta": "Em qual país foi realizada a Copa do Mundo de 1966?",
+    "opcoes": {
+      "A": "Itália",
+      "B": "França",
+      "C": "Espanha",
+      "D": "Inglaterra"
+    },
+    "resposta": "D",
+    "dica": "A seleção da casa ganhou seu único título mundial"
+  },
+  {
+    "id": 58,
+    "nivel": "facil",
+    "pergunta": "Qual é o gol mais rápido da história das Copas, marcado em apenas 11 segundos?",
+    "opcoes": {
+      "A": "Bryan Robson (1982)",
+      "B": "Hakan Şükür (2002)",
+      "C": "Clint Dempsey (2014)",
+      "D": "Josip Šimunić (2006)"
+    },
+    "resposta": "B",
+    "dica": "Turco marcou contra a Coreia do Sul no jogo pelo 3º lugar em 2002"
+  },
+  {
+    "id": 59,
+    "nivel": "facil",
+    "pergunta": "Qual jogador foi expulso na final da Copa de 2006 após dar uma cabeçada?",
+    "opcoes": {
+      "A": "Trezeguet",
+      "B": "Ribéry",
+      "C": "Henry",
+      "D": "Zidane"
+    },
+    "resposta": "D",
+    "dica": "Foi sua última ação como jogador profissional"
+  },
+  {
+    "id": 60,
+    "nivel": "facil",
+    "pergunta": "Qual Copa do Mundo foi a primeira realizada na África?",
+    "opcoes": {
+      "A": "2006",
+      "B": "2010",
+      "C": "2014",
+      "D": "2018"
+    },
+    "resposta": "B",
+    "dica": "Realizada na África do Sul, a Espanha foi campeã"
+  },
+  {
+    "id": 61,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 1978?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Holanda",
+      "C": "Argentina",
+      "D": "Peru"
+    },
+    "resposta": "C",
+    "dica": "Primeira conquista argentina, realizada em Buenos Aires"
+  },
+  {
+    "id": 62,
+    "nivel": "facil",
+    "pergunta": "Qual jogador italiano foi protagonista em uma cabeçada recebida na final de 2006?",
+    "opcoes": {
+      "A": "Pirlo",
+      "B": "Totti",
+      "C": "Materazzi",
+      "D": "Del Piero"
+    },
+    "resposta": "C",
+    "dica": "Marcou o gol do empate E sofreu a famosa cabeçada de Zidane"
+  },
+  {
+    "id": 63,
+    "nivel": "facil",
+    "pergunta": "Qual foi o resultado final da Copa de 1970 (Brasil x Itália)?",
+    "opcoes": {
+      "A": "Brasil 3x1 Itália",
+      "B": "Brasil 4x1 Itália",
+      "C": "Brasil 2x1 Itália",
+      "D": "Brasil 3x0 Itália"
+    },
+    "resposta": "B",
+    "dica": "Pelé, Gerson, Jairzinho e Carlos Alberto marcaram para o Brasil na final"
+  },
+  {
+    "id": 64,
+    "nivel": "facil",
+    "pergunta": "Qual seleção tem mais vice-campeonatos na história das Copas do Mundo?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Argentina",
+      "C": "Alemanha",
+      "D": "Holanda"
+    },
+    "resposta": "C",
+    "dica": "A Alemanha/Alemanha Ocidental tem 4 vice-campeonatos"
+  },
+  {
+    "id": 65,
+    "nivel": "facil",
+    "pergunta": "Em que ano foi realizada a última Copa do Mundo com apenas 24 seleções?",
+    "opcoes": {
+      "A": "1990",
+      "B": "1994",
+      "C": "1998",
+      "D": "2002"
+    },
+    "resposta": "B",
+    "dica": "A Copa expandiu de 16 para 24 seleções em 1982. Em 1998 saltou para 32 times"
+  },
+  {
+    "id": 66,
+    "nivel": "facil",
+    "pergunta": "Qual time eliminou o Brasil da Copa de 2022?",
+    "opcoes": {
+      "A": "Sérvia",
+      "B": "Suíça",
+      "C": "Croácia",
+      "D": "Argentina"
+    },
+    "resposta": "C",
+    "dica": "Empatou por 1x1 no tempo normal e venceu nos pênaltis nas quartas de final"
+  },
+  {
+    "id": 67,
+    "nivel": "facil",
+    "pergunta": "Qual jogador marcou o gol decisivo nos pênaltis para a Argentina ser campeã de 2022?",
+    "opcoes": {
+      "A": "Messi",
+      "B": "Lautaro Martínez",
+      "C": "Gonzalo Montiel",
+      "D": "De Paul"
+    },
+    "resposta": "C",
+    "dica": "Foi o lateral-direito que converteu o último pênalti"
+  },
+  {
+    "id": 68,
+    "nivel": "facil",
+    "pergunta": "Qual Copa do Mundo estreou o sistema de árbitro de vídeo (VAR)?",
+    "opcoes": {
+      "A": "2014",
+      "B": "2018",
+      "C": "2022",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Introduzido na Copa da Rússia, após a polêmica do gol fantasma de Lampard em 2010"
+  },
+  {
+    "id": 69,
+    "nivel": "facil",
+    "pergunta": "Qual jogador italiano é lembrado pela careta após fazer o gol que deu o título da Copa de 1982?",
+    "opcoes": {
+      "A": "Rossi",
+      "B": "Tardelli",
+      "C": "Zoff",
+      "D": "Conti"
+    },
+    "resposta": "B",
+    "dica": "Sua comemoração gritando com os braços abertos se tornou uma das mais famosas da história"
+  },
+  {
+    "id": 70,
+    "nivel": "facil",
+    "pergunta": "Qual é o nome completo de Pelé?",
+    "opcoes": {
+      "A": "Nelson Arantes do Nascimento",
+      "B": "Edson Arantes do Nascimento",
+      "C": "Arantes Edson Santos",
+      "D": "Edson Santos Arantes"
+    },
+    "resposta": "B",
+    "dica": "Nasceu em Três Corações, Minas Gerais, em 1940"
+  },
+  {
+    "id": 71,
+    "nivel": "facil",
+    "pergunta": "Qual seleção foi vice-campeã da Copa do Mundo de 2018?",
+    "opcoes": {
+      "A": "Bélgica",
+      "B": "Croácia",
+      "C": "Inglaterra",
+      "D": "Holanda"
+    },
+    "resposta": "B",
+    "dica": "Modric foi eleito o melhor jogador da Copa mesmo perdendo a final"
+  },
+  {
+    "id": 72,
+    "nivel": "facil",
+    "pergunta": "Em qual Copa Garrincha foi eleito o melhor jogador do torneio?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "B",
+    "dica": "No Chile, ele praticamente ganhou a Copa sozinho após a lesão de Pelé"
+  },
+  {
+    "id": 73,
+    "nivel": "facil",
+    "pergunta": "Qual seleção venceu a Copa do Mundo de 1982?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Alemanha Ocidental",
+      "C": "Espanha",
+      "D": "Itália"
+    },
+    "resposta": "D",
+    "dica": "Paolo Rossi marcou o hat-trick que eliminou o Brasil nas quartas"
+  },
+  {
+    "id": 74,
+    "nivel": "facil",
+    "pergunta": "Em qual posição jogava Diego Maradona?",
+    "opcoes": {
+      "A": "Centroavante",
+      "B": "Meia-atacante",
+      "C": "Lateral",
+      "D": "Volante"
+    },
+    "resposta": "B",
+    "dica": "Camisa 10 por excelência, com liberdade para criar e finalizar"
+  },
+  {
+    "id": 75,
+    "nivel": "facil",
+    "pergunta": "Qual foi a primeira Copa do Mundo realizada simultaneamente em dois países?",
+    "opcoes": {
+      "A": "1990",
+      "B": "1994",
+      "C": "1998",
+      "D": "2002"
+    },
+    "resposta": "D",
+    "dica": "Japão e Coreia do Sul foram os co-anfitriões"
+  },
+  {
+    "id": 76,
+    "nivel": "facil",
+    "pergunta": "Qual seleção eliminou a Alemanha na fase de grupos da Copa de 2022?",
+    "opcoes": {
+      "A": "Costa Rica",
+      "B": "Espanha",
+      "C": "Japão",
+      "D": "Marrocos"
+    },
+    "resposta": "C",
+    "dica": "Venceu por 2x1 em uma incrível virada no segundo tempo"
+  },
+  {
+    "id": 77,
+    "nivel": "facil",
+    "pergunta": "Qual foi o resultado da final da Copa de 2018 entre França e Croácia?",
+    "opcoes": {
+      "A": "3x2",
+      "B": "2x1",
+      "C": "4x2",
+      "D": "3x1"
+    },
+    "resposta": "C",
+    "dica": "Pogba e Mbappé marcaram para a França; Mandzukic marcou contra e a favor"
+  },
+  {
+    "id": 78,
+    "nivel": "facil",
+    "pergunta": "Qual é o país de origem de Lionel Messi?",
+    "opcoes": {
+      "A": "Uruguai",
+      "B": "Chile",
+      "C": "Brasil",
+      "D": "Argentina"
+    },
+    "resposta": "D",
+    "dica": "Nasceu em Rosário, Argentina, em 1987"
+  },
+  {
+    "id": 79,
+    "nivel": "facil",
+    "pergunta": "Qual Copa do Mundo foi realizada no Brasil em 1950?",
+    "opcoes": {
+      "A": "A primeira Copa após a 2ª Guerra",
+      "B": "Copa Jules Rimet",
+      "C": "Copa comemorativa",
+      "D": "Copa Pan-americana"
+    },
+    "resposta": "A",
+    "dica": "Foi a primeira Copa após a Segunda Guerra Mundial, em 1938 a última"
+  },
+  {
+    "id": 80,
+    "nivel": "facil",
+    "pergunta": "Qual seleção asiática chegou às semifinais da Copa pela primeira vez em 2002?",
+    "opcoes": {
+      "A": "Japão",
+      "B": "China",
+      "C": "Coreia do Sul",
+      "D": "Austrália"
+    },
+    "resposta": "C",
+    "dica": "Sediou a Copa junto com o Japão e surpreendeu chegando ao top 4"
+  },
+  {
+    "id": 81,
+    "nivel": "facil",
+    "pergunta": "Qual jogador argentino é dono do apelido 'La Pulga' (A Pulga)?",
+    "opcoes": {
+      "A": "Di María",
+      "B": "Messi",
+      "C": "Agüero",
+      "D": "Icardi"
+    },
+    "resposta": "B",
+    "dica": "Apelido dado por sua baixa estatura e agilidade incomparável"
+  },
+  {
+    "id": 82,
+    "nivel": "facil",
+    "pergunta": "Qual Copa do Mundo foi a primeira transmitida ao vivo pela televisão?",
+    "opcoes": {
+      "A": "1950",
+      "B": "1954",
+      "C": "1958",
+      "D": "1962"
+    },
+    "resposta": "B",
+    "dica": "Realizada na Suíça, marcou o início da era televisiva do futebol"
+  },
+  {
+    "id": 83,
+    "nivel": "facil",
+    "pergunta": "Qual jogador recebeu a Luva de Ouro (melhor goleiro) na Copa de 2022?",
+    "opcoes": {
+      "A": "Courtois",
+      "B": "Lloris",
+      "C": "Alisson",
+      "D": "Emiliano Martínez"
+    },
+    "resposta": "D",
+    "dica": "O 'Dibu' fez defesas decisivas nas penalidades contra a Holanda e a França"
+  },
+  {
+    "id": 84,
+    "nivel": "facil",
+    "pergunta": "Em qual Copa do Mundo Neymar se lesionou e o Brasil foi eliminado?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "B",
+    "dica": "Ele fraturou a vértebra e não disputou a semifinal contra a Alemanha"
+  },
+  {
+    "id": 85,
+    "nivel": "facil",
+    "pergunta": "Qual país da Ásia foi o primeiro a chegar às quartas de final de uma Copa (1966)?",
+    "opcoes": {
+      "A": "Japão",
+      "B": "China",
+      "C": "Coreia do Norte",
+      "D": "Coreia do Sul"
+    },
+    "resposta": "C",
+    "dica": "Surpreendeu o mundo eliminando a Itália na fase de grupos"
+  },
+  {"id":86,"nivel":"facil","pergunta":"Qual jogador francês foi o grande destaque e eleito a revelação da Copa de 2018?","opcoes":{"A":"Paul Pogba","B":"Kylian Mbappé","C":"Antoine Griezmann","D":"Ousmane Dembélé"},"resposta":"B","dica":"O jovem atacante camisa 10 marcou na final contra a Croácia."},
+  {"id":87,"nivel":"facil","pergunta":"Qual é a nacionalidade do árbitro de futebol? Ele atua em campo representando:","opcoes":{"A":"O país sede","B":"A FIFA de forma neutra","C":"O país de uma das seleções","D":"Apenas o continente da partida"},"resposta":"B","dica":"A regra exige total neutralidade e nenhuma relação com os países que estão jogando."},
+  {"id":88,"nivel":"facil","pergunta":"A famosa taça da Copa do Mundo atual é feita predominantemente de qual material?","opcoes":{"A":"Prata Maciça","B":"Bronze Banhado a Ouro","C":"Ouro Maciço 18 quilates","D":"Aço Inoxidável"},"resposta":"C","dica":"O troféu é extremamente valioso e pesado devido a esse metal precioso."},
+  {"id":89,"nivel":"facil","pergunta":"Qual foi a música oficial da Copa de 2014, sediada no Brasil?","opcoes":{"A":"Waka Waka","B":"We Are One (Ole Ola)","C":"La Copa de la Vida","D":"Wavin' Flag"},"resposta":"B","dica":"Foi cantada por Pitbull, Jennifer Lopez e Claudia Leitte."},
+  {"id":90,"nivel":"facil","pergunta":"Como é chamado o local onde os jogadores reservas e o treinador ficam durante o jogo?","opcoes":{"A":"Arquibancada","B":"Cabine de Imprensa","C":"Banco de Reservas","D":"Vestiário"},"resposta":"C","dica":"Fica na beira do gramado, coberto por um pequeno teto."},
+  {"id":91,"nivel":"facil","pergunta":"Qual dessas seleções gigantes NUNCA conquistou uma Copa do Mundo?","opcoes":{"A":"Inglaterra","B":"Espanha","C":"França","D":"Holanda"},"resposta":"D","dica":"Essa seleção europeia de camisa laranja já chegou a três finais, mas perdeu todas."},
+  {"id":92,"nivel":"facil","pergunta":"Onde o VAR (Árbitro Assistente de Vídeo) analisa os lances do jogo?","opcoes":{"A":"No banco de reservas","B":"No círculo central do campo","C":"Na Sala de Operações de Vídeo (VOR)","D":"Na arquibancada com a torcida"},"resposta":"C","dica":"É uma cabine isolada cheia de monitores e operadores de replay."},
+  {"id":93,"nivel":"facil","pergunta":"Na linguagem do futebol de Copa, o que significa a sigla 'FIFA'?","opcoes":{"A":"Federação Internacional de Futebol Associação","B":"Fundo Internacional de Futebol Amador","C":"Força Integrada de Futebol e Arbitragem","D":"Frente Internacional de Futebolistas Ativos"},"resposta":"A","dica":"É o órgão máximo que organiza e gerencia o esporte no mundo inteiro."},
+  {"id":94,"nivel":"facil","pergunta":"Qual jogador veste a tradicional camisa 10 da seleção argentina desde a década de 2000?","opcoes":{"A":"Javier Mascherano","B":"Sergio Agüero","C":"Lionel Messi","D":"Ángel Di María"},"resposta":"C","dica":"Ele ergueu a taça de campeão do mundo no Catar em 2022."},
+  {"id":95,"nivel":"facil","pergunta":"Quantas seleções avançam da fase de grupos para as oitavas de final (no formato até 2022)?","opcoes":{"A":"8","B":"16","C":"24","D":"32"},"resposta":"B","dica":"Exatamente duas seleções de cada um dos oito grupos passam de fase."},
+  {"id":96,"nivel":"facil","pergunta":"Qual equipamento de proteção é de uso obrigatório para todos os jogadores de linha numa Copa?","opcoes":{"A":"Capacete","B":"Luvas","C":"Caneleira","D":"Tornozeleira"},"resposta":"C","dica":"Fica escondido debaixo do meião para proteger a perna de chutes fortes."},
+  {"id":97,"nivel":"facil","pergunta":"Qual foi a seleção europeia que Cristiano Ronaldo liderou na conquista da Eurocopa, mas que nunca levou uma Copa do Mundo?","opcoes":{"A":"Bélgica","B":"Portugal","C":"Espanha","D":"Itália"},"resposta":"B","dica":"A equipe tem as cores vermelho e verde em sua camisa principal."},
+  {"id":98,"nivel":"facil","pergunta":"Em 2018, a Seleção Brasileira foi eliminada por qual time que tinha De Bruyne e Hazard?","opcoes":{"A":"Holanda","B":"Alemanha","C":"Bélgica","D":"França"},"resposta":"C","dica":"Esse time é conhecido pelo apelido de 'Geração Belga'."},
+  {"id":99,"nivel":"facil","pergunta":"Em que mês geralmente começavam as Copas do Mundo antes da edição do Catar (2022)?","opcoes":{"A":"Janeiro","B":"Junho","C":"Setembro","D":"Dezembro"},"resposta":"B","dica":"Coincidia com o fim da temporada europeia de clubes e o verão no hemisfério norte."},
+  {"id":100,"nivel":"facil","pergunta":"O gol que garante a vitória imediata durante a prorrogação (regra extinta) era chamado de:","opcoes":{"A":"Gol de Ouro","B":"Gol de Prata","C":"Gol de Placa","D":"Gol Relâmpago"},"resposta":"A","dica":"Essa regra encerrava a partida assim que a bola entrava na rede."},
+  {
+    "id": 101,
+    "nivel": "medio",
+    "pergunta": "Qual jogador marcou o gol decisivo da Espanha na prorrogação da final de 2010?",
+    "opcoes": {
+      "A": "Xavi",
+      "B": "David Villa",
+      "C": "Andrés Iniesta",
+      "D": "Fernando Torres"
+    },
+    "resposta": "C",
+    "dica": "O gol saiu aos 116 minutos da prorrogação, contra a Holanda"
+  },
+  {
+    "id": 102,
+    "nivel": "medio",
+    "pergunta": "Qual era o nome do técnico da Alemanha no fatídico 7x1?",
+    "opcoes": {
+      "A": "Hansi Flick",
+      "B": "Jürgen Klinsmann",
+      "C": "Otto Rehhagel",
+      "D": "Joachim Löw"
+    },
+    "resposta": "D",
+    "dica": "Era técnico da seleção desde 2004 e levou a Alemanha ao título em 2014"
+  },
+  {
+    "id": 103,
+    "nivel": "medio",
+    "pergunta": "Qual jogador colombiano ganhou a Chuteira de Ouro na Copa de 2014?",
+    "opcoes": {
+      "A": "Falcao",
+      "B": "Cuadrado",
+      "C": "James Rodríguez",
+      "D": "Bacca"
+    },
+    "resposta": "C",
+    "dica": "Marcou 6 gols no torneio. A Bola de Bronze foi para Arjen Robben (Holanda)"
+  },
+  {
+    "id": 104,
+    "nivel": "medio",
+    "pergunta": "Qual foi o resultado da semifinal mais icônica da Copa de 1982, quando a Itália eliminou o Brasil?",
+    "opcoes": {
+      "A": "Brasil 1x2 Itália",
+      "B": "Brasil 2x3 Itália",
+      "C": "Brasil 1x3 Itália",
+      "D": "Brasil 0x2 Itália"
+    },
+    "resposta": "B",
+    "dica": "Paolo Rossi marcou hat-trick contra a 'Seleção mais bonita que nunca ganhou'"
+  },
+  {
+    "id": 105,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo o Senegal surpreendeu ao eliminar o campeão vigente na fase de grupos?",
+    "opcoes": {
+      "A": "1998",
+      "B": "2002",
+      "C": "2006",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Veneceu a França (campeã em 1998) por 1x0 logo no primeiro jogo"
+  },
+  {
+    "id": 106,
+    "nivel": "medio",
+    "pergunta": "Qual treinador levou o Brasil ao Pentacampeonato em 2002?",
+    "opcoes": {
+      "A": "Carlos Alberto Parreira",
+      "B": "Zagallo",
+      "C": "Luiz Felipe Scolari",
+      "D": "Telê Santana"
+    },
+    "resposta": "C",
+    "dica": "'Felipão' foi responsável pela estratégia dos '3 Rs'"
+  },
+  {
+    "id": 107,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi marcada pela 'Batalha de Santiago', um dos jogos mais violentos da história?",
+    "opcoes": {
+      "A": "1950",
+      "B": "1954",
+      "C": "1958",
+      "D": "1962"
+    },
+    "resposta": "D",
+    "dica": "Chile x Itália com expulsões, brigas e intervenção policial"
+  },
+  {
+    "id": 108,
+    "nivel": "medio",
+    "pergunta": "Qual artilheiro marcou 11 gols na Copa de 1954, recorde de uma única edição até 1958?",
+    "opcoes": {
+      "A": "Ferenc Puskás",
+      "B": "Sándor Kocsis",
+      "C": "Morlock",
+      "D": "Hidetkuti"
+    },
+    "resposta": "B",
+    "dica": "Jogador húngaro que mesmo assim perdeu a final para a Alemanha Ocidental"
+  },
+  {
+    "id": 109,
+    "nivel": "medio",
+    "pergunta": "Qual jogador italiano perdeu o pênalti decisivo na final da Copa de 1994 contra o Brasil?",
+    "opcoes": {
+      "A": "Paolo Maldini",
+      "B": "Demetrio Albertini",
+      "C": "Franco Baresi",
+      "D": "Roberto Baggio"
+    },
+    "resposta": "D",
+    "dica": "Chutou por cima do gol com a taça praticamente nas mãos dos adversários"
+  },
+  {
+    "id": 110,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi a primeira a introduzir pênaltis como método de desempate?",
+    "opcoes": {
+      "A": "1974",
+      "B": "1978",
+      "C": "1982",
+      "D": "1986"
+    },
+    "resposta": "C",
+    "dica": "A Alemanha Ocidental venceu a França por 5x4 nas primeiras penalidades da história do torneio"
+  },
+  {
+    "id": 111,
+    "nivel": "medio",
+    "pergunta": "Qual o nome do técnico do Brasil na Copa de 2014 que enfrentou o 7x1?",
+    "opcoes": {
+      "A": "Tite",
+      "B": "Dunga",
+      "C": "Luiz Felipe Scolari",
+      "D": "Mano Menezes"
+    },
+    "resposta": "C",
+    "dica": "O mesmo 'Felipão' que conquistou o Penta em 2002 retornou para 2014"
+  },
+  {
+    "id": 112,
+    "nivel": "medio",
+    "pergunta": "Qual jogador marcou dois gols consecutivos da Alemanha em apenas 2 minutos no 7x1?",
+    "opcoes": {
+      "A": "Thomas Müller",
+      "B": "Miroslav Klose",
+      "C": "Toni Kroos",
+      "D": "André Schürrle"
+    },
+    "resposta": "C",
+    "dica": "Marcou os gols do 3-0 e 4-0 em sequência nos minutos 24 e 26"
+  },
+  {
+    "id": 113,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo Luis Suárez foi suspenso por morder um adversário?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "B",
+    "dica": "Mordeu o italiano Giorgio Chiellini durante a fase de grupos"
+  },
+  {
+    "id": 114,
+    "nivel": "medio",
+    "pergunta": "Qual foi o resultado da final da Copa de 1998 (França x Brasil)?",
+    "opcoes": {
+      "A": "Brasil 0x2 França",
+      "B": "Brasil 0x3 França",
+      "C": "Brasil 1x3 França",
+      "D": "Brasil 0x4 França"
+    },
+    "resposta": "B",
+    "dica": "Zidane marcou dois gols de cabeça no primeiro tempo"
+  },
+  {
+    "id": 115,
+    "nivel": "medio",
+    "pergunta": "Qual jogador sul-americano ganhou a Bola de Ouro (melhor jogador) na Copa de 2010?",
+    "opcoes": {
+      "A": "Xavi",
+      "B": "Iniesta",
+      "C": "Messi",
+      "D": "Diego Forlán"
+    },
+    "resposta": "D",
+    "dica": "Uruguaio que impressionou com gols de fora da área, mesmo com o Uruguai em 4º lugar"
+  },
+  {
+    "id": 116,
+    "nivel": "medio",
+    "pergunta": "Qual seleção norte-americana chocou o mundo ao vencer a Inglaterra por 1x0 na Copa de 1950?",
+    "opcoes": {
+      "A": "México",
+      "B": "Cuba",
+      "C": "Estados Unidos",
+      "D": "Costa Rica"
+    },
+    "resposta": "C",
+    "dica": "Uma das maiores zebras da história — porém os EUA foram eliminados na fase de grupos mesmo assim"
+  },
+  {
+    "id": 117,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo usou pela primeira vez a tecnologia de sensor de gol (Goal-Line Technology)?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "B",
+    "dica": "Introduzida após a polêmica do gol fantasma de Frank Lampard em 2010"
+  },
+  {
+    "id": 118,
+    "nivel": "medio",
+    "pergunta": "Qual era o nome do goleiro brasileiro campeão na Copa de 1994 que defendeu o pênalti de Roberto Baggio?",
+    "opcoes": {
+      "A": "Marcos",
+      "B": "Dida",
+      "C": "Taffarel",
+      "D": "Victor"
+    },
+    "resposta": "C",
+    "dica": "Taffarel também foi goleiro do Brasil em 1998"
+  },
+  {
+    "id": 119,
+    "nivel": "medio",
+    "pergunta": "Qual jogador argentino foi eleito o melhor jogador da Copa de 2014, mesmo sem ser campeão?",
+    "opcoes": {
+      "A": "Higuain",
+      "B": "Messi",
+      "C": "Mascherano",
+      "D": "Di María"
+    },
+    "resposta": "B",
+    "dica": "Foi eleito apesar de a Argentina ter perdido a final para a Alemanha"
+  },
+  {
+    "id": 120,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo marcou a expulsão histórica de Maradona por doping?",
+    "opcoes": {
+      "A": "1990",
+      "B": "1994",
+      "C": "1986",
+      "D": "1998"
+    },
+    "resposta": "B",
+    "dica": "Foi expulso do torneio após teste antidoping positivo para efedrina"
+  },
+  {
+    "id": 121,
+    "nivel": "medio",
+    "pergunta": "Qual jogador marcou o famoso gol de cobertura que enganou o goleiro Seaman nas quartas da Copa de 2002?",
+    "opcoes": {
+      "A": "Beckham",
+      "B": "David Seaman",
+      "C": "Rivaldo",
+      "D": "Ronaldinho"
+    },
+    "resposta": "D",
+    "dica": "Cobrou uma falta de longe por cobertura que surpreendeu o goleiro inglês — Brasil venceu a Inglaterra 2x1"
+  },
+  {
+    "id": 122,
+    "nivel": "medio",
+    "pergunta": "Qual seleção foi a primeira campeã bicampeã do mundo, vencendo as Copas de 1934 e 1938?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Uruguai",
+      "C": "Itália",
+      "D": "Alemanha"
+    },
+    "resposta": "C",
+    "dica": "As duas primeiras Copas realizadas na Europa foram vencidas pelo mesmo país"
+  },
+  {
+    "id": 123,
+    "nivel": "medio",
+    "pergunta": "Qual jogador marcou o gol do título espanhol na semifinal de 2010 contra a Alemanha?",
+    "opcoes": {
+      "A": "Iniesta",
+      "B": "Torres",
+      "C": "Villa",
+      "D": "Puyol"
+    },
+    "resposta": "D",
+    "dica": "O zagueiro e capitão marcou de cabeça num escanteio"
+  },
+  {
+    "id": 124,
+    "nivel": "medio",
+    "pergunta": "Em que Copa do Mundo a seleção do Camarões foi o primeiro time africano a chegar às quartas de final?",
+    "opcoes": {
+      "A": "1982",
+      "B": "1986",
+      "C": "1990",
+      "D": "1994"
+    },
+    "resposta": "C",
+    "dica": "Roger Milla ficou famoso pelas comemorações ao lado do poste do escanteio"
+  },
+  {
+    "id": 125,
+    "nivel": "medio",
+    "pergunta": "Qual seleção derrotou Portugal por 6x1 nas oitavas de final da Copa de 2022?",
+    "opcoes": {
+      "A": "Espanha",
+      "B": "Marrocos",
+      "C": "Suíça",
+      "D": "Portugal venceu por 6x1"
+    },
+    "resposta": "D",
+    "dica": "Foi PORTUGAL que venceu a Suíça por 6x1 com hat-trick de Gonçalo Ramos"
+  },
+  {
+    "id": 126,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo Ronaldo Fenômeno sofreu uma convulsão misteriosa antes da final?",
+    "opcoes": {
+      "A": "1994",
+      "B": "1998",
+      "C": "2002",
+      "D": "2006"
+    },
+    "resposta": "B",
+    "dica": "Mesmo assim jogou a final, mas o Brasil perdeu por 3x0 para a França"
+  },
+  {
+    "id": 127,
+    "nivel": "medio",
+    "pergunta": "Qual jogador croata marcou um gol contra E um gol a favor na final da Copa de 2018?",
+    "opcoes": {
+      "A": "Modric",
+      "B": "Perisic",
+      "C": "Mandzukić",
+      "D": "Rakitić"
+    },
+    "resposta": "C",
+    "dica": "Primeiro fez contra para a França, depois marcou o gol de honra da Croácia"
+  },
+  {
+    "id": 128,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi a primeira a usar as câmeras de replay em transmissões de TV?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1966",
+      "C": "1970",
+      "D": "1974"
+    },
+    "resposta": "B",
+    "dica": "Foi na Copa de 1966 que a tecnologia de replay permitiu rever os lances com clareza"
+  },
+  {
+    "id": 129,
+    "nivel": "medio",
+    "pergunta": "Qual técnico levou a Croácia às semifinais em 2018 e ao 3º lugar em 2022?",
+    "opcoes": {
+      "A": "Slaven Bilić",
+      "B": "Niko Kovač",
+      "C": "Zlatko Dalić",
+      "D": "Igor Štimac"
+    },
+    "resposta": "C",
+    "dica": "Assumiu a seleção em 2017 e a transformou em uma das melhores do mundo"
+  },
+  {
+    "id": 130,
+    "nivel": "medio",
+    "pergunta": "Qual foi a Copa que primeiro exibiu o gol fantasma controverso, que só seria reconhecido tecnologicamente depois?",
+    "opcoes": {
+      "A": "2006",
+      "B": "2010",
+      "C": "2014",
+      "D": "2018"
+    },
+    "resposta": "B",
+    "dica": "Frank Lampard chutou e a bola bateu na trave por dentro, mas o árbitro não viu"
+  },
+  {
+    "id": 131,
+    "nivel": "medio",
+    "pergunta": "Em que Copa do Mundo Pelé sofreu lesões propositais e o Brasil foi eliminado na fase de grupos?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "C",
+    "dica": "Na Copa da Inglaterra, Pelé foi derrubado repetidamente e o Brasil caiu na fase de grupos"
+  },
+  {
+    "id": 132,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo teve o menor número de gols por jogo em média (2.21), famosa pelo futebol defensivo?",
+    "opcoes": {
+      "A": "1986",
+      "B": "1990",
+      "C": "1994",
+      "D": "1978"
+    },
+    "resposta": "B",
+    "dica": "A Copa da Itália foi criticada pelo futebol chato, o que motivou mudanças nas regras"
+  },
+  {
+    "id": 133,
+    "nivel": "medio",
+    "pergunta": "Qual jogador marcou o hat-trick que deixou a Alemanha Ocidental fora da Copa de 1994 nas eliminatórias?",
+    "opcoes": {
+      "A": "Era Jorge",
+      "B": "Não houve — a Alemanha se classificou",
+      "C": "Christo Stoichkov",
+      "D": "Carlos Valderrama"
+    },
+    "resposta": "B",
+    "dica": "A Alemanha se classificou normalmente para 1994 como campeã em exercício"
+  },
+  {
+    "id": 134,
+    "nivel": "medio",
+    "pergunta": "Qual seleção foi desclassificada da Copa de 2022 na fase de grupos sendo a campeã vigente?",
+    "opcoes": {
+      "A": "França não, Brasil não...",
+      "B": "Nenhuma seleção campeã foi eliminada na fase de grupos em 2022",
+      "C": "França",
+      "D": "Alemanha"
+    },
+    "resposta": "B",
+    "dica": "A França, campeã de 2018, passou dos grupos em 2022"
+  },
+  {
+    "id": 135,
+    "nivel": "medio",
+    "pergunta": "Em que Copa do Mundo a seleção da Algéria surpreendeu ao eliminar a Alemanha... chegando às oitavas?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "B",
+    "dica": "A Argélia chegou às oitavas de 2014, perdendo para a Alemanha por 2x1 na prorrogação"
+  },
+  {
+    "id": 136,
+    "nivel": "medio",
+    "pergunta": "Qual foi o gol mais rápido marcado por um reserva saindo do banco na Copa de 2014?",
+    "opcoes": {
+      "A": "Gol de Schürrle contra o Brasil",
+      "B": "Gol de Götze na final",
+      "C": "Gol de Van Persie contra a Espanha",
+      "D": "Gol de James contra o Uruguai"
+    },
+    "resposta": "B",
+    "dica": "Götze entrou no lugar de Klose e marcou o gol do título na prorrogação"
+  },
+  {
+    "id": 137,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo teve a primeira penalidade (pênalti) cobrada na história do torneio?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1934",
+      "C": "1938",
+      "D": "1950"
+    },
+    "resposta": "B",
+    "dica": "Foi na Copa da Itália de 1934"
+  },
+  {
+    "id": 138,
+    "nivel": "medio",
+    "pergunta": "Qual jogador do Senegal ficou famoso por QUASE dar um chapéu no goleiro na Copa de 2022?",
+    "opcoes": {
+      "A": "Sadio Mané",
+      "B": "Cheikhou Kouyaté",
+      "C": "Idrissa Gueye",
+      "D": "Ismaïla Sarr"
+    },
+    "resposta": "D",
+    "dica": "Tentou um chip quando o goleiro saiu, mas errou"
+  },
+  {
+    "id": 139,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi a primeira a ter transmissão ao vivo em cores?",
+    "opcoes": {
+      "A": "1966",
+      "B": "1970",
+      "C": "1974",
+      "D": "1978"
+    },
+    "resposta": "B",
+    "dica": "Foi no México em 1970, exibindo pela primeira vez as cores do futebol ao mundo"
+  },
+  {
+    "id": 140,
+    "nivel": "medio",
+    "pergunta": "Qual jogador da Bulgária empatou o artilhariado com Salenko na Copa de 1994, com 6 gols?",
+    "opcoes": {
+      "A": "Emil Kostadinov",
+      "B": "Nasko Sirakov",
+      "C": "Hristo Stoichkov",
+      "D": "Yordan Letchkov"
+    },
+    "resposta": "C",
+    "dica": "Astro do Barcelona que levou a Bulgária às semifinais pela primeira vez"
+  },
+  {
+    "id": 141,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo a seleção do Japão surpreendeu ao eliminar a Espanha?",
+    "opcoes": {
+      "A": "2018",
+      "B": "2022",
+      "C": "2014",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Venceu por 2x1 com uma virada no segundo tempo"
+  },
+  {
+    "id": 142,
+    "nivel": "medio",
+    "pergunta": "Qual foi o placar quando a Arábia Saudita venceu a Argentina na Copa de 2022?",
+    "opcoes": {
+      "A": "1x0",
+      "B": "2x0",
+      "C": "1x2",
+      "D": "2x1"
+    },
+    "resposta": "D",
+    "dica": "Uma das maiores zebras da Copa de 2022, com a Argentina perdendo a estreia"
+  },
+  {
+    "id": 143,
+    "nivel": "medio",
+    "pergunta": "Qual jogador espanhol é o maior artilheiro de Copas na história da seleção com 9 gols?",
+    "opcoes": {
+      "A": "Fernando Torres",
+      "B": "Raúl",
+      "C": "David Villa",
+      "D": "Iniesta"
+    },
+    "resposta": "C",
+    "dica": "O 'Killer' marcou em 2006 e 2010, sendo decisivo no título espanhol"
+  },
+  {
+    "id": 144,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo Eusébio ficou em 3º lugar com Portugal, sendo o artilheiro com 9 gols?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "C",
+    "dica": "Portugal fez sua melhor Copa até 2022, com o artilheiro português mais famoso"
+  },
+  {
+    "id": 145,
+    "nivel": "medio",
+    "pergunta": "Qual seleção venceu a disputa pelo 3º lugar na Copa de 2014?",
+    "opcoes": {
+      "A": "Argentina",
+      "B": "Brasil",
+      "C": "Holanda",
+      "D": "Colômbia"
+    },
+    "resposta": "C",
+    "dica": "Derrotou o Brasil por 3x0 na partida mais dolorosa para o anfitrião"
+  },
+  {
+    "id": 146,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi a primeira realizada no Hemisfério Sul fora da América do Sul?",
+    "opcoes": {
+      "A": "1994",
+      "B": "2002",
+      "C": "2006",
+      "D": "2010"
+    },
+    "resposta": "D",
+    "dica": "A África do Sul foi o primeiro país africano a sediar o evento"
+  },
+  {
+    "id": 147,
+    "nivel": "medio",
+    "pergunta": "Qual jogador alemão marcou o gol que eliminou o Brasil na semifinal de 2014 — o primeiro gol do 7x1?",
+    "opcoes": {
+      "A": "Klose",
+      "B": "Kroos",
+      "C": "Müller",
+      "D": "Schürrle"
+    },
+    "resposta": "C",
+    "dica": "O 'Raumdeuter' abriu o placar no 11º minuto com um cabeceio"
+  },
+  {
+    "id": 148,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo terminou com a Itália sendo bicampeã, vencendo em casa?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1938",
+      "C": "1950",
+      "D": "1954"
+    },
+    "resposta": "A",
+    "dica": "Mussolini pressionou para que a Itália vencesse a Copa realizada em seu país"
+  },
+  {
+    "id": 149,
+    "nivel": "medio",
+    "pergunta": "Qual jogador holandês ficou famoso pela 'Virada de Cruyff' (Cruyff Turn) na Copa de 1974?",
+    "opcoes": {
+      "A": "Neeskens",
+      "B": "Rensenbrink",
+      "C": "Rep",
+      "D": "Johan Cruyff"
+    },
+    "resposta": "D",
+    "dica": "O drible consistia em fingir o cruzamento e girar para o outro lado"
+  },
+  {
+    "id": 150,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo marcou a estreia da Argentina como bicampeã após vencer em casa em 1986?",
+    "opcoes": {
+      "A": "Holanda foi vice em 1974 e 1978",
+      "B": "Argentina conquistou em 1978 e 1986",
+      "C": "Brasil ganhou em 1994 e 2002",
+      "D": "Alemanha venceu em 1974 e 1990"
+    },
+    "resposta": "B",
+    "dica": "Maradona foi o grande herói de ambos os títulos argentinos no século XX"
+  },
+  {
+    "id": 151,
+    "nivel": "medio",
+    "pergunta": "Qual seleção foi eliminada da Copa de 2018 na fase de grupos sendo a campeã vigente?",
+    "opcoes": {
+      "A": "Brasil",
+      "B": "Espanha",
+      "C": "Portugal",
+      "D": "Alemanha"
+    },
+    "resposta": "D",
+    "dica": "A campeã de 2014 caiu no grupo da México, Suécia e Coreia do Sul"
+  },
+  {
+    "id": 152,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo o Brasil venceu a Copa com Garrincha e Pelé jogando juntos pela última vez?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "B",
+    "dica": "O Brasil nunca perdeu quando os dois jogaram juntos"
+  },
+  {
+    "id": 153,
+    "nivel": "medio",
+    "pergunta": "Qual é o recorde de mais Copas disputadas por um jogador (5 Copas)?",
+    "opcoes": {
+      "A": "Apenas Messi e Ronaldo",
+      "B": "Vários jogadores incluindo Buffon e Márquez",
+      "C": "Somente Cafu e Roberto Carlos",
+      "D": "Apenas Pelé"
+    },
+    "resposta": "B",
+    "dica": "Messi, Ronaldo (CR7), Buffon, Rafael Márquez e outros disputaram 5 Copas"
+  },
+  {
+    "id": 154,
+    "nivel": "medio",
+    "pergunta": "Qual seleção surpreendeu ao vencer o Grupo F da Copa de 2022 que tinha Bélgica, Croácia e Marrocos?",
+    "opcoes": {
+      "A": "Bélgica",
+      "B": "Marrocos",
+      "C": "Croácia",
+      "D": "Canadá"
+    },
+    "resposta": "B",
+    "dica": "O Marrocos terminou o grupo na frente de Bélgica e Croácia"
+  },
+  {
+    "id": 155,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa a Rússia surpreendeu chegando às quartas de final como país-sede?",
+    "opcoes": {
+      "A": "2014",
+      "B": "2018",
+      "C": "2022",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Foram eliminados pela Croácia nos pênaltis em casa"
+  },
+  {
+    "id": 156,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi marcada pela derrota da Itália para a Coreia do Norte na fase de grupos?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "C",
+    "dica": "Uma das maiores zebras da história, na Copa da Inglaterra"
+  },
+  {
+    "id": 157,
+    "nivel": "medio",
+    "pergunta": "Qual jogador australiano ficou famoso pelos cabeceios e marcou gols em 3 Copas diferentes?",
+    "opcoes": {
+      "A": "Kewell",
+      "B": "Viduka",
+      "C": "Cahill",
+      "D": "Schwarzer"
+    },
+    "resposta": "C",
+    "dica": "Tim Cahill marcou em 2006, 2010 e 2014"
+  },
+  {
+    "id": 158,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo apresentou o uniforme branco do Brasil pela primeira vez — e também foi a última?",
+    "opcoes": {
+      "A": "1938",
+      "B": "1950",
+      "C": "1954",
+      "D": "1958"
+    },
+    "resposta": "B",
+    "dica": "Após o Maracanazo de 1950, o Brasil mudou para o uniforme amarelo"
+  },
+  {
+    "id": 159,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo registrou o primeiro hat-trick da história do torneio?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1934",
+      "C": "1938",
+      "D": "1950"
+    },
+    "resposta": "A",
+    "dica": "O americano Bert Patenaude marcou 3 gols, embora reconhecido oficialmente só depois"
+  },
+  {
+    "id": 160,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo ficou marcada por um jogador morder o adversário, sendo esse o terceiro incidente de mordida do mesmo jogador?",
+    "opcoes": {
+      "A": "2010",
+      "B": "2014",
+      "C": "2018",
+      "D": "2022"
+    },
+    "resposta": "B",
+    "dica": "Luis Suárez mordeu Chiellini, mas o Uruguai não foi desclassificado"
+  },
+  {
+    "id": 161,
+    "nivel": "medio",
+    "pergunta": "Qual foi a Copa do Mundo em que a seleção brasileira usou o uniforme branco — e não quis mais usar após o Maracanazo?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1938",
+      "C": "1946",
+      "D": "1950"
+    },
+    "resposta": "D",
+    "dica": "O branco ficou associado ao trauma da derrota para o Uruguai"
+  },
+  {
+    "id": 162,
+    "nivel": "medio",
+    "pergunta": "Qual é o nome do estádio onde foi disputada a final da Copa do Mundo de 2022?",
+    "opcoes": {
+      "A": "Estádio Khalifa",
+      "B": "Lusail Stadium",
+      "C": "Al Bayt Stadium",
+      "D": "Al Janoub Stadium"
+    },
+    "resposta": "B",
+    "dica": "Com capacidade para 92.000 espectadores em Lusail, Qatar"
+  },
+  {
+    "id": 163,
+    "nivel": "medio",
+    "pergunta": "Qual jogador francês marcou o primeiro gol do Brasil na Copa de 1998, sendo o herói improvávelmente?",
+    "opcoes": {
+      "A": "Desailly",
+      "B": "Petit",
+      "C": "Deschamps",
+      "D": "Zidane"
+    },
+    "resposta": "D",
+    "dica": "Zidane marcou dois gols de cabeça contra o Brasil na final"
+  },
+  {
+    "id": 164,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo a Alemanha goleou a Arábia Saudita por 8x0?",
+    "opcoes": {
+      "A": "1998",
+      "B": "2002",
+      "C": "2006",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Foi na Copa do Japão/Coreia, na fase de grupos"
+  },
+  {
+    "id": 165,
+    "nivel": "medio",
+    "pergunta": "Qual jogador foi o artilheiro da Copa de 2006 com 5 gols?",
+    "opcoes": {
+      "A": "Ronaldo",
+      "B": "Zidane",
+      "C": "Miroslav Klose",
+      "D": "Thierry Henry"
+    },
+    "resposta": "C",
+    "dica": "O alemão marcou 5 gols antes de se tornar o maior artilheiro da história em 2014"
+  },
+  {
+    "id": 166,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi a primeira com 32 seleções participantes?",
+    "opcoes": {
+      "A": "1994",
+      "B": "1998",
+      "C": "2002",
+      "D": "2006"
+    },
+    "resposta": "B",
+    "dica": "A Copa da França em 1998 expandiu o torneio de 24 para 32 equipes"
+  },
+  {
+    "id": 167,
+    "nivel": "medio",
+    "pergunta": "Qual seleção europeia foi eliminada por um pênalti polêmico de Thierry Henry nas eliminatórias da Copa de 2010?",
+    "opcoes": {
+      "A": "Irlanda",
+      "B": "Polônia",
+      "C": "Escócia",
+      "D": "Dinamarca"
+    },
+    "resposta": "A",
+    "dica": "Henry claramente usou a mão para controlar antes de cruzar para o gol decisivo"
+  },
+  {
+    "id": 168,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo a Holanda chegou à final pela segunda vez consecutiva?",
+    "opcoes": {
+      "A": "1974",
+      "B": "1978",
+      "C": "1982",
+      "D": "1986"
+    },
+    "resposta": "B",
+    "dica": "Perderam para a Argentina em 1974 e novamente em 1978"
+  },
+  {
+    "id": 169,
+    "nivel": "medio",
+    "pergunta": "Qual seleção africana surpreendeu ao eliminar a Colômbia na Copa de 1990?",
+    "opcoes": {
+      "A": "Egito",
+      "B": "Argélia",
+      "C": "Camarões",
+      "D": "Senegal"
+    },
+    "resposta": "C",
+    "dica": "Roger Milla marcou na prorrogação e o Camarões chegou às quartas"
+  },
+  {
+    "id": 170,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo marcou o retiro do 'Futebol Total' holandês com Johan Cruyff?",
+    "opcoes": {
+      "A": "1974",
+      "B": "1978",
+      "C": "1982",
+      "D": "1986"
+    },
+    "resposta": "A",
+    "dica": "Cruyff jogou e foi eleito o melhor jogador, mas a Holanda perdeu a final"
+  },
+  {
+    "id": 171,
+    "nivel": "medio",
+    "pergunta": "Em qual Copa do Mundo o Brasil venceu seu primeiro título com o técnico Flávio Costa?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1938",
+      "C": "1950",
+      "D": "Nunca ganhou com Flávio Costa"
+    },
+    "resposta": "D",
+    "dica": "O Brasil de 1950 tinha Flávio Costa como técnico, mas perdeu o Maracanazo"
+  },
+  {
+    "id": 172,
+    "nivel": "medio",
+    "pergunta": "Qual jogador inglês foi artilheiro da Copa de 1986 com 6 gols e ainda marcou 4 em 1990?",
+    "opcoes": {
+      "A": "Gary Lineker",
+      "B": "Alan Shearer",
+      "C": "Peter Beardsley",
+      "D": "David Platt"
+    },
+    "resposta": "A",
+    "dica": "Marcou em apenas 2 Copas (1986 e 1990) e se aposentou em 1992 antes das Copas de 1994 e 1998"
+  },
+  {
+    "id": 173,
+    "nivel": "medio",
+    "pergunta": "Qual Copa do Mundo foi marcada pelo icônico 'Gol do Século' e o gol de 'Mão de Deus'?",
+    "opcoes": {
+      "A": "1982",
+      "B": "1986",
+      "C": "1990",
+      "D": "1994"
+    },
+    "resposta": "B",
+    "dica": "Ambos os gols foram marcados por Maradona contra a Inglaterra nas quartas"
+  },
+  {
+    "id": 174,
+    "nivel": "medio",
+    "pergunta": "Qual seleção foi campeã do mundo em 1934, em sua própria Copa, com influência política de Mussolini?",
+    "opcoes": {
+      "A": "Alemanha",
+      "B": "Brasil",
+      "C": "Itália",
+      "D": "França"
+    },
+    "resposta": "C",
+    "dica": "A Itália também venceu a Copa seguinte, em 1938, sendo bicampeã"
+  },
+  {
+    "id": 175,
+    "nivel": "medio",
+    "pergunta": "Qual jogador brasileiro comemorou gol na Copa de 1994 segurando um bebê imaginário com Romário?",
+    "opcoes": {
+      "A": "Mazinho",
+      "B": "Zinho",
+      "C": "Bebeto",
+      "D": "Edmundo"
+    },
+    "resposta": "C",
+    "dica": "Comemorou assim após o nascimento de seu filho, criando uma das comemorações mais famosas"
+  },
+  {"id":176,"nivel":"medio","pergunta":"Qual treinador liderou a Argentina na conquista do tricampeonato mundial em 2022?","opcoes":{"A":"Jorge Sampaoli","B":"Lionel Scaloni","C":"Diego Maradona","D":"Marcelo Bielsa"},"resposta":"B","dica":"Era um treinador muito jovem que assumiu a equipe inicialmente como interino."},
+  {"id":177,"nivel":"medio","pergunta":"O Uruguai ostenta 4 estrelas em seu escudo, mesmo tendo ganho apenas 2 Copas. O que significam as outras duas?","opcoes":{"A":"Copas Américas vencidas no século 20","B":"Ouro nos Jogos Olímpicos de 1924 e 1928","C":"Homenagem aos fundadores do futebol local","D":"Títulos de Mundiais de Clubes do Peñarol"},"resposta":"B","dica":"Esses torneios olímpicos foram organizados diretamente pela FIFA, valendo como mundiais da época."},
+  {"id":178,"nivel":"medio","pergunta":"Em 1994, qual famosa cantora americana errou feio um pênalti na cerimônia de abertura da Copa?","opcoes":{"A":"Madonna","B":"Mariah Carey","C":"Whitney Houston","D":"Diana Ross"},"resposta":"D","dica":"O lance constrangedor onde ela chuta a bola pra fora e a trave se desmonta é clássico."},
+  {"id":179,"nivel":"medio","pergunta":"Qual seleção sul-americana veste a tradicional camisa 'La Vinotinto' (A cor de vinho)?","opcoes":{"A":"Chile","B":"Paraguai","C":"Venezuela","D":"Peru"},"resposta":"C","dica":"É o único país filiado à CONMEBOL que nunca disputou uma Copa do Mundo."},
+  {"id":180,"nivel":"medio","pergunta":"Na Copa de 1986, a Dinamarca encantou o mundo com um futebol ofensivo e ganhou qual apelido?","opcoes":{"A":"A Dinamite Máquina","B":"Dinamáquina","C":"Os Vikings Voadores","D":"Carrossel Vermelho"},"resposta":"B","dica":"Foi um trocadilho perfeito que misturava o nome do país com a palavra 'máquina'."},
+  {"id":181,"nivel":"medio","pergunta":"Qual jogador histórico brasileiro era conhecido como 'Canhotinha de Ouro' na Copa de 1970?","opcoes":{"A":"Rivellino","B":"Tostão","C":"Pelé","D":"Gérson"},"resposta":"D","dica":"O camisa 8 cerebral fez o segundo gol na final contra a Itália."},
+  {"id":182,"nivel":"medio","pergunta":"Qual foi a última seleção do Leste Europeu a chegar em uma final de Copa do Mundo?","opcoes":{"A":"Sérvia","B":"Tchecoslováquia","C":"Croácia","D":"União Soviética"},"resposta":"C","dica":"Comandada por Luka Modric, eles chegaram à decisão de 2018."},
+  {"id":183,"nivel":"medio","pergunta":"Na Copa de 1998, a lenda croata Davor Šuker terminou a competição como:","opcoes":{"A":"Melhor goleiro","B":"Artilheiro isolado (Chuteira de Ouro)","C":"Expulso na semifinal","D":"Melhor jogador jovem"},"resposta":"B","dica":"Ele marcou 6 gols no torneio, ajudando sua equipe a chegar ao 3º lugar."},
+  {"id":184,"nivel":"medio","pergunta":"A famosa 'Mão de Deus' de Maradona em 1986 ocorreu em qual estádio icônico?","opcoes":{"A":"Estádio do Maracanã","B":"Estádio Monumental de Núñez","C":"Estádio Azteca","D":"Estádio Olímpico de Munique"},"resposta":"C","dica":"O imenso estádio fica localizado na capital do México."},
+  {"id":185,"nivel":"medio","pergunta":"Qual atacante uruguaio impediu um gol de Gana com a mão na linha do gol no último minuto em 2010?","opcoes":{"A":"Diego Forlán","B":"Edinson Cavani","C":"Sebastian Abreu","D":"Luis Suárez"},"resposta":"D","dica":"Ele foi expulso, mas Gana perdeu o pênalti, e o Uruguai avançou."},
+  {"id":186,"nivel":"medio","pergunta":"A primeira disputa de pênaltis na final de uma Copa do Mundo aconteceu em qual ano?","opcoes":{"A":"1990","B":"1994","C":"1998","D":"2006"},"resposta":"B","dica":"O Brasil venceu a Itália após Roberto Baggio isolar a última cobrança."},
+  {"id":187,"nivel":"medio","pergunta":"Quem foi o goleiro titular de Portugal durante a campanha que os levou às semifinais na Copa de 2006?","opcoes":{"A":"Rui Patrício","B":"Vítor Baía","C":"Ricardo","D":"Beto"},"resposta":"C","dica":"Ele ficou famoso por defender pênaltis sem luvas na Euro, e foi o herói português em 2006."},
+  {"id":188,"nivel":"medio","pergunta":"Em 2014, o atacante alemão Miroslav Klose se tornou o maior artilheiro das Copas contra qual seleção?","opcoes":{"A":"Argélia","B":"França","C":"Brasil","D":"Argentina"},"resposta":"C","dica":"O recorde foi quebrado durando o famigerado 7x1 no Mineirão."},
+  {"id":189,"nivel":"medio","pergunta":"A Holanda perdeu três finais de Copa do Mundo. Quem foram os seus algozes em 1974, 1978 e 2010, respectivamente?","opcoes":{"A":"Brasil, Argentina, Espanha","B":"Alemanha, Argentina, Espanha","C":"Itália, Alemanha, Brasil","D":"Alemanha, Itália, França"},"resposta":"B","dica":"Sempre perderam para os anfitriões nos anos 70, e depois para a Fúria na África do Sul."},
+  {"id":190,"nivel":"medio","pergunta":"Em qual Copa a Coreia do Sul usou o apoio fanático da torcida vestida com a cor vermelha e o lema 'Be the Reds'?","opcoes":{"A":"1998","B":"2002","C":"2006","D":"2010"},"resposta":"B","dica":"A equipe chegou à semifinal no torneio que sediou em conjunto com o Japão."},
+  {"id":191,"nivel":"medio","pergunta":"Onde ocorreu a primeira Copa do Mundo em que um país da América do Sul e um da Europa fizeram a final?","opcoes":{"A":"1930 (Uruguai)","B":"1938 (França)","C":"1958 (Suécia)","D":"1962 (Chile)"},"resposta":"C","dica":"O Brasil derrotou a anfitriã europeia por 5x2."},
+  {"id":192,"nivel":"medio","pergunta":"Na final de 2022, o goleiro argentino 'Dibu' Martínez fez uma defesa com o pé esquerdo no último minuto da prorrogação contra qual atacante francês?","opcoes":{"A":"Kylian Mbappé","B":"Randal Kolo Muani","C":"Olivier Giroud","D":"Kingsley Coman"},"resposta":"B","dica":"A defesa milagrosa evitou a vitória da França por 4x3."},
+  {"id":193,"nivel":"medio","pergunta":"Em qual edição o prêmio 'Luva de Ouro' passou a ser chamado de Prêmio Lev Yashin em homenagem ao lendário goleiro?","opcoes":{"A":"1982","B":"1994","C":"2002","D":"Ele sempre teve esse nome"},"resposta":"B","dica":"O prêmio com esse nome foi entregue a Michel Preud'homme nos Estados Unidos."},
+  {"id":194,"nivel":"medio","pergunta":"O país conhecido como o 'inventor do futebol', a Inglaterra, venceu a Copa em 1966 jogando com qual cor de camisa na final?","opcoes":{"A":"Branco","B":"Vermelho","C":"Azul","D":"Preto"},"resposta":"B","dica":"Embora o branco seja o titular, eles usaram seu uniforme reserva contra a Alemanha."},
+  {"id":195,"nivel":"medio","pergunta":"O jogador africano Roger Milla se tornou o mais velho a marcar em Copas (42 anos) contra qual seleção em 1994?","opcoes":{"A":"Brasil","B":"Rússia","C":"Suécia","D":"Itália"},"resposta":"B","dica":"Foi no mesmo jogo em que Oleg Salenko fez 5 gols pelo time adversário."},
+  {"id":196,"nivel":"medio","pergunta":"O famoso gol de Michael Owen contra a Argentina, quando ele tinha apenas 18 anos, aconteceu em qual Copa?","opcoes":{"A":"1994","B":"1998","C":"2002","D":"2006"},"resposta":"B","dica":"Aconteceu nas oitavas de final, num jogo que a Inglaterra perdeu nos pênaltis na França."},
+  {"id":197,"nivel":"medio","pergunta":"O técnico Aimé Jacquet foi o grande responsável por conduzir qual país ao seu primeiro título mundial?","opcoes":{"A":"Espanha","B":"França","C":"Argentina","D":"Inglaterra"},"resposta":"B","dica":"Ele treinou a equipe liderada por Zidane no mundial de 1998."},
+  {"id":198,"nivel":"medio","pergunta":"Qual a característica mais marcante do meio-campista holandês Edgar Davids, que jogou a Copa de 1998?","opcoes":{"A":"Usava chuteiras de cores diferentes","B":"Usava uma faixa amarela na cabeça","C":"Jogava usando óculos escuros de proteção","D":"Tinha o cabelo platinado de loiro"},"resposta":"C","dica":"Ele usava o acessório por conta de um glaucoma."},
+  {"id":199,"nivel":"medio","pergunta":"Em 2018, qual time sul-americano foi eliminado porque o seu zagueiro (Yerry Mina) errou a cobrança de pênalti decisiva?","opcoes":{"A":"Peru","B":"Colômbia","C":"Argentina","D":"Uruguai"},"resposta":"B","dica":"Eles caíram para a Inglaterra nas oitavas de final após o empate no tempo normal."},
+  {"id":200,"nivel":"medio","pergunta":"O capitão sul-africano Siphiwe Tshabalala ficou eternizado na Copa de 2010 por qual motivo?","opcoes":{"A":"Fez o primeiro gol daquela Copa do Mundo","B":"Levou o cartão vermelho mais rápido","C":"Errou o pênalti decisivo contra o Uruguai","D":"Jogou todos os jogos descalço"},"resposta":"A","dica":"Foi um golaço de perna esquerda no jogo de abertura contra o México."},
+  {
+    "id": 201,
+    "nivel": "dificil",
+    "pergunta": "Qual foi a maior goleada de uma Copa do Mundo, que ocorreu em 1982?",
+    "opcoes": {
+      "A": "Alemanha 7x1 Brasil (2014)",
+      "B": "Hungria 10x1 El Salvador (1982)",
+      "C": "Hungria 9x0 Coreia do Sul (1954)",
+      "D": "Brasil 6x0 Bolívia (1974)"
+    },
+    "resposta": "B",
+    "dica": "Aconteceu na Copa da Espanha, ainda é o maior placar da história"
+  },
+  {
+    "id": 202,
+    "nivel": "dificil",
+    "pergunta": "Qual foi o primeiro gol da história das Copas do Mundo, marcado em 1930?",
+    "opcoes": {
+      "A": "Marcado por um argentino",
+      "B": "Marcado por um americano",
+      "C": "Marcado por um francês",
+      "D": "Marcado por um uruguaio"
+    },
+    "resposta": "C",
+    "dica": "Lucien Laurent marcou para a França contra o México em 13 de julho de 1930"
+  },
+  {
+    "id": 203,
+    "nivel": "dificil",
+    "pergunta": "Qual é a única Copa do Mundo sem fase final tradicional — usando round-robin em vez de semifinais?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1938",
+      "C": "1950",
+      "D": "1954"
+    },
+    "resposta": "C",
+    "dica": "O 'Maracanazo' foi tecnicamente o último jogo do round-robin, não uma 'final'"
+  },
+  {
+    "id": 204,
+    "nivel": "dificil",
+    "pergunta": "Qual jogador é o único a ter sido expulso em duas Copas do Mundo diferentes?",
+    "opcoes": {
+      "A": "Maradona",
+      "B": "Zidane",
+      "C": "Rigobert Song",
+      "D": "Riquelme"
+    },
+    "resposta": "C",
+    "dica": "O camaronês foi expulso em 1994 (contra o Brasil) e em 1998 (contra o Chile)"
+  },
+  {
+    "id": 205,
+    "nivel": "dificil",
+    "pergunta": "Em qual Copa do Mundo a seleção anfitriã foi a primeira a ser eliminada na fase de grupos?",
+    "opcoes": {
+      "A": "1966 (Inglaterra)",
+      "B": "2002 (Japão/Coreia do Sul)",
+      "C": "2010 (África do Sul)",
+      "D": "2022 (Qatar)"
+    },
+    "resposta": "D",
+    "dica": "O Qatar foi o primeiro país-sede a ser eliminado logo na fase de grupos"
+  },
+  {
+    "id": 206,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo registrou 84 gols em 18 jogos, o maior total bruto das primeiras edições?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1934",
+      "C": "1938",
+      "D": "1950"
+    },
+    "resposta": "C",
+    "dica": "França 1938 tinha apenas 15 equipes mas produziu uma quantidade extraordinária de gols por jogo"
+  },
+  {
+    "id": 207,
+    "nivel": "dificil",
+    "pergunta": "Qual jogador húngaro foi artilheiro com 11 gols na Copa de 1954 e é o segundo maior da história em uma única edição?",
+    "opcoes": {
+      "A": "Ferenc Puskás",
+      "B": "Sándor Kocsis",
+      "C": "Nándor Hidegkuti",
+      "D": "Zoltán Czibor"
+    },
+    "resposta": "B",
+    "dica": "Marcou 11 gols em 5 jogos, recorde depois superado apenas por Fontaine com 13 em 1958"
+  },
+  {
+    "id": 208,
+    "nivel": "dificil",
+    "pergunta": "Qual foi o único país a participar de uma Copa do Mundo sem ser filiado à FIFA?",
+    "opcoes": {
+      "A": "Israel",
+      "B": "Taiwan",
+      "C": "Não existe esse caso",
+      "D": "Palestine"
+    },
+    "resposta": "C",
+    "dica": "Todos os participantes de Copas do Mundo foram filiados à FIFA na época"
+  },
+  {
+    "id": 209,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira disputada por 16 equipes e com formato exclusivamente eliminatório?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1934",
+      "C": "1938",
+      "D": "1950"
+    },
+    "resposta": "B",
+    "dica": "Em 1934, 16 equipes jogaram em mata-mata sem fase de grupos"
+  },
+  {
+    "id": 210,
+    "nivel": "dificil",
+    "pergunta": "Qual atacante alemão marcou 10 gols na Copa de 1970, segunda maior pontuação em uma única edição?",
+    "opcoes": {
+      "A": "Uwe Seeler",
+      "B": "Helmut Haller",
+      "C": "Gerd Müller",
+      "D": "Jürgen Grabowski"
+    },
+    "resposta": "C",
+    "dica": "O 'Bombardeiro da Nação' marcou 10 em 6 jogos, tornando-se lenda antes de 1974"
+  },
+  {
+    "id": 211,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo marcou a primeira transmissão ao vivo via satélite para outros continentes?",
+    "opcoes": {
+      "A": "1962",
+      "B": "1966",
+      "C": "1970",
+      "D": "1974"
+    },
+    "resposta": "C",
+    "dica": "O México em 1970 foi a primeira Copa transmitida ao vivo via satélite para o mundo todo"
+  },
+  {
+    "id": 212,
+    "nivel": "dificil",
+    "pergunta": "Qual seleção venceu o 3º lugar na Copa de 1930, na primeira edição do torneio?",
+    "opcoes": {
+      "A": "A Holanda",
+      "B": "EUA e Iugoslávia (empatados)",
+      "C": "A Argentina (teve 3º lugar)",
+      "D": "Não houve jogo pelo 3º lugar em 1930"
+    },
+    "resposta": "D",
+    "dica": "Em 1930, não houve disputa de terceiro lugar — EUA e Iugoslávia foram considerados 3ºs"
+  },
+  {
+    "id": 213,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira a não contar com a participação de qualquer seleção da América do Sul?",
+    "opcoes": {
+      "A": "1930",
+      "B": "1934",
+      "C": "1938",
+      "D": "Nunca houve"
+    },
+    "resposta": "D",
+    "dica": "O Brasil participou de TODAS as 23 edições da Copa. Não existe nenhuma Copa sem seleção sul-americana"
+  },
+  {
+    "id": 214,
+    "nivel": "dificil",
+    "pergunta": "Qual foi a Copa do Mundo em que a Turquia marcou o gol mais rápido da história em apenas 11 segundos?",
+    "opcoes": {
+      "A": "1998",
+      "B": "2002",
+      "C": "2006",
+      "D": "2010"
+    },
+    "resposta": "B",
+    "dica": "Hakan Şükür marcou contra a Coreia do Sul no jogo pelo 3º lugar na Copa de 2002"
+  },
+  {
+    "id": 215,
+    "nivel": "dificil",
+    "pergunta": "Em qual Copa do Mundo Franz Beckenbauer jogou uma semifinal heroicamente com o ombro deslocado e braço em tipoia?",
+    "opcoes": {
+      "A": "1966",
+      "B": "1970",
+      "C": "1974",
+      "D": "1978"
+    },
+    "resposta": "B",
+    "dica": "Foi na Copa do México, na famosa partida contra a Itália que terminou 4x3"
+  },
+  {
+    "id": 216,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a única realizada nas duas Américas pelo mesmo torneio em países diferentes?",
+    "opcoes": {
+      "A": "A de 2026 será a primeira",
+      "B": "Já aconteceu em 2002",
+      "C": "Em 1994",
+      "D": "Em 1986 foi no México e EUA"
+    },
+    "resposta": "A",
+    "dica": "Em 2026, EUA, México e Canadá serão co-anfitriões pela primeira vez na América do Norte"
+  },
+  {
+    "id": 217,
+    "nivel": "dificil",
+    "pergunta": "Qual é o jogador com mais partidas disputadas na história das Copas do Mundo?",
+    "opcoes": {
+      "A": "Ronaldo (CR7)",
+      "B": "Lothar Matthäus",
+      "C": "Lionel Messi",
+      "D": "Rafael Márquez"
+    },
+    "resposta": "C",
+    "dica": "Com 26 partidas, Messi ultrapassou Lothar Matthäus em 2022"
+  },
+  {
+    "id": 218,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira em que o Brasil entrou como favorito pela imprensa mundial?",
+    "opcoes": {
+      "A": "1950",
+      "B": "1954",
+      "C": "1958",
+      "D": "1962"
+    },
+    "resposta": "C",
+    "dica": "Em 1958, o Brasil tinha a melhor seleção com Pelé, Garrincha e Didi, e realmente venceu"
+  },
+  {
+    "id": 219,
+    "nivel": "dificil",
+    "pergunta": "Quantos jogos ao total foram disputados na primeira Copa do Mundo de 1930?",
+    "opcoes": {
+      "A": "13",
+      "B": "17",
+      "C": "18",
+      "D": "21"
+    },
+    "resposta": "C",
+    "dica": "Com 13 equipes em 4 grupos e fase final, foram 18 partidas no total"
+  },
+  {
+    "id": 220,
+    "nivel": "dificil",
+    "pergunta": "Qual seleção europeia foi eliminada por El Salvador na Copa de 1982, após sofrer um dos maiores vexames?",
+    "opcoes": {
+      "A": "Hungria",
+      "B": "Holanda",
+      "C": "Bélgica",
+      "D": "Não existe; foi El Salvador que levou 10x1"
+    },
+    "resposta": "D",
+    "dica": "Foi exatamente o contrário: El Salvador perdeu por 10x1 para a Hungria, não eliminou ninguém"
+  },
+  {
+    "id": 221,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira a contar com árbitros de outros continentes?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1938",
+      "C": "1950",
+      "D": "1954"
+    },
+    "resposta": "C",
+    "dica": "Em 1950 no Brasil, árbitros de outros continentes foram escalados pela primeira vez"
+  },
+  {
+    "id": 222,
+    "nivel": "dificil",
+    "pergunta": "Qual jogador foi o PRIMEIRO a marcar gols em cinco Copas do Mundo diferentes?",
+    "opcoes": {
+      "A": "Messi",
+      "B": "Cristiano Ronaldo",
+      "C": "Pelé",
+      "D": "Uwe Seeler ou Miroslav Klose"
+    },
+    "resposta": "B",
+    "dica": "Marcou em 2006, 2010, 2014, 2018 e 2022. Em 2026 Messi igualou a marca"
+  },
+  {
+    "id": 223,
+    "nivel": "dificil",
+    "pergunta": "Em qual Copa do Mundo a Seleção Brasileira usou a cor azul como uniforme alternativo que ficou famosa?",
+    "opcoes": {
+      "A": "1954",
+      "B": "1958",
+      "C": "1962",
+      "D": "1966"
+    },
+    "resposta": "B",
+    "dica": "Em 1958 na Suécia, o Brasil usou azul por conflito de cores com a seleção local"
+  },
+  {
+    "id": 224,
+    "nivel": "dificil",
+    "pergunta": "Qual técnico é o único a ter levado a Copa do Mundo como jogador E como técnico, sendo o primeiro?",
+    "opcoes": {
+      "A": "Beckenbauer",
+      "B": "Zagallo",
+      "C": "Deschamps",
+      "D": "Zagallo foi o primeiro, depois Beckenbauer"
+    },
+    "resposta": "D",
+    "dica": "Mario Zagallo (Brasil) foi o primeiro a conseguir isso, em 1958/62 como jogador e 1970 como técnico"
+  },
+  {
+    "id": 225,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi cancelada devido à Segunda Guerra Mundial?",
+    "opcoes": {
+      "A": "1942",
+      "B": "1946",
+      "C": "Ambas 1942 e 1946",
+      "D": "Nenhuma foi cancelada"
+    },
+    "resposta": "C",
+    "dica": "As edições de 1942 (prevista para o Brasil) e 1946 foram canceladas por causa da guerra"
+  },
+  {
+    "id": 226,
+    "nivel": "dificil",
+    "pergunta": "Qual seleção marcou o gol autogol mais famoso da história das Copas, com consequências trágicas para o jogador?",
+    "opcoes": {
+      "A": "México (1994)",
+      "B": "Colômbia (1994)",
+      "C": "Brasil (2014)",
+      "D": "França (1998)"
+    },
+    "resposta": "B",
+    "dica": "Andrés Escobar marcou contra para eliminar a Colômbia e foi assassinado ao voltar ao país"
+  },
+  {
+    "id": 227,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira a ter cartões amarelos e vermelhos como forma de disciplina?",
+    "opcoes": {
+      "A": "1966",
+      "B": "1970",
+      "C": "1974",
+      "D": "1978"
+    },
+    "resposta": "B",
+    "dica": "O árbitro inglês Ken Aston inventou os cartões após a Copa de 1966 e foram introduzidos em 1970"
+  },
+  {
+    "id": 228,
+    "nivel": "dificil",
+    "pergunta": "Quantos países africanos participaram da Copa do Mundo de 1974?",
+    "opcoes": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "0"
+    },
+    "resposta": "A",
+    "dica": "O Zaire (hoje Congo) foi o único representante africano em 1974, levando 9x0 da Iugoslávia"
+  },
+  {
+    "id": 229,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo o Brasil venceu com o maior número de gols marcados (19) na história dos campeões?",
+    "opcoes": {
+      "A": "Brasil 1970",
+      "B": "Brasil 1958",
+      "C": "Hungria 1954 (vice-campeã)",
+      "D": "Alemanha 2014"
+    },
+    "resposta": "A",
+    "dica": "O Brasil de 1970 marcou 19 gols em 6 jogos — a maior média de gols de um campeão na história"
+  },
+  {
+    "id": 230,
+    "nivel": "dificil",
+    "pergunta": "Qual é o recorde de gols marcados em uma única partida por um único jogador em Copas do Mundo?",
+    "opcoes": {
+      "A": "4 gols",
+      "B": "5 gols",
+      "C": "6 gols",
+      "D": "7 gols"
+    },
+    "resposta": "B",
+    "dica": "Oleg Salenko marcou 5 gols para a Rússia contra Camarões em 1994 — único recorde individual"
+  },
+  {
+    "id": 231,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira a ser disputada na Ásia?",
+    "opcoes": {
+      "A": "1994",
+      "B": "1998",
+      "C": "2002",
+      "D": "2006"
+    },
+    "resposta": "C",
+    "dica": "Japão e Coreia do Sul co-sediaram a primeira Copa asiática em 2002"
+  },
+  {
+    "id": 232,
+    "nivel": "dificil",
+    "pergunta": "Qual seleção detém o recorde de mais gols marcados em uma única Copa do Mundo com 27 gols?",
+    "opcoes": {
+      "A": "Brasil 1970",
+      "B": "Hungria 1954",
+      "C": "França 1958",
+      "D": "Alemanha 2014"
+    },
+    "resposta": "B",
+    "dica": "A Hungria de Kocsis e Puskás marcou 27 gols em 1954, mesmo perdendo a final"
+  },
+  {
+    "id": 233,
+    "nivel": "dificil",
+    "pergunta": "Em qual Copa do Mundo foi realizado o primeiro jogo noturno com iluminação artificial?",
+    "opcoes": {
+      "A": "1958",
+      "B": "1962",
+      "C": "1966",
+      "D": "1970"
+    },
+    "resposta": "C",
+    "dica": "Em 1966, na Copa da Inglaterra, foram usados holofotes para jogos à noite pela primeira vez"
+  },
+  {
+    "id": 234,
+    "nivel": "dificil",
+    "pergunta": "Qual é o único país a ter sediado a Copa do Mundo duas vezes?",
+    "opcoes": {
+      "A": "Apenas Itália",
+      "B": "Apenas México",
+      "C": "Itália e México",
+      "D": "Itália, México e Brasil"
+    },
+    "resposta": "C",
+    "dica": "Itália sediou em 1934 e 1990; México em 1970 e 1986 — e sediará novamente em 2026"
+  },
+  {
+    "id": 235,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira disputada com 5 substituições por equipe?",
+    "opcoes": {
+      "A": "2014",
+      "B": "2018",
+      "C": "2022",
+      "D": "2026"
+    },
+    "resposta": "C",
+    "dica": "Em 2022 no Qatar, pela primeira vez a FIFA permitiu 5 substituições em Copas"
+  },
+  {
+    "id": 236,
+    "nivel": "dificil",
+    "pergunta": "Qual jogador marcou o gol mais rápido da história das Copas, em apenas 11 segundos?",
+    "opcoes": {
+      "A": "Bryan Robson (1982, 27 seg)",
+      "B": "Clint Dempsey (2014)",
+      "C": "Hakan Şükür (2002, 11 seg)",
+      "D": "Ernst Lehner (1934)"
+    },
+    "resposta": "C",
+    "dica": "O turco Hakan Şükür marcou contra a Coreia do Sul no jogo pelo 3º lugar — em 11 segundos!"
+  },
+  {
+    "id": 237,
+    "nivel": "dificil",
+    "pergunta": "Qual foi a Copa do Mundo com o maior número de gols por jogo em média (5.38 gols/jogo)?",
+    "opcoes": {
+      "A": "1934",
+      "B": "1938",
+      "C": "1954",
+      "D": "1958"
+    },
+    "resposta": "C",
+    "dica": "Em 1954 na Suíça, a média de gols foi a mais alta da história com equipes como Hungria e Alemanha"
+  },
+  {
+    "id": 238,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a última a ter a Taça Jules Rimet como troféu entregue ao campeão?",
+    "opcoes": {
+      "A": "1966",
+      "B": "1970",
+      "C": "1974",
+      "D": "1978"
+    },
+    "resposta": "B",
+    "dica": "O Brasil ganhou a Taça Jules Rimet permanentemente em 1970 por ser tricampeão"
+  },
+  {
+    "id": 239,
+    "nivel": "dificil",
+    "pergunta": "Qual grande seleção europeia esteve ausente das Copas de 1950 e 1954 e estreou apenas em 1958?",
+    "opcoes": {
+      "A": "Alemanha Oriental",
+      "B": "Espanha",
+      "C": "Polônia",
+      "D": "União Soviética"
+    },
+    "resposta": "D",
+    "dica": "A URSS estreou na Copa em 1958 na Suécia, ausente nas duas edições anteriores"
+  },
+  {
+    "id": 240,
+    "nivel": "dificil",
+    "pergunta": "Qual Copa do Mundo foi a primeira a ter câmeras de dentro do gol (atrás da rede)?",
+    "opcoes": {
+      "A": "2006",
+      "B": "2010",
+      "C": "2014",
+      "D": "2018"
+    },
+    "resposta": "C",
+    "dica": "Em 2014 no Brasil, câmeras foram colocadas atrás dos gols para análise de lances duvidosos"
+  },
+  {"id":241,"nivel":"facil","pergunta":"Quantos minutos dura o tempo regulamentar de uma partida de Copa do Mundo (sem contar os acréscimos)?","opcoes":{"A":"80 minutos","B":"90 minutos","C":"100 minutos","D":"120 minutos"},"resposta":"B","dica":"É dividido em dois tempos iguais de 45 minutos."},
+  {"id":242,"nivel":"facil","pergunta":"Em 2014, o atacante Robin van Persie marcou um golaço de cabeça que lhe rendeu qual apelido?","opcoes":{"A":"O Holandês Voador","B":"O Míssil Laranja","C":"O Pássaro de Fogo","D":"O Cabeça de Ouro"},"resposta":"A","dica":"O gol encobriu o goleiro Iker Casillas em um mergulho impressionante."},
+  {"id":243,"nivel":"facil","pergunta":"Qual destas seleções faz parte do Reino Unido e disputou a Copa de 2022?","opcoes":{"A":"Escócia","B":"Irlanda do Norte","C":"País de Gales","D":"Irlanda"},"resposta":"C","dica":"A equipe foi liderada pelo astro Gareth Bale."},
+  {"id":244,"nivel":"facil","pergunta":"Qual é a cor do cartão que expulsa um jogador imediatamente de campo?","opcoes":{"A":"Amarelo","B":"Verde","C":"Azul","D":"Vermelho"},"resposta":"D","dica":"É a punição máxima da arbitragem durante o jogo."},
+  {"id":245,"nivel":"facil","pergunta":"Na Copa do Mundo de 1994, quem era o fiel companheiro de ataque de Romário no Brasil?","opcoes":{"A":"Ronaldo","B":"Bebeto","C":"Careca","D":"Müller"},"resposta":"B","dica":"Ele eternizou a comemoração 'embalando o bebê' após marcar um gol."},
+  {"id":246,"nivel":"facil","pergunta":"Em qual continente a Argentina conquistou o seu tricampeonato mundial em 2022?","opcoes":{"A":"América do Sul","B":"Europa","C":"Ásia","D":"África"},"resposta":"C","dica":"O torneio foi disputado no Qatar."},
+  {"id":247,"nivel":"facil","pergunta":"Em qual destas Copas o Brasil NÃO foi o país-sede?","opcoes":{"A":"1950","B":"1978","C":"2014","D":"O Brasil sediou ambas"},"resposta":"B","dica":"Em 1978, a sede foi um país vizinho e grande rival do Brasil."},
+  {"id":248,"nivel":"facil","pergunta":"Qual é a punição para o goleiro que pega a bola com as mãos fora da grande área?","opcoes":{"A":"Apenas advertência verbal","B":"Falta e risco de cartão vermelho","C":"Pênalti para o adversário","D":"Escanteio"},"resposta":"B","dica":"As mãos do goleiro só são permitidas dentro de um retângulo específico do campo."},
+  {"id":249,"nivel":"facil","pergunta":"A icônica música 'Waka Waka', tema da Copa de 2010, foi cantada por qual artista internacional?","opcoes":{"A":"Jennifer Lopez","B":"Beyoncé","C":"Shakira","D":"Ricky Martin"},"resposta":"C","dica":"A cantora colombiana fez um sucesso estrondoso com essa faixa na África do Sul."},
+  {"id":250,"nivel":"facil","pergunta":"A final da Copa do Mundo de 2002 entre Brasil e Alemanha foi disputada na cidade de:","opcoes":{"A":"Seul","B":"Tóquio","C":"Yokohama","D":"Pequim"},"resposta":"C","dica":"Fica localizada no Japão, país que co-sediou a Copa."},
+  {"id":251,"nivel":"facil","pergunta":"Qual jogador português é amplamente conhecido pelas iniciais 'CR7'?","opcoes":{"A":"Cristiano Ronaldo","B":"Carlos Reinaldo","C":"Cláudio Ramos","D":"Cedric Ricardo"},"resposta":"A","dica":"Ele marcou gols em cinco edições diferentes de Copa do Mundo."},
+  {"id":252,"nivel":"facil","pergunta":"Como é chamado o gol marcado por um jogador contra o próprio time?","opcoes":{"A":"Gol de placa","B":"Gol contra","C":"Gol fantasma","D":"Gol anulado"},"resposta":"B","dica":"Marcelo fez o primeiro gol da Copa de 2014 dessa maneira ingrata."},
+  {"id":253,"nivel":"facil","pergunta":"Qual famoso instrumento de percussão originário da África do Sul causou polêmica pelo seu barulho constante na Copa de 2010?","opcoes":{"A":"Caxirola","B":"Zabumba","C":"Vuvuzela","D":"Bongo"},"resposta":"C","dica":"O som contínuo e ensurdecedor lembrava um enxame de abelhas."},
+  {"id":254,"nivel":"facil","pergunta":"No sistema tático do futebol, os jogadores responsáveis por proteger o goleiro são os:","opcoes":{"A":"Atacantes","B":"Meias-armadores","C":"Zagueiros","D":"Pontas"},"resposta":"C","dica":"Thiago Silva e Marquinhos são exemplos famosos dessa posição."},
+  {"id":255,"nivel":"facil","pergunta":"A Copa do Mundo de 2018 foi realizada em qual país de dimensões continentais?","opcoes":{"A":"China","B":"Estados Unidos","C":"Austrália","D":"Rússia"},"resposta":"D","dica":"A final entre França e Croácia aconteceu na capital, Moscou."},
+  {"id":256,"nivel":"medio","pergunta":"Quem foi o goleiro titular da seleção brasileira na conquista do Pentacampeonato em 2002?","opcoes":{"A":"Dida","B":"Marcos","C":"Rogério Ceni","D":"Taffarel"},"resposta":"B","dica":"Era conhecido como 'São' pelos torcedores do Palmeiras."},
+  {"id":257,"nivel":"medio","pergunta":"Em qual edição a Copa do Mundo passou a contar oficialmente com os nomes dos jogadores estampados nas costas das camisas?","opcoes":{"A":"1990","B":"1994","C":"1998","D":"2002"},"resposta":"B","dica":"Essa padronização estreou na Copa disputada nos Estados Unidos."},
+  {"id":258,"nivel":"medio","pergunta":"A seleção do Japão é conhecida por jogar Copas do Mundo com um uniforme predominantemente:","opcoes":{"A":"Branco e Vermelho","B":"Verde e Amarelo","C":"Azul","D":"Preto"},"resposta":"C","dica":"A equipe é frequentemente chamada de 'Os Samurais Azuis'."},
+  {"id":259,"nivel":"medio","pergunta":"Qual jogador colombiano ficou conhecido por dançar coreografias animadas a cada gol marcado na Copa de 2014?","opcoes":{"A":"Radamel Falcao","B":"Juan Cuadrado","C":"Carlos Bacca","D":"James Rodríguez"},"resposta":"D","dica":"Ele foi o artilheiro isolado daquele torneio no Brasil."},
+  {"id":260,"nivel":"medio","pergunta":"Qual país europeu aplicou uma goleada de 5x1 sobre a então atual campeã Espanha na Copa de 2014?","opcoes":{"A":"Holanda","B":"Alemanha","C":"França","D":"Itália"},"resposta":"A","dica":"Foi uma 'vingança' da final da Copa de 2010."},
+  {"id":261,"nivel":"medio","pergunta":"Em 2006, o árbitro Graham Poll cometeu um erro bizarro ao mostrar quantos cartões amarelos para o croata Šimunić antes de expulsá-lo?","opcoes":{"A":"Dois","B":"Três","C":"Quatro","D":"Ele nunca o expulsou"},"resposta":"B","dica":"Ele se confundiu com as anotações e só mostrou o vermelho após o terceiro amarelo."},
+  {"id":262,"nivel":"medio","pergunta":"Na emocionante campanha de Gana em 2010, quem perdeu o pênalti no último minuto da prorrogação contra o Uruguai?","opcoes":{"A":"Kevin-Prince Boateng","B":"Asamoah Gyan","C":"Sulley Muntari","D":"André Ayew"},"resposta":"B","dica":"Ele chutou a bola no travessão após o toque de mão de Luis Suárez."},
+  {"id":263,"nivel":"medio","pergunta":"A taça original Jules Rimet foi roubada em 1966 na Inglaterra. Quem encontrou o troféu escondido no jardim?","opcoes":{"A":"A Scotland Yard","B":"Um cão chamado Pickles","C":"O capitão Bobby Moore","D":"Crianças brincando de bola"},"resposta":"B","dica":"Um herói canino foi recompensado com fornecimento vitalício de comida."},
+  {"id":264,"nivel":"medio","pergunta":"O inesquecível ex-técnico Zagallo costumava usar um número como amuleto da sorte. Que número era esse?","opcoes":{"A":"7","B":"10","C":"13","D":"22"},"resposta":"C","dica":"Ele costumava formar frases famosas com exatamente essa quantidade de letras."},
+  {"id":265,"nivel":"medio","pergunta":"Qual craque francês se despediu das Copas após fraturar a fíbula gravemente poucos dias antes da Copa de 2006?","opcoes":{"A":"Robert Pirès","B":"Djibril Cissé","C":"Patrick Vieira","D":"Ludovic Giuly"},"resposta":"B","dica":"O atacante sofreu a terrível lesão num amistoso preparatório contra a China."},
+  {"id":266,"nivel":"medio","pergunta":"A seleção do Marrocos, semifinalista em 2022, tem um apelido carinhoso para sua equipe. Qual é?","opcoes":{"A":"As Águias do Deserto","B":"Os Leões do Atlas","C":"Os Faraós Negras","D":"As Raposas de Fogo"},"resposta":"B","dica":"Faz referência a uma cadeia de montanhas do norte da África."},
+  {"id":267,"nivel":"medio","pergunta":"O volante Felipe Melo do Brasil foi expulso nas quartas de final de 2010 após pisar em qual jogador holandês?","opcoes":{"A":"Wesley Sneijder","B":"Mark van Bommel","C":"Arjen Robben","D":"Robin van Persie"},"resposta":"C","dica":"O jogador agredido era o habilidoso camisa 11 e ponta-direita da Holanda."},
+  {"id":268,"nivel":"medio","pergunta":"Em que Copa do Mundo a lendária dupla Zico e Sócrates atuou junta pela última vez?","opcoes":{"A":"1978","B":"1982","C":"1986","D":"1990"},"resposta":"C","dica":"Ambos jogaram juntos a Copa do México, mas foram eliminados nos pênaltis pela França."},
+  {"id":269,"nivel":"medio","pergunta":"O treinador da seleção da Holanda que apresentou o revolucionário 'Futebol Total' em 1974 foi:","opcoes":{"A":"Rinus Michels","B":"Guus Hiddink","C":"Louis van Gaal","D":"Johan Cruyff"},"resposta":"A","dica":"Ele foi eleito pela FIFA o 'Treinador do Século' e era focado em jogadores mudando de posição constantemente."},
+  {"id":270,"nivel":"medio","pergunta":"O jovem Pelé chorou copiosamente ao fim da final de 1958. Quem foi o grande capitão que o consolou?","opcoes":{"A":"Didi","B":"Garrincha","C":"Bellini","D":"Nilton Santos"},"resposta":"C","dica":"Foi ele quem inventou o gesto de erguer a taça sobre a cabeça."},
+  {"id":271,"nivel":"dificil","pergunta":"Qual jogador marcou os 4 gols da Espanha na impressionante goleada por 5x1 contra a Dinamarca nas oitavas de 1986?","opcoes":{"A":"Emilio Butragueño","B":"Julio Salinas","C":"Míchel","D":"Raúl González"},"resposta":"A","dica":"O icônico atacante apelidado de 'El Buitre' teve o dia mais mágico de sua carreira."},
+  {"id":272,"nivel":"dificil","pergunta":"Qual jogador se tornou o primeiro a perder pênaltis (durante o jogo) em duas Copas do Mundo diferentes (2010 e 2014)?","opcoes":{"A":"Roberto Baggio","B":"Asamoah Gyan","C":"Lionel Messi","D":"Cristiano Ronaldo"},"resposta":"B","dica":"O atacante ganês isolou cobranças contra o Uruguai e a Alemanha."},
+  {"id":273,"nivel":"dificil","pergunta":"Quem é o jogador mais velho a defender um pênalti em uma partida de Copa do Mundo (com 45 anos em 2018)?","opcoes":{"A":"Faryd Mondragón","B":"Peter Shilton","C":"Essam El-Hadary","D":"Dino Zoff"},"resposta":"C","dica":"O veterano goleiro defendia a seleção do Egito."},
+  {"id":274,"nivel":"dificil","pergunta":"Onde foi realizada a famigerada final de Copa do Mundo conhecida como 'A Batalha de Berna' (1954), com socos e invasão de campo?","opcoes":{"A":"Itália","B":"Suíça","C":"Áustria","D":"Hungria"},"resposta":"B","dica":"O jogo violento ocorreu nas quartas de final entre Brasil e Hungria."},
+  {"id":275,"nivel":"dificil","pergunta":"Qual seleção detém o ingrato recorde de ter sido eliminada na fase de grupos em 1958 após empatar os três jogos por 0x0?","opcoes":{"A":"Nova Zelândia","B":"Israel","C":"Escócia","D":"Inglaterra"},"resposta":"D","dica":"Os inventores do futebol caíram num grupo duro com Brasil, União Soviética e Áustria e não marcaram gols."},
+  {"id":276,"nivel":"dificil","pergunta":"Qual foi a única seleção a chegar invicta (sem perder jogos no tempo normal) à semifinal de uma Copa, mas não marcar NENHUM gol na disputa de pênaltis que a eliminou (2006)?","opcoes":{"A":"Suíça","B":"Inglaterra","C":"Ucrânia","D":"Holanda"},"resposta":"A","dica":"Eles caíram para a Ucrânia perdendo de 3x0 nas cobranças de pênalti após um longo 0x0."},
+  {"id":277,"nivel":"dificil","pergunta":"Na Copa do Mundo de 1938, um jogador atuou descalço por alguns minutos contra o Brasil e chegou a marcar um gol. Quem foi?","opcoes":{"A":"Ernst Willimowski","B":"Leonidas da Silva","C":"Josef Bican","D":"Silvio Piola"},"resposta":"B","dica":"Foi o próprio brasileiro inventor da bicicleta que arrebentou a chuteira em campo."},
+  {"id":278,"nivel":"dificil","pergunta":"Qual seleção surpreendeu ao estrear em Copas (2006) com o zagueiro Brent Sancho entrando para a história marcando o primeiro gol da nação... contra o próprio time?","opcoes":{"A":"Jamaica","B":"Trinidad e Tobago","C":"Panamá","D":"Haiti"},"resposta":"B","dica":"A equipe da Concacaf enfrentou o Paraguai e o gol contra definiu a derrota por 2x0."},
+  {"id":279,"nivel":"dificil","pergunta":"Em 2014, o goleiro Tim Howard estabeleceu o recorde de mais defesas em um único jogo de Copa (16). Qual seleção eliminou os EUA nessa partida épica?","opcoes":{"A":"Gana","B":"Portugal","C":"Alemanha","D":"Bélgica"},"resposta":"D","dica":"A seleção europeia venceu na prorrogação por 2x1 com gols de De Bruyne e Lukaku."},
+  {"id":280,"nivel":"dificil","pergunta":"Quantos árbitros no total (campo, assistentes e quarto árbitro) atuam fisicamente na beira e dentro do campo em um jogo moderno de Copa do Mundo?","opcoes":{"A":"Três","B":"Quatro","C":"Cinco","D":"Seis"},"resposta":"B","dica":"Sem contar o VAR (que fica na sala de vídeo), existe 1 principal, 2 bandeirinhas e 1 reserva no banco."},
+  {"id":281,"nivel":"dificil","pergunta":"Qual seleção foi forçada a jogar com camisas do clube local Kimberley de Mar del Plata, pois ambos os times usavam uniformes brancos (Copa de 1978)?","opcoes":{"A":"França","B":"Hungria","C":"Áustria","D":"Irã"},"resposta":"A","dica":"Eles jogaram listrados de verde e branco contra a Hungria."},
+  {"id":282,"nivel":"dificil","pergunta":"Na final de 1990, quem marcou o gol de pênalti que deu o tricampeonato para a Alemanha sobre a Argentina?","opcoes":{"A":"Lothar Matthäus","B":"Rudi Völler","C":"Andreas Brehme","D":"Jürgen Klinsmann"},"resposta":"C","dica":"O experiente lateral-esquerdo bateu de perna direita e deslocou o pegador de pênaltis Goycochea."},
+  {"id":283,"nivel":"dificil","pergunta":"Qual destas lendas do futebol NUNCA disputou uma partida de Copa do Mundo em toda a sua carreira?","opcoes":{"A":"George Best","B":"Johan Cruyff","C":"Alfredo Di Stéfano","D":"Tanto George Best quanto Di Stéfano"},"resposta":"D","dica":"O norte-irlandês e o argentino naturalizado espanhol são os maiores craques sem Copas no currículo."},
+  {"id":284,"nivel":"dificil","pergunta":"A Copa do Mundo Feminina foi inaugurada de forma oficial pela FIFA em que ano?","opcoes":{"A":"1971","B":"1987","C":"1991","D":"1995"},"resposta":"C","dica":"O primeiro torneio foi sediado na China e vencido pelos Estados Unidos."},
+  {"id":285,"nivel":"dificil","pergunta":"Quem foi o árbitro que polemicamente não validou o 'gol fantasma' de Frank Lampard contra a Alemanha na Copa de 2010?","opcoes":{"A":"Howard Webb","B":"Jorge Larrionda","C":"Héctor Baldassi","D":"Yuichi Nishimura"},"resposta":"B","dica":"Ele era um conceituado árbitro uruguaio, mas o erro acelerou a criação do VAR."},
+  {"id":286,"nivel":"dificil","pergunta":"Onde estão guardadas secretamente e sob forte segurança as matrizes originais do atual troféu da Copa do Mundo?","opcoes":{"A":"Na Suíça, na sede da FIFA","B":"Em Nova York, na sede da ONU","C":"Em Milão, na fábrica GDE Bertoni","D":"Na casa forte do Banco da Inglaterra"},"resposta":"C","dica":"Fica na sede da empresa familiar italiana que originalmente desenhou o troféu em 1971."},
+  {"id":287,"nivel":"dificil","pergunta":"A seleção da Sérvia e Montenegro levou um massacre de 6x0 da Argentina na Copa de 2006. Um dos gols teve incríveis quantos passes trocados antes da finalização?","opcoes":{"A":"14 passes","B":"20 passes","C":"24 passes","D":"32 passes"},"resposta":"C","dica":"A bola rodou pelo time todo até a finalização antológica de Cambiasso."},
+  {"id":288,"nivel":"dificil","pergunta":"Qual foi a última seleção sul-americana a vencer a Copa do Mundo antes do longo jejum quebrado pela Argentina em 2022?","opcoes":{"A":"Uruguai em 1950","B":"Argentina em 1986","C":"Brasil em 2002","D":"Nenhuma das anteriores"},"resposta":"C","dica":"O Penta do Brasil foi a última glória do continente por 20 anos."},
+  {"id":289,"nivel":"dificil","pergunta":"Em 2018, o Japão foi eliminado pela Bélgica numa virada cruel por 3x2 no último lance. Como a equipe japonesa deixou o vestiário após o jogo?","opcoes":{"A":"Destruído em fúria","B":"Impecavelmente limpo, com um bilhete de 'Obrigado'","C":"Recusaram-se a sair do campo por protesto","D":"Deixaram todas as camisas para os funcionários"},"resposta":"B","dica":"A atitude viralizou no mundo inteiro como um extremo exemplo de educação e honra."},
+  {"id":290,"nivel":"dificil","pergunta":"Qual jogador marcou o controverso primeiro gol da Coreia do Sul na polêmica eliminação da Itália em 2002?","opcoes":{"A":"Ahn Jung-hwan","B":"Seol Ki-hyeon","C":"Park Ji-sung","D":"Hwang Sun-hong"},"resposta":"B","dica":"Ele empatou o jogo aos 88 minutos, levando a partida para a polêmica prorrogação."},
+  {"id":291,"nivel":"dificil","pergunta":"Qual foi o menor país, em número de população, a se classificar e jogar uma Copa do Mundo na história (2018)?","opcoes":{"A":"Trinidad e Tobago","B":"País de Gales","C":"Islândia","D":"Togo"},"resposta":"C","dica":"A equipe tinha cerca de 350 mil habitantes no país inteiro e ficou famosa pelas palmas vikings."},
+  {"id":292,"nivel":"dificil","pergunta":"Na Copa de 1998, a Noruega chocou o mundo ao vencer qual poderosa seleção na fase de grupos, de virada nos minutos finais?","opcoes":{"A":"Alemanha","B":"Itália","C":"Argentina","D":"Brasil"},"resposta":"D","dica":"O jogo terminou 2x1 após um pênalti polêmico marcado a favor dos europeus."},
+  {"id":293,"nivel":"dificil","pergunta":"Qual jogador francês cobrou o pênalti no travessão, causando a derrota da França para a Itália na final da Copa de 2006?","opcoes":{"A":"Fabien Barthez","B":"David Trezeguet","C":"Sylvain Wiltord","D":"Patrick Vieira"},"resposta":"B","dica":"Foi o mesmo jogador que havia marcado o 'Gol de Ouro' na final da Eurocopa 2000 pela França."},
+  {"id":294,"nivel":"dificil","pergunta":"A famosa partida entre Portugal e Holanda em 2006 (A Batalha de Nuremberg) foi apitada por qual árbitro que distribuiu 16 cartões amarelos?","opcoes":{"A":"Valentin Ivanov","B":"Pierluigi Collina","C":"Mark Clattenburg","D":"Horacio Elizondo"},"resposta":"A","dica":"O árbitro russo foi duramente criticado pelo presidente da FIFA pela falta de controle do jogo."},
+  {"id":295,"nivel":"dificil","pergunta":"Qual jogador africano foi eleito o Melhor do Mundo pela FIFA em 1995, mas nunca conseguiu jogar uma Copa do Mundo pelo seu país?","opcoes":{"A":"Abedi Pelé","B":"George Weah","C":"Didier Drogba","D":"Nwankwo Kanu"},"resposta":"B","dica":"Ele defendia a seleção da Libéria e, anos depois, tornou-se presidente do seu país."},
+  {"id":296,"nivel":"dificil","pergunta":"A Copa do Mundo de 1978, na Argentina, foi a última edição a ser disputada com quantas seleções?","opcoes":{"A":"12 seleções","B":"16 seleções","C":"20 seleções","D":"24 seleções"},"resposta":"B","dica":"Na edição seguinte (1982), a FIFA já expandiu o torneio para 24 times."},
+  {"id":297,"nivel":"dificil","pergunta":"Na final de 1970, Pelé deu um passe 'no ponto cego' para o famoso gol de Carlos Alberto Torres. Quem deu o passe para Pelé nessa jogada?","opcoes":{"A":"Gérson","B":"Rivellino","C":"Tostão","D":"Jairzinho"},"resposta":"D","dica":"O ponta-direita (Furacão da Copa) carregou a bola da ponta esquerda até o meio antes de tocar para o Rei."},
+  {"id":298,"nivel":"dificil","pergunta":"Em que ano a FIFA proibiu formalmente que os goleiros pegassem com as mãos os recuos de bola feitos com o pé por seus próprios defensores em uma Copa?","opcoes":{"A":"1990","B":"1994","C":"1998","D":"2002"},"resposta":"B","dica":"A regra estreou em Mundiais na Copa sediada nos EUA para evitar o antijogo absurdo da edição anterior."},
+  {"id":299,"nivel":"dificil","pergunta":"O troféu da Bola de Ouro de Melhor Jogador da Copa (instituído oficialmente em 1982) já foi vencido duas vezes por qual único jogador?","opcoes":{"A":"Pelé","B":"Diego Maradona","C":"Zinedine Zidane","D":"Lionel Messi"},"resposta":"D","dica":"Ele faturou a honraria tanto na derrota na final de 2014 quanto no título de 2022."},
+  {"id":300,"nivel":"dificil","pergunta":"Na primeiríssima Copa do Mundo, em 1930, os 13 países participantes representavam apenas três continentes. Quais eram?","opcoes":{"A":"Europa, América do Sul e África","B":"Europa, América do Sul e América do Norte","C":"América do Sul, América do Norte e Ásia","D":"Europa, América do Sul e Ásia"},"resposta":"B","dica":"Nenhuma equipe da Ásia, África ou Oceania participou do torneio inaugural no Uruguai."},
+  {"id":301,"nivel":"facil","pergunta":"Qual seleção europeia é mundialmente conhecida por jogar com uma camisa quadriculada em vermelho e branco?","opcoes":{"A":"Sérvia","B":"Polônia","C":"Croácia","D":"Dinamarca"},"resposta":"C","dica":"Foi a seleção vice-campeã da Copa do Mundo de 2018."},
+  {"id":302,"nivel":"facil","pergunta":"Na estreia do Brasil na Copa de 2022 contra a Sérvia, qual atacante marcou dois gols, incluindo um golaço de voleio acrobático?","opcoes":{"A":"Neymar","B":"Vinícius Júnior","C":"Raphinha","D":"Richarlison"},"resposta":"D","dica":"O jogador é carinhosamente apelidado pelos fãs de 'Pombo'."},
+  {"id":303,"nivel":"facil","pergunta":"Pela regra oficial da FIFA, quantos cartões amarelos aplicados ao MESMO jogador em uma partida resultam em sua expulsão (cartão vermelho)?","opcoes":{"A":"Dois","B":"Três","C":"Quatro","D":"Apenas um, se for violento"},"resposta":"A","dica":"A conta é a mais básica matemática de punição do esporte."},
+  {"id":304,"nivel":"facil","pergunta":"Qual lendário estádio brasileiro teve a honra de sediar as finais das Copas do Mundo de 1950 e 2014?","opcoes":{"A":"Mineirão","B":"Morumbi","C":"Maracanã","D":"Mané Garrincha"},"resposta":"C","dica":"Fica localizado no Rio de Janeiro e já chegou a abrigar quase 200 mil pessoas."},
+  {"id":305,"nivel":"facil","pergunta":"Qual genial atacante polonês, eleito melhor do mundo pela FIFA duas vezes, marcou seu primeiro gol em Copas apenas na edição de 2022?","opcoes":{"A":"Krzysztof Piątek","B":"Robert Lewandowski","C":"Arkadiusz Milik","D":"Piotr Zieliński"},"resposta":"B","dica":"Ele chorou muito na comemoração contra a Arábia Saudita, pois a pressão era enorme."},
+  {"id":306,"nivel":"facil","pergunta":"A Copa do Mundo é organizada a cada 4 anos por qual entidade esportiva?","opcoes":{"A":"UEFA","B":"CONMEBOL","C":"Comitê Olímpico Internacional","D":"FIFA"},"resposta":"D","dica":"A sede dessa federação fica em Zurique, na Suíça."},
+  {"id":307,"nivel":"facil","pergunta":"O termo 'Hexacampeão' será usado pela equipe que conseguir conquistar a Copa pela sexta vez. Quem é a única seleção que pode buscar esse título atualmente?","opcoes":{"A":"Alemanha","B":"Itália","C":"Brasil","D":"Argentina"},"resposta":"C","dica":"É a equipe sul-americana de camisa amarela."},
+  {"id":308,"nivel":"facil","pergunta":"Em uma partida decisiva (mata-mata), como é chamado o período de 30 minutos extras jogado caso a partida termine empatada?","opcoes":{"A":"Prorrogação","B":"Acréscimos","C":"Tempo de Ouro","D":"Disputa Alternada"},"resposta":"A","dica":"Geralmente é dividido em dois tempos de 15 minutos."},
+  {"id":309,"nivel":"facil","pergunta":"Qual famosa seleção africana é orgulhosamente conhecida pelo apelido de 'Leões Indomáveis'?","opcoes":{"A":"Nigéria","B":"Senegal","C":"Camarões","D":"Gana"},"resposta":"C","dica":"Eles usam camisa verde, calção vermelho e meião amarelo."},
+  {"id":310,"nivel":"facil","pergunta":"O Brasil sempre utilizou uma cor tradicional no seu calção desde 1954 para acompanhar a famosa camisa amarela. Que cor é essa?","opcoes":{"A":"Branco","B":"Verde","C":"Azul","D":"Preto"},"resposta":"C","dica":"Reflete uma das cores principais do círculo central da bandeira brasileira."},
+  {"id":311,"nivel":"facil","pergunta":"Quem assumiu o comando técnico da Seleção Brasileira logo após o fracasso de 2014 e os treinou nas Copas de 2018 e 2022?","opcoes":{"A":"Luiz Felipe Scolari","B":"Tite","C":"Mano Menezes","D":"Fernando Diniz"},"resposta":"B","dica":"Fez sucesso histórico comandando o Corinthians na década anterior."},
+  {"id":312,"nivel":"facil","pergunta":"Qual objeto o árbitro costuma lançar para o alto, junto aos capitães, antes do jogo para decidir o lado do campo ou a posse de bola?","opcoes":{"A":"Um apito","B":"Um cartão","C":"Uma moeda","D":"Uma caneta"},"resposta":"C","dica":"O ritual é um clássico jogo de 'cara ou coroa'."},
+  {"id":313,"nivel":"facil","pergunta":"Em 2018, qual time surpreendeu o mundo chegando à final liderado pelo craque Luka Modric?","opcoes":{"A":"Inglaterra","B":"Bélgica","C":"Uruguai","D":"Croácia"},"resposta":"D","dica":"Essa nação tem menos de 4 milhões de habitantes."},
+  {"id":314,"nivel":"facil","pergunta":"Qual foi o placar que a Alemanha aplicou no Brasil na fatídica semifinal de 2014?","opcoes":{"A":"6x1","B":"7x1","C":"7x0","D":"8x1"},"resposta":"B","dica":"O gol de honra brasileiro foi marcado por Oscar no finalzinho."},
+  {"id":315,"nivel":"facil","pergunta":"Durante a partida, qual é a principal utilidade das bandeirinhas cravadas nos quatro cantos do gramado?","opcoes":{"A":"Marcar o local exato da cobrança de escanteio","B":"Indicar o limite para o aquecimento","C":"Mostrar a direção do vento","D":"Enfeitar o campo com as cores da FIFA"},"resposta":"A","dica":"É ali que o jogador ajeita a bola quando ela sai pela linha de fundo."},
+  {"id":316,"nivel":"medio","pergunta":"Na Copa do Mundo de 2018, qual seleção asiática despachou e eliminou a Alemanha ainda na fase de grupos com uma vitória de 2x0 no final do jogo?","opcoes":{"A":"Japão","B":"Austrália","C":"Irã","D":"Coreia do Sul"},"resposta":"D","dica":"O astro Son Heung-min marcou o segundo gol com o goleiro Neuer fora do gol."},
+  {"id":317,"nivel":"medio","pergunta":"Lev Yashin, considerado o maior goleiro de todos os tempos e único na posição a ganhar uma Bola de Ouro, defendia qual seleção?","opcoes":{"A":"Iugoslávia","B":"Alemanha Oriental","C":"União Soviética","D":"Tchecoslováquia"},"resposta":"C","dica":"Ele era conhecido como a 'Aranha Negra' por sempre vestir uniforme totalmente escuro."},
+  {"id":318,"nivel":"medio","pergunta":"Qual foi a PRIMEIRA seleção da história a conseguir o feito de ser bicampeã mundial vencendo edições consecutivas?","opcoes":{"A":"Uruguai (1930 e 1934)","B":"Itália (1934 e 1938)","C":"Brasil (1958 e 1962)","D":"Alemanha (1970 e 1974)"},"resposta":"B","dica":"Comandados pelo técnico Vittorio Pozzo sob muita pressão externa."},
+  {"id":319,"nivel":"medio","pergunta":"Qual jogador assumiu a braçadeira de capitão da seleção francesa no primeiro título mundial deles, em 1998, e depois treinou a equipe no título de 2018?","opcoes":{"A":"Laurent Blanc","B":"Zinedine Zidane","C":"Didier Deschamps","D":"Marcel Desailly"},"resposta":"C","dica":"Ele atuava como volante e era o pilar tático do meio-campo francês."},
+  {"id":320,"nivel":"medio","pergunta":"Em 2002, o Brasil enfrentou a forte seleção da Turquia duas vezes na mesma Copa. Em quais fases isso ocorreu?","opcoes":{"A":"Fase de Grupos e Oitavas","B":"Fase de Grupos e Semifinal","C":"Oitavas e Final","D":"Quartas e Semifinal"},"resposta":"B","dica":"O primeiro jogo foi um duro 2x1 com gol de pênalti de Rivaldo, e o segundo um apertado 1x0 com gol de bico de Ronaldo."},
+  {"id":321,"nivel":"medio","pergunta":"Qual seleção a Espanha derrotou na grande final da Copa do Mundo de 2010 para conquistar o seu primeiro título?","opcoes":{"A":"Alemanha","B":"Itália","C":"Holanda","D":"Uruguai"},"resposta":"C","dica":"A equipe derrotada manteve a maldição de ser a que mais chegou a finais sem nunca vencer."},
+  {"id":322,"nivel":"medio","pergunta":"Na partida de estreia do Brasil na Copa de 2014, qual lateral-esquerdo brasileiro marcou infelizmente o primeiro gol daquela Copa contra a própria rede?","opcoes":{"A":"Filipe Luís","B":"Maxwell","C":"Marcelo","D":"Alex Sandro"},"resposta":"C","dica":"Ele defendeu o Real Madrid por mais de uma década."},
+  {"id":323,"nivel":"medio","pergunta":"Quem foi o grande capitão responsável por erguer a cobiçada taça do tetracampeonato do Brasil em 1994, nos Estados Unidos?","opcoes":{"A":"Romário","B":"Raí","C":"Dunga","D":"Taffarel"},"resposta":"C","dica":"A imagem dele berrando e levantando a taça no Rose Bowl tornou-se a capa de várias revistas."},
+  {"id":324,"nivel":"medio","pergunta":"O prêmio de Chuteira de Ouro em 2014 foi para qual jovem talento sul-americano após ele marcar um golaço de voleio contra o Uruguai no Maracanã?","opcoes":{"A":"Neymar","B":"Lionel Messi","C":"James Rodríguez","D":"Alexis Sánchez"},"resposta":"C","dica":"O camisa 10 da Colômbia marcou 6 gols no total."},
+  {"id":325,"nivel":"medio","pergunta":"Em 2022, a surpreendente seleção de Camarões conquistou um feito histórico ao derrotar qual potência mundial por 1x0 na fase de grupos?","opcoes":{"A":"Alemanha","B":"Brasil","C":"França","D":"Espanha"},"resposta":"B","dica":"Apesar da vitória com o gol de Aboubakar no fim, Camarões foi eliminado na primeira fase."},
+  {"id":326,"nivel":"medio","pergunta":"Na Copa de 1998, a mágica dupla de ataque da Seleção do Chile, conhecida como 'Za-Sa', aterrorizou as defesas. Por quem era formada?","opcoes":{"A":"Zarate e Sánchez","B":"Zamorano e Salas","C":"Zapata e Suazo","D":"Zanetti e Sosa"},"resposta":"B","dica":"Ambos foram lendas absolutas em grandes clubes europeus como Inter de Milão e Lazio."},
+  {"id":327,"nivel":"medio","pergunta":"A famosa e contagiante música 'Un'estate italiana' (Um verão italiano) foi o empolgante hino de qual Copa do Mundo?","opcoes":{"A":"1982","B":"1990","C":"1994","D":"2006"},"resposta":"B","dica":"A edição sediada na Itália que terminou com o tricampeonato da Alemanha."},
+  {"id":328,"nivel":"medio","pergunta":"Comandada pelas impressionantes defesas do goleiro Keylor Navas, qual seleção da América Central chegou surpreendentemente às quartas de final em 2014?","opcoes":{"A":"Panamá","B":"Honduras","C":"Costa Rica","D":"El Salvador"},"resposta":"C","dica":"Eles passaram pelo 'Grupo da Morte' eliminando Itália e Inglaterra."},
+  {"id":329,"nivel":"medio","pergunta":"Durante a heróica campanha da Croácia na Copa de 2018, eles passaram por quantas disputas de pênaltis antes da grande final?","opcoes":{"A":"Nenhuma","B":"Uma","C":"Duas","D":"Três"},"resposta":"C","dica":"Eles eliminaram a Dinamarca (Oitavas) e a Rússia (Quartas) na marca da cal."},
+  {"id":330,"nivel":"medio","pergunta":"O lateral-esquerdo Andreas Brehme entrou para a história ao marcar o gol de pênalti decisivo da final de qual Copa do Mundo?","opcoes":{"A":"1982 (Contra a Itália)","B":"1990 (Contra a Argentina)","C":"1998 (Contra o Brasil)","D":"2002 (Contra o Brasil)"},"resposta":"B","dica":"A cobrança foi feita nos minutos finais, dando o tricampeonato à Alemanha."},
+  {"id":331,"nivel":"medio","pergunta":"Qual experiente técnico espanhol de vasto bigode conduziu a sua seleção ao inédito título mundial na África do Sul em 2010?","opcoes":{"A":"Luis Aragonés","B":"Vicente del Bosque","C":"Pep Guardiola","D":"Julen Lopetegui"},"resposta":"B","dica":"Ele também tinha no currículo grandes conquistas treinando o Real Madrid."},
+  {"id":332,"nivel":"medio","pergunta":"Qual foi a primeira Copa do Mundo a utilizar a tecnologia do 'Spray de Espuma' para manter a barreira dos jogadores na distância correta?","opcoes":{"A":"2006 (Alemanha)","B":"2010 (África do Sul)","C":"2014 (Brasil)","D":"2018 (Rússia)"},"resposta":"C","dica":"A ferramenta foi desenvolvida no Brasil e estreada oficialmente no torneio de lá."},
+  {"id":333,"nivel":"medio","pergunta":"Na Copa de 1994, qual ex-jogador tetracampeão era a voz do campo e auxiliar técnico principal do treinador Carlos Alberto Parreira?","opcoes":{"A":"Zico","B":"Telê Santana","C":"Zagallo","D":"Rivelino"},"resposta":"C","dica":"Ele é a lenda brasileira associada ao número 13 e ao 'Vocês vão ter que me engolir!'."},
+  {"id":334,"nivel":"medio","pergunta":"Qual o nome da lenda colombiana de cabeleira loira volumosa que jogou a Copa de 1990 e 1994, servindo clássicos passes precisos?","opcoes":{"A":"Freddy Rincón","B":"Faustino Asprilla","C":"René Higuita","D":"Carlos Valderrama"},"resposta":"D","dica":"Ele era o clássico camisa 10, de passos curtos, apelidado de 'El Pibe'."},
+  {"id":335,"nivel":"medio","pergunta":"Em 2022, na vitória esmagadora de Portugal sobre a Suíça por 6x1 nas oitavas de final, quem marcou o 'hat-trick' (três gols) na partida?","opcoes":{"A":"Cristiano Ronaldo","B":"Gonçalo Ramos","C":"Bruno Fernandes","D":"João Félix"},"resposta":"B","dica":"Ele foi escalado de surpresa como titular exatamente no lugar de Cristiano Ronaldo."},
+  {"id":336,"nivel":"dificil","pergunta":"Qual seleção marcou oficialmente o primeiríssimo GOL CONTRA de toda a história das Copas do Mundo em 1930?","opcoes":{"A":"França","B":"México","C":"Estados Unidos","D":"Bélgica"},"resposta":"B","dica":"O infortúnio aconteceu com o zagueiro Manuel Rosas no jogo contra o Chile."},
+  {"id":337,"nivel":"dificil","pergunta":"Quem é o único treinador na história do futebol a ter conquistado a Copa do Mundo por duas vezes CONSECUTIVAS no comando da mesma seleção?","opcoes":{"A":"Vittorio Pozzo (Itália)","B":"Mário Zagallo (Brasil)","C":"Helmut Schön (Alemanha)","D":"Didier Deschamps (França)"},"resposta":"A","dica":"Ele guiou sua nação aos títulos de 1934 e 1938 antes do início da Guerra."},
+  {"id":338,"nivel":"dificil","pergunta":"Na traumática final da Copa de 1950 (o Maracanazo), qual jogador marcou o gol de empate do Uruguai antes da famosa virada de Ghiggia?","opcoes":{"A":"Obdulio Varela","B":"Juan Alberto Schiaffino","C":"Óscar Míguez","D":"Roque Máspoli"},"resposta":"B","dica":"Foi um chutaço no ângulo de Barbosa, após dominar a bola quase na marca do pênalti."},
+  {"id":339,"nivel":"dificil","pergunta":"Qual país foi banido das eliminatórias da Copa de 1994 após seu goleiro forjar uma grave lesão no rosto utilizando uma lâmina de barbear escondida nas luvas?","opcoes":{"A":"Colômbia","B":"Bolívia","C":"Chile","D":"Peru"},"resposta":"C","dica":"O episódio grotesco protagonizado por Roberto Rojas aconteceu no Maracanã, fingindo ter sido atingido por um sinalizador."},
+  {"id":340,"nivel":"dificil","pergunta":"Qual jogador entrou para os livros de história em 1970 por ser o primeiro jogador a entrar em campo vindo do banco de reservas após as substituições serem oficialmente permitidas?","opcoes":{"A":"Anatoly Puzach (União Soviética)","B":"Roberto Rivelino (Brasil)","C":"Gerd Müller (Alemanha)","D":"Gianni Rivera (Itália)"},"resposta":"A","dica":"A primeira substituição ocorreu no jogo de abertura entre México e a seleção europeia em questão."},
+  {"id":341,"nivel":"dificil","pergunta":"A final da Copa de 1930 possui uma das curiosidades mais hilárias e bizarras da história. Por que ela foi disputada utilizando duas bolas diferentes em cada tempo de jogo?","opcoes":{"A":"Um cão furou a bola titular no intervalo","B":"Argentina e Uruguai não entraram em acordo sobre qual bola usar","C":"Uma exigência de patrocinadores rivais","D":"A bola do primeiro tempo desapareceu na torcida"},"resposta":"B","dica":"A FIFA resolveu o impasse de forma diplomática: 45 minutos com a bola argentina, 45 minutos com a bola uruguaia."},
+  {"id":342,"nivel":"dificil","pergunta":"O primeiro jogador a atingir o incrível feito de defender três pênaltis consecutivos em uma disputa de mata-mata nas quartas de final de 2006 foi:","opcoes":{"A":"Jens Lehmann (Alemanha)","B":"Fabien Barthez (França)","C":"Ricardo (Portugal)","D":"Gianluigi Buffon (Itália)"},"resposta":"C","dica":"O goleiro luso eliminou a Inglaterra, e fez a última defesa sem usar luvas!"},
+  {"id":343,"nivel":"dificil","pergunta":"Na mágica campanha da Turquia ao 3º lugar em 2002, quem era o exótico goleiro titular que chamava a atenção pela longa cabeleira e pintura negra de guerra no rosto?","opcoes":{"A":"Volkan Demirel","B":"Hakan Şükür","C":"Rüştü Reçber","D":"Hasan Şaş"},"resposta":"C","dica":"Sua aparência viking fez dele um dos ícones pop daquela edição na Ásia."},
+  {"id":344,"nivel":"dificil","pergunta":"Apenas 5 jogadores na história conseguiram a proeza de marcar gols em duas finais de Copa do Mundo diferentes. Pelé, Vavá, Paul Breitner, Zinedine Zidane e quem completou a lista em 2022?","opcoes":{"A":"Lionel Messi","B":"Kylian Mbappé","C":"Ángel Di María","D":"Antoine Griezmann"},"resposta":"B","dica":"O astro francês atingiu a marca somando seu gol em 2018 com o hat-trick de 2022."},
+  {"id":345,"nivel":"dificil","pergunta":"A seleção do Zaire (atual Congo) tem a mancha de ter sofrido uma das piores derrotas da história ao ser esmagada pela Iugoslávia em 1974 por qual implacável placar?","opcoes":{"A":"8x0","B":"9x0","C":"10x1","D":"12x0"},"resposta":"B","dica":"Eles ficaram devendo apenas um gol para bater o recorde da vitória da Hungria (10x1)."},
+  {"id":346,"nivel":"dificil","pergunta":"O atacante Roger Milla se tornou um fenômeno cultural global na Copa de 1990 ao instituir qual comemoração após os seus gols?","opcoes":{"A":"Dar piruetas seguidas (Mortal para trás)","B":"Abraçar o juiz de campo","C":"Sambar requebrando no mastro da bandeira de escanteio","D":"Fingir atirar nos fotógrafos de fora do campo"},"resposta":"C","dica":"Essa dança folclórica e espontânea entrou para todas as vinhetas de esportes da época."},
+  {"id":347,"nivel":"dificil","pergunta":"O icônico gol mais rápido de uma FINAL de Copa do Mundo aconteceu em 1974 com menos de 90 segundos de jogo. Quem o converteu para a Holanda de pênalti?","opcoes":{"A":"Rob Rensenbrink","B":"Johan Cruyff","C":"Arie Haan","D":"Johan Neeskens"},"resposta":"D","dica":"Ele cobrou no meio do gol antes que qualquer jogador alemão conseguisse tocar na bola em campo."},
+  {"id":348,"nivel":"dificil","pergunta":"Em 2006, qual sólida seleção europeia carimbou a impressionante e frustrante estatística de ser eliminada do torneio sem sofrer nenhum gol sequer (nem na fase de grupos, nem nas oitavas)?","opcoes":{"A":"Ucrânia","B":"Inglaterra","C":"Suíça","D":"Sérvia"},"resposta":"C","dica":"A zaga de Senderos e Müller segurou o 0x0 contra a Ucrânia nas oitavas, mas o time caiu não fazendo nenhum pênalti na disputa."},
+  {"id":349,"nivel":"dificil","pergunta":"Em 1982, um príncipe desceu da tribuna de honra e invadiu o campo para exigir que o árbitro anulasse um gol contra sua seleção (França x Kuwait). O árbitro arregou e anulou. Quem era o xeique?","opcoes":{"A":"Fahad Al-Sabah","B":"Zayed Al Nahyan","C":"Tamin bin Hamad","D":"Khalifa Al Thani"},"resposta":"A","dica":"O dirigente do Kuwait invadiu o gramado alegando que um apito vindo da arquibancada havia parado seus defensores."},
+  {"id":350,"nivel":"dificil","pergunta":"Qual ex-jogador polonês marcou 4 gols no histórico jogo que terminou 6x5 para o Brasil na Copa de 1938 e até hoje é o único a fazer 4 gols num time que acabou derrotado?","opcoes":{"A":"Grzegorz Lato","B":"Zbigniew Boniek","C":"Ernst Willimowski","D":"Kazimierz Deyna"},"resposta":"C","dica":"Sua partida de gala foi ofuscada pelos três gols do brasileiro Leônidas da Silva."}
 ]

@@ -1,6 +1,59 @@
 'use client';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import PERGUNTAS from '@/components/games/dados/perguntasCopa.json';
+
+// ─── Sistema de Sons (Web Audio API — sem arquivos externos) ────────────────
+function criarSons() {
+  let ctx = null;
+  const getCtx = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  };
+
+  function tom(freq, dur, tipo = 'sine', vol = 0.4, delay = 0) {
+    try {
+      const c = getCtx();
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.type = tipo;
+      osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+      gain.gain.setValueAtTime(0.001, c.currentTime + delay);
+      gain.gain.linearRampToValueAtTime(vol, c.currentTime + delay + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + dur);
+      osc.start(c.currentTime + delay);
+      osc.stop(c.currentTime + delay + dur + 0.02);
+    } catch {}
+  }
+
+  return {
+    selecionar: () => { tom(700, 0.07, 'sine', 0.22); },
+    tick: () => { tom(900, 0.04, 'square', 0.18); },
+    tickFinal: () => {
+      [0, 0.08, 0.16, 0.22, 0.27, 0.31].forEach(d => tom(1100, 0.04, 'square', 0.22, d));
+    },
+    acertou: () => {
+      [[523,0],[659,0.1],[784,0.2],[1047,0.32],[1319,0.46]].forEach(([f,d]) => tom(f,0.3,'sine',0.5,d));
+    },
+    errou: () => {
+      tom(350,0.25,'sawtooth',0.45);
+      tom(260,0.3,'sawtooth',0.38,0.22);
+      tom(200,0.45,'sawtooth',0.28,0.48);
+    },
+    subiu: () => { tom(880,0.08,'sine',0.28); tom(1100,0.14,'sine',0.32,0.09); },
+    milhao: () => {
+      [[523,0],[659,0.15],[784,0.3],[1047,0.45],[1319,0.6],[1047,0.78],[1175,0.92],[1319,1.1]]
+        .forEach(([f,d]) => tom(f,0.32,'sine',0.6,d));
+      [[659,0.45],[784,0.6],[1047,0.92]].forEach(([f,d]) => tom(f,0.28,'sine',0.2,d));
+    },
+    gameOver: () => {
+      [[400,0],[360,0.22],[300,0.44],[240,0.7],[200,1.05]].forEach(([f,d]) => tom(f,0.3,'triangle',0.38,d));
+    },
+    confirmar: () => { tom(440,0.08,'sine',0.3); tom(660,0.12,'sine',0.28,0.07); },
+  };
+}
 
 // ─── Prêmios ────────────────────────────────────────────────────────────────
 const PREMIOS = [
@@ -72,6 +125,31 @@ export default function ShowDaCopa() {
 
   const timerRef = useRef(null);
   const reserveRef = useRef({ facil:[], medio:[], dificil:[] });
+  const sonsRef = useRef(null);
+  const tickRef = useRef(null);
+  const getSons = useCallback(() => {
+    if (!sonsRef.current) sonsRef.current = criarSons();
+    return sonsRef.current;
+  }, []);
+
+  // ── Tick do suspense ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (answerPhase !== 'suspense') {
+      clearInterval(tickRef.current);
+      return;
+    }
+    const s = getSons();
+    let count = 0;
+    tickRef.current = setInterval(() => {
+      count++;
+      s.tick();
+      // Últimos 4 ticks aceleram
+      if (count > 4) clearInterval(tickRef.current);
+    }, 280);
+    // Ticks finais acelerados no final do suspense
+    const finalTimer = setTimeout(() => s.tickFinal(), 1500);
+    return () => { clearInterval(tickRef.current); clearTimeout(finalTimer); };
+  }, [answerPhase, getSons]);
 
   const currentQ = questions[qIdx];
   const premioAtual = PREMIOS[qIdx];
@@ -98,6 +176,7 @@ export default function ShowDaCopa() {
   const handleSelect = (letter) => {
     if (answerPhase && answerPhase !== 'selected') return;
     if (eliminatedLetters.includes(letter)) return;
+    getSons().selecionar();
     setSelectedLetter(letter);
     setAnswerPhase('selected');
   };
@@ -111,17 +190,20 @@ export default function ShowDaCopa() {
     timerRef.current = setTimeout(() => {
       const correct = selectedLetter === currentQ.resposta;
       if (correct) {
+        getSons().acertou();
         setAnswerPhase('correct');
         setScreenFlash('green');
         setTimeout(() => setScreenFlash(null), 800);
         if (qIdx === 14) {
           setTimeout(() => {
+            getSons().milhao();
             setEarnedPrize(1000000);
             setConfetti(makeConfetti());
             setGamePhase('million');
           }, 2200);
         } else {
           setTimeout(() => {
+            getSons().subiu();
             setEarnedPrize(PREMIOS[qIdx].num);
             setQIdx(i => i + 1);
             setSelectedLetter(null);
@@ -132,11 +214,13 @@ export default function ShowDaCopa() {
           }, 2000);
         }
       } else {
+        getSons().errou();
         setWrongAnswer(selectedLetter);
         setAnswerPhase('wrong');
         setScreenFlash('red');
         setTimeout(() => setScreenFlash(null), 800);
         setTimeout(() => {
+          getSons().gameOver();
           setEarnedPrize(safePrizeNum);
           setGamePhase('gameover');
         }, 2800);
@@ -359,7 +443,7 @@ Faça opiniões divergentes — não 100% certeiros. Os nomes são: ${UNI_NOMES.
               </div>
             ))}
           </div>
-          <button className="btn-main" style={{ maxWidth:340 }} onClick={startGame}>⚽ Começar o Jogo!</button>
+          <button className="btn-main" style={{ maxWidth:340 }} onClick={() => { getSons().confirmar(); startGame(); }}>⚽ Começar o Jogo!</button>
         </div>
       )}
 
@@ -463,7 +547,7 @@ Faça opiniões divergentes — não 100% certeiros. Os nomes são: ${UNI_NOMES.
               <div style={{ display:'flex', gap:10 }}>
                 <button className="btn-confirm" style={{ flex:2 }}
                   disabled={answerPhase !== 'selected' || !selectedLetter}
-                  onClick={handleConfirm}>
+                  onClick={() => { getSons().confirmar(); handleConfirm(); }}>
                   {answerPhase === 'suspense' ? '🎵 Revelando...' : selectedLetter ? `Confirmar "${selectedLetter}" →` : 'Escolha uma resposta'}
                 </button>
                 <button className="btn-stop" onClick={desistir} disabled={answerPhase === 'suspense'}>
