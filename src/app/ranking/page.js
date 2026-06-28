@@ -37,9 +37,10 @@ export default function Ranking() {
   const [competitions, setCompetitions] = useState([])
   const [selectedCompId, setSelectedCompId] = useState(null)
   
-  // FILTRO
+  // FILTRO DE RODADAS E BRASIL
   const [rounds, setRounds] = useState([])
   const [selectedRound, setSelectedRound] = useState('Geral')
+  const [filtroBrasil, setFiltroBrasil] = useState(false)
 
   // MODAL DE DETALHES
   const [selectedUser, setSelectedUser] = useState(null)
@@ -71,7 +72,7 @@ export default function Ranking() {
   useEffect(() => {
     if (!selectedCompId) return
     fetchData()
-  }, [selectedCompId, selectedRound])
+  }, [selectedCompId, selectedRound, filtroBrasil])
 
   // 3. REALTIME
   useEffect(() => {
@@ -85,7 +86,7 @@ export default function Ranking() {
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [selectedCompId, selectedRound])
+  }, [selectedCompId, selectedRound, filtroBrasil])
 
   // --- FUNÇÃO PRINCIPAL DE BUSCA ---
   const fetchData = async () => {
@@ -105,8 +106,9 @@ export default function Ranking() {
         }
     }
 
-    if (selectedRound === 'Geral') {
-        // --- MODO GERAL (Usa a View do Banco) ---
+    // B. Lógica de Busca (View vs Cálculo Manual)
+    if (selectedRound === 'Geral' && !filtroBrasil) {
+        // --- MODO GERAL (Usa a View do Banco, super rápido) ---
         const { data, error } = await supabase
             .from('leaderboard')
             .select('*')
@@ -121,7 +123,7 @@ export default function Ranking() {
         setLoading(false)
 
     } else {
-        // --- MODO RODADA ESPECÍFICA (Cálculo Manual) ---
+        // --- MODO RODADA ESPECÍFICA OU FILTRO DO BRASIL (Cálculo Manual) ---
         
         // 1. Busca inscritos da competição de forma segura
         const { data: enrolls } = await supabase
@@ -144,25 +146,35 @@ export default function Ranking() {
         const profilesMap = {}
         profiles?.forEach(p => profilesMap[p.id] = p)
 
-        // 2. Busca apostas APENAS dessa rodada (COM PAGINAÇÃO PARA DRIBLAR O LIMITE DE 1000)
+        // 2. Busca apostas (COM PAGINAÇÃO PARA DRIBLAR O LIMITE DE 1000)
         let allBets = []
         let fetchMore = true
         let from = 0
         const step = 1000
 
         while (fetchMore) {
-            const { data: betsChunk, error } = await supabase
+            let query = supabase
                 .from('bets')
                 .select(`
                     points_awarded, 
                     user_id, 
                     guess_score_a, 
                     guess_score_b,
-                    games!inner(competition_id, round, score_a, score_b)
+                    games!inner(
+                        competition_id, round, score_a, score_b,
+                        team_a:teams!team_a_id(name),
+                        team_b:teams!team_b_id(name)
+                    )
                 `)
                 .eq('games.competition_id', selectedCompId)
-                .eq('games.round', selectedRound)
                 .range(from, from + step - 1)
+
+            // Se for uma rodada específica, aplica o filtro da rodada
+            if (selectedRound !== 'Geral') {
+                query = query.eq('games.round', selectedRound)
+            }
+
+            const { data: betsChunk, error } = await query
 
             if (error) {
                 console.error("Erro buscando palpites:", error)
@@ -181,9 +193,17 @@ export default function Ranking() {
             }
         }
 
-        // 3. Calcula os pontos na memória
+        // 3. Calcula os pontos na memória (Aplicando filtro Brasil se necessário)
         const stats = {}
         allBets.forEach(bet => {
+            // Filtro Brasil Inteligente
+            if (filtroBrasil) {
+                const teamA = bet.games.team_a?.name?.toLowerCase() || ''
+                const teamB = bet.games.team_b?.name?.toLowerCase() || ''
+                const isBrazilGame = teamA.includes('brasil') || teamA.includes('brazil') || teamB.includes('brasil') || teamB.includes('brazil')
+                if (!isBrazilGame) return // Pula se não for jogo do Brasil
+            }
+
             const uid = bet.user_id
             if (!stats[uid]) stats[uid] = { total: 0, cv: 0, vsg: 0, av: 0 }
             
@@ -245,7 +265,8 @@ export default function Ranking() {
     setModalTab('games') 
     setUserBets([])
     setUserSpecialBets([])
-// Busca o nome completo do usuário no banco para exibir entre parênteses
+
+    // Busca o nome completo do usuário no banco para exibir entre parênteses
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.user_id).single()
     
     // Salva o usuário selecionado já com o nome completo junto
@@ -254,13 +275,14 @@ export default function Ranking() {
     const agora = new Date()
 
     try {
-        // 1. Busca Palpites de JOGOS (Passados)
+        // 1. Busca Palpites de JOGOS (Passados) - Agora traz os placares extras!
         const { data: gamesData } = await supabase
           .from('bets')
           .select(`
             guess_score_a, guess_score_b, points_awarded,
             games!inner(
-              competition_id, round, start_time, score_a, score_b,
+              competition_id, round, start_time, 
+              score_a, score_b, score_a_ext, score_b_ext, score_a_pen, score_b_pen,
               team_a:teams!team_a_id(name, badge_url, flag_code),
               team_b:teams!team_b_id(name, badge_url, flag_code)
             )
@@ -270,7 +292,16 @@ export default function Ranking() {
           .lt('games.start_time', agora.toISOString()) 
           .order('games(start_time)', { ascending: false })
         
-        setUserBets(gamesData || [])
+        // Se o filtro Brasil estiver ativo, mostra só os palpites dos jogos do Brasil no Modal
+        let filteredGamesData = gamesData || [];
+        if (filtroBrasil) {
+             filteredGamesData = filteredGamesData.filter(bet => {
+                 const tA = bet.games.team_a?.name?.toLowerCase() || '';
+                 const tB = bet.games.team_b?.name?.toLowerCase() || '';
+                 return tA.includes('brasil') || tA.includes('brazil') || tB.includes('brasil') || tB.includes('brazil');
+             });
+        }
+        setUserBets(filteredGamesData)
 
         // 2. Busca Palpites EXTRAS
         const { data: rawSpecialBets } = await supabase
@@ -351,7 +382,7 @@ export default function Ranking() {
           {competitions.map(comp => (
             <button
               key={comp.id}
-              onClick={() => { setSelectedCompId(comp.id); setSelectedRound('Geral'); }}
+              onClick={() => { setSelectedCompId(comp.id); setSelectedRound('Geral'); setFiltroBrasil(false); }}
               className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all border
                 ${selectedCompId === comp.id 
                   ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' 
@@ -367,23 +398,42 @@ export default function Ranking() {
       {/* BANNER AQUI */}
       <SponsorBanner />
 
-      <div className="w-full max-w-3xl flex flex-col md:flex-row gap-3 mb-4">
-        <select 
-            className="p-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none focus:border-yellow-500 font-bold"
-            value={selectedRound}
-            onChange={(e) => setSelectedRound(e.target.value)}
-        >
-            <option value="Geral">🌍 Classificação Geral</option>
-            {rounds.map(r => <option key={r} value={r}>📍 {r}</option>)}
-        </select>
+      {/* CONTROLES E FILTROS */}
+      <div className="w-full max-w-3xl flex flex-col gap-3 mb-4">
+        
+        {/* Botão Filtro Brasil */}
+        <div className="flex justify-end">
+            <button
+                onClick={() => setFiltroBrasil(!filtroBrasil)}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 border ${
+                    filtroBrasil 
+                    ? 'bg-yellow-500 text-black border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105' 
+                    : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'
+                }`}
+            >
+                <span className="text-base">🇧🇷</span> 
+                {filtroBrasil ? 'Mostrando apenas Seleção Brasileira' : 'Filtrar jogos do Brasil'}
+            </button>
+        </div>
 
-        <input 
-          type="text" 
-          placeholder="🔍 Buscar participante..." 
-          className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none focus:border-yellow-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="flex flex-col md:flex-row gap-3">
+            <select 
+                className="p-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none focus:border-yellow-500 font-bold"
+                value={selectedRound}
+                onChange={(e) => setSelectedRound(e.target.value)}
+            >
+                <option value="Geral">🌍 Classificação Geral</option>
+                {rounds.map(r => <option key={r} value={r}>📍 {r}</option>)}
+            </select>
+
+            <input 
+                type="text" 
+                placeholder="🔍 Buscar participante..." 
+                className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none focus:border-yellow-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
       </div>
 
       <div className="w-full max-w-3xl bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg overflow-x-auto">
@@ -404,14 +454,14 @@ export default function Ranking() {
             ) : filteredUsers.length > 0 ? (
               filteredUsers.map((user) => {
                 
-                // 👇 AQUI ESTÁ A CORREÇÃO: Descobre a posição real baseada na lista completa
+                // Descobre a posição real baseada na lista completa
                 const posicaoReal = users.findIndex(u => u.user_id === user.user_id) + 1;
 
                 return (
                   <tr 
                     key={user.user_id} 
                     onClick={() => handleUserClick(user)}
-                    className={`border-b border-gray-700 cursor-pointer hover:bg-gray-700/80 transition active:bg-gray-600 ${posicaoReal <= 3 && !searchTerm && selectedRound === 'Geral' ? 'bg-gray-700/20' : ''}`}
+                    className={`border-b border-gray-700 cursor-pointer hover:bg-gray-700/80 transition active:bg-gray-600 ${posicaoReal <= 3 && !searchTerm && selectedRound === 'Geral' && !filtroBrasil ? 'bg-gray-700/20' : ''}`}
                   >
                     <td className="p-3 text-center font-bold text-lg text-gray-400">
                       {posicaoReal}º
@@ -437,11 +487,11 @@ export default function Ranking() {
                     <td className="p-3 text-center font-bold text-yellow-400 text-xl">{user.total_pontos}</td>
                   </tr>
                 );
-              }) // <- Fechamento correto do map e do return aqui!
+              }) 
             ) : (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-gray-500">
-                  {users.length === 0 ? "Nenhum participante encontrado." : "Nenhum participante com esse nome."}
+                  {users.length === 0 ? "Nenhum participante pontuou neste filtro." : "Nenhum participante com esse nome."}
                 </td>
               </tr>
             )}
@@ -471,14 +521,15 @@ export default function Ranking() {
                   <h3 className="font-bold text-white flex flex-wrap items-baseline gap-1">
                     <span>{selectedUser.nome_exibicao || 'Anônimo'}</span>
                     
-                    {/* Exibe o nome completo entre parênteses (se existir e for diferente do apelido) */}
+                    {/* Exibe o nome completo entre parênteses */}
                     {selectedUser.full_name && selectedUser.full_name !== selectedUser.nome_exibicao && (
                       <span className="text-gray-400 font-normal text-sm">
                         ({selectedUser.full_name})
                       </span>
                     )}
                   </h3>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    {filtroBrasil && <span title="Filtrado pelo Brasil">🇧🇷</span>}
                     {selectedRound === 'Geral' ? 'Histórico Geral' : selectedRound}
                   </p>
                 </div>
@@ -526,7 +577,7 @@ export default function Ranking() {
                              </span>
                            </div>
                            
-                           <div className="text-right">
+                           <div className="text-right flex-shrink-0">
                              {bet.points_awarded !== null ? (
                                <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm
                                  ${bet.points_awarded === 10 ? 'bg-yellow-500 text-black' : 
@@ -539,17 +590,37 @@ export default function Ranking() {
                            </div>
                         </div>
 
-                        {/* Placar Real em Destaque */}
+                        {/* Placar Real em Destaque com Adendo de Prorrogação */}
                         {bet.games.score_a !== null && (
-                           <div className="mt-1 bg-gray-900/80 rounded py-1.5 px-3 flex items-center justify-between border border-gray-700/50">
-                              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Placar Real:</span>
-                              <span className="text-sm font-bold text-white font-mono tracking-widest bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
-                                 {bet.games.score_a} <span className="text-gray-500 font-sans text-xs mx-1">x</span> {bet.games.score_b}
-                              </span>
+                           <div className="mt-1 bg-gray-900/80 rounded py-1.5 px-3 flex flex-col border border-gray-700/50">
+                              
+                              <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                     Placar Real {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && '(90 Min)'}:
+                                  </span>
+                                  <div className="flex flex-col items-end">
+                                      <span className="text-sm font-bold text-white font-mono tracking-widest bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
+                                         {bet.games.score_a} <span className="text-gray-500 font-sans text-xs mx-1">x</span> {bet.games.score_b}
+                                      </span>
+                                  </div>
+                              </div>
+                              
+                              {/* Mostra prorrogação / pênaltis se houver */}
+                              {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && (
+                                 <div className="mt-1.5 flex justify-end gap-3 text-[10px] font-mono text-gray-400">
+                                    <span className="uppercase text-yellow-500/80 mr-auto">Result. Final:</span>
+                                    {bet.games.score_a_ext !== null && (
+                                      <span>PRO: {bet.games.score_a_ext}x{bet.games.score_b_ext}</span>
+                                    )}
+                                    {bet.games.score_a_pen !== null && (
+                                      <span className="text-blue-400">PÊN: {bet.games.score_a_pen}x{bet.games.score_b_pen}</span>
+                                    )}
+                                 </div>
+                              )}
                            </div>
                         )}
                       </div>
-                    )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite visível (jogos futuros são ocultos).</div>
+                    )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite visível para os filtros selecionados.</div>
                   )}
 
                   {/* LISTA DE EXTRAS */}
@@ -561,7 +632,6 @@ export default function Ranking() {
                                 {RULE_LABELS[sBet.rule.type] || sBet.rule.label || sBet.rule.type}
                             </div>
                             
-                            {/* CORREÇÃO: Prioriza o texto do jogador (se houver) e mostra a bandeira ao lado */}
                             <div className="font-bold text-white text-sm mt-1 flex items-center gap-2">
                                 {sBet.picked_team && (
                                     <img src={sBet.picked_team.badge_url} alt="" className="w-5 h-5 object-contain" />
@@ -570,7 +640,7 @@ export default function Ranking() {
                             </div>
                         </div>
                         
-                        <div className="text-right">
+                        <div className="text-right flex-shrink-0">
                            {sBet.points_awarded !== null && sBet.points_awarded > 0 ? (
                                 <span className="text-xs font-bold px-2 py-1 rounded bg-yellow-500 text-black shadow-lg">
                                     +{sBet.points_awarded} pts

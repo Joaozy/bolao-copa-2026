@@ -62,15 +62,39 @@ export async function GET() {
 
             let placarCasa = null
             let placarFora = null
+            let placarCasaExt = null
+            let placarForaExt = null
+            let placarCasaPen = null
+            let placarForaPen = null
 
             if (isFuture) {
                 placarCasa = null
                 placarFora = null
             } else {
-                placarCasa = match.goals.home ?? 0
-                placarFora = match.goals.away ?? 0
+                // Status que indicam que o jogo passou dos 90 minutos normais
+                const passouDos90 = ['ET', 'AET', 'P', 'PEN', 'BT'].includes(statusShort)
+
+                if (passouDos90 && match.score?.fulltime?.home !== null) {
+                    // Trava o bolão nos 90 minutos
+                    placarCasa = match.score.fulltime.home
+                    placarFora = match.score.fulltime.away
+                    
+                    // Salva a prorrogação para exibição (Extratime)
+                    if (match.score?.extratime?.home !== null) {
+                        placarCasaExt = match.score.extratime.home
+                        placarForaExt = match.score.extratime.away
+                    }
+                    // Salva os pênaltis para exibição (Penalty)
+                    if (match.score?.penalty?.home !== null) {
+                        placarCasaPen = match.score.penalty.home
+                        placarForaPen = match.score.penalty.away
+                    }
+                } else {
+                    // Jogo normal nos 90 minutos
+                    placarCasa = match.goals.home ?? 0
+                    placarFora = match.goals.away ?? 0
+                }
             }
-            
             const jogoAcabou = ['FT', 'AET', 'PEN'].includes(statusShort)
             
             // Status que indicam "Bola Rolando"
@@ -92,6 +116,10 @@ export async function GET() {
                   .update({
                     score_a: placarCasa,
                     score_b: placarFora,
+                    score_a_ext: placarCasaExt,
+                    score_b_ext: placarForaExt,
+                    score_a_pen: placarCasaPen,
+                    score_b_pen: placarForaPen,
                     is_finished: jogoAcabou,
                     status_short: statusShort, 
                     elapsed: elapsed           
