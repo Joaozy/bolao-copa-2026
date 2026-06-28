@@ -51,42 +51,37 @@ function matchWinner(m) {
   return null
 }
 
-// ─── LÓGICA DO CHAVEAMENTO OFICIAL ────────────────────────────────────────────
-// Cria arrays fixos com o tamanho exato da Copa do Mundo (32 times no mata-mata)
-// Preenchendo com "null" onde ainda não há jogos.
+// ─── LÓGICA DO CHAVEAMENTO OFICIAL DA FIFA ────────────────────────────────────
+// Esta função cria a árvore matemática perfeita com 31 slots. 
+// Ela garante que as linhas não se cruzem e convirjam para a final corretamente.
 function buildPerfectBracket(matches) {
+    // 1. Organiza todos os jogos recebidos pela API em ordem cronológica
     const sortCronologico = (arr) => [...(arr || [])].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     
-    // Pegamos os jogos da API ordenados cronologicamente
-    const r32Api = sortCronologico(matches['Round of 32']);
-    const r16Api = sortCronologico(matches['Round of 16']);
-    const qfApi  = sortCronologico(matches['Quarter-finals']);
-    const sfApi  = sortCronologico(matches['Semi-finals']);
-    const finApi = sortCronologico(matches['Final']);
+    const r32 = sortCronologico(matches['Round of 32']);
+    const r16 = sortCronologico(matches['Round of 16']);
+    const qf  = sortCronologico(matches['Quarter-finals']);
+    const sf  = sortCronologico(matches['Semi-finals']);
+    const fin = sortCronologico(matches['Final']);
 
-    // Criamos os arrays perfeitos (16, 8, 4, 2, 1) preenchidos com null caso faltem jogos
-    const r32 = Array.from({ length: 16 }, (_, i) => r32Api[i] || null);
-    const r16 = Array.from({ length: 8 },  (_, i) => r16Api[i] || null);
-    const qf  = Array.from({ length: 4 },  (_, i) => qfApi[i]  || null);
-    const sf  = Array.from({ length: 2 },  (_, i) => sfApi[i]  || null);
-    const fin = Array.from({ length: 1 },  (_, i) => finApi[i] || null);
+    // Função auxiliar para evitar erros caso a API ainda não tenha criado o jogo
+    const getSafe = (arr, index) => arr[index] || null;
 
-    // O cruzamento clássico da FIFA separa as chaves de forma intercalada
-    // Vamos dividir as metades Esquerda (L) e Direita (R)
+    // 2. Mapeamento matemático das chaves L (Esquerda) e R (Direita)
     return {
         L: {
-            r32: [r32[0], r32[1], r32[2], r32[3], r32[8], r32[9], r32[10], r32[11]],
-            r16: [r16[0], r16[1], r16[4], r16[5]],
-            qf:  [qf[0], qf[2]],
-            sf:  [sf[0]]
+            r32: [getSafe(r32,0), getSafe(r32,2), getSafe(r32,1), getSafe(r32,3), getSafe(r32,8), getSafe(r32,11), getSafe(r32,9), getSafe(r32,10)],
+            r16: [getSafe(r16,0), getSafe(r16,1), getSafe(r16,4), getSafe(r16,5)],
+            qf:  [getSafe(qf,0),  getSafe(qf,1)],
+            sf:  [getSafe(sf,0)]
         },
         R: {
-            r32: [r32[4], r32[5], r32[6], r32[7], r32[12], r32[13], r32[14], r32[15]],
-            r16: [r16[2], r16[3], r16[6], r16[7]],
-            qf:  [qf[1], qf[3]],
-            sf:  [sf[1]]
+            r32: [getSafe(r32,4), getSafe(r32,5), getSafe(r32,6), getSafe(r32,7), getSafe(r32,14), getSafe(r32,15), getSafe(r32,12), getSafe(r32,13)],
+            r16: [getSafe(r16,2), getSafe(r16,3), getSafe(r16,6), getSafe(r16,7)],
+            qf:  [getSafe(qf,2),  getSafe(qf,3)],
+            sf:  [getSafe(sf,1)]
         },
-        final: fin
+        final: [getSafe(fin,0)]
     };
 }
 
@@ -104,6 +99,7 @@ function BracketCard({ match }) {
   const NAVY2   = '#0c1f3a'
   const DIV_CLR = '#0e2040'
 
+  // Molde do quadrado Vazio (Aguardando definição)
   if (!match) return (
     <div style={{
       height: B_CARD, width: B_COL,
@@ -181,11 +177,11 @@ function BracketCard({ match }) {
 
 // ─── RENDERIZADOR DO CHAVEAMENTO ──────────────────────────────────────────────
 function TournamentBracket({ bracketData }) {
-  const [mobileTab, setMobileTab] = useState('center'); // 'left', 'center', 'right'
+  const [mobileTab, setMobileTab] = useState('center');
   const containerRef = useRef(null);
   
   const tree = buildPerfectBracket(bracketData);
-  const TOTAL_H = 8 * B_SLOT; // 8 jogos na coluna inicial
+  const TOTAL_H = 8 * B_SLOT; 
   const TOTAL_W = 9 * B_STEP - B_GAP;
 
   const cx = i => i * B_STEP;
@@ -194,7 +190,6 @@ function TournamentBracket({ bracketData }) {
     return mi * sh + sh / 2;
   }
 
-  // Definição das colunas
   const allCols = [
     { m: tree.L.r32, c: 0 }, { m: tree.L.r16, c: 1 }, { m: tree.L.qf, c: 2 }, { m: tree.L.sf, c: 3 },
     { m: tree.final, c: 4 },
@@ -210,13 +205,15 @@ function TournamentBracket({ bracketData }) {
     ))
   })
 
-  // Conectores
+  // Conectores com linhas curvas arredondadas
   const GOLD_CONN = '#c9941f'
   const makeConn = (src, sc, tgt, tc) => {
     const goRight = sc < tc
     const xS   = goRight ? cx(sc) + B_COL + 2 : cx(sc) - 2
     const xT   = goRight ? cx(tc) - 2 : cx(tc) + B_COL + 2
     const xMid = (xS + xT) / 2
+    const r    = 6 // Raio da curva
+    const dir  = goRight ? -r : r
 
     return Array.from({ length: src.length / 2 }, (_, p) => {
       const y1 = yC(src.length, p * 2)
@@ -225,8 +222,17 @@ function TournamentBracket({ bracketData }) {
 
       return (
         <path key={`k${sc}-${tc}-${p}`} 
-          d={`M ${xS} ${y1} H ${xMid} V ${y2} H ${xS} M ${xMid} ${yM} H ${xT}`}
-          stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.4"
+          d={`
+            M ${xS} ${y1} 
+            H ${xMid + dir} 
+            Q ${xMid} ${y1} ${xMid} ${y1 + r} 
+            V ${y2 - r} 
+            Q ${xMid} ${y2} ${xMid + dir} ${y2} 
+            H ${xS} 
+            M ${xMid} ${yM} 
+            H ${xT}
+          `}
+          stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.6"
           strokeLinecap="round" strokeLinejoin="round" 
         />
       )
@@ -288,11 +294,11 @@ function TournamentBracket({ bracketData }) {
         </div>
       )}
 
-      {/* Controles Mobile Exclusivos */}
+      {/* Controles Mobile Exclusivos para rolagem automática na tela */}
       <div className="md:hidden flex justify-center gap-2 mb-4 px-2">
-         <button onClick={() => setMobileTab('left')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'left' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CHAVE ESQUERDA</button>
-         <button onClick={() => setMobileTab('center')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'center' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>FINAIS</button>
-         <button onClick={() => setMobileTab('right')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'right' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CHAVE DIREITA</button>
+         <button onClick={() => setMobileTab('left')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab === 'left' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>ESQUERDA</button>
+         <button onClick={() => setMobileTab('center')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab === 'center' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CENTRO</button>
+         <button onClick={() => setMobileTab('right')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab === 'right' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>DIREITA</button>
       </div>
 
       <div ref={containerRef} className="no-scrollbar" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 10px' }}>
@@ -328,7 +334,7 @@ function TournamentBracket({ bracketData }) {
   )
 }
 
-// ─── Tabela de Grupos e Página Principal permanecem iguais ───────────────────
+// ─── Tabela de Grupos ─────────────────────────────────────────────────────────
 function StandingsTable({ groupData }) {
   if (!groupData?.length) return null
   const rawGroup  = groupData[0]?.group || ''
@@ -379,6 +385,7 @@ function StandingsTable({ groupData }) {
   )
 }
 
+// ─── Página Principal de Tabelas ──────────────────────────────────────────────
 export default function Tabelas() {
   const [loading, setLoading]     = useState(true)
   const [competitions, setComps]  = useState([])
