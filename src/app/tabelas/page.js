@@ -51,11 +51,9 @@ function matchWinner(m) {
   return null
 }
 
-// ─── LÓGICA DO CHAVEAMENTO OFICIAL DA FIFA ────────────────────────────────────
-// Esta função cria a árvore matemática perfeita com 31 slots. 
-// Ela garante que as linhas não se cruzem e convirjam para a final corretamente.
+// ─── LÓGICA MATEMÁTICA DO CHAVEAMENTO OFICIAL DA FIFA ─────────────────────────
+// Organiza a matriz de 31 jogos baseada na ordem cronológica exata do cruzamento de 2026.
 function buildPerfectBracket(matches) {
-    // 1. Organiza todos os jogos recebidos pela API em ordem cronológica
     const sortCronologico = (arr) => [...(arr || [])].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     
     const r32 = sortCronologico(matches['Round of 32']);
@@ -64,19 +62,18 @@ function buildPerfectBracket(matches) {
     const sf  = sortCronologico(matches['Semi-finals']);
     const fin = sortCronologico(matches['Final']);
 
-    // Função auxiliar para evitar erros caso a API ainda não tenha criado o jogo
     const getSafe = (arr, index) => arr[index] || null;
 
-    // 2. Mapeamento matemático das chaves L (Esquerda) e R (Direita)
+    // Distribuição espelhada oficial conforme o organograma do GE
     return {
         L: {
-            r32: [getSafe(r32,0), getSafe(r32,2), getSafe(r32,1), getSafe(r32,3), getSafe(r32,8), getSafe(r32,11), getSafe(r32,9), getSafe(r32,10)],
-            r16: [getSafe(r16,0), getSafe(r16,1), getSafe(r16,4), getSafe(r16,5)],
+            r32: [getSafe(r32,2), getSafe(r32,5), getSafe(r32,0), getSafe(r32,3), getSafe(r32,11), getSafe(r32,10), getSafe(r32,9), getSafe(r32,8)],
+            r16: [getSafe(r16,1), getSafe(r16,0), getSafe(r16,4), getSafe(r16,5)],
             qf:  [getSafe(qf,0),  getSafe(qf,1)],
             sf:  [getSafe(sf,0)]
         },
         R: {
-            r32: [getSafe(r32,4), getSafe(r32,5), getSafe(r32,6), getSafe(r32,7), getSafe(r32,14), getSafe(r32,15), getSafe(r32,12), getSafe(r32,13)],
+            r32: [getSafe(r32,1), getSafe(r32,4), getSafe(r32,6), getSafe(r32,7), getSafe(r32,14), getSafe(r32,13), getSafe(r32,12), getSafe(r32,15)],
             r16: [getSafe(r16,2), getSafe(r16,3), getSafe(r16,6), getSafe(r16,7)],
             qf:  [getSafe(qf,2),  getSafe(qf,3)],
             sf:  [getSafe(sf,1)]
@@ -99,7 +96,6 @@ function BracketCard({ match }) {
   const NAVY2   = '#0c1f3a'
   const DIV_CLR = '#0e2040'
 
-  // Molde do quadrado Vazio (Aguardando definição)
   if (!match) return (
     <div style={{
       height: B_CARD, width: B_COL,
@@ -205,7 +201,7 @@ function TournamentBracket({ bracketData }) {
     ))
   })
 
-  // Conectores com linhas curvas arredondadas
+  // Conectores com linhas curvas arredondadas (Idêntico à foto)
   const GOLD_CONN = '#c9941f'
   const makeConn = (src, sc, tgt, tc) => {
     const goRight = sc < tc
@@ -294,7 +290,7 @@ function TournamentBracket({ bracketData }) {
         </div>
       )}
 
-      {/* Controles Mobile Exclusivos para rolagem automática na tela */}
+      {/* Controles Mobile Exclusivos */}
       <div className="md:hidden flex justify-center gap-2 mb-4 px-2">
          <button onClick={() => setMobileTab('left')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab === 'left' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>ESQUERDA</button>
          <button onClick={() => setMobileTab('center')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab === 'center' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CENTRO</button>
