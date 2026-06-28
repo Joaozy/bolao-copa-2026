@@ -28,7 +28,7 @@ function traduzirRodada(roundName) {
   let nome = String(roundName);
   nome = nome.replace(/Group Stage - (\d+)/i, 'Rodada $1 - Fase de Grupos');
   nome = nome.replace(/Regular Season - (\d+)/i, 'Rodada $1 - Fase de Grupos');
-  nome - nome.replace(/Round of 32/i, '16avos');
+  nome = nome.replace(/Round of 32/i, '16avos');
   nome = nome.replace(/Round of 16/i, 'Oitavas de Final');
   nome = nome.replace(/Quarter-finals/i, 'Quartas de Final');
   nome = nome.replace(/Semi-finals/i, 'Semifinais');
