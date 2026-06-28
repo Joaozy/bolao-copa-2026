@@ -282,10 +282,21 @@ function TournamentBracket({ bracketData }) {
     const r    = 6
 
     return Array.from({ length: Math.ceil(src.length/2) }, (_,p) => {
-      const y1 = yC(src.length, p*2)
-      const y2 = yC(src.length, p*2+1)
-      const yM = yC(tgt.length, p)
-      const dir = goRight ? -r : r
+      const y1       = yC(src.length, p*2)
+      const hasPair  = (p*2+1) < src.length   // verifica se existe a 2ª partida do par
+      const y2       = hasPair ? yC(src.length, p*2+1) : y1
+      const yM       = yC(tgt.length, p)
+      const dir      = goRight ? -r : r
+
+      // Sem par (ex: SF→Final com 1 partida): linha reta horizontal
+      if (!hasPair) return (
+        <line key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" opacity="0.5"
+          strokeLinecap="round"
+          x1={xS} y1={y1} x2={xT} y2={yM}
+        />
+      )
+
+      // Par normal: conector em colchete com curvas
       return (
         <path key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" fill="none"
           opacity="0.5" strokeLinecap="round" strokeLinejoin="round"
@@ -393,8 +404,8 @@ function TournamentBracket({ bracketData }) {
             // Abaixo dela há ~187px livres — suficiente para o 3° lugar
             const finalCardBot = (TOTAL_H + B_CARD) / 2   // ≈ 229px
             const thirdX       = cx(4)                     // mesma coluna da Final
-            const thirdLabelY  = finalCardBot + 25         // ≈ 241px
-            const thirdCardY   = thirdLabelY + 30          // ≈ 255px
+            const thirdLabelY  = finalCardBot + 50         // ≈ 241px
+            const thirdCardY   = thirdLabelY + 14          // ≈ 255px
 
             return (
               <div style={{ position:'relative', height:TOTAL_H }}>
