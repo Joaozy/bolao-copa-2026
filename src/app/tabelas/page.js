@@ -19,7 +19,7 @@ const PT = {
   "Uruguay":"Uruguai","USA":"Estados Unidos","Uzbekistan":"Uzbequistão"
 }
 
-// Siglas de 3 letras estilo Sul-americano (igual à imagem)
+// Siglas de 3 letras estilo Sul-americano
 const ABBR = {
   "Algeria":"ALG","Argentina":"ARG","Australia":"AUS","Austria":"AUT",
   "Belgium":"BEL","Bosnia & Herzegovina":"BIH","Brazil":"BRA",
@@ -52,22 +52,50 @@ function matchWinner(m) {
   return null
 }
 
-// ─── Card compacto do chaveamento ─────────────────────────────────────────────
-const CARD_H = 50
+// ─── LÓGICA DO CHAVEAMENTO OFICIAL DA FIFA ────────────────────────────────────
+// Agrupa os jogos cronológicos para formar os lados esquerdo e direito da árvore perfeitamente
+function arrangeOfficialBracket(matches, roundType) {
+  if (!matches || matches.length === 0) return [];
+  
+  // 1. Ordena pela data de início (Ordem Cronológica do Torneio)
+  const sorted = [...matches].sort((a, b) => {
+      const timeA = a.start_time ? new Date(a.start_time).getTime() : a.id;
+      const timeB = b.start_time ? new Date(b.start_time).getTime() : b.id;
+      return timeA - timeB;
+  });
+  
+  let arranged = [...sorted];
 
-// ─── Ordena por fixture ID → ordem correta do chaveamento (não por data) ───────
-function sortByFixtureId(arr) {
-  return [...(arr || [])].sort((a, b) => {
-    const ia = a?.fixture?.id ?? a?.id ?? 999999
-    const ib = b?.fixture?.id ?? b?.id ?? 999999
-    return ia - ib
-  })
+  // 2. Aplica o cruzamento Padrão FIFA
+  try {
+      if (roundType === 'r32' && sorted.length >= 16) {
+        // 16 avos (16 Jogos): Alterna os blocos de dias para os lados da chave
+        arranged = [
+            sorted[0], sorted[1], sorted[2], sorted[3], sorted[8], sorted[9], sorted[10], sorted[11], // Esquerda
+            sorted[4], sorted[5], sorted[6], sorted[7], sorted[12], sorted[13], sorted[14], sorted[15], // Direita
+            ...sorted.slice(16)
+        ];
+      } else if (roundType === 'r16' && sorted.length >= 8) {
+        // Oitavas (8 Jogos): O mesmo padrão, dividindo os dias
+        arranged = [
+            sorted[0], sorted[1], sorted[4], sorted[5], // Esquerda
+            sorted[2], sorted[3], sorted[6], sorted[7], // Direita
+            ...sorted.slice(8)
+        ];
+      }
+      // Quartas (QF) e Semis (SF) e Finais caem naturalmente na ordem cronológica de 0,1 (Esq) e 2,3 (Dir)
+  } catch (e) {
+      console.warn("Erro ao ordenar chaveamento", e);
+      return sorted;
+  }
+
+  return arranged;
 }
 
 // ─── Dimensões globais do bracket ─────────────────────────────────────────────
 const B_COL  = 88   // largura do card
-const B_GAP  = 10   // gap entre colunas
-const B_STEP = B_COL + B_GAP   // 98px por coluna
+const B_GAP  = 14   // gap entre colunas (Aumentei um pouco para as linhas respirarem)
+const B_STEP = B_COL + B_GAP
 const B_CARD = 42   // altura do card
 const B_SLOT = 50   // altura do slot (card + espaço)
 
@@ -166,14 +194,14 @@ function MirroredBracket({ bracketData }) {
   const mid = n => Math.ceil(n / 2)
   const cx  = i => i * B_STEP
 
-  // Ordena por fixture ID para chaveamento correto (não por data do jogo)
-  const r32All = sortByFixtureId(bracketData['Round of 32'])
-  const r16All = sortByFixtureId(bracketData['Round of 16'])
-  const qfAll  = sortByFixtureId(bracketData['Quarter-finals'])
-  const sfAll  = sortByFixtureId(bracketData['Semi-finals'])
-  const finAll = bracketData['Final'] || []
+  // Ordena a matriz de jogos usando o Mapeamento Oficial Padrão da FIFA
+  const r32All = arrangeOfficialBracket(bracketData['Round of 32'], 'r32')
+  const r16All = arrangeOfficialBracket(bracketData['Round of 16'], 'r16')
+  const qfAll  = arrangeOfficialBracket(bracketData['Quarter-finals'], 'qf')
+  const sfAll  = arrangeOfficialBracket(bracketData['Semi-finals'], 'sf')
+  const finAll = arrangeOfficialBracket(bracketData['Final'], 'fin')
 
-  // Divide em metade esquerda e direita
+  // Divide em metade esquerda e direita com os cruzamentos perfeitamente mapeados
   const L = {
     r32: r32All.slice(0, mid(r32All.length)),
     r16: r16All.slice(0, mid(r16All.length)),
@@ -189,7 +217,7 @@ function MirroredBracket({ bracketData }) {
 
   const baseCount = Math.max(L.r32.length, R.r32.length, L.r16.length * 2, L.qf.length * 4, 4)
   const TOTAL_H   = baseCount * B_SLOT
-  const TOTAL_W   = 9 * B_STEP - B_GAP   // 872px
+  const TOTAL_W   = 9 * B_STEP - B_GAP
 
   const yC = (count, mi) => {
     const sh = TOTAL_H / Math.max(count, 1)
@@ -213,25 +241,37 @@ function MirroredBracket({ bracketData }) {
     ))
   })
 
-  // ── Conectores SVG ───────────────────────────────────────────────────────
+  // ── Conectores SVG Aprimorados (Estilo Copa do Mundo Visual) ─────────────
   const GOLD_CONN = '#c9941f'
+  
   const makeConn = (src, sc, tgt, tc) => {
     if (!src.length || !tgt.length) return null
     const goRight = sc < tc
-    const xS   = goRight ? cx(sc) + B_COL : cx(sc)
-    const xT   = goRight ? cx(tc)         : cx(tc) + B_COL
+    
+    // Alinha o ínicio/fim da linha exatamente nas bordas do card
+    const xS   = goRight ? cx(sc) + B_COL + 2 : cx(sc) - 2
+    const xT   = goRight ? cx(tc) - 2 : cx(tc) + B_COL + 2
     const xMid = (xS + xT) / 2
 
     return Array.from({ length: Math.ceil(src.length / 2) }, (_, p) => {
       const y1 = yC(src.length, p * 2)
       const y2 = yC(src.length, p * 2 + 1)
       const yM = yC(tgt.length, p)
+
+      // Se houver um card sobrando/ímpar (ex: chaveamento quebrado), apenas traça a reta
+      if (p * 2 + 1 >= src.length) {
+          return (
+            <path key={`k${sc}-${tc}-${p}`} d={`M ${xS} ${y1} L ${xT} ${yM}`} 
+                  stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.4" />
+          )
+      }
+
       return (
-        <g key={`k${sc}-${tc}-${p}`} stroke={GOLD_CONN + '55'} strokeWidth="1.5"
-          fill="none" strokeLinecap="round">
-          <path d={`M ${xS} ${y1} H ${xMid} V ${y2} M ${xS} ${y2} H ${xMid}`} />
-          <line x1={xMid} y1={yM} x2={xT} y2={yM} />
-        </g>
+        <path key={`k${sc}-${tc}-${p}`} 
+          d={`M ${xS} ${y1} H ${xMid} V ${y2} H ${xS} M ${xMid} ${yM} H ${xT}`}
+          stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.6"
+          strokeLinecap="round" strokeLinejoin="round" 
+        />
       )
     })
   }
@@ -245,14 +285,15 @@ function MirroredBracket({ bracketData }) {
 
   // ── Labels das fases ─────────────────────────────────────────────────────
   const LABELS = [
-    { c:0, t:'2ª FASE' }, { c:1, t:'OITAVAS' }, { c:2, t:'QUARTAS' }, { c:3, t:'SEMI' },
-    { c:4, t:'FINAL',  gold: true },
-    { c:5, t:'SEMI' }, { c:6, t:'QUARTAS' }, { c:7, t:'OITAVAS' }, { c:8, t:'2ª FASE' },
+    { c:0, t:'16 AVOS' }, { c:1, t:'OITAVAS' }, { c:2, t:'QUARTAS' }, { c:3, t:'SEMI' },
+    { c:4, t:'FINAL',   gold: true },
+    { c:5, t:'SEMI' }, { c:6, t:'QUARTAS' }, { c:7, t:'OITAVAS' }, { c:8, t:'16 AVOS' },
   ]
 
   const finalMatch = finAll[0] ?? null
   const champion   = matchWinner(finalMatch)
-  const third      = sortByFixtureId(bracketData['3rd Place Final'])
+  // O jogo de terceiro lugar usa apenas o sort cronológico basico, não entra na arvore principal
+  const third      = [...(bracketData['3rd Place Final'] || [])].sort((a,b)=> new Date(a.start_time)-new Date(b.start_time))
 
   return (
     <div style={{
@@ -345,20 +386,16 @@ function MirroredBracket({ bracketData }) {
 function StandingsTable({ groupData }) {
   if (!groupData?.length) return null
 
-  // Detecta se é a tabela de 3°s colocados:
-  // — nome não é "Grupo X" / "Group X"
-  // — OU tem mais de 4 times (nos grupos normais da Copa são 3-4 times)
+  // Detecta se é a tabela de 3°s colocados
   const rawGroup  = groupData[0]?.group || ''
   const isNormalGroup = /^(Grupo|Group)\s+[A-Z0-9]/i.test(rawGroup)
   const is3rdTable = !isNormalGroup || groupData.length > 4
 
-  // Título
   let title = rawGroup
   if (is3rdTable) {
     title = `${rawGroup ? rawGroup + ' — ' : ''}3° Colocados`
   }
 
-  // Threshold de classificação
   const qualThreshold = is3rdTable ? 8 : 2
 
   return (
