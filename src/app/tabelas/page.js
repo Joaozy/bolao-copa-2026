@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import SponsorBanner from '../../components/SponsorBanner'
 
@@ -19,7 +19,6 @@ const PT = {
   "Uruguay":"Uruguai","USA":"Estados Unidos","Uzbekistan":"Uzbequistão"
 }
 
-// Siglas de 3 letras estilo Sul-americano
 const ABBR = {
   "Algeria":"ALG","Argentina":"ARG","Australia":"AUS","Austria":"AUT",
   "Belgium":"BEL","Bosnia & Herzegovina":"BIH","Brazil":"BRA",
@@ -52,54 +51,53 @@ function matchWinner(m) {
   return null
 }
 
-// ─── LÓGICA DO CHAVEAMENTO OFICIAL DA FIFA ────────────────────────────────────
-// Agrupa os jogos cronológicos para formar os lados esquerdo e direito da árvore perfeitamente
-function arrangeOfficialBracket(matches, roundType) {
-  if (!matches || matches.length === 0) return [];
-  
-  // 1. Ordena pela data de início (Ordem Cronológica do Torneio)
-  const sorted = [...matches].sort((a, b) => {
-      const timeA = a.start_time ? new Date(a.start_time).getTime() : a.id;
-      const timeB = b.start_time ? new Date(b.start_time).getTime() : b.id;
-      return timeA - timeB;
-  });
-  
-  let arranged = [...sorted];
+// ─── LÓGICA DO CHAVEAMENTO OFICIAL ────────────────────────────────────────────
+// Cria arrays fixos com o tamanho exato da Copa do Mundo (32 times no mata-mata)
+// Preenchendo com "null" onde ainda não há jogos.
+function buildPerfectBracket(matches) {
+    const sortCronologico = (arr) => [...(arr || [])].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    
+    // Pegamos os jogos da API ordenados cronologicamente
+    const r32Api = sortCronologico(matches['Round of 32']);
+    const r16Api = sortCronologico(matches['Round of 16']);
+    const qfApi  = sortCronologico(matches['Quarter-finals']);
+    const sfApi  = sortCronologico(matches['Semi-finals']);
+    const finApi = sortCronologico(matches['Final']);
 
-  // 2. Aplica o cruzamento Padrão FIFA
-  try {
-      if (roundType === 'r32' && sorted.length >= 16) {
-        // 16 avos (16 Jogos): Alterna os blocos de dias para os lados da chave
-        arranged = [
-            sorted[0], sorted[1], sorted[2], sorted[3], sorted[8], sorted[9], sorted[10], sorted[11], // Esquerda
-            sorted[4], sorted[5], sorted[6], sorted[7], sorted[12], sorted[13], sorted[14], sorted[15], // Direita
-            ...sorted.slice(16)
-        ];
-      } else if (roundType === 'r16' && sorted.length >= 8) {
-        // Oitavas (8 Jogos): O mesmo padrão, dividindo os dias
-        arranged = [
-            sorted[0], sorted[1], sorted[4], sorted[5], // Esquerda
-            sorted[2], sorted[3], sorted[6], sorted[7], // Direita
-            ...sorted.slice(8)
-        ];
-      }
-      // Quartas (QF) e Semis (SF) e Finais caem naturalmente na ordem cronológica de 0,1 (Esq) e 2,3 (Dir)
-  } catch (e) {
-      console.warn("Erro ao ordenar chaveamento", e);
-      return sorted;
-  }
+    // Criamos os arrays perfeitos (16, 8, 4, 2, 1) preenchidos com null caso faltem jogos
+    const r32 = Array.from({ length: 16 }, (_, i) => r32Api[i] || null);
+    const r16 = Array.from({ length: 8 },  (_, i) => r16Api[i] || null);
+    const qf  = Array.from({ length: 4 },  (_, i) => qfApi[i]  || null);
+    const sf  = Array.from({ length: 2 },  (_, i) => sfApi[i]  || null);
+    const fin = Array.from({ length: 1 },  (_, i) => finApi[i] || null);
 
-  return arranged;
+    // O cruzamento clássico da FIFA separa as chaves de forma intercalada
+    // Vamos dividir as metades Esquerda (L) e Direita (R)
+    return {
+        L: {
+            r32: [r32[0], r32[1], r32[2], r32[3], r32[8], r32[9], r32[10], r32[11]],
+            r16: [r16[0], r16[1], r16[4], r16[5]],
+            qf:  [qf[0], qf[2]],
+            sf:  [sf[0]]
+        },
+        R: {
+            r32: [r32[4], r32[5], r32[6], r32[7], r32[12], r32[13], r32[14], r32[15]],
+            r16: [r16[2], r16[3], r16[6], r16[7]],
+            qf:  [qf[1], qf[3]],
+            sf:  [sf[1]]
+        },
+        final: fin
+    };
 }
 
-// ─── Dimensões globais do bracket ─────────────────────────────────────────────
-const B_COL  = 88   // largura do card
-const B_GAP  = 14   // gap entre colunas (Aumentei um pouco para as linhas respirarem)
+// ─── Dimensões do bracket ─────────────────────────────────────────────────────
+const B_COL  = 90
+const B_GAP  = 16
 const B_STEP = B_COL + B_GAP
-const B_CARD = 42   // altura do card
-const B_SLOT = 50   // altura do slot (card + espaço)
+const B_CARD = 42
+const B_SLOT = 52
 
-// ─── Card compacto com estética Copa ──────────────────────────────────────────
+// ─── Card Vazio ou Preenchido ─────────────────────────────────────────────────
 function BracketCard({ match }) {
   const GOLD    = '#c9941f'
   const NAVY    = '#07152a'
@@ -109,18 +107,17 @@ function BracketCard({ match }) {
   if (!match) return (
     <div style={{
       height: B_CARD, width: B_COL,
-      border: `1.5px solid ${GOLD}30`,
-      background: NAVY,
-      borderRadius: 5,
-      display: 'flex', flexDirection: 'column',
+      border: `1px solid ${GOLD}20`,
+      background: 'rgba(7, 21, 42, 0.4)',
+      borderRadius: 5, display: 'flex', flexDirection: 'column',
     }}>
       {[0, 1].map(i => (
         <div key={i} style={{
           flex: 1, display: 'flex', alignItems: 'center', paddingLeft: 6,
-          borderBottom: i === 0 ? `1px solid ${DIV_CLR}` : 'none',
+          borderBottom: i === 0 ? `1px solid ${DIV_CLR}80` : 'none',
         }}>
-          <div style={{ width: 14, height: 14, borderRadius: 3, background: '#0d2140', marginRight: 6, flexShrink: 0 }} />
-          <span style={{ color: '#1e3a5f', fontSize: 9, fontWeight: 700, letterSpacing: '.05em' }}>TBD</span>
+          <div style={{ width: 14, height: 14, borderRadius: 3, background: 'rgba(255,255,255,0.05)', marginRight: 6 }} />
+          <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 700 }}>A definir</span>
         </div>
       ))}
     </div>
@@ -133,7 +130,7 @@ function BracketCard({ match }) {
   const pH   = match.score?.penalty?.home ?? null
   const pA   = match.score?.penalty?.away ?? null
   const hasPen   = pH !== null && pA !== null
-  const finished = gH !== null && gA !== null
+  const finished = match.is_finished || (gH !== null && gA !== null && ['FT','AET','PEN'].includes(match.status_short))
   const homeWins = finished && (hasPen ? pH > pA : gH > gA)
   const awayWins = finished && (hasPen ? pA > pH : gA > gH)
 
@@ -141,23 +138,21 @@ function BracketCard({ match }) {
     <div style={{
       flex: 1, display: 'flex', alignItems: 'center',
       paddingLeft: 4, paddingRight: 3,
-      background: wins ? 'rgba(6,78,40,0.55)' : loses ? 'rgba(0,0,0,0.08)' : 'transparent',
+      background: wins ? 'rgba(6,78,40,0.55)' : loses ? 'rgba(0,0,0,0.2)' : 'transparent',
     }}>
       {team?.logo
-        ? <img src={team.logo} alt=""
-            style={{ width: 14, height: 14, objectFit: 'contain', flexShrink: 0, marginRight: 4 }}
-            onError={e => { e.target.style.display = 'none' }} />
-        : <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#102236', flexShrink: 0, marginRight: 4 }} />}
+        ? <img src={team.logo} alt="" style={{ width: 14, height: 14, objectFit: 'contain', marginRight: 4 }} onError={e => { e.target.style.display = 'none' }} />
+        : <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', marginRight: 4 }} />}
       <span style={{
         flex: 1, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em',
         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        color: wins ? '#86efac' : loses ? '#2e4d6a' : '#7ea5c8',
+        color: wins ? '#86efac' : loses ? '#64748b' : '#cbd5e1',
       }}>
-        {team?.name ? sigla(team.name) : '?'}
+        {team?.name ? sigla(team.name) : 'A definir'}
       </span>
       <span style={{
-        fontSize: 11, fontWeight: 900, minWidth: 13, textAlign: 'right', flexShrink: 0,
-        color: wins ? '#4ade80' : finished ? '#2e4a68' : '#0e2a44',
+        fontSize: 11, fontWeight: 900, minWidth: 13, textAlign: 'right',
+        color: wins ? '#4ade80' : finished ? '#64748b' : '#334155',
       }}>
         {finished ? goals : '–'}
       </span>
@@ -167,21 +162,16 @@ function BracketCard({ match }) {
   return (
     <div style={{
       height: B_CARD, width: B_COL,
-      border: `1.5px solid ${finished ? GOLD : GOLD + '55'}`,
-      background: NAVY2,
-      borderRadius: 5, overflow: 'hidden', flexShrink: 0,
+      border: `1.5px solid ${finished ? GOLD : GOLD + '40'}`,
+      background: NAVY2, borderRadius: 5, overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
-      boxShadow: finished ? `0 0 8px ${GOLD}25` : 'none',
+      boxShadow: finished ? `0 0 8px ${GOLD}20` : 'none',
     }}>
       <Row team={home} goals={gH} wins={homeWins} loses={awayWins} />
-      <div style={{ height: 1, background: DIV_CLR, flexShrink: 0 }} />
+      <div style={{ height: 1, background: DIV_CLR }} />
       <Row team={away} goals={gA} wins={awayWins} loses={homeWins} />
       {hasPen && (
-        <div style={{
-          background: '#78350f', color: '#fcd34d',
-          fontSize: 7, fontWeight: 900, textAlign: 'center',
-          lineHeight: '10px', flexShrink: 0,
-        }}>
+        <div style={{ background: '#78350f', color: '#fcd34d', fontSize: 7, fontWeight: 900, textAlign: 'center', lineHeight: '10px' }}>
           PEN {pH}–{pA}
         </div>
       )}
@@ -189,87 +179,54 @@ function BracketCard({ match }) {
   )
 }
 
-// ─── CHAVEAMENTO EM PIRÂMIDE ESPELHADA ────────────────────────────────────────
-function MirroredBracket({ bracketData }) {
-  const mid = n => Math.ceil(n / 2)
-  const cx  = i => i * B_STEP
+// ─── RENDERIZADOR DO CHAVEAMENTO ──────────────────────────────────────────────
+function TournamentBracket({ bracketData }) {
+  const [mobileTab, setMobileTab] = useState('center'); // 'left', 'center', 'right'
+  const containerRef = useRef(null);
+  
+  const tree = buildPerfectBracket(bracketData);
+  const TOTAL_H = 8 * B_SLOT; // 8 jogos na coluna inicial
+  const TOTAL_W = 9 * B_STEP - B_GAP;
 
-  // Ordena a matriz de jogos usando o Mapeamento Oficial Padrão da FIFA
-  const r32All = arrangeOfficialBracket(bracketData['Round of 32'], 'r32')
-  const r16All = arrangeOfficialBracket(bracketData['Round of 16'], 'r16')
-  const qfAll  = arrangeOfficialBracket(bracketData['Quarter-finals'], 'qf')
-  const sfAll  = arrangeOfficialBracket(bracketData['Semi-finals'], 'sf')
-  const finAll = arrangeOfficialBracket(bracketData['Final'], 'fin')
-
-  // Divide em metade esquerda e direita com os cruzamentos perfeitamente mapeados
-  const L = {
-    r32: r32All.slice(0, mid(r32All.length)),
-    r16: r16All.slice(0, mid(r16All.length)),
-    qf:  qfAll.slice(0,  mid(qfAll.length)),
-    sf:  sfAll.slice(0, 1),
-  }
-  const R = {
-    r32: r32All.slice(mid(r32All.length)),
-    r16: r16All.slice(mid(r16All.length)),
-    qf:  qfAll.slice(mid(qfAll.length)),
-    sf:  sfAll.slice(1, 2),
-  }
-
-  const baseCount = Math.max(L.r32.length, R.r32.length, L.r16.length * 2, L.qf.length * 4, 4)
-  const TOTAL_H   = baseCount * B_SLOT
-  const TOTAL_W   = 9 * B_STEP - B_GAP
-
+  const cx = i => i * B_STEP;
   const yC = (count, mi) => {
-    const sh = TOTAL_H / Math.max(count, 1)
-    return mi * sh + sh / 2
+    const sh = TOTAL_H / Math.max(count, 1);
+    return mi * sh + sh / 2;
   }
 
-  // ── Cards ─────────────────────────────────────────────────────────────────
+  // Definição das colunas
   const allCols = [
-    { m: L.r32, c: 0 }, { m: L.r16, c: 1 }, { m: L.qf, c: 2 }, { m: L.sf, c: 3 },
-    { m: finAll, c: 4 },
-    { m: R.sf, c: 5 }, { m: R.qf, c: 6 }, { m: R.r16, c: 7 }, { m: R.r32, c: 8 },
+    { m: tree.L.r32, c: 0 }, { m: tree.L.r16, c: 1 }, { m: tree.L.qf, c: 2 }, { m: tree.L.sf, c: 3 },
+    { m: tree.final, c: 4 },
+    { m: tree.R.sf, c: 5 }, { m: tree.R.qf, c: 6 }, { m: tree.R.r16, c: 7 }, { m: tree.R.r32, c: 8 },
   ]
 
   const cards = allCols.flatMap(({ m, c }) => {
     const sh = TOTAL_H / Math.max(m.length, 1)
     return m.map((match, mi) => (
-      <div key={`c${c}-${mi}`}
-        style={{ position: 'absolute', left: cx(c), top: mi * sh + (sh - B_CARD) / 2 }}>
+      <div key={`c${c}-${mi}`} style={{ position: 'absolute', left: cx(c), top: mi * sh + (sh - B_CARD) / 2 }}>
         <BracketCard match={match} />
       </div>
     ))
   })
 
-  // ── Conectores SVG Aprimorados (Estilo Copa do Mundo Visual) ─────────────
+  // Conectores
   const GOLD_CONN = '#c9941f'
-  
   const makeConn = (src, sc, tgt, tc) => {
-    if (!src.length || !tgt.length) return null
     const goRight = sc < tc
-    
-    // Alinha o ínicio/fim da linha exatamente nas bordas do card
     const xS   = goRight ? cx(sc) + B_COL + 2 : cx(sc) - 2
     const xT   = goRight ? cx(tc) - 2 : cx(tc) + B_COL + 2
     const xMid = (xS + xT) / 2
 
-    return Array.from({ length: Math.ceil(src.length / 2) }, (_, p) => {
+    return Array.from({ length: src.length / 2 }, (_, p) => {
       const y1 = yC(src.length, p * 2)
       const y2 = yC(src.length, p * 2 + 1)
       const yM = yC(tgt.length, p)
 
-      // Se houver um card sobrando/ímpar (ex: chaveamento quebrado), apenas traça a reta
-      if (p * 2 + 1 >= src.length) {
-          return (
-            <path key={`k${sc}-${tc}-${p}`} d={`M ${xS} ${y1} L ${xT} ${yM}`} 
-                  stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.4" />
-          )
-      }
-
       return (
         <path key={`k${sc}-${tc}-${p}`} 
           d={`M ${xS} ${y1} H ${xMid} V ${y2} H ${xS} M ${xMid} ${yM} H ${xT}`}
-          stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.6"
+          stroke={GOLD_CONN} strokeWidth="1.5" fill="none" opacity="0.4"
           strokeLinecap="round" strokeLinejoin="round" 
         />
       )
@@ -277,52 +234,48 @@ function MirroredBracket({ bracketData }) {
   }
 
   const connSVG = [
-    makeConn(L.r32, 0, L.r16, 1), makeConn(L.r16, 1, L.qf, 2),
-    makeConn(L.qf, 2, L.sf, 3),   makeConn(L.sf, 3, finAll, 4),
-    makeConn(R.r32, 8, R.r16, 7), makeConn(R.r16, 7, R.qf, 6),
-    makeConn(R.qf, 6, R.sf, 5),   makeConn(R.sf, 5, finAll, 4),
+    makeConn(tree.L.r32, 0, tree.L.r16, 1), makeConn(tree.L.r16, 1, tree.L.qf, 2),
+    makeConn(tree.L.qf, 2, tree.L.sf, 3),   makeConn(tree.L.sf, 3, tree.final, 4),
+    makeConn(tree.R.r32, 8, tree.R.r16, 7), makeConn(tree.R.r16, 7, tree.R.qf, 6),
+    makeConn(tree.R.qf, 6, tree.R.sf, 5),   makeConn(tree.R.sf, 5, tree.final, 4),
   ]
 
-  // ── Labels das fases ─────────────────────────────────────────────────────
   const LABELS = [
     { c:0, t:'16 AVOS' }, { c:1, t:'OITAVAS' }, { c:2, t:'QUARTAS' }, { c:3, t:'SEMI' },
-    { c:4, t:'FINAL',   gold: true },
+    { c:4, t:'FINAL', gold: true },
     { c:5, t:'SEMI' }, { c:6, t:'QUARTAS' }, { c:7, t:'OITAVAS' }, { c:8, t:'16 AVOS' },
   ]
 
-  const finalMatch = finAll[0] ?? null
+  const finalMatch = tree.final[0] ?? null
   const champion   = matchWinner(finalMatch)
-  // O jogo de terceiro lugar usa apenas o sort cronológico basico, não entra na arvore principal
   const third      = [...(bracketData['3rd Place Final'] || [])].sort((a,b)=> new Date(a.start_time)-new Date(b.start_time))
+
+  // Lógica de centralização mobile
+  useEffect(() => {
+      if (containerRef.current) {
+          const container = containerRef.current;
+          if (mobileTab === 'left') container.scrollTo({ left: 0, behavior: 'smooth' });
+          if (mobileTab === 'center') container.scrollTo({ left: (TOTAL_W / 2) - (container.clientWidth / 2), behavior: 'smooth' });
+          if (mobileTab === 'right') container.scrollTo({ left: TOTAL_W, behavior: 'smooth' });
+      }
+  }, [mobileTab, TOTAL_W]);
 
   return (
     <div style={{
       background: 'linear-gradient(160deg, #040d1c 0%, #091729 45%, #040d1c 100%)',
-      borderRadius: 18, padding: '16px 10px 14px',
+      borderRadius: 18, padding: '16px 0px 14px',
       border: '1px solid rgba(201,148,31,0.18)',
-      maxWidth: '100%',
+      width: '100%', overflow: 'hidden'
     }}>
-      {/* Título */}
       <div style={{ textAlign: 'center', marginBottom: 12 }}>
-        <div style={{
-          fontSize: 9, fontWeight: 900, letterSpacing: '.35em', textTransform: 'uppercase',
-          color: '#c9941f', marginBottom: 2,
-        }}>
-          Copa do Mundo 2026
-        </div>
-        <div style={{
-          fontSize: 18, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase',
-          color: '#f2c14e',
-        }}>
-          Caminho Até a Final
-        </div>
+        <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '.35em', color: '#c9941f', marginBottom: 2 }}>COPA DO MUNDO 2026</div>
+        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: '.12em', color: '#f2c14e' }}>Caminho Até a Final</div>
       </div>
 
-      {/* Banner campeão */}
       {champion && (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-          padding: '8px 20px', marginBottom: 14, borderRadius: 10,
+          padding: '8px 20px', margin: '0 auto 14px', borderRadius: 10, maxWidth: 300,
           background: 'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))',
           border: '1px solid rgba(201,148,31,.3)',
         }}>
@@ -335,30 +288,29 @@ function MirroredBracket({ bracketData }) {
         </div>
       )}
 
-      {/* Bracket (scroll só se necessário) */}
-      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div style={{ width: TOTAL_W, minWidth: TOTAL_W }}>
+      {/* Controles Mobile Exclusivos */}
+      <div className="md:hidden flex justify-center gap-2 mb-4 px-2">
+         <button onClick={() => setMobileTab('left')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'left' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CHAVE ESQUERDA</button>
+         <button onClick={() => setMobileTab('center')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'center' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>FINAIS</button>
+         <button onClick={() => setMobileTab('right')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border ${mobileTab === 'right' ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>CHAVE DIREITA</button>
+      </div>
 
-          {/* Labels das fases */}
+      <div ref={containerRef} className="no-scrollbar" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 10px' }}>
+        <div style={{ width: TOTAL_W, minWidth: TOTAL_W, position: 'relative' }}>
+          
           <div style={{ position: 'relative', height: 20, marginBottom: 6 }}>
             {LABELS.map(({ c, t, gold }) => (
               <div key={c} style={{
-                position: 'absolute', left: cx(c), width: B_COL,
-                textAlign: 'center', fontSize: 8, fontWeight: 900,
-                letterSpacing: '.12em', textTransform: 'uppercase',
-                color: gold ? '#f2c14e' : '#3a5a7a',
-                borderBottom: gold ? '1.5px solid #c9941f' : 'none',
-                paddingBottom: 2,
+                position: 'absolute', left: cx(c), width: B_COL, textAlign: 'center', fontSize: 8, fontWeight: 900,
+                color: gold ? '#f2c14e' : '#3a5a7a', borderBottom: gold ? '1.5px solid #c9941f' : 'none', paddingBottom: 2,
               }}>
                 {t}
               </div>
             ))}
           </div>
 
-          {/* Área principal do bracket */}
           <div style={{ position: 'relative', height: TOTAL_H }}>
-            <svg style={{ position: 'absolute', inset: 0, overflow: 'visible' }}
-              width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
+            <svg style={{ position: 'absolute', inset: 0, overflow: 'visible' }} width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
               {connSVG}
             </svg>
             {cards}
@@ -366,15 +318,9 @@ function MirroredBracket({ bracketData }) {
         </div>
       </div>
 
-      {/* 3° Lugar */}
       {third.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 10, gap: 4 }}>
-          <div style={{
-            fontSize: 8, fontWeight: 900, letterSpacing: '.2em', textTransform: 'uppercase',
-            color: '#9a6c2a',
-          }}>
-            🥉 3° Lugar
-          </div>
+          <div style={{ fontSize: 8, fontWeight: 900, letterSpacing: '.2em', color: '#9a6c2a' }}>🥉 3° Lugar</div>
           <BracketCard match={third[0]} />
         </div>
       )}
@@ -382,86 +328,57 @@ function MirroredBracket({ bracketData }) {
   )
 }
 
-// ─── Tabela de classificação ──────────────────────────────────────────────────
+// ─── Tabela de Grupos e Página Principal permanecem iguais ───────────────────
 function StandingsTable({ groupData }) {
   if (!groupData?.length) return null
-
-  // Detecta se é a tabela de 3°s colocados
   const rawGroup  = groupData[0]?.group || ''
   const isNormalGroup = /^(Grupo|Group)\s+[A-Z0-9]/i.test(rawGroup)
   const is3rdTable = !isNormalGroup || groupData.length > 4
-
-  let title = rawGroup
-  if (is3rdTable) {
-    title = `${rawGroup ? rawGroup + ' — ' : ''}3° Colocados`
-  }
-
+  const title = is3rdTable ? `${rawGroup ? rawGroup + ' — ' : ''}3° Colocados` : rawGroup
   const qualThreshold = is3rdTable ? 8 : 2
 
   return (
-    <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg h-fit mb-6">
-      <div className="bg-gray-700 p-2.5 text-center font-bold text-yellow-400 text-xs uppercase tracking-wider">
-        {title || 'Classificação'}
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs text-left whitespace-nowrap">
+    <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg h-fit mb-6 w-full">
+      <div className="bg-gray-700 p-2.5 text-center font-bold text-yellow-400 text-xs uppercase tracking-wider">{title || 'Classificação'}</div>
+      <div className="overflow-x-auto no-scrollbar w-full">
+        <table className="w-full text-xs text-left whitespace-nowrap min-w-full">
           <thead>
             <tr className="bg-gray-900 text-gray-500 text-[10px]">
               <th className="p-2 text-center w-7">#</th>
               <th className="p-2">Seleção</th>
-              <th className="p-2 text-center" title="Pontos">P</th>
-              <th className="p-2 text-center" title="Jogos">J</th>
-              <th className="p-2 text-center" title="Vitórias">V</th>
-              <th className="p-2 text-center" title="Empates">E</th>
-              <th className="p-2 text-center" title="Derrotas">D</th>
-              <th className="p-2 text-center" title="Saldo">SG</th>
+              <th className="p-2 text-center">P</th>
+              <th className="p-2 text-center">J</th>
+              <th className="p-2 text-center">V</th>
+              <th className="p-2 text-center">E</th>
+              <th className="p-2 text-center">D</th>
+              <th className="p-2 text-center">SG</th>
             </tr>
           </thead>
           <tbody>
-            {groupData.map((t, i) => {
-              const qualifies = t.rank <= qualThreshold
-              return (
-                <tr key={i} className="border-b border-gray-700 hover:bg-gray-700/30">
-                  <td className={`p-2 text-center font-black text-xs
-                    ${qualifies ? 'text-green-400' : 'text-gray-600'}`}>
-                    {t.rank}
-                  </td>
-                  <td className="p-2">
-                    <div className="flex items-center gap-2">
-                      {t.team?.logo && (
-                        <img src={t.team.logo} alt="" className="w-5 h-5 object-contain flex-shrink-0"
-                          onError={e => e.target.style.display='none'} />
-                      )}
-                      <span className="font-bold text-gray-200 text-xs">
-                        {nome(t.team?.name)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-2 text-center font-black text-yellow-400">{t.points}</td>
-                  <td className="p-2 text-center text-gray-300">{t.all?.played}</td>
-                  <td className="p-2 text-center text-green-400">{t.all?.win}</td>
-                  <td className="p-2 text-center text-gray-400">{t.all?.draw}</td>
-                  <td className="p-2 text-center text-red-400">{t.all?.lose}</td>
-                  <td className="p-2 text-center text-gray-300 font-bold">
-                    {((t.goalsDiff ?? 0) > 0 ? '+' : '') + (t.goalsDiff ?? 0)}
-                  </td>
-                </tr>
-              )
-            })}
+            {groupData.map((t, i) => (
+              <tr key={i} className="border-b border-gray-700 hover:bg-gray-700/30">
+                <td className={`p-2 text-center font-black text-xs ${t.rank <= qualThreshold ? 'text-green-400' : 'text-gray-600'}`}>{t.rank}</td>
+                <td className="p-2">
+                  <div className="flex items-center gap-2">
+                    {t.team?.logo && <img src={t.team.logo} alt="" className="w-5 h-5 object-contain flex-shrink-0" onError={e => e.target.style.display='none'} />}
+                    <span className="font-bold text-gray-200 text-xs">{nome(t.team?.name)}</span>
+                  </div>
+                </td>
+                <td className="p-2 text-center font-black text-yellow-400">{t.points}</td>
+                <td className="p-2 text-center text-gray-300">{t.all?.played}</td>
+                <td className="p-2 text-center text-green-400">{t.all?.win}</td>
+                <td className="p-2 text-center text-gray-400">{t.all?.draw}</td>
+                <td className="p-2 text-center text-red-400">{t.all?.lose}</td>
+                <td className="p-2 text-center text-gray-300 font-bold">{((t.goalsDiff ?? 0) > 0 ? '+' : '') + (t.goalsDiff ?? 0)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      {is3rdTable && (
-        <div className="px-3 py-1.5 bg-gray-900/50 text-[9px] text-gray-500 flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 inline-block flex-shrink-0" />
-          Top {qualThreshold} se classificam para os {qualThreshold === 8 ? '16avos' : 'mata-mata'}
-        </div>
-      )}
     </div>
   )
 }
 
-// ─── Página principal ─────────────────────────────────────────────────────────
 export default function Tabelas() {
   const [loading, setLoading]     = useState(true)
   const [competitions, setComps]  = useState([])
@@ -491,10 +408,7 @@ export default function Tabelas() {
       matches[round].forEach(m => {
         const upd = (team, gf, ga) => {
           if (!team?.id) return
-          if (!map.has(team.id)) map.set(team.id, {
-            rank:0, team, points:0, group:key,
-            all:{ played:0, win:0, draw:0, lose:0 }, goalsDiff:0
-          })
+          if (!map.has(team.id)) map.set(team.id, { rank:0, team, points:0, group:key, all:{ played:0, win:0, draw:0, lose:0 }, goalsDiff:0 })
           if (gf === null || ga === null) return
           const s = map.get(team.id)
           s.all.played++; s.goalsDiff += gf - ga
@@ -527,17 +441,14 @@ export default function Tabelas() {
       setLoading(true); setStandings([]); setBracket(null)
       let found = false
 
-      // 1) API standings
       try {
         const r = await fetch(`/api/standings?competitionId=${compId}`)
         const d = await r.json()
         if (d.standings?.length) { setStandings(d.standings); found = true }
       } catch {}
 
-      // 2) Supabase standings (só se API não retornou)
       if (!found) {
-        const { data: rows } = await supabase.from('standings').select('*, teams(*)')
-          .eq('competition_id', compId).order('group_name').order('position')
+        const { data: rows } = await supabase.from('standings').select('*, teams(*)').eq('competition_id', compId).order('group_name').order('position')
         if (rows?.length) {
           const grouped = {}
           rows.forEach(row => {
@@ -551,13 +462,10 @@ export default function Tabelas() {
             })
           })
           const arr = Object.values(grouped)
-          if (arr.some(g => g.some(t => t.points > 0 || t.all.played > 0))) {
-            setStandings(arr); found = true
-          }
+          if (arr.some(g => g.some(t => t.points > 0 || t.all.played > 0))) { setStandings(arr); found = true }
         }
       }
 
-      // 3) matches-official: bracket + virtual standings
       try {
         const r = await fetch(`/api/matches-official?competitionId=${compId}`)
         const d = await r.json()
@@ -584,22 +492,13 @@ export default function Tabelas() {
   }, [hasBracket, hasStandings])
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col items-center pb-24">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-4 mt-4 text-center">
-        📊 Dados Oficiais
-      </h1>
+    <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col items-center pb-24 w-full">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-4 mt-4 text-center">📊 Dados Oficiais</h1>
 
-      {/* Seletor de competição */}
       <div className="w-full max-w-4xl mb-4 overflow-x-auto no-scrollbar">
         <div className="flex justify-center gap-2 pb-2 min-w-max">
           {competitions.map(c => (
-            <button key={c.id} onClick={() => setCompId(c.id)}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all border
-                ${compId===c.id
-                  ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105'
-                  : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>
-              {c.name}
-            </button>
+            <button key={c.id} onClick={() => setCompId(c.id)} className={`px-6 py-2 rounded-full text-sm font-bold transition-all border ${compId===c.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>{c.name}</button>
           ))}
         </div>
       </div>
@@ -607,47 +506,33 @@ export default function Tabelas() {
       <SponsorBanner />
 
       {loading ? (
-        <div className="text-center p-16 animate-pulse">
+        <div className="text-center p-16 animate-pulse w-full">
           <div className="text-4xl mb-4">📡</div>Carregando...
         </div>
       ) : (
         <div className="w-full max-w-5xl">
 
-          {/* Toggle Grupos / Mata-mata */}
           {(hasStandings || hasBracket) && (
             <div className="flex bg-gray-800 p-1 rounded-xl mb-6 max-w-xs mx-auto border border-gray-700">
-              {hasStandings && (
-                <button onClick={() => setTab('standings')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
-                    ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
-                  🗂️ Grupos
-                </button>
-              )}
-              {hasBracket && (
-                <button onClick={() => setTab('bracket')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
-                    ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
-                  🏆 Mata-mata
-                </button>
-              )}
+              {hasStandings && <button onClick={() => setTab('standings')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>🗂️ Grupos</button>}
+              {hasBracket && <button onClick={() => setTab('bracket')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>🏆 Mata-mata</button>}
             </div>
           )}
 
-          {/* Fase de grupos */}
           {tab==='standings' && hasStandings && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
               {standings.map((g,i) => <StandingsTable key={i} groupData={g} />)}
             </div>
           )}
 
-          {/* Chaveamento em pirâmide */}
           {tab==='bracket' && hasBracket && (
-            <MirroredBracket bracketData={bracket} />
+            <div className="w-full">
+                <TournamentBracket bracketData={bracket} />
+            </div>
           )}
 
           {!hasStandings && !hasBracket && (
-            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700
-              border-dashed text-gray-400 max-w-md mx-auto">
+            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-400 max-w-md mx-auto w-full">
               <div className="text-5xl mb-3">📡</div>
               <p className="font-bold mb-1">Nenhum dado encontrado</p>
               <p className="text-sm text-gray-500">Importe os dados pelo painel admin.</p>
