@@ -207,7 +207,7 @@ function BracketCard({ match }) {
       }
       <span style={{
         flex:1, fontSize:10, fontWeight:800, letterSpacing:'0.02em',
-        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+        overflow:'clip', textOverflow:'ellipsis', whiteSpace:'nowrap',
         color: wins ? '#86efac'
              : loses ? '#64748b'
              : projected ? `${GOLD}cc`   // projeção: dourado suave
@@ -231,7 +231,7 @@ function BracketCard({ match }) {
     <div style={{
       height:B_CARD, width:B_COL, position:'relative',
       border: borderStyle,
-      background: NAVY2, borderRadius:5, overflow:'hidden',
+      background: NAVY2, borderRadius:5, overflow:'clip',
       display:'flex', flexDirection:'column',
       boxShadow: finished ? `0 0 8px ${GOLD}20` : 'none',
     }}>
@@ -327,7 +327,7 @@ function TournamentBracket({ bracketData }) {
       background:'linear-gradient(160deg,#040d1c 0%,#091729 45%,#040d1c 100%)',
       borderRadius:18, padding:'16px 0 14px',
       border:'1px solid rgba(201,148,31,0.18)',
-      width:'100%', overflow:'hidden',
+      width:'100%',  // sem overflow:hidden para não cortar conteúdo vertical
     }}>
       {/* Título */}
       <div style={{ textAlign:'center', marginBottom:14, padding:'0 12px' }}>
@@ -369,7 +369,7 @@ function TournamentBracket({ bracketData }) {
 
       {/* Bracket */}
       <div ref={containerRef} className="no-scrollbar"
-        style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
+        style={{ overflowX:'auto', overflowY:'visible', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
         <div style={{ width:TOTAL_W, minWidth:TOTAL_W, position:'relative' }}>
 
           {/* Labels das fases */}
@@ -387,29 +387,31 @@ function TournamentBracket({ bracketData }) {
             ))}
           </div>
 
-          {/* Área principal — altura estendida para incluir 3° lugar */}
+          {/* Área principal — 3° lugar dentro do espaço livre abaixo da Final */}
           {(() => {
-            const THIRD_H = third.length > 0 ? 76 : 0   // espaço extra abaixo
-            const AREA_H  = TOTAL_H + THIRD_H
-            const thirdX  = cx(4)                        // mesma coluna que a Final
-            const thirdLabelY = TOTAL_H + 10
-            const thirdCardY  = TOTAL_H + 26
+            // Final card: y = (TOTAL_H - B_CARD)/2 até (TOTAL_H + B_CARD)/2
+            // Abaixo dela há ~187px livres — suficiente para o 3° lugar
+            const finalCardBot = (TOTAL_H + B_CARD) / 2   // ≈ 229px
+            const thirdX       = cx(4)                     // mesma coluna da Final
+            const thirdLabelY  = finalCardBot + 12         // ≈ 241px
+            const thirdCardY   = thirdLabelY + 14          // ≈ 255px
+
             return (
-              <div style={{ position:'relative', height:AREA_H }}>
+              <div style={{ position:'relative', height:TOTAL_H }}>
                 <svg style={{ position:'absolute', inset:0, overflow:'visible' }}
-                  width={TOTAL_W} height={AREA_H} viewBox={`0 0 ${TOTAL_W} ${AREA_H}`}>
+                  width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
                   {connSVG}
-                  {/* Linha pontilhada do bottom da Final até o 3° lugar */}
+                  {/* Linha pontilhada: da Final até o 3° lugar */}
                   {third.length > 0 && (
                     <line
-                      x1={thirdX + B_COL/2} y1={TOTAL_H}
-                      x2={thirdX + B_COL/2} y2={thirdLabelY}
-                      stroke={GOLD} strokeWidth="1.5" strokeDasharray="3,3" opacity="0.35"
+                      x1={thirdX + B_COL/2} y1={finalCardBot}
+                      x2={thirdX + B_COL/2} y2={thirdLabelY - 2}
+                      stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"
                     />
                   )}
                 </svg>
                 {cards}
-                {/* 3° LUGAR — mesma coluna da Final, abaixo */}
+                {/* 3° LUGAR — abaixo da Final, dentro da área existente */}
                 {third.length > 0 && (
                   <>
                     <div style={{
