@@ -82,12 +82,12 @@ const BracketMatchCard = ({ match, isCompact = false }) => {
 
   const home = match.teams?.home
   const away = match.teams?.away
-  const gH = match.goals?.home
-  const gA = match.goals?.away
-  const penH = match.score?.penalty?.home
-  const penA = match.score?.penalty?.away
-  const hasPen = penH !== null && penA !== undefined && penH !== undefined
-  const finished = gH !== null && gA !== null
+  const gH = match.goals?.home ?? null
+  const gA = match.goals?.away ?? null
+  const penH = match.score?.penalty?.home ?? null
+  const penA = match.score?.penalty?.away ?? null
+  const hasPen = penH !== null && penA !== null
+  const finished = match.goals != null && gH !== null && gA !== null
   const homeWins = finished && (hasPen ? penH > penA : gH > gA)
   const awayWins = finished && (hasPen ? penA > penH : gA > gH)
 
@@ -262,14 +262,20 @@ const BracketView = ({ bracketData }) => {
   )
 
   // ── Campeão no topo (se final finalizada) ─────────────────────────────────
-  const finalMatch = bracketData['Final']?.[0]
-  const finalFinished = finalMatch?.goals?.home !== null && finalMatch?.goals?.away !== null
+  const finalMatch = bracketData['Final']?.[0] ?? null
+  // FIX: checar finalMatch != null ANTES de acessar .goals (evita TypeError)
+  const finalFinished = finalMatch != null
+    && finalMatch.goals != null
+    && finalMatch.goals.home !== null
+    && finalMatch.goals.away !== null
   let champion = null
   if (finalFinished) {
-    const penH = finalMatch?.score?.penalty?.home
-    const penA = finalMatch?.score?.penalty?.away
-    const hasPen = penH !== null && penH !== undefined
-    const homeWins = hasPen ? penH > penA : finalMatch.goals.home > finalMatch.goals.away
+    const penH = finalMatch.score?.penalty?.home ?? null
+    const penA = finalMatch.score?.penalty?.away ?? null
+    const hasPen = penH !== null && penA !== null
+    const homeWins = hasPen
+      ? (penH ?? 0) > (penA ?? 0)
+      : (finalMatch.goals.home ?? 0) > (finalMatch.goals.away ?? 0)
     champion = homeWins ? finalMatch.teams?.home : finalMatch.teams?.away
   }
 
@@ -430,57 +436,68 @@ export default function Tabelas() {
       setBracketData(null)
 
       try {
-        // 1) Tenta API de standings
-        const res = await fetch(`/api/standings?competitionId=${selectedCompId}`)
-        const apiResult = await res.json()
+        // FIX: Prioridade clara — API > Supabase > Virtual (nunca sobrescreve com zeros)
+        let standingsFound = false
 
-        if (apiResult.standings && apiResult.standings.length > 0) {
-          setStandingsData(apiResult.standings)
-        }
+        // 1) Tenta API de standings (dados ao vivo — mais atualizados)
+        try {
+          const res = await fetch(`/api/standings?competitionId=${selectedCompId}`)
+          const apiResult = await res.json()
+          if (apiResult.standings && apiResult.standings.length > 0) {
+            setStandingsData(apiResult.standings)
+            standingsFound = true
+          }
+        } catch (e) { console.warn('API standings falhou:', e) }
 
-        // 2) Tenta standings manuais do Supabase
-        const { data: manualStandings } = await supabase
-          .from('standings')
-          .select('*, teams(*)')
-          .eq('competition_id', selectedCompId)
-          .order('group_name', { ascending: true })
-          .order('position', { ascending: true })
+        // 2) Só usa Supabase se API não retornou nada
+        if (!standingsFound) {
+          const { data: manualStandings } = await supabase
+            .from('standings')
+            .select('*, teams(*)')
+            .eq('competition_id', selectedCompId)
+            .order('group_name', { ascending: true })
+            .order('position', { ascending: true })
 
-        if (manualStandings && manualStandings.length > 0) {
-          const grouped = {}
-          manualStandings.forEach(row => {
-            if (!grouped[row.group_name]) grouped[row.group_name] = []
-            grouped[row.group_name].push({
-              rank: row.position,
-              team: { id: row.teams?.id, name: row.teams?.name, logo: row.teams?.badge_url, flag_code: row.teams?.flag_code },
-              points: row.points,
-              all: { played: row.played, win: row.won, draw: row.drawn, lose: row.lost },
-              goalsDiff: row.goals_diff,
-              group: row.group_name
+          if (manualStandings && manualStandings.length > 0) {
+            const grouped = {}
+            manualStandings.forEach(row => {
+              if (!grouped[row.group_name]) grouped[row.group_name] = []
+              grouped[row.group_name].push({
+                rank: row.position,
+                team: { id: row.teams?.id, name: row.teams?.name, logo: row.teams?.badge_url, flag_code: row.teams?.flag_code },
+                points: row.points ?? 0,
+                all: { played: row.played ?? 0, win: row.won ?? 0, draw: row.drawn ?? 0, lose: row.lost ?? 0 },
+                goalsDiff: row.goals_diff ?? 0,
+                group: row.group_name
+              })
             })
-          })
-          setStandingsData(Object.values(grouped))
-        }
-
-        // 3) Busca jogos (tanto grupos quanto mata-mata) — SEMPRE
-        const resMatches = await fetch(`/api/matches-official?competitionId=${selectedCompId}`)
-        const dataMatches = await resMatches.json()
-
-        if (dataMatches.matches && Object.keys(dataMatches.matches).length > 0) {
-          // Extrai mata-mata
-          const bracket = extractBracket(dataMatches.matches)
-          if (bracket) setBracketData(bracket)
-
-          // Se ainda não tem standings, constrói virtualmente a partir dos grupos
-          const hasStandings = (apiResult.standings?.length > 0) || (manualStandings?.length > 0)
-          if (!hasStandings) {
-            const virtual = buildVirtualStandings(dataMatches.matches)
-            if (virtual.length > 0) setStandingsData(virtual)
+            const grouped_arr = Object.values(grouped)
+            // Só usa Supabase se tiver pontuação (evita mostrar tudo zerado)
+            const hasPoints = grouped_arr.some(g => g.some(t => t.points > 0 || t.all.played > 0))
+            if (hasPoints) {
+              setStandingsData(grouped_arr)
+              standingsFound = true
+            }
           }
         }
 
-        // 4) Define aba padrão
-        setActiveView(prev => prev)
+        // 3) Busca jogos — mata-mata E virtual standings (fallback)
+        try {
+          const resMatches = await fetch(`/api/matches-official?competitionId=${selectedCompId}`)
+          const dataMatches = await resMatches.json()
+
+          if (dataMatches.matches && Object.keys(dataMatches.matches).length > 0) {
+            // Extrai e seta mata-mata
+            const bracket = extractBracket(dataMatches.matches)
+            if (bracket) setBracketData(bracket)
+
+            // Virtual standings só se nenhuma outra fonte funcionou
+            if (!standingsFound) {
+              const virtual = buildVirtualStandings(dataMatches.matches)
+              if (virtual.length > 0) setStandingsData(virtual)
+            }
+          }
+        } catch (e) { console.warn('matches-official falhou:', e) }
 
       } catch (err) {
         console.error('Erro ao carregar dados:', err)
