@@ -401,32 +401,28 @@ function TournamentBracket({ bracketData }) {
                 <svg style={{ position:'absolute', inset:0, overflow:'visible' }}
                   width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
                   {connSVG}
-                  {/* Linha pontilhada: da Final até o 3° lugar */}
-                  {third.length > 0 && (
-                    <line
-                      x1={thirdX + B_COL/2} y1={finalCardBot}
-                      x2={thirdX + B_COL/2} y2={thirdLabelY - 2}
-                      stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"
-                    />
-                  )}
+                  {/* Linha pontilhada: da Final até o 3° lugar — sempre visível */}
+                  <line
+                    x1={thirdX + B_COL/2} y1={finalCardBot}
+                    x2={thirdX + B_COL/2} y2={thirdLabelY - 2}
+                    stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"
+                  />
                 </svg>
                 {cards}
-                {/* 3° LUGAR — abaixo da Final, dentro da área existente */}
-                {third.length > 0 && (
-                  <>
-                    <div style={{
-                      position:'absolute', left:thirdX, top:thirdLabelY,
-                      width:B_COL, textAlign:'center',
-                      fontSize:7, fontWeight:900, letterSpacing:'.2em',
-                      color:'#9a6c2a', textTransform:'uppercase',
-                    }}>
-                      🥉 3° Lugar
-                    </div>
-                    <div style={{ position:'absolute', left:thirdX, top:thirdCardY }}>
-                      <BracketCard match={third[0]} />
-                    </div>
-                  </>
-                )}
+                {/* 3° LUGAR — sempre visível abaixo da Final (mesmo sem dados ainda) */}
+                <>
+                  <div style={{
+                    position:'absolute', left:thirdX, top:thirdLabelY,
+                    width:B_COL, textAlign:'center',
+                    fontSize:7, fontWeight:900, letterSpacing:'.2em',
+                    color:'#9a6c2a', textTransform:'uppercase',
+                  }}>
+                    🥉 3° Lugar
+                  </div>
+                  <div style={{ position:'absolute', left:thirdX, top:thirdCardY }}>
+                    <BracketCard match={third[0] ?? null} />
+                  </div>
+                </>
               </div>
             )
           })()}
