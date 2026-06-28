@@ -393,8 +393,8 @@ function TournamentBracket({ bracketData }) {
             // Abaixo dela há ~187px livres — suficiente para o 3° lugar
             const finalCardBot = (TOTAL_H + B_CARD) / 2   // ≈ 229px
             const thirdX       = cx(4)                     // mesma coluna da Final
-            const thirdLabelY  = finalCardBot + 12         // ≈ 241px
-            const thirdCardY   = thirdLabelY + 14          // ≈ 255px
+            const thirdLabelY  = finalCardBot + 25         // ≈ 241px
+            const thirdCardY   = thirdLabelY + 30          // ≈ 255px
 
             return (
               <div style={{ position:'relative', height:TOTAL_H }}>
