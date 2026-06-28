@@ -28,6 +28,7 @@ function traduzirRodada(roundName) {
   let nome = String(roundName);
   nome = nome.replace(/Group Stage - (\d+)/i, 'Rodada $1 - Fase de Grupos');
   nome = nome.replace(/Regular Season - (\d+)/i, 'Rodada $1 - Fase de Grupos');
+  nome - nome.replace(/Round of 32/i, '16avos');
   nome = nome.replace(/Round of 16/i, 'Oitavas de Final');
   nome = nome.replace(/Quarter-finals/i, 'Quartas de Final');
   nome = nome.replace(/Semi-finals/i, 'Semifinais');
@@ -591,17 +592,24 @@ export default function Home() {
 
                     return (
                       <div key={game.id} onClick={() => { if (!isEnrolled) toast.error('Acesse seu perfil e faça a inscrição primeiro!'); }}>
-                          <GameCard 
+                        <GameCard 
                             game={{
-                              ...game,
-                              team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
-                              team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null
+                                ...game,
+                                team_a: game.team_a ? { ...game.team_a, name: nomeTraduzidoA } : null,
+                                team_b: game.team_b ? { ...game.team_b, name: nomeTraduzidoB } : null
                             }} 
                             values={gamePredictions[game.id]}
                             isEditing={gamePredictions[game.id]?.isEditing}
                             onChange={isEnrolled ? handleGameChange : () => {}}
                             onToggleEdit={isEnrolled ? toggleEdit : () => toast.error('Acesse seu perfil e faça a inscrição primeiro!')}
-                          />
+                        />
+                        
+                        {/* AVISO ELEGANTE PARA MATA-MATA */}
+                        {['16avos', 'Oitavas de Final', 'Quartas de Final', 'Semifinais', 'Grande Final'].includes(traduzirRodada(game.round)) && (
+                            <div className="text-[10px] text-gray-500 font-bold text-center mt-1 uppercase tracking-wider flex items-center justify-center gap-1 opacity-70">
+                                <span>⚠️</span> Palpite válido apenas para os 90 minutos
+                            </div>
+                        )}
                       </div>
                     );
                 })
