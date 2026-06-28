@@ -55,12 +55,46 @@ function matchWinner(m) {
 // ─── Card compacto do chaveamento ─────────────────────────────────────────────
 const CARD_H = 50
 
+// ─── Ordena por fixture ID → ordem correta do chaveamento (não por data) ───────
+function sortByFixtureId(arr) {
+  return [...(arr || [])].sort((a, b) => {
+    const ia = a?.fixture?.id ?? a?.id ?? 999999
+    const ib = b?.fixture?.id ?? b?.id ?? 999999
+    return ia - ib
+  })
+}
+
+// ─── Dimensões globais do bracket ─────────────────────────────────────────────
+const B_COL  = 88   // largura do card
+const B_GAP  = 10   // gap entre colunas
+const B_STEP = B_COL + B_GAP   // 98px por coluna
+const B_CARD = 42   // altura do card
+const B_SLOT = 50   // altura do slot (card + espaço)
+
+// ─── Card compacto com estética Copa ──────────────────────────────────────────
 function BracketCard({ match }) {
+  const GOLD    = '#c9941f'
+  const NAVY    = '#07152a'
+  const NAVY2   = '#0c1f3a'
+  const DIV_CLR = '#0e2040'
+
   if (!match) return (
-    <div style={{ height: CARD_H }}
-      className="rounded border border-dashed border-gray-700 bg-gray-800/20
-        flex items-center justify-center text-[9px] text-gray-600 font-bold tracking-widest">
-      TBD
+    <div style={{
+      height: B_CARD, width: B_COL,
+      border: `1.5px solid ${GOLD}30`,
+      background: NAVY,
+      borderRadius: 5,
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {[0, 1].map(i => (
+        <div key={i} style={{
+          flex: 1, display: 'flex', alignItems: 'center', paddingLeft: 6,
+          borderBottom: i === 0 ? `1px solid ${DIV_CLR}` : 'none',
+        }}>
+          <div style={{ width: 14, height: 14, borderRadius: 3, background: '#0d2140', marginRight: 6, flexShrink: 0 }} />
+          <span style={{ color: '#1e3a5f', fontSize: 9, fontWeight: 700, letterSpacing: '.05em' }}>TBD</span>
+        </div>
+      ))}
     </div>
   )
 
@@ -76,37 +110,50 @@ function BracketCard({ match }) {
   const awayWins = finished && (hasPen ? pA > pH : gA > gH)
 
   const Row = ({ team, goals, wins, loses }) => (
-    <div className={`flex items-center gap-1 px-1.5 flex-1
-      ${wins ? 'bg-emerald-900/50' : loses ? 'opacity-30' : ''}`}>
+    <div style={{
+      flex: 1, display: 'flex', alignItems: 'center',
+      paddingLeft: 4, paddingRight: 3,
+      background: wins ? 'rgba(6,78,40,0.55)' : loses ? 'rgba(0,0,0,0.08)' : 'transparent',
+    }}>
       {team?.logo
-        ? <img src={team.logo} alt="" className="w-4 h-4 object-contain flex-shrink-0"
-            onError={e => { e.target.style.display='none' }} />
-        : <div className="w-4 h-4 rounded-full bg-gray-700 flex-shrink-0 text-[7px] flex items-center justify-center text-gray-500">
-            {sigla(team?.name)?.[0]}
-          </div>}
-      <span className={`flex-1 text-[10px] font-black truncate
-        ${wins ? 'text-emerald-300' : 'text-gray-300'}`}>
-        {team?.name ? sigla(team.name) : 'TBD'}
+        ? <img src={team.logo} alt=""
+            style={{ width: 14, height: 14, objectFit: 'contain', flexShrink: 0, marginRight: 4 }}
+            onError={e => { e.target.style.display = 'none' }} />
+        : <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#102236', flexShrink: 0, marginRight: 4 }} />}
+      <span style={{
+        flex: 1, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        color: wins ? '#86efac' : loses ? '#2e4d6a' : '#7ea5c8',
+      }}>
+        {team?.name ? sigla(team.name) : '?'}
       </span>
-      <span className={`text-[11px] font-black w-3.5 text-right flex-shrink-0
-        ${wins ? 'text-emerald-400' : finished ? 'text-gray-500' : 'text-gray-700'}`}>
+      <span style={{
+        fontSize: 11, fontWeight: 900, minWidth: 13, textAlign: 'right', flexShrink: 0,
+        color: wins ? '#4ade80' : finished ? '#2e4a68' : '#0e2a44',
+      }}>
         {finished ? goals : '–'}
       </span>
     </div>
   )
 
   return (
-    <div style={{ height: CARD_H }}
-      className={`flex flex-col overflow-hidden rounded shadow-md
-        ${finished
-          ? 'border border-gray-600 bg-gray-800'
-          : 'border border-gray-700/70 bg-gray-800/60'}`}>
+    <div style={{
+      height: B_CARD, width: B_COL,
+      border: `1.5px solid ${finished ? GOLD : GOLD + '55'}`,
+      background: NAVY2,
+      borderRadius: 5, overflow: 'hidden', flexShrink: 0,
+      display: 'flex', flexDirection: 'column',
+      boxShadow: finished ? `0 0 8px ${GOLD}25` : 'none',
+    }}>
       <Row team={home} goals={gH} wins={homeWins} loses={awayWins} />
-      <div className="h-px bg-gray-700 flex-shrink-0" />
+      <div style={{ height: 1, background: DIV_CLR, flexShrink: 0 }} />
       <Row team={away} goals={gA} wins={awayWins} loses={homeWins} />
       {hasPen && (
-        <div className="text-center bg-yellow-900/30 text-yellow-400 text-[8px] font-black
-          flex-shrink-0 leading-3 py-px">
+        <div style={{
+          background: '#78350f', color: '#fcd34d',
+          fontSize: 7, fontWeight: 900, textAlign: 'center',
+          lineHeight: '10px', flexShrink: 0,
+        }}>
           PEN {pH}–{pA}
         </div>
       )}
@@ -115,196 +162,179 @@ function BracketCard({ match }) {
 }
 
 // ─── CHAVEAMENTO EM PIRÂMIDE ESPELHADA ────────────────────────────────────────
-//
-//  [R32][R16][QF][SF]──[FINAL]──[SF][QF][R16][R32]
-//  LEFT half (teams enter left, converge right)
-//  RIGHT half (teams enter right, converge left)
-//
 function MirroredBracket({ bracketData }) {
-  const COL_W  = 116   // largura de cada coluna
-  const GAP_W  = 14    // gap entre colunas (espaço dos conectores)
-  const STEP   = COL_W + GAP_W
-  const SLOT_H = 58    // altura de cada slot no R32
-
-  // Divide os dados em metade esquerda e direita
-  const r32All = bracketData['Round of 32']    || []
-  const r16All = bracketData['Round of 16']    || []
-  const qfAll  = bracketData['Quarter-finals'] || []
-  const sfAll  = bracketData['Semi-finals']    || []
-  const finAll = bracketData['Final']          || []
-
   const mid = n => Math.ceil(n / 2)
+  const cx  = i => i * B_STEP
 
+  // Ordena por fixture ID para chaveamento correto (não por data do jogo)
+  const r32All = sortByFixtureId(bracketData['Round of 32'])
+  const r16All = sortByFixtureId(bracketData['Round of 16'])
+  const qfAll  = sortByFixtureId(bracketData['Quarter-finals'])
+  const sfAll  = sortByFixtureId(bracketData['Semi-finals'])
+  const finAll = bracketData['Final'] || []
+
+  // Divide em metade esquerda e direita
   const L = {
-    r32: r32All.slice(0, mid(r32All.length)),   // 8 matches
-    r16: r16All.slice(0, mid(r16All.length)),   // 4 matches
-    qf:  qfAll.slice(0, mid(qfAll.length)),     // 2 matches
-    sf:  sfAll.slice(0, 1),                     // 1 match
+    r32: r32All.slice(0, mid(r32All.length)),
+    r16: r16All.slice(0, mid(r16All.length)),
+    qf:  qfAll.slice(0,  mid(qfAll.length)),
+    sf:  sfAll.slice(0, 1),
   }
   const R = {
-    r32: r32All.slice(mid(r32All.length)),      // 8 matches
-    r16: r16All.slice(mid(r16All.length)),      // 4 matches
-    qf:  qfAll.slice(mid(qfAll.length)),        // 2 matches
-    sf:  sfAll.slice(1, 2),                     // 1 match
+    r32: r32All.slice(mid(r32All.length)),
+    r16: r16All.slice(mid(r16All.length)),
+    qf:  qfAll.slice(mid(qfAll.length)),
+    sf:  sfAll.slice(1, 2),
   }
 
-  // Total height baseado no maior round
-  const baseCount = Math.max(L.r32.length, R.r32.length, r16All.length / 2, 4)
-  const TOTAL_H   = Math.max(baseCount, 1) * SLOT_H
+  const baseCount = Math.max(L.r32.length, R.r32.length, L.r16.length * 2, L.qf.length * 4, 4)
+  const TOTAL_H   = baseCount * B_SLOT
+  const TOTAL_W   = 9 * B_STEP - B_GAP   // 872px
 
-  // 9 colunas: L.r32(0) L.r16(1) L.qf(2) L.sf(3) | Final(4) | R.sf(5) R.qf(6) R.r16(7) R.r32(8)
-  const cx = i => i * STEP  // x posição da coluna i
-
-  // Posição vertical central de match mi em coluna com count partidas
   const yC = (count, mi) => {
-    const slotH = TOTAL_H / Math.max(count, 1)
-    return mi * slotH + slotH / 2
+    const sh = TOTAL_H / Math.max(count, 1)
+    return mi * sh + sh / 2
   }
 
-  // ── Renderiza os cards das partidas ─────────────────────────────────────────
+  // ── Cards ─────────────────────────────────────────────────────────────────
   const allCols = [
-    { matches: L.r32, col: 0 }, { matches: L.r16, col: 1 },
-    { matches: L.qf,  col: 2 }, { matches: L.sf,  col: 3 },
-    { matches: finAll, col: 4 },
-    { matches: R.sf,  col: 5 }, { matches: R.qf,  col: 6 },
-    { matches: R.r16, col: 7 }, { matches: R.r32, col: 8 },
+    { m: L.r32, c: 0 }, { m: L.r16, c: 1 }, { m: L.qf, c: 2 }, { m: L.sf, c: 3 },
+    { m: finAll, c: 4 },
+    { m: R.sf, c: 5 }, { m: R.qf, c: 6 }, { m: R.r16, c: 7 }, { m: R.r32, c: 8 },
   ]
 
-  const cards = allCols.flatMap(({ matches, col }) => {
-    const count = Math.max(matches.length, 1)
-    const slotH = TOTAL_H / count
-    return matches.map((m, mi) => {
-      const top  = mi * slotH + (slotH - CARD_H) / 2
-      const left = cx(col)
-      return (
-        <div key={`c${col}-${mi}`}
-          style={{ position: 'absolute', left, top, width: COL_W }}>
-          <BracketCard match={m} />
-        </div>
-      )
-    })
+  const cards = allCols.flatMap(({ m, c }) => {
+    const sh = TOTAL_H / Math.max(m.length, 1)
+    return m.map((match, mi) => (
+      <div key={`c${c}-${mi}`}
+        style={{ position: 'absolute', left: cx(c), top: mi * sh + (sh - B_CARD) / 2 }}>
+        <BracketCard match={match} />
+      </div>
+    ))
   })
 
-  // ── Renderiza os conectores SVG ──────────────────────────────────────────────
-  // makeConn: conecta pares de partidas em srcCol para partidas em tgtCol
-  const makeConn = (srcMatches, srcCol, tgtMatches, tgtCol) => {
-    if (!srcMatches.length || !tgtMatches.length) return []
-    const goingRight = srcCol < tgtCol
-    const xSrc  = goingRight ? cx(srcCol) + COL_W : cx(srcCol)         // borda do lado de saída
-    const xTgt  = goingRight ? cx(tgtCol)         : cx(tgtCol) + COL_W // borda de chegada
-    const xMid  = (xSrc + xTgt) / 2
+  // ── Conectores SVG ───────────────────────────────────────────────────────
+  const GOLD_CONN = '#c9941f'
+  const makeConn = (src, sc, tgt, tc) => {
+    if (!src.length || !tgt.length) return null
+    const goRight = sc < tc
+    const xS   = goRight ? cx(sc) + B_COL : cx(sc)
+    const xT   = goRight ? cx(tc)         : cx(tc) + B_COL
+    const xMid = (xS + xT) / 2
 
-    return Array.from({ length: Math.ceil(srcMatches.length / 2) }, (_, p) => {
-      const y1  = yC(srcMatches.length, p * 2)
-      const y2  = yC(srcMatches.length, p * 2 + 1)
-      const yM  = yC(tgtMatches.length, p)
+    return Array.from({ length: Math.ceil(src.length / 2) }, (_, p) => {
+      const y1 = yC(src.length, p * 2)
+      const y2 = yC(src.length, p * 2 + 1)
+      const yM = yC(tgt.length, p)
       return (
-        <g key={`k${srcCol}-${tgtCol}-${p}`} stroke="#374151" strokeWidth="1.5"
-          fill="none" strokeLinecap="round" strokeLinejoin="round">
-          {/* ┤ forma: horizontal de cima + vertical + horizontal de baixo */}
-          <path d={`M ${xSrc} ${y1} H ${xMid} V ${y2} M ${xSrc} ${y2} H ${xMid}`} />
-          {/* Horizontal central para próximo round */}
-          <line x1={xMid} y1={yM} x2={xTgt} y2={yM} />
+        <g key={`k${sc}-${tc}-${p}`} stroke={GOLD_CONN + '55'} strokeWidth="1.5"
+          fill="none" strokeLinecap="round">
+          <path d={`M ${xS} ${y1} H ${xMid} V ${y2} M ${xS} ${y2} H ${xMid}`} />
+          <line x1={xMid} y1={yM} x2={xT} y2={yM} />
         </g>
       )
     })
   }
 
-  const connectors = [
-    // Metade esquerda (da esquerda para o Final)
-    ...makeConn(L.r32, 0, L.r16, 1),
-    ...makeConn(L.r16, 1, L.qf,  2),
-    ...makeConn(L.qf,  2, L.sf,  3),
-    ...makeConn(L.sf,  3, finAll, 4),
-    // Metade direita (da direita para o Final)
-    ...makeConn(R.r32, 8, R.r16, 7),
-    ...makeConn(R.r16, 7, R.qf,  6),
-    ...makeConn(R.qf,  6, R.sf,  5),
-    ...makeConn(R.sf,  5, finAll, 4),
+  const connSVG = [
+    makeConn(L.r32, 0, L.r16, 1), makeConn(L.r16, 1, L.qf, 2),
+    makeConn(L.qf, 2, L.sf, 3),   makeConn(L.sf, 3, finAll, 4),
+    makeConn(R.r32, 8, R.r16, 7), makeConn(R.r16, 7, R.qf, 6),
+    makeConn(R.qf, 6, R.sf, 5),   makeConn(R.sf, 5, finAll, 4),
   ]
 
-  // ── Cabeçalhos das fases ──────────────────────────────────────────────────────
-  const HEADERS_L = [
-    { col:0, label:'16avos', icon:'⚔️' },
-    { col:1, label:'Oitavas', icon:'⚽' },
-    { col:2, label:'Quartas', icon:'🔥' },
-    { col:3, label:'Semi', icon:'⭐' },
-  ]
-  const HEADERS_R = [
-    { col:5, label:'Semi', icon:'⭐' },
-    { col:6, label:'Quartas', icon:'🔥' },
-    { col:7, label:'Oitavas', icon:'⚽' },
-    { col:8, label:'16avos', icon:'⚔️' },
+  // ── Labels das fases ─────────────────────────────────────────────────────
+  const LABELS = [
+    { c:0, t:'2ª FASE' }, { c:1, t:'OITAVAS' }, { c:2, t:'QUARTAS' }, { c:3, t:'SEMI' },
+    { c:4, t:'FINAL',  gold: true },
+    { c:5, t:'SEMI' }, { c:6, t:'QUARTAS' }, { c:7, t:'OITAVAS' }, { c:8, t:'2ª FASE' },
   ]
 
-  const TOTAL_W = 9 * STEP - GAP_W
   const finalMatch = finAll[0] ?? null
-  const champion = matchWinner(finalMatch)
-  const third = bracketData['3rd Place Final'] || []
+  const champion   = matchWinner(finalMatch)
+  const third      = sortByFixtureId(bracketData['3rd Place Final'])
 
   return (
-    <div>
+    <div style={{
+      background: 'linear-gradient(160deg, #040d1c 0%, #091729 45%, #040d1c 100%)',
+      borderRadius: 18, padding: '16px 10px 14px',
+      border: '1px solid rgba(201,148,31,0.18)',
+      maxWidth: '100%',
+    }}>
+      {/* Título */}
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <div style={{
+          fontSize: 9, fontWeight: 900, letterSpacing: '.35em', textTransform: 'uppercase',
+          color: '#c9941f', marginBottom: 2,
+        }}>
+          Copa do Mundo 2026
+        </div>
+        <div style={{
+          fontSize: 18, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase',
+          color: '#f2c14e',
+        }}>
+          Caminho Até a Final
+        </div>
+      </div>
+
       {/* Banner campeão */}
       {champion && (
-        <div className="mb-6 p-4 rounded-2xl flex items-center justify-center gap-4
-          bg-gradient-to-r from-yellow-900/30 to-amber-900/20
-          border border-yellow-600/30 shadow-lg">
-          <div className="text-4xl">🏆</div>
-          {champion.logo && (
-            <img src={champion.logo} alt="" className="w-10 h-10 object-contain" />
-          )}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+          padding: '8px 20px', marginBottom: 14, borderRadius: 10,
+          background: 'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))',
+          border: '1px solid rgba(201,148,31,.3)',
+        }}>
+          <span style={{ fontSize: 28 }}>🏆</span>
+          {champion.logo && <img src={champion.logo} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />}
           <div>
-            <div className="text-[10px] text-yellow-500 font-black uppercase tracking-widest mb-0.5">
-              Campeão Copa 2026
-            </div>
-            <div className="text-xl font-black text-white">{nome(champion.name)}</div>
+            <div style={{ fontSize: 8, color: '#c9941f', fontWeight: 900, letterSpacing: '.3em', textTransform: 'uppercase' }}>Campeão</div>
+            <div style={{ fontSize: 16, color: '#fff', fontWeight: 900 }}>{nome(champion.name)}</div>
           </div>
         </div>
       )}
 
-      {/* Chaveamento com scroll horizontal */}
-      <div className="overflow-x-auto -mx-3 px-3 pb-4">
+      {/* Bracket (scroll só se necessário) */}
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ width: TOTAL_W, minWidth: TOTAL_W }}>
 
-        {/* Linha de cabeçalhos */}
-        <div className="relative mb-1.5" style={{ width: TOTAL_W, height: 24 }}>
-          {/* Final (centro) */}
-          <div style={{ position:'absolute', left: cx(4), width: COL_W,
-            background:'#78350f30', color:'#FCD34D', border:'1px solid #78350f50',
-            textAlign:'center', fontSize:10, fontWeight:900, padding:'3px 0', borderRadius:6,
-            textTransform:'uppercase', letterSpacing:'0.05em' }}>
-            🏆 Final
+          {/* Labels das fases */}
+          <div style={{ position: 'relative', height: 20, marginBottom: 6 }}>
+            {LABELS.map(({ c, t, gold }) => (
+              <div key={c} style={{
+                position: 'absolute', left: cx(c), width: B_COL,
+                textAlign: 'center', fontSize: 8, fontWeight: 900,
+                letterSpacing: '.12em', textTransform: 'uppercase',
+                color: gold ? '#f2c14e' : '#3a5a7a',
+                borderBottom: gold ? '1.5px solid #c9941f' : 'none',
+                paddingBottom: 2,
+              }}>
+                {t}
+              </div>
+            ))}
           </div>
-          {[...HEADERS_L, ...HEADERS_R].map(({ col, label, icon }) => (
-            <div key={col} style={{ position:'absolute', left: cx(col), width: COL_W,
-              background:'#1f293750', color:'#9CA3AF', border:'1px solid #37415140',
-              textAlign:'center', fontSize:9, fontWeight:900, padding:'3px 0', borderRadius:5,
-              textTransform:'uppercase', letterSpacing:'0.05em' }}>
-              {icon} {label}
-            </div>
-          ))}
-        </div>
 
-        {/* Área do bracket */}
-        <div className="relative" style={{ width: TOTAL_W, height: TOTAL_H }}>
-          {/* SVG dos conectores (atrás) */}
-          <svg className="absolute inset-0 pointer-events-none"
-            style={{ width: TOTAL_W, height: TOTAL_H }}
-            viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
-            {connectors}
-          </svg>
-          {/* Cards (frente) */}
-          {cards}
+          {/* Área principal do bracket */}
+          <div style={{ position: 'relative', height: TOTAL_H }}>
+            <svg style={{ position: 'absolute', inset: 0, overflow: 'visible' }}
+              width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
+              {connSVG}
+            </svg>
+            {cards}
+          </div>
         </div>
       </div>
 
-      {/* Disputa 3º lugar */}
+      {/* 3° Lugar */}
       {third.length > 0 && (
-        <div className="mt-4 max-w-[220px] mx-auto">
-          <div className="text-center text-[10px] font-black uppercase tracking-wider py-1.5 rounded-lg mb-2"
-            style={{ background:'#92400e18', color:'#FCD34D', border:'1px solid #92400e40' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 10, gap: 4 }}>
+          <div style={{
+            fontSize: 8, fontWeight: 900, letterSpacing: '.2em', textTransform: 'uppercase',
+            color: '#9a6c2a',
+          }}>
             🥉 3° Lugar
           </div>
-          {third.map((m, i) => <BracketCard key={i} match={m} />)}
+          <BracketCard match={third[0]} />
         </div>
       )}
     </div>
