@@ -133,7 +133,7 @@ function MirroredBracket({ bracketData }) {
   const sfAll  = bracketData['Semi-finals']    || []
   const finAll = bracketData['Final']          || []
 
-  const mid = arr => Math.ceil(arr.length / 2)
+  const mid = n => Math.ceil(n / 2)
 
   const L = {
     r32: r32All.slice(0, mid(r32All.length)),   // 8 matches
