@@ -59,42 +59,53 @@ function matchWinner(m) {
   return null
 }
 
-// ─── Organiza chaveamento oficial Copa 2026 (ordem cronológica = seeding) ────
+// ─── ORDENAÇÃO E CHAVEAMENTO OFICIAL ──────────────────────────────────────────
+// O ID da partida garante a estrutura perfeita da árvore sem desorganizar.
+function sortByFixtureId(arr) {
+  return [...(arr || [])].sort((a, b) => {
+    const ia = a?.fixture?.id ?? a?.api_id ?? a?.id ?? 999999
+    const ib = b?.fixture?.id ?? b?.api_id ?? b?.id ?? 999999
+    return ia - ib
+  })
+}
+
 function buildPerfectBracket(matches) {
-  const sortCrono = arr => [...(arr || [])].sort((a, b) =>
-    new Date(a.start_time || a.fixture?.date || 0) - new Date(b.start_time || b.fixture?.date || 0)
-  )
-  const r32 = sortCrono(matches['Round of 32'])
-  const r16 = sortCrono(matches['Round of 16'])
-  const qf  = sortCrono(matches['Quarter-finals'])
-  const sf  = sortCrono(matches['Semi-finals'])
-  const fin = sortCrono(matches['Final'])
-  const g   = (arr, i) => arr[i] || null
+  const r32 = sortByFixtureId(matches['Round of 32'])
+  const r16 = sortByFixtureId(matches['Round of 16'])
+  const qf  = sortByFixtureId(matches['Quarter-finals'])
+  const sf  = sortByFixtureId(matches['Semi-finals'])
+  const fin = sortByFixtureId(matches['Final'])
+
+  // Força o array a ter o tamanho exato da fase, preenchendo o que faltar com null
+  const pad = (arr, size) => Array.from({ length: size }, (_, i) => arr[i] || null)
+
+  const p32 = pad(r32, 16)
+  const p16 = pad(r16, 8)
+  const pqf = pad(qf, 4)
+  const psf = pad(sf, 2)
+  const pfin = pad(fin, 1)
 
   const tree = {
     L: {
-      r32: [g(r32,2),g(r32,5),g(r32,0),g(r32,3),g(r32,11),g(r32,10),g(r32,9),g(r32,8)],
-      r16: [g(r16,1),g(r16,0),g(r16,4),g(r16,5)],
-      qf:  [g(qf,0), g(qf,1)],
-      sf:  [g(sf,0)],
+      r32: p32.slice(0, 8),
+      r16: p16.slice(0, 4),
+      qf:  pqf.slice(0, 2),
+      sf:  [psf[0]],
     },
     R: {
-      r32: [g(r32,1),g(r32,4),g(r32,6),g(r32,7),g(r32,14),g(r32,13),g(r32,12),g(r32,15)],
-      r16: [g(r16,2),g(r16,3),g(r16,6),g(r16,7)],
-      qf:  [g(qf,2), g(qf,3)],
-      sf:  [g(sf,1)],
+      r32: p32.slice(8, 16),
+      r16: p16.slice(4, 8),
+      qf:  pqf.slice(2, 4),
+      sf:  [psf[1]],
     },
-    final: [g(fin,0)],
+    final: pfin,
   }
 
-  // Propaga vencedores para o próximo quadrado mesmo sem jogo agendado ainda
   propagateWinners(tree)
   return tree
 }
 
-// ─── Propagação de vencedores ─────────────────────────────────────────────────
-// Quando um jogo termina, coloca o time vencedor no slot do próximo round,
-// mesmo que o adversário ainda não tenha jogado.
+// ─── PROPAGAÇÃO DE VENCEDORES CORRIGIDA ───────────────────────────────────────
 function propagateWinners(tree) {
   const ROUND_ORDER = ['r32', 'r16', 'qf', 'sf']
 
@@ -112,26 +123,25 @@ function propagateWinners(tree) {
         const nextIdx = Math.floor(i / 2)
         const isHome  = i % 2 === 0
 
-        // Garante que o slot existe
+        // Se a API ainda não enviou esse jogo da próxima fase, cria um espaço projetado
         if (!tgt[nextIdx]) {
           tgt[nextIdx] = { _projected: true, teams: { home: null, away: null },
                            goals: { home: null, away: null }, score: {} }
         }
 
         const nm = tgt[nextIdx]
-        // Só injeta se a API ainda não preencheu aquele time
-        if (isHome && !nm.teams?.home?.id) {
-          nm.teams = { ...nm.teams, home: winner }
-        } else if (!isHome && !nm.teams?.away?.id) {
-          nm.teams = { ...nm.teams, away: winner }
+        // CORREÇÃO MESTRA: Só avança o time virtualmente se for um slot projetado.
+        // NUNCA sobrepõe um jogo real (Ex: França x Paraguai) que a API já mandou!
+        if (nm._projected) {
+          if (isHome) nm.teams = { ...nm.teams, home: winner }
+          else nm.teams = { ...nm.teams, away: winner }
         }
       }
-
       tree[side][nextKey] = tgt
     }
   })
 
-  // SF → Final
+  // Propagação da Semifinal para a Final
   const lWin = matchWinner(tree.L.sf[0])
   const rWin = matchWinner(tree.R.sf[0])
   if (lWin || rWin) {
@@ -140,12 +150,14 @@ function propagateWinners(tree) {
                         goals: { home: null, away: null }, score: {} }
     }
     const f = tree.final[0]
-    if (lWin && !f.teams?.home?.id) f.teams = { ...f.teams, home: lWin }
-    if (rWin && !f.teams?.away?.id) f.teams = { ...f.teams, away: rWin }
+    if (f._projected) {
+      if (lWin) f.teams = { ...f.teams, home: lWin }
+      if (rWin) f.teams = { ...f.teams, away: rWin }
+    }
   }
 }
 
-// ─── Constantes visuais ───────────────────────────────────────────────────────
+// ─── CONSTANTES VISUAIS ───────────────────────────────────────────────────────
 const B_COL  = 90
 const B_GAP  = 16
 const B_STEP = B_COL + B_GAP
@@ -155,9 +167,8 @@ const GOLD   = '#c9941f'
 const NAVY2  = '#0c1f3a'
 const DIVCLR = '#0e2040'
 
-// ─── Card do chaveamento ──────────────────────────────────────────────────────
+// ─── CARD DO CHAVEAMENTO ──────────────────────────────────────────────────────
 function BracketCard({ match }) {
-  // Slot vazio (sem match e sem projeção)
   if (!match) return (
     <div style={{
       height:B_CARD, width:B_COL,
@@ -177,7 +188,7 @@ function BracketCard({ match }) {
   )
 
   const finished   = isMatchFinished(match)
-  const projected  = !!match._projected && !finished  // projetado mas não jogado ainda
+  const projected  = !!match._projected && !finished
   const home = match.teams?.home
   const away = match.teams?.away
   const gH   = match.goals?.home ?? null
@@ -188,12 +199,7 @@ function BracketCard({ match }) {
   const homeWins = finished && (hasPen ? pH > pA : (gH??0) > (gA??0))
   const awayWins = finished && (hasPen ? pA > pH : (gA??0) > (gH??0))
 
-  // Borda: dourado=encerrado, azul tracejado=projeção, translúcido=futuro
-  const borderStyle = finished
-    ? `1.5px solid ${GOLD}`
-    : projected
-      ? `1px dashed ${GOLD}50`
-      : `1px solid ${GOLD}30`
+  const borderStyle = finished ? `1.5px solid ${GOLD}` : projected ? `1px dashed ${GOLD}50` : `1px solid ${GOLD}30`
 
   const Row = ({ team, goals, wins, loses }) => (
     <div style={{
@@ -208,16 +214,11 @@ function BracketCard({ match }) {
       <span style={{
         flex:1, fontSize:10, fontWeight:800, letterSpacing:'0.02em',
         overflow:'clip', textOverflow:'ellipsis', whiteSpace:'nowrap',
-        color: wins ? '#86efac'
-             : loses ? '#64748b'
-             : projected ? `${GOLD}cc`   // projeção: dourado suave
-             : team?.name ? '#cbd5e1'    // time confirmado
-             : 'rgba(255,255,255,0.2)',  // a definir
+        color: wins ? '#86efac' : loses ? '#64748b' : projected ? `${GOLD}cc` : team?.name ? '#cbd5e1' : 'rgba(255,255,255,0.2)',
         fontStyle: projected && !finished ? 'italic' : 'normal',
       }}>
         {team?.name ? sigla(team.name) : 'A definir'}
       </span>
-      {/* Placar: só mostra quando o jogo terminou */}
       <span style={{
         fontSize:11, fontWeight:900, minWidth:13, textAlign:'right',
         color: wins ? '#4ade80' : finished ? '#64748b' : '#1e3a5f',
@@ -247,7 +248,7 @@ function BracketCard({ match }) {
   )
 }
 
-// ─── Chaveamento ──────────────────────────────────────────────────────────────
+// ─── RENDERIZAÇÃO DA ÁRVORE ───────────────────────────────────────────────────
 function TournamentBracket({ bracketData }) {
   const [mobileTab, setMobileTab] = useState('center')
   const containerRef = useRef(null)
@@ -283,23 +284,17 @@ function TournamentBracket({ bracketData }) {
 
     return Array.from({ length: Math.ceil(src.length/2) }, (_,p) => {
       const y1       = yC(src.length, p*2)
-      const hasPair  = (p*2+1) < src.length   // verifica se existe a 2ª partida do par
+      const hasPair  = (p*2+1) < src.length
       const y2       = hasPair ? yC(src.length, p*2+1) : y1
       const yM       = yC(tgt.length, p)
       const dir      = goRight ? -r : r
 
-      // Sem par (ex: SF→Final com 1 partida): linha reta horizontal
       if (!hasPair) return (
-        <line key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" opacity="0.5"
-          strokeLinecap="round"
-          x1={xS} y1={y1} x2={xT} y2={yM}
-        />
+        <line key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" opacity="0.5" strokeLinecap="round" x1={xS} y1={y1} x2={xT} y2={yM} />
       )
 
-      // Par normal: conector em colchete com curvas
       return (
-        <path key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" fill="none"
-          opacity="0.5" strokeLinecap="round" strokeLinejoin="round"
+        <path key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" strokeLinejoin="round"
           d={`M${xS} ${y1} H${xMid+dir} Q${xMid} ${y1} ${xMid} ${y1+r} V${y2-r} Q${xMid} ${y2} ${xMid+dir} ${y2} H${xS} M${xMid} ${yM} H${xT}`}
         />
       )
@@ -321,9 +316,7 @@ function TournamentBracket({ bracketData }) {
 
   const finalMatch = tree.final[0] ?? null
   const champion   = matchWinner(finalMatch)
-  const third      = [...(bracketData['3rd Place Final']||[])].sort((a,b) =>
-    new Date(a.start_time||0) - new Date(b.start_time||0)
-  )
+  const third      = [...(bracketData['3rd Place Final']||[])].sort((a,b) => new Date(a.start_time||0) - new Date(b.start_time||0))
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -334,30 +327,14 @@ function TournamentBracket({ bracketData }) {
   }, [mobileTab, TOTAL_W])
 
   return (
-    <div style={{
-      background:'linear-gradient(160deg,#040d1c 0%,#091729 45%,#040d1c 100%)',
-      borderRadius:18, padding:'16px 0 14px',
-      border:'1px solid rgba(201,148,31,0.18)',
-      width:'100%',  // sem overflow:hidden para não cortar conteúdo vertical
-    }}>
-      {/* Título */}
+    <div style={{ background:'linear-gradient(160deg,#040d1c 0%,#091729 45%,#040d1c 100%)', borderRadius:18, padding:'16px 0 14px', border:'1px solid rgba(201,148,31,0.18)', width:'100%' }}>
       <div style={{ textAlign:'center', marginBottom:14, padding:'0 12px' }}>
-        <div style={{ fontSize:9, fontWeight:900, letterSpacing:'.35em', color:GOLD, marginBottom:2 }}>
-          COPA DO MUNDO 2026
-        </div>
-        <div style={{ fontSize:18, fontWeight:900, letterSpacing:'.12em', color:'#f2c14e' }}>
-          Caminho Até a Final
-        </div>
+        <div style={{ fontSize:9, fontWeight:900, letterSpacing:'.35em', color:GOLD, marginBottom:2 }}>COPA DO MUNDO 2026</div>
+        <div style={{ fontSize:18, fontWeight:900, letterSpacing:'.12em', color:'#f2c14e' }}>Caminho Até a Final</div>
       </div>
 
-      {/* Banner campeão */}
       {champion && (
-        <div style={{
-          display:'flex', alignItems:'center', justifyContent:'center', gap:12,
-          padding:'8px 20px', margin:'0 auto 14px', borderRadius:10, maxWidth:300,
-          background:'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))',
-          border:'1px solid rgba(201,148,31,.3)',
-        }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12, padding:'8px 20px', margin:'0 auto 14px', borderRadius:10, maxWidth:300, background:'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))', border:'1px solid rgba(201,148,31,.3)' }}>
           <span style={{ fontSize:28 }}>🏆</span>
           {champion.logo && <img src={champion.logo} alt="" style={{ width:32,height:32,objectFit:'contain' }} />}
           <div>
@@ -367,67 +344,39 @@ function TournamentBracket({ bracketData }) {
         </div>
       )}
 
-      {/* Controles mobile */}
       <div className="md:hidden flex justify-center gap-2 mb-4 px-2">
         {['left','center','right'].map(t => (
-          <button key={t} onClick={() => setMobileTab(t)}
-            className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition
-              ${mobileTab===t ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+          <button key={t} onClick={() => setMobileTab(t)} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab===t ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
             {t==='left' ? 'ESQUERDA' : t==='center' ? 'CENTRO' : 'DIREITA'}
           </button>
         ))}
       </div>
 
-      {/* Bracket */}
-      <div ref={containerRef} className="no-scrollbar"
-        style={{ overflowX:'auto', overflowY:'visible', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
+      <div ref={containerRef} className="no-scrollbar" style={{ overflowX:'auto', overflowY:'visible', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
         <div style={{ width:TOTAL_W, minWidth:TOTAL_W, position:'relative' }}>
-
-          {/* Labels das fases */}
           <div style={{ position:'relative', height:20, marginBottom:6 }}>
             {LABELS.map(({ c, t, gold }) => (
-              <div key={c} style={{
-                position:'absolute', left:cx(c), width:B_COL,
-                textAlign:'center', fontSize:8, fontWeight:900,
-                color: gold ? '#f2c14e' : '#3a5a7a',
-                borderBottom: gold ? `1.5px solid ${GOLD}` : 'none',
-                paddingBottom:2,
-              }}>
+              <div key={c} style={{ position:'absolute', left:cx(c), width:B_COL, textAlign:'center', fontSize:8, fontWeight:900, color: gold ? '#f2c14e' : '#3a5a7a', borderBottom: gold ? `1.5px solid ${GOLD}` : 'none', paddingBottom:2 }}>
                 {t}
               </div>
             ))}
           </div>
 
-          {/* Área principal — 3° lugar dentro do espaço livre abaixo da Final */}
           {(() => {
-            // Final card: y = (TOTAL_H - B_CARD)/2 até (TOTAL_H + B_CARD)/2
-            // Abaixo dela há ~187px livres — suficiente para o 3° lugar
-            const finalCardBot = (TOTAL_H + B_CARD) / 2   // ≈ 229px
-            const thirdX       = cx(4)                     // mesma coluna da Final
-            const thirdLabelY  = finalCardBot + 50         // ≈ 241px
-            const thirdCardY   = thirdLabelY + 14          // ≈ 255px
+            const finalCardBot = (TOTAL_H + B_CARD) / 2
+            const thirdX       = cx(4)
+            const thirdLabelY  = finalCardBot + 50
+            const thirdCardY   = thirdLabelY + 14
 
             return (
               <div style={{ position:'relative', height:TOTAL_H }}>
-                <svg style={{ position:'absolute', inset:0, overflow:'visible' }}
-                  width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
+                <svg style={{ position:'absolute', inset:0, overflow:'visible' }} width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
                   {connSVG}
-                  {/* Linha pontilhada: da Final até o 3° lugar — sempre visível */}
-                  <line
-                    x1={thirdX + B_COL/2} y1={finalCardBot}
-                    x2={thirdX + B_COL/2} y2={thirdLabelY - 2}
-                    stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"
-                  />
+                  <line x1={thirdX + B_COL/2} y1={finalCardBot} x2={thirdX + B_COL/2} y2={thirdLabelY - 2} stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4" />
                 </svg>
                 {cards}
-                {/* 3° LUGAR — sempre visível abaixo da Final (mesmo sem dados ainda) */}
                 <>
-                  <div style={{
-                    position:'absolute', left:thirdX, top:thirdLabelY,
-                    width:B_COL, textAlign:'center',
-                    fontSize:7, fontWeight:900, letterSpacing:'.2em',
-                    color:'#9a6c2a', textTransform:'uppercase',
-                  }}>
+                  <div style={{ position:'absolute', left:thirdX, top:thirdLabelY, width:B_COL, textAlign:'center', fontSize:7, fontWeight:900, letterSpacing:'.2em', color:'#9a6c2a', textTransform:'uppercase' }}>
                     🥉 3° Lugar
                   </div>
                   <div style={{ position:'absolute', left:thirdX, top:thirdCardY }}>
@@ -439,13 +388,11 @@ function TournamentBracket({ bracketData }) {
           })()}
         </div>
       </div>
-
-
     </div>
   )
 }
 
-// ─── Tabela de Grupos ─────────────────────────────────────────────────────────
+// ─── Tabela de Grupos e Página Principal Continuam Iguais ──────────────────────
 function StandingsTable({ groupData }) {
   if (!groupData?.length) return null
   const rawGroup      = groupData[0]?.group || ''
@@ -492,7 +439,7 @@ function StandingsTable({ groupData }) {
       </div>
       {is3rdTable && (
         <div className="px-3 py-1.5 bg-gray-900/50 text-[9px] text-gray-500 flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-green-500 inline-block flex-shrink-0" />
           Top {qualThreshold} avançam para o mata-mata
         </div>
       )}
@@ -500,7 +447,6 @@ function StandingsTable({ groupData }) {
   )
 }
 
-// ─── Página Principal ─────────────────────────────────────────────────────────
 export default function Tabelas() {
   const [loading, setLoading]     = useState(true)
   const [competitions, setComps]  = useState([])
@@ -621,8 +567,7 @@ export default function Tabelas() {
           {competitions.map(c => (
             <button key={c.id} onClick={() => setCompId(c.id)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all border
-                ${compId===c.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105'
-                                : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>
+                ${compId===c.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>
               {c.name}
             </button>
           ))}
@@ -640,16 +585,12 @@ export default function Tabelas() {
           {(hasStandings || hasBracket) && (
             <div className="flex bg-gray-800 p-1 rounded-xl mb-6 max-w-xs mx-auto border border-gray-700">
               {hasStandings && (
-                <button onClick={() => setTab('standings')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
-                    ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
+                <button onClick={() => setTab('standings')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
                   🗂️ Grupos
                 </button>
               )}
               {hasBracket && (
-                <button onClick={() => setTab('bracket')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
-                    ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
+                <button onClick={() => setTab('bracket')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
                   🏆 Mata-mata
                 </button>
               )}
@@ -667,8 +608,7 @@ export default function Tabelas() {
           )}
 
           {!hasStandings && !hasBracket && (
-            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700
-              border-dashed text-gray-400 max-w-md mx-auto w-full">
+            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-400 max-w-md mx-auto w-full">
               <div className="text-5xl mb-3">📡</div>
               <p className="font-bold mb-1">Nenhum dado encontrado</p>
               <p className="text-sm text-gray-500">Importe os dados pelo painel admin.</p>
