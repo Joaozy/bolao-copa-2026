@@ -59,37 +59,86 @@ function matchWinner(m) {
   return null
 }
 
-// ─── Organiza chaveamento oficial Copa 2026 (ordem cronológica = seeding) ────
+// ─── Organiza chaveamento oficial Copa 2026 ──────────────────────────────────
 function buildPerfectBracket(matches) {
   const sortCrono = arr => [...(arr || [])].sort((a, b) =>
     new Date(a.start_time || a.fixture?.date || 0) - new Date(b.start_time || b.fixture?.date || 0)
   )
   const r32 = sortCrono(matches['Round of 32'])
-  const r16 = sortCrono(matches['Round of 16'])
-  const qf  = sortCrono(matches['Quarter-finals'])
-  const sf  = sortCrono(matches['Semi-finals'])
-  const fin = sortCrono(matches['Final'])
   const g   = (arr, i) => arr[i] || null
 
   const tree = {
     L: {
       // 16-avos impecáveis mantidos:
       r32: [g(r32,2),g(r32,5),g(r32,0),g(r32,3),g(r32,11),g(r32,10),g(r32,9),g(r32,8)],
-      // Oitavas corrigidas de [1, 0, 4, 5] para [0, 1, 4, 5]:
-      r16: [g(r16,0),g(r16,1),g(r16,4),g(r16,5)],
-      qf:  [g(qf,0), g(qf,1)],
-      sf:  [g(sf,0)],
+      r16: [null, null, null, null],
+      qf:  [null, null],
+      sf:  [null],
     },
     R: {
       r32: [g(r32,1),g(r32,4),g(r32,6),g(r32,7),g(r32,14),g(r32,13),g(r32,12),g(r32,15)],
-      r16: [g(r16,2),g(r16,3),g(r16,6),g(r16,7)],
-      qf:  [g(qf,2), g(qf,3)],
-      sf:  [g(sf,1)],
+      r16: [null, null, null, null],
+      qf:  [null, null],
+      sf:  [null],
     },
-    final: [g(fin,0)],
+    final: [null],
   }
 
-  // Propaga vencedores para o próximo quadrado mesmo sem jogo agendado ainda
+  // DETETIVE DE JOGOS: Encontra o jogo real da API baseado nos times que passaram
+  const placeMatches = (roundName, curKey, nextKey) => {
+    const apiMatches = matches[roundName] || []
+    
+    const isFromSlot = (teamId, slotMatch) => {
+      if (!teamId || !slotMatch) return false
+      return slotMatch.teams?.home?.id === teamId || slotMatch.teams?.away?.id === teamId
+    }
+
+    ['L', 'R'].forEach(side => {
+      const src = tree[side][curKey]
+      const tgt = tree[side][nextKey]
+      
+      for (let i = 0; i < tgt.length; i++) {
+         const parentA = src[i * 2]
+         const parentB = src[i * 2 + 1]
+         
+         // Procura na API um jogo que tenha algum dos times dos pais
+         const realMatch = apiMatches.find(m => {
+             const hId = m.teams?.home?.id
+             const aId = m.teams?.away?.id
+             return isFromSlot(hId, parentA) || isFromSlot(aId, parentA) ||
+                    isFromSlot(hId, parentB) || isFromSlot(aId, parentB)
+         })
+         
+         if (realMatch) {
+             tgt[i] = realMatch
+         }
+      }
+    })
+  }
+
+  // Preenche a árvore com os jogos reais encontrados
+  placeMatches('Round of 16', 'r32', 'r16')
+  placeMatches('Quarter-finals', 'r16', 'qf')
+  placeMatches('Semi-finals', 'qf', 'sf')
+
+  // Final 
+  const apiFin = matches['Final'] || []
+  const sfL = tree.L.sf[0]
+  const sfR = tree.R.sf[0]
+  const realFin = apiFin.find(m => {
+      const hId = m.teams?.home?.id
+      const aId = m.teams?.away?.id
+      const isFromSlot = (tId, slot) => slot && (slot.teams?.home?.id === tId || slot.teams?.away?.id === tId)
+      return isFromSlot(hId, sfL) || isFromSlot(aId, sfL) || isFromSlot(hId, sfR) || isFromSlot(aId, sfR)
+  })
+  
+  if (realFin) {
+      tree.final[0] = realFin
+  } else if (apiFin.length > 0) {
+      tree.final[0] = apiFin[0]
+  }
+
+  // Propaga vencedores para o próximo quadrado (caso a API ainda não tenha criado o jogo)
   propagateWinners(tree)
   return tree
 }
@@ -112,22 +161,23 @@ function propagateWinners(tree) {
         const nextIdx = Math.floor(i / 2)
         const isHome  = i % 2 === 0
 
-        // Garante que o slot existe
+        // Se o slot estiver completamente vazio, cria uma caixa de "Projeção"
         if (!tgt[nextIdx]) {
           tgt[nextIdx] = { _projected: true, teams: { home: null, away: null },
                            goals: { home: null, away: null }, score: {} }
         }
 
         const nm = tgt[nextIdx]
-        // Só injeta se a API ainda não preencheu aquele time
-        if (isHome && !nm.teams?.home?.id) {
-          nm.teams = { ...nm.teams, home: winner }
-        } else if (!isHome && !nm.teams?.away?.id) {
-          nm.teams = { ...nm.teams, away: winner }
+        
+        // Só injeta o time se o quadrado for uma "Projeção" (Isso impede que o Brasil sobrescreva a França!)
+        if (nm._projected) {
+          if (isHome && !nm.teams?.home?.id) {
+            nm.teams = { ...nm.teams, home: winner }
+          } else if (!isHome && !nm.teams?.away?.id) {
+            nm.teams = { ...nm.teams, away: winner }
+          }
         }
       }
-
-      tree[side][nextKey] = tgt
     }
   })
 
@@ -140,8 +190,10 @@ function propagateWinners(tree) {
                         goals: { home: null, away: null }, score: {} }
     }
     const f = tree.final[0]
-    if (lWin && !f.teams?.home?.id) f.teams = { ...f.teams, home: lWin }
-    if (rWin && !f.teams?.away?.id) f.teams = { ...f.teams, away: rWin }
+    if (f._projected) {
+      if (lWin && !f.teams?.home?.id) f.teams = { ...f.teams, home: lWin }
+      if (rWin && !f.teams?.away?.id) f.teams = { ...f.teams, away: rWin }
+    }
   }
 }
 
