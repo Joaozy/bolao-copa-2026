@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import SponsorBanner from '../../components/SponsorBanner'
 
-// ─── Traduções ────────────────────────────────────────────────────────────────
 const PT = {
   "Algeria":"Argélia","Argentina":"Argentina","Australia":"Austrália","Austria":"Áustria",
   "Belgium":"Bélgica","Bosnia & Herzegovina":"Bósnia e Herzegovina","Brazil":"Brasil",
@@ -34,8 +33,8 @@ const ABBR = {
   "Uruguay":"URU","USA":"EUA","Uzbekistan":"UZB"
 }
 
-const sigla  = n => ABBR[n] || (PT[n]?.slice(0,3).toUpperCase()) || n?.slice(0,3).toUpperCase() || '?'
-const nome   = n => PT[n] || n || 'A definir'
+const sigla = n => ABBR[n] || (PT[n]?.slice(0,3).toUpperCase()) || n?.slice(0,3).toUpperCase() || '?'
+const nome  = n => PT[n] || n || 'A definir'
 
 function isKnockout(r) {
   return ['Round of 32','Round of 16','Quarter-finals','Semi-finals','3rd Place Final','Final'].includes(r)
@@ -60,117 +59,89 @@ function matchWinner(m) {
   return null
 }
 
-// ─── LÓGICA ORIGINAL CORRIGIDA (DIVISÃO PERFEITA E ANTI-DUPLICIDADE) ─────────
-function sortByFixtureId(arr) {
-  return [...(arr || [])].sort((a, b) => {
-    const ia = a?.api_id ?? a?.fixture?.id ?? a?.id ?? 999999
-    const ib = b?.api_id ?? b?.fixture?.id ?? b?.id ?? 999999
-    return ia - ib
-  })
-}
-
+// ─── Organiza chaveamento oficial Copa 2026 (ordem cronológica = seeding) ────
 function buildPerfectBracket(matches) {
-  const r32 = sortByFixtureId(matches['Round of 32'])
-  const r16 = sortByFixtureId(matches['Round of 16'])
-  const qf  = sortByFixtureId(matches['Quarter-finals'])
-  const sf  = sortByFixtureId(matches['Semi-finals'])
-  const fin = sortByFixtureId(matches['Final'])
+  const sortCrono = arr => [...(arr || [])].sort((a, b) =>
+    new Date(a.start_time || a.fixture?.date || 0) - new Date(b.start_time || b.fixture?.date || 0)
+  )
+  const r32 = sortCrono(matches['Round of 32'])
+  const r16 = sortCrono(matches['Round of 16'])
+  const qf  = sortCrono(matches['Quarter-finals'])
+  const sf  = sortCrono(matches['Semi-finals'])
+  const fin = sortCrono(matches['Final'])
+  const g   = (arr, i) => arr[i] || null
 
-  const pad = (arr, size) => Array.from({ length: size }, (_, i) => arr[i] || null)
-
-  const p32 = pad(r32, 16)
-  const p16 = pad(r16, 8)
-  const pqf = pad(qf, 4)
-  const psf = pad(sf, 2)
-  const pfin = pad(fin, 1)
-
-  // Volta ao seu método de separar as chaves perfeitamente ao meio pelo ID
   const tree = {
     L: {
-      r32: p32.slice(0, 8),
-      r16: p16.slice(0, 4),
-      qf:  pqf.slice(0, 2),
-      sf:  [psf[0]],
+      // 16-avos impecáveis mantidos:
+      r32: [g(r32,2),g(r32,5),g(r32,0),g(r32,3),g(r32,11),g(r32,10),g(r32,9),g(r32,8)],
+      // Oitavas corrigidas de [1, 0, 4, 5] para [0, 1, 4, 5]:
+      r16: [g(r16,0),g(r16,1),g(r16,4),g(r16,5)],
+      qf:  [g(qf,0), g(qf,1)],
+      sf:  [g(sf,0)],
     },
     R: {
-      r32: p32.slice(8, 16),
-      r16: p16.slice(4, 8),
-      qf:  pqf.slice(2, 4),
-      sf:  [psf[1]],
+      r32: [g(r32,1),g(r32,4),g(r32,6),g(r32,7),g(r32,14),g(r32,13),g(r32,12),g(r32,15)],
+      r16: [g(r16,2),g(r16,3),g(r16,6),g(r16,7)],
+      qf:  [g(qf,2), g(qf,3)],
+      sf:  [g(sf,1)],
     },
-    final: pfin,
+    final: [g(fin,0)],
   }
 
+  // Propaga vencedores para o próximo quadrado mesmo sem jogo agendado ainda
   propagateWinners(tree)
   return tree
 }
 
+// ─── Propagação de vencedores ─────────────────────────────────────────────────
 function propagateWinners(tree) {
   const ROUND_ORDER = ['r32', 'r16', 'qf', 'sf']
-
-  // Função para pegar todos os IDs de times de uma rodada (Esquerda + Direita)
-  const getTeamsInRound = (sideL, sideR) => {
-    const teams = new Set()
-    const addTeams = (matches) => matches.forEach(m => {
-      if (m?.teams?.home?.id) teams.add(m.teams.home.id)
-      if (m?.teams?.away?.id) teams.add(m.teams.away.id)
-    })
-    addTeams(sideL || [])
-    addTeams(sideR || [])
-    return teams
-  }
 
   ;['L', 'R'].forEach(side => {
     for (let ri = 0; ri < ROUND_ORDER.length - 1; ri++) {
       const curKey  = ROUND_ORDER[ri]
       const nextKey = ROUND_ORDER[ri + 1]
-      
       const src = tree[side][curKey] || []
       const tgt = tree[side][nextKey] || []
-      
-      // Coleta quem JÁ ESTÁ na próxima fase (jogos reais vindos da API)
-      const teamsAlreadyInNextRound = getTeamsInRound(tree.L[nextKey], tree.R[nextKey])
 
       for (let i = 0; i < src.length; i++) {
         const winner = matchWinner(src[i])
         if (!winner) continue
 
-        // A MÁGICA: Se o time já apareceu num jogo real da próxima fase, pula a projeção!
-        if (teamsAlreadyInNextRound.has(winner.id)) continue
-
         const nextIdx = Math.floor(i / 2)
         const isHome  = i % 2 === 0
 
+        // Garante que o slot existe
         if (!tgt[nextIdx]) {
           tgt[nextIdx] = { _projected: true, teams: { home: null, away: null },
                            goals: { home: null, away: null }, score: {} }
         }
 
         const nm = tgt[nextIdx]
-        if (nm._projected) {
-          if (isHome && !nm.teams?.home) nm.teams = { ...nm.teams, home: winner }
-          else if (!isHome && !nm.teams?.away) nm.teams = { ...nm.teams, away: winner }
+        // Só injeta se a API ainda não preencheu aquele time
+        if (isHome && !nm.teams?.home?.id) {
+          nm.teams = { ...nm.teams, home: winner }
+        } else if (!isHome && !nm.teams?.away?.id) {
+          nm.teams = { ...nm.teams, away: winner }
         }
       }
+
       tree[side][nextKey] = tgt
     }
   })
 
-  // Final
-  const teamsInFinal = getTeamsInRound(tree.final, [])
+  // SF → Final
   const lWin = matchWinner(tree.L.sf[0])
   const rWin = matchWinner(tree.R.sf[0])
-
-  if ((lWin && !teamsInFinal.has(lWin.id)) || (rWin && !teamsInFinal.has(rWin.id))) {
+  if (lWin || rWin) {
     if (!tree.final[0]) {
       tree.final[0] = { _projected: true, teams: { home: null, away: null },
                         goals: { home: null, away: null }, score: {} }
     }
     const f = tree.final[0]
-    if (f._projected) {
-      if (lWin && !teamsInFinal.has(lWin.id)) f.teams = { ...f.teams, home: lWin }
-      if (rWin && !teamsInFinal.has(rWin.id)) f.teams = { ...f.teams, away: rWin }
-    }
+    if (lWin && !f.teams?.home?.id) f.teams = { ...f.teams, home: lWin }
+    if (rWin && !f.teams?.away?.id) f.teams = { ...f.teams, away: rWin }
   }
 }
 
@@ -186,10 +157,11 @@ const DIVCLR = '#0e2040'
 
 // ─── Card do chaveamento ──────────────────────────────────────────────────────
 function BracketCard({ match }) {
+  // Slot vazio (sem match e sem projeção)
   if (!match) return (
     <div style={{
       height:B_CARD, width:B_COL,
-      border:`1px solid ${GOLD}20`, background:'rgba(7,21,42,0.4)',
+      border:`1px solid ${GOLD}18`, background:'rgba(7,21,42,0.4)',
       borderRadius:5, display:'flex', flexDirection:'column',
     }}>
       {[0,1].map(i => (
@@ -197,15 +169,15 @@ function BracketCard({ match }) {
           flex:1, display:'flex', alignItems:'center', paddingLeft:6,
           borderBottom: i===0 ? `1px solid ${DIVCLR}80` : 'none',
         }}>
-          <div style={{ width:14, height:14, borderRadius:3, background:'rgba(255,255,255,0.05)', marginRight:6 }} />
-          <span style={{ color:'rgba(255,255,255,0.2)', fontSize:9, fontWeight:700 }}>A definir</span>
+          <div style={{ width:14, height:14, borderRadius:3, background:'rgba(255,255,255,0.04)', marginRight:6 }} />
+          <span style={{ color:'rgba(255,255,255,0.15)', fontSize:9, fontWeight:700 }}>A definir</span>
         </div>
       ))}
     </div>
   )
 
   const finished   = isMatchFinished(match)
-  const projected  = !!match._projected && !finished
+  const projected  = !!match._projected && !finished  // projetado mas não jogado ainda
   const home = match.teams?.home
   const away = match.teams?.away
   const gH   = match.goals?.home ?? null
@@ -216,7 +188,12 @@ function BracketCard({ match }) {
   const homeWins = finished && (hasPen ? pH > pA : (gH??0) > (gA??0))
   const awayWins = finished && (hasPen ? pA > pH : (gA??0) > (gH??0))
 
-  const borderStyle = finished ? `1.5px solid ${GOLD}` : projected ? `1px dashed ${GOLD}50` : `1px solid ${GOLD}30`
+  // Borda: dourado=encerrado, azul tracejado=projeção, translúcido=futuro
+  const borderStyle = finished
+    ? `1.5px solid ${GOLD}`
+    : projected
+      ? `1px dashed ${GOLD}50`
+      : `1px solid ${GOLD}30`
 
   const Row = ({ team, goals, wins, loses }) => (
     <div style={{
@@ -231,11 +208,16 @@ function BracketCard({ match }) {
       <span style={{
         flex:1, fontSize:10, fontWeight:800, letterSpacing:'0.02em',
         overflow:'clip', textOverflow:'ellipsis', whiteSpace:'nowrap',
-        color: wins ? '#86efac' : loses ? '#64748b' : projected ? `${GOLD}cc` : team?.name ? '#cbd5e1' : 'rgba(255,255,255,0.2)',
+        color: wins ? '#86efac'
+              : loses ? '#64748b'
+              : projected ? `${GOLD}cc`   // projeção: dourado suave
+              : team?.name ? '#cbd5e1'    // time confirmado
+              : 'rgba(255,255,255,0.2)',  // a definir
         fontStyle: projected && !finished ? 'italic' : 'normal',
       }}>
         {team?.name ? sigla(team.name) : 'A definir'}
       </span>
+      {/* Placar: só mostra quando o jogo terminou */}
       <span style={{
         fontSize:11, fontWeight:900, minWidth:13, textAlign:'right',
         color: wins ? '#4ade80' : finished ? '#64748b' : '#1e3a5f',
@@ -265,7 +247,7 @@ function BracketCard({ match }) {
   )
 }
 
-// ─── RENDERIZAÇÃO DA ÁRVORE ───────────────────────────────────────────────────
+// ─── Chaveamento ──────────────────────────────────────────────────────────────
 function TournamentBracket({ bracketData }) {
   const [mobileTab, setMobileTab] = useState('center')
   const containerRef = useRef(null)
@@ -291,7 +273,6 @@ function TournamentBracket({ bracketData }) {
     ))
   })
 
-  // Conectores Curvados (Ajustado o cruzamento perfeitamente)
   const makeConn = (src, sc, tgt, tc) => {
     if (!src?.length || !tgt?.length) return null
     const goRight = sc < tc
@@ -302,17 +283,23 @@ function TournamentBracket({ bracketData }) {
 
     return Array.from({ length: Math.ceil(src.length/2) }, (_,p) => {
       const y1       = yC(src.length, p*2)
-      const hasPair  = (p*2+1) < src.length
+      const hasPair  = (p*2+1) < src.length   // verifica se existe a 2ª partida do par
       const y2       = hasPair ? yC(src.length, p*2+1) : y1
       const yM       = yC(tgt.length, p)
       const dir      = goRight ? -r : r
 
+      // Sem par (ex: SF→Final com 1 partida): linha reta horizontal
       if (!hasPair) return (
-        <line key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" opacity="0.5" strokeLinecap="round" x1={xS} y1={y1} x2={xT} y2={yM} />
+        <line key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" opacity="0.5"
+          strokeLinecap="round"
+          x1={xS} y1={y1} x2={xT} y2={yM}
+        />
       )
 
+      // Par normal: conector em colchete com curvas
       return (
-        <path key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" strokeLinejoin="round"
+        <path key={`k${sc}-${tc}-${p}`} stroke={GOLD} strokeWidth="1.5" fill="none"
+          opacity="0.5" strokeLinecap="round" strokeLinejoin="round"
           d={`M${xS} ${y1} H${xMid+dir} Q${xMid} ${y1} ${xMid} ${y1+r} V${y2-r} Q${xMid} ${y2} ${xMid+dir} ${y2} H${xS} M${xMid} ${yM} H${xT}`}
         />
       )
@@ -334,7 +321,9 @@ function TournamentBracket({ bracketData }) {
 
   const finalMatch = tree.final[0] ?? null
   const champion   = matchWinner(finalMatch)
-  const third      = [...(bracketData['3rd Place Final']||[])].sort((a,b) => new Date(a.start_time||0) - new Date(b.start_time||0))
+  const third      = [...(bracketData['3rd Place Final']||[])].sort((a,b) =>
+    new Date(a.start_time||0) - new Date(b.start_time||0)
+  )
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -345,14 +334,30 @@ function TournamentBracket({ bracketData }) {
   }, [mobileTab, TOTAL_W])
 
   return (
-    <div style={{ background:'linear-gradient(160deg,#040d1c 0%,#091729 45%,#040d1c 100%)', borderRadius:18, padding:'16px 0 14px', border:'1px solid rgba(201,148,31,0.18)', width:'100%' }}>
+    <div style={{
+      background:'linear-gradient(160deg,#040d1c 0%,#091729 45%,#040d1c 100%)',
+      borderRadius:18, padding:'16px 0 14px',
+      border:'1px solid rgba(201,148,31,0.18)',
+      width:'100%',  // sem overflow:hidden para não cortar conteúdo vertical
+    }}>
+      {/* Título */}
       <div style={{ textAlign:'center', marginBottom:14, padding:'0 12px' }}>
-        <div style={{ fontSize:9, fontWeight:900, letterSpacing:'.35em', color:GOLD, marginBottom:2 }}>COPA DO MUNDO 2026</div>
-        <div style={{ fontSize:18, fontWeight:900, letterSpacing:'.12em', color:'#f2c14e' }}>Caminho Até a Final</div>
+        <div style={{ fontSize:9, fontWeight:900, letterSpacing:'.35em', color:GOLD, marginBottom:2 }}>
+          COPA DO MUNDO 2026
+        </div>
+        <div style={{ fontSize:18, fontWeight:900, letterSpacing:'.12em', color:'#f2c14e' }}>
+          Caminho Até a Final
+        </div>
       </div>
 
+      {/* Banner campeão */}
       {champion && (
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12, padding:'8px 20px', margin:'0 auto 14px', borderRadius:10, maxWidth:300, background:'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))', border:'1px solid rgba(201,148,31,.3)' }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'center', gap:12,
+          padding:'8px 20px', margin:'0 auto 14px', borderRadius:10, maxWidth:300,
+          background:'linear-gradient(90deg,rgba(201,148,31,.08),rgba(201,148,31,.18),rgba(201,148,31,.08))',
+          border:'1px solid rgba(201,148,31,.3)',
+        }}>
           <span style={{ fontSize:28 }}>🏆</span>
           {champion.logo && <img src={champion.logo} alt="" style={{ width:32,height:32,objectFit:'contain' }} />}
           <div>
@@ -362,24 +367,38 @@ function TournamentBracket({ bracketData }) {
         </div>
       )}
 
+      {/* Controles mobile */}
       <div className="md:hidden flex justify-center gap-2 mb-4 px-2">
         {['left','center','right'].map(t => (
-          <button key={t} onClick={() => setMobileTab(t)} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition ${mobileTab===t ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+          <button key={t} onClick={() => setMobileTab(t)}
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition
+              ${mobileTab===t ? 'bg-yellow-600 text-white border-yellow-500' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
             {t==='left' ? 'ESQUERDA' : t==='center' ? 'CENTRO' : 'DIREITA'}
           </button>
         ))}
       </div>
 
-      <div ref={containerRef} className="no-scrollbar" style={{ overflowX:'auto', overflowY:'visible', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
+      {/* Bracket */}
+      <div ref={containerRef} className="no-scrollbar"
+        style={{ overflowX:'auto', overflowY:'visible', WebkitOverflowScrolling:'touch', padding:'0 10px' }}>
         <div style={{ width:TOTAL_W, minWidth:TOTAL_W, position:'relative' }}>
+
+          {/* Labels das fases */}
           <div style={{ position:'relative', height:20, marginBottom:6 }}>
             {LABELS.map(({ c, t, gold }) => (
-              <div key={c} style={{ position:'absolute', left:cx(c), width:B_COL, textAlign:'center', fontSize:8, fontWeight:900, color: gold ? '#f2c14e' : '#3a5a7a', borderBottom: gold ? `1.5px solid ${GOLD}` : 'none', paddingBottom:2 }}>
+              <div key={c} style={{
+                position:'absolute', left:cx(c), width:B_COL,
+                textAlign:'center', fontSize:8, fontWeight:900,
+                color: gold ? '#f2c14e' : '#3a5a7a',
+                borderBottom: gold ? `1.5px solid ${GOLD}` : 'none',
+                paddingBottom:2,
+              }}>
                 {t}
               </div>
             ))}
           </div>
 
+          {/* Área principal — 3° lugar dentro do espaço livre abaixo da Final */}
           {(() => {
             const finalCardBot = (TOTAL_H + B_CARD) / 2
             const thirdX       = cx(4)
@@ -388,13 +407,23 @@ function TournamentBracket({ bracketData }) {
 
             return (
               <div style={{ position:'relative', height:TOTAL_H }}>
-                <svg style={{ position:'absolute', inset:0, overflow:'visible' }} width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
+                <svg style={{ position:'absolute', inset:0, overflow:'visible' }}
+                  width={TOTAL_W} height={TOTAL_H} viewBox={`0 0 ${TOTAL_W} ${TOTAL_H}`}>
                   {connSVG}
-                  <line x1={thirdX + B_COL/2} y1={finalCardBot} x2={thirdX + B_COL/2} y2={thirdLabelY - 2} stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4" />
+                  <line
+                    x1={thirdX + B_COL/2} y1={finalCardBot}
+                    x2={thirdX + B_COL/2} y2={thirdLabelY - 2}
+                    stroke={GOLD} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"
+                  />
                 </svg>
                 {cards}
                 <>
-                  <div style={{ position:'absolute', left:thirdX, top:thirdLabelY, width:B_COL, textAlign:'center', fontSize:7, fontWeight:900, letterSpacing:'.2em', color:'#9a6c2a', textTransform:'uppercase' }}>
+                  <div style={{
+                    position:'absolute', left:thirdX, top:thirdLabelY,
+                    width:B_COL, textAlign:'center',
+                    fontSize:7, fontWeight:900, letterSpacing:'.2em',
+                    color:'#9a6c2a', textTransform:'uppercase',
+                  }}>
                     🥉 3° Lugar
                   </div>
                   <div style={{ position:'absolute', left:thirdX, top:thirdCardY }}>
@@ -457,7 +486,7 @@ function StandingsTable({ groupData }) {
       </div>
       {is3rdTable && (
         <div className="px-3 py-1.5 bg-gray-900/50 text-[9px] text-gray-500 flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 inline-block flex-shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
           Top {qualThreshold} avançam para o mata-mata
         </div>
       )}
@@ -533,7 +562,8 @@ export default function Tabelas() {
       } catch {}
 
       if (!found) {
-        const { data: rows } = await supabase.from('standings').select('*, teams(*)').eq('competition_id', compId).order('group_name').order('position')
+        const { data: rows } = await supabase.from('standings').select('*, teams(*)')
+          .eq('competition_id', compId).order('group_name').order('position')
         if (rows?.length) {
           const grouped = {}
           rows.forEach(row => {
@@ -585,7 +615,8 @@ export default function Tabelas() {
           {competitions.map(c => (
             <button key={c.id} onClick={() => setCompId(c.id)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all border
-                ${compId===c.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>
+                ${compId===c.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105'
+                                : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}>
               {c.name}
             </button>
           ))}
@@ -603,12 +634,16 @@ export default function Tabelas() {
           {(hasStandings || hasBracket) && (
             <div className="flex bg-gray-800 p-1 rounded-xl mb-6 max-w-xs mx-auto border border-gray-700">
               {hasStandings && (
-                <button onClick={() => setTab('standings')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
+                <button onClick={() => setTab('standings')}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
+                    ${tab==='standings' ? 'bg-gray-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
                   🗂️ Grupos
                 </button>
               )}
               {hasBracket && (
-                <button onClick={() => setTab('bracket')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
+                <button onClick={() => setTab('bracket')}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all
+                    ${tab==='bracket' ? 'bg-yellow-600 text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
                   🏆 Mata-mata
                 </button>
               )}
@@ -626,7 +661,8 @@ export default function Tabelas() {
           )}
 
           {!hasStandings && !hasBracket && (
-            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700 border-dashed text-gray-400 max-w-md mx-auto w-full">
+            <div className="text-center p-12 bg-gray-800/50 rounded-xl border border-gray-700
+              border-dashed text-gray-400 max-w-md mx-auto w-full">
               <div className="text-5xl mb-3">📡</div>
               <p className="font-bold mb-1">Nenhum dado encontrado</p>
               <p className="text-sm text-gray-500">Importe os dados pelo painel admin.</p>
