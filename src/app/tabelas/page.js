@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import SponsorBanner from '../../components/SponsorBanner'
 
+// ─── Traduções ────────────────────────────────────────────────────────────────
 const PT = {
   "Algeria":"Argélia","Argentina":"Argentina","Australia":"Austrália","Austria":"Áustria",
   "Belgium":"Bélgica","Bosnia & Herzegovina":"Bósnia e Herzegovina","Brazil":"Brasil",
@@ -33,8 +34,8 @@ const ABBR = {
   "Uruguay":"URU","USA":"EUA","Uzbekistan":"UZB"
 }
 
-const sigla = n => ABBR[n] || (PT[n]?.slice(0,3).toUpperCase()) || n?.slice(0,3).toUpperCase() || '?'
-const nome  = n => PT[n] || n || 'A definir'
+const sigla  = n => ABBR[n] || (PT[n]?.slice(0,3).toUpperCase()) || n?.slice(0,3).toUpperCase() || '?'
+const nome   = n => PT[n] || n || 'A definir'
 
 function isKnockout(r) {
   return ['Round of 32','Round of 16','Quarter-finals','Semi-finals','3rd Place Final','Final'].includes(r)
@@ -59,12 +60,11 @@ function matchWinner(m) {
   return null
 }
 
-// ─── ORDENAÇÃO E CHAVEAMENTO OFICIAL ──────────────────────────────────────────
-// O ID da partida garante a estrutura perfeita da árvore sem desorganizar.
+// ─── LÓGICA ORIGINAL CORRIGIDA (DIVISÃO PERFEITA E ANTI-DUPLICIDADE) ─────────
 function sortByFixtureId(arr) {
   return [...(arr || [])].sort((a, b) => {
-    const ia = a?.fixture?.id ?? a?.api_id ?? a?.id ?? 999999
-    const ib = b?.fixture?.id ?? b?.api_id ?? b?.id ?? 999999
+    const ia = a?.api_id ?? a?.fixture?.id ?? a?.id ?? 999999
+    const ib = b?.api_id ?? b?.fixture?.id ?? b?.id ?? 999999
     return ia - ib
   })
 }
@@ -76,7 +76,6 @@ function buildPerfectBracket(matches) {
   const sf  = sortByFixtureId(matches['Semi-finals'])
   const fin = sortByFixtureId(matches['Final'])
 
-  // Força o array a ter o tamanho exato da fase, preenchendo o que faltar com null
   const pad = (arr, size) => Array.from({ length: size }, (_, i) => arr[i] || null)
 
   const p32 = pad(r32, 16)
@@ -85,6 +84,7 @@ function buildPerfectBracket(matches) {
   const psf = pad(sf, 2)
   const pfin = pad(fin, 1)
 
+  // Volta ao seu método de separar as chaves perfeitamente ao meio pelo ID
   const tree = {
     L: {
       r32: p32.slice(0, 8),
@@ -105,59 +105,76 @@ function buildPerfectBracket(matches) {
   return tree
 }
 
-// ─── PROPAGAÇÃO DE VENCEDORES CORRIGIDA ───────────────────────────────────────
 function propagateWinners(tree) {
   const ROUND_ORDER = ['r32', 'r16', 'qf', 'sf']
+
+  // Função para pegar todos os IDs de times de uma rodada (Esquerda + Direita)
+  const getTeamsInRound = (sideL, sideR) => {
+    const teams = new Set()
+    const addTeams = (matches) => matches.forEach(m => {
+      if (m?.teams?.home?.id) teams.add(m.teams.home.id)
+      if (m?.teams?.away?.id) teams.add(m.teams.away.id)
+    })
+    addTeams(sideL || [])
+    addTeams(sideR || [])
+    return teams
+  }
 
   ;['L', 'R'].forEach(side => {
     for (let ri = 0; ri < ROUND_ORDER.length - 1; ri++) {
       const curKey  = ROUND_ORDER[ri]
       const nextKey = ROUND_ORDER[ri + 1]
+      
       const src = tree[side][curKey] || []
       const tgt = tree[side][nextKey] || []
+      
+      // Coleta quem JÁ ESTÁ na próxima fase (jogos reais vindos da API)
+      const teamsAlreadyInNextRound = getTeamsInRound(tree.L[nextKey], tree.R[nextKey])
 
       for (let i = 0; i < src.length; i++) {
         const winner = matchWinner(src[i])
         if (!winner) continue
 
+        // A MÁGICA: Se o time já apareceu num jogo real da próxima fase, pula a projeção!
+        if (teamsAlreadyInNextRound.has(winner.id)) continue
+
         const nextIdx = Math.floor(i / 2)
         const isHome  = i % 2 === 0
 
-        // Se a API ainda não enviou esse jogo da próxima fase, cria um espaço projetado
         if (!tgt[nextIdx]) {
           tgt[nextIdx] = { _projected: true, teams: { home: null, away: null },
                            goals: { home: null, away: null }, score: {} }
         }
 
         const nm = tgt[nextIdx]
-        // CORREÇÃO MESTRA: Só avança o time virtualmente se for um slot projetado.
-        // NUNCA sobrepõe um jogo real (Ex: França x Paraguai) que a API já mandou!
         if (nm._projected) {
-          if (isHome) nm.teams = { ...nm.teams, home: winner }
-          else nm.teams = { ...nm.teams, away: winner }
+          if (isHome && !nm.teams?.home) nm.teams = { ...nm.teams, home: winner }
+          else if (!isHome && !nm.teams?.away) nm.teams = { ...nm.teams, away: winner }
         }
       }
       tree[side][nextKey] = tgt
     }
   })
 
-  // Propagação da Semifinal para a Final
+  // Final
+  const teamsInFinal = getTeamsInRound(tree.final, [])
   const lWin = matchWinner(tree.L.sf[0])
   const rWin = matchWinner(tree.R.sf[0])
-  if (lWin || rWin) {
+
+  if ((lWin && !teamsInFinal.has(lWin.id)) || (rWin && !teamsInFinal.has(rWin.id))) {
     if (!tree.final[0]) {
       tree.final[0] = { _projected: true, teams: { home: null, away: null },
                         goals: { home: null, away: null }, score: {} }
     }
     const f = tree.final[0]
     if (f._projected) {
-      if (lWin) f.teams = { ...f.teams, home: lWin }
-      if (rWin) f.teams = { ...f.teams, away: rWin }
+      if (lWin && !teamsInFinal.has(lWin.id)) f.teams = { ...f.teams, home: lWin }
+      if (rWin && !teamsInFinal.has(rWin.id)) f.teams = { ...f.teams, away: rWin }
     }
   }
 }
 
-// ─── CONSTANTES VISUAIS ───────────────────────────────────────────────────────
+// ─── Constantes visuais ───────────────────────────────────────────────────────
 const B_COL  = 90
 const B_GAP  = 16
 const B_STEP = B_COL + B_GAP
@@ -167,12 +184,12 @@ const GOLD   = '#c9941f'
 const NAVY2  = '#0c1f3a'
 const DIVCLR = '#0e2040'
 
-// ─── CARD DO CHAVEAMENTO ──────────────────────────────────────────────────────
+// ─── Card do chaveamento ──────────────────────────────────────────────────────
 function BracketCard({ match }) {
   if (!match) return (
     <div style={{
       height:B_CARD, width:B_COL,
-      border:`1px solid ${GOLD}18`, background:'rgba(7,21,42,0.4)',
+      border:`1px solid ${GOLD}20`, background:'rgba(7,21,42,0.4)',
       borderRadius:5, display:'flex', flexDirection:'column',
     }}>
       {[0,1].map(i => (
@@ -180,8 +197,8 @@ function BracketCard({ match }) {
           flex:1, display:'flex', alignItems:'center', paddingLeft:6,
           borderBottom: i===0 ? `1px solid ${DIVCLR}80` : 'none',
         }}>
-          <div style={{ width:14, height:14, borderRadius:3, background:'rgba(255,255,255,0.04)', marginRight:6 }} />
-          <span style={{ color:'rgba(255,255,255,0.15)', fontSize:9, fontWeight:700 }}>A definir</span>
+          <div style={{ width:14, height:14, borderRadius:3, background:'rgba(255,255,255,0.05)', marginRight:6 }} />
+          <span style={{ color:'rgba(255,255,255,0.2)', fontSize:9, fontWeight:700 }}>A definir</span>
         </div>
       ))}
     </div>
@@ -274,6 +291,7 @@ function TournamentBracket({ bracketData }) {
     ))
   })
 
+  // Conectores Curvados (Ajustado o cruzamento perfeitamente)
   const makeConn = (src, sc, tgt, tc) => {
     if (!src?.length || !tgt?.length) return null
     const goRight = sc < tc
@@ -392,7 +410,7 @@ function TournamentBracket({ bracketData }) {
   )
 }
 
-// ─── Tabela de Grupos e Página Principal Continuam Iguais ──────────────────────
+// ─── Tabela de Grupos ─────────────────────────────────────────────────────────
 function StandingsTable({ groupData }) {
   if (!groupData?.length) return null
   const rawGroup      = groupData[0]?.group || ''
@@ -447,6 +465,7 @@ function StandingsTable({ groupData }) {
   )
 }
 
+// ─── Página Principal ─────────────────────────────────────────────────────────
 export default function Tabelas() {
   const [loading, setLoading]     = useState(true)
   const [competitions, setComps]  = useState([])
@@ -514,8 +533,7 @@ export default function Tabelas() {
       } catch {}
 
       if (!found) {
-        const { data: rows } = await supabase.from('standings').select('*, teams(*)')
-          .eq('competition_id', compId).order('group_name').order('position')
+        const { data: rows } = await supabase.from('standings').select('*, teams(*)').eq('competition_id', compId).order('group_name').order('position')
         if (rows?.length) {
           const grouped = {}
           rows.forEach(row => {
