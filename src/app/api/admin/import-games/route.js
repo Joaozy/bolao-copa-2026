@@ -81,8 +81,45 @@ export async function POST(request) {
           const awayId = await ensureTeam(match.teams.away)
 
           if (homeId && awayId) {
-            const isFinished = ['FT', 'AET', 'PEN'].includes(match.fixture.status.short)
+            const statusShort = match.fixture.status.short
+            const isFinished = ['FT', 'AET', 'PEN'].includes(statusShort)
             
+            // LÓGICA DE SEPARAÇÃO DO PLACAR (90 MINUTOS VS PRORROGAÇÃO/PÊNALTIS)
+            let placarCasa = null
+            let placarFora = null
+            let placarCasaExt = null
+            let placarForaExt = null
+            let placarCasaPen = null
+            let placarForaPen = null
+
+            // Not Started ou Cancelled
+            const isFuture = ['NS', 'TBD', 'PST', 'CANC', 'ABD'].includes(statusShort)
+
+            if (!isFuture) {
+                const passouDos90 = ['ET', 'AET', 'P', 'PEN', 'BT'].includes(statusShort)
+
+                if (passouDos90 && match.score?.fulltime?.home !== null) {
+                    // Trava o bolão no resultado dos 90 minutos
+                    placarCasa = match.score.fulltime.home
+                    placarFora = match.score.fulltime.away
+                    
+                    // Salva a prorrogação para exibição visual
+                    if (match.score?.extratime?.home !== null) {
+                        placarCasaExt = match.score.extratime.home
+                        placarForaExt = match.score.extratime.away
+                    }
+                    // Salva os pênaltis para exibição visual
+                    if (match.score?.penalty?.home !== null) {
+                        placarCasaPen = match.score.penalty.home
+                        placarForaPen = match.score.penalty.away
+                    }
+                } else {
+                    // Jogo normal (90 min apenas)
+                    placarCasa = match.goals.home ?? null
+                    placarFora = match.goals.away ?? null
+                }
+            }
+
             const { error } = await supabase.from('games').upsert({
               competition_id: parseInt(competitionId),
               api_id: match.fixture.id,
@@ -90,9 +127,14 @@ export async function POST(request) {
               team_a_id: homeId,
               team_b_id: awayId,
               start_time: match.fixture.date,
-              score_a: match.goals.home,
-              score_b: match.goals.away,
-              is_finished: isFinished
+              score_a: placarCasa,
+              score_b: placarFora,
+              score_a_ext: placarCasaExt,
+              score_b_ext: placarForaExt,
+              score_a_pen: placarCasaPen,
+              score_b_pen: placarForaPen,
+              is_finished: isFinished,
+              status_short: statusShort
             }, { onConflict: 'api_id' })
 
             if (!error) importCount++
@@ -108,7 +150,7 @@ export async function POST(request) {
     return NextResponse.json({ 
       success: true, 
       message: `${importCount} de ${matches.length} jogos importados.`,
-      report: report.slice(0, 10) // Retorna os 10 primeiros erros para não poluir
+      report: report.slice(0, 10) 
     })
 
   } catch (error) {

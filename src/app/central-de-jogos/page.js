@@ -61,9 +61,10 @@ export default function CentralDeJogos() {
   const [userBetsMap, setUserBetsMap] = useState({}) 
   const [loading, setLoading] = useState(true)
 
-  // NAVEGAÇÃO
+  // NAVEGAÇÃO E MULTIPLICADORES
   const [competitions, setCompetitions] = useState([])
   const [selectedCompId, setSelectedCompId] = useState(null)
+  const [roundMultipliers, setRoundMultipliers] = useState({}) // Novo estado para pesos
   
   // FILTROS
   const [rounds, setRounds] = useState([])
@@ -95,6 +96,18 @@ export default function CentralDeJogos() {
     async function loadData() {
       setLoading(true)
       const { data: { session } } = await supabase.auth.getSession()
+
+      // Busca os multiplicadores de rodada do banco de dados
+      const { data: roundSettingsData } = await supabase
+        .from('round_settings')
+        .select('round_name, multiplier')
+        .eq('competition_id', selectedCompId);
+      
+      const multipliers = {};
+      roundSettingsData?.forEach(rs => {
+         multipliers[rs.round_name] = rs.multiplier;
+      });
+      setRoundMultipliers(multipliers);
 
       if (session) {
         const { data: bets } = await supabase.from('bets').select('*').eq('user_id', session.user.id)
@@ -135,7 +148,6 @@ export default function CentralDeJogos() {
                 }
                 return g
             })
-            // Se o jogo que sofreu update estiver aberto no modal, atualiza os dados dele no modal
             setSelectedGameForModal(currentSelected => {
                 if (currentSelected && currentSelected.id === payload.new.id) {
                     return { ...currentSelected, ...payload.new }
@@ -156,17 +168,26 @@ export default function CentralDeJogos() {
     else setFilteredGames(games.filter(g => g.round === selectedRound))
   }, [selectedRound, games])
 
-  const calcularPontosAoVivo = (palpiteA, palpiteB, realA, realB) => {
+  // --- CÁLCULO DE PONTOS COM MULTIPLICADOR ---
+  const calcularPontosAoVivo = (palpiteA, palpiteB, realA, realB, roundName) => {
     if (palpiteA === '' || palpiteB === '' || realA === null || realB === null || palpiteA === undefined || palpiteB === undefined) return null
+    
     const pA = Number(palpiteA); const pB = Number(palpiteB); const rA = Number(realA); const rB = Number(realB)
-    if (pA === rA && pB === rB) return 10
-    const signP = Math.sign(pA - pB); const signR = Math.sign(rA - rB)
-    if (signP === signR) {
-      if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) return 7
-      return 5
+    let basePoints = 0;
+
+    if (pA === rA && pB === rB) basePoints = 10;
+    else {
+      const signP = Math.sign(pA - pB); const signR = Math.sign(rA - rB)
+      if (signP === signR) {
+        if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) basePoints = 7;
+        else basePoints = 5;
+      }
+      else if (pA === rA || pB === rB) basePoints = 2;
     }
-    if (pA === rA || pB === rB) return 2
-    return 0
+
+    // Aplica o peso da rodada encontrado no banco (ou 1 se não houver peso especial)
+    const multiplier = roundMultipliers[roundName] || 1;
+    return basePoints * multiplier;
   }
 
   const formatGameTime = (status, elapsed) => {
@@ -176,7 +197,6 @@ export default function CentralDeJogos() {
       return ''
   }
 
-  // --- NOVA FUNÇÃO: ABRIR MODAL DE PALPITES ---
   const abrirModalPalpites = async (game) => {
     setSelectedGameForModal(game);
     setIsModalOpen(true);
@@ -203,8 +223,8 @@ export default function CentralDeJogos() {
             let ptsB = b.points_awarded || 0;
             
             if (hasMatchData && !game.is_finished) {
-                ptsA = calcularPontosAoVivo(a.guess_score_a, a.guess_score_b, game.score_a, game.score_b) || 0;
-                ptsB = calcularPontosAoVivo(b.guess_score_a, b.guess_score_b, game.score_a, game.score_b) || 0;
+                ptsA = calcularPontosAoVivo(a.guess_score_a, a.guess_score_b, game.score_a, game.score_b, game.round) || 0;
+                ptsB = calcularPontosAoVivo(b.guess_score_a, b.guess_score_b, game.score_a, game.score_b, game.round) || 0;
             }
             return ptsB - ptsA; 
         });
@@ -260,8 +280,8 @@ export default function CentralDeJogos() {
           let livePoints = null
           if (hasMatchData) {
              livePoints = game.is_finished 
-                ? (palpiteValues.points_awarded ?? calcularPontosAoVivo(palpiteValues.scoreA, palpiteValues.scoreB, displayScoreA, displayScoreB))
-                : calcularPontosAoVivo(palpiteValues.scoreA, palpiteValues.scoreB, displayScoreA, displayScoreB)
+                ? (palpiteValues.points_awarded ?? calcularPontosAoVivo(palpiteValues.scoreA, palpiteValues.scoreB, displayScoreA, displayScoreB, game.round))
+                : calcularPontosAoVivo(palpiteValues.scoreA, palpiteValues.scoreB, displayScoreA, displayScoreB, game.round)
           }
 
           const timeText = isLive ? formatGameTime(game.status_short, game.elapsed) : 'FIM'
@@ -292,36 +312,36 @@ export default function CentralDeJogos() {
               {/* BLOCO DE INFORMAÇÕES EXTRAS E PONTUAÇÃO */}
               <div className="flex flex-col items-center w-[90%] mx-auto mt-[-12px] z-0 relative">
                 
-                {/* Placares de Prorrogação e Pênaltis */}
+                {/* Placares de Prorrogação e Pênaltis somados corretamente */}
                 {hasExtraScores && (
-                  <div className="w-full pt-4 pb-1.5 px-2 bg-gray-800/95 border-x border-b border-gray-700 rounded-b-xl flex flex-col items-center text-[10px] font-mono text-gray-400">
-                    <span className="text-yellow-500/80 text-[8px] uppercase tracking-widest mb-0.5">Placar Final Real</span>
-                    <div className="flex gap-3">
+                  <div className="w-full pt-4 pb-2 px-2 bg-gray-800/95 border-x border-b border-gray-700 rounded-b-xl flex flex-col items-center text-[10px] font-mono text-gray-400">
+                    <div className="flex flex-col items-center gap-1">
                       {game.score_a_ext !== null && (
-                        <span>PRO: {game.score_a_ext} x {game.score_b_ext}</span>
+                        <span className="text-yellow-400 font-bold uppercase tracking-wider">
+                          Placar Final com Prorrogação: {Number(game.score_a) + Number(game.score_a_ext)} x {Number(game.score_b) + Number(game.score_b_ext)}
+                        </span>
                       )}
                       {game.score_a_pen !== null && (
-                        <span className="text-blue-300">PÊN: {game.score_a_pen} x {game.score_b_pen}</span>
+                        <span className="text-blue-300 font-bold uppercase tracking-wider">
+                          Pênaltis: {game.score_a_pen} x {game.score_b_pen}
+                        </span>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Caixa de Pontuação do Usuário */}
+                {/* Caixa de Pontuação do Usuário (Agora com o multiplicador em tempo real) */}
                 {hasMatchData && livePoints !== null && (
                   <div className={`
                     w-full text-center py-1 px-6 text-[10px] font-bold uppercase tracking-wider shadow-lg border-x border-b transform transition-all
                     ${hasExtraScores ? 'rounded-b-xl border-t-0' : 'pt-4 rounded-b-xl'}
-                    ${livePoints === 10 ? 'bg-yellow-600 border-yellow-400 text-white' : 
-                      livePoints >= 5 ? 'bg-green-600 border-green-400 text-white' :
-                      'bg-red-900 border-red-500 text-red-200'}
+                    ${livePoints > 0 ? 'bg-green-600 border-green-400 text-white' : 'bg-gray-800 border-gray-600 text-gray-400'}
                   `}>
-                    Sua Pontuação: +{livePoints} pts
+                    {livePoints > 0 ? `Sua Pontuação: +${livePoints} pts` : `Sua Pontuação: 0 pts`}
                   </div>
                 )}
               </div>
               
-              {/* Indicador de clique para ver palpites */}
               <div className="absolute top-2 right-2 z-20 bg-gray-800 text-gray-400 text-[10px] px-2 py-1 rounded border border-gray-600 opacity-80">
                   Ver palpites 👁️
               </div>
@@ -336,14 +356,12 @@ export default function CentralDeJogos() {
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-black bg-opacity-75 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
           <div className="bg-gray-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh] shadow-2xl border-t border-gray-600 sm:border animate-slide-up">
             
-            {/* Cabecalho do Modal */}
             <div className="p-4 border-b border-gray-700 relative flex flex-col items-center">
               <div className="w-12 h-1 bg-gray-600 rounded-full mb-3 sm:hidden"></div>
               <button onClick={() => setIsModalOpen(false)} className="absolute right-4 top-4 text-gray-400 hover:text-white font-bold text-xl">&times;</button>
               
               <h3 className="text-gray-400 text-xs font-bold uppercase mb-2">Palpites da Partida</h3>
               
-              {/* Placar Real no topo do Modal */}
               <div className="flex items-center gap-3 font-bold text-lg">
                 <span className="text-gray-200">{traducoesPaises[selectedGameForModal.team_a?.name] || selectedGameForModal.team_a?.name}</span>
                 <span className="bg-gray-900 px-3 py-1 rounded text-yellow-400 flex flex-col items-center border border-gray-700">
@@ -355,11 +373,19 @@ export default function CentralDeJogos() {
                 <span className="text-gray-200">{traducoesPaises[selectedGameForModal.team_b?.name] || selectedGameForModal.team_b?.name}</span>
               </div>
               
-              {/* Exibe Prorrogação/Pênaltis no Modal caso tenha */}
+              {/* Exibe Prorrogação/Pênaltis no Modal formatado bonito */}
               {(selectedGameForModal.score_a_ext !== null || selectedGameForModal.score_a_pen !== null) && (
-                <div className="mt-3 flex gap-3 text-[10px] font-mono text-gray-400 bg-gray-900/50 px-3 py-1.5 rounded-full border border-gray-700">
-                  {selectedGameForModal.score_a_ext !== null && <span>PRO: {selectedGameForModal.score_a_ext} x {selectedGameForModal.score_b_ext}</span>}
-                  {selectedGameForModal.score_a_pen !== null && <span className="text-blue-300">PÊN: {selectedGameForModal.score_a_pen} x {selectedGameForModal.score_b_pen}</span>}
+                <div className="mt-3 flex flex-col items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-700">
+                  {selectedGameForModal.score_a_ext !== null && (
+                    <span className="text-yellow-400 font-bold uppercase tracking-wider">
+                       Placar Final c/ Prorrogação: {Number(selectedGameForModal.score_a) + Number(selectedGameForModal.score_a_ext)} x {Number(selectedGameForModal.score_b) + Number(selectedGameForModal.score_b_ext)}
+                    </span>
+                  )}
+                  {selectedGameForModal.score_a_pen !== null && (
+                    <span className="text-blue-300 font-bold uppercase tracking-wider">
+                       Pênaltis: {selectedGameForModal.score_a_pen} x {selectedGameForModal.score_b_pen}
+                    </span>
+                  )}
                 </div>
               )}
 
@@ -368,7 +394,6 @@ export default function CentralDeJogos() {
               )}
             </div>
 
-            {/* Lista de Palpites */}
             <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
               {loadingBets ? (
                 <div className="text-center text-gray-400 py-10">Buscando palpites da galera...</div>
@@ -379,16 +404,15 @@ export default function CentralDeJogos() {
                   const hasMatchData = (selectedGameForModal.status_short && selectedGameForModal.status_short !== 'NS') || (selectedGameForModal.score_a !== null && selectedGameForModal.score_b !== null);
                   
                   let displayPoints = bet.points_awarded || 0;
-                  // Recalcula ao vivo se não acabou
                   if (hasMatchData && !selectedGameForModal.is_finished) {
-                     displayPoints = calcularPontosAoVivo(bet.guess_score_a, bet.guess_score_b, selectedGameForModal.score_a, selectedGameForModal.score_b) || 0;
+                     displayPoints = calcularPontosAoVivo(bet.guess_score_a, bet.guess_score_b, selectedGameForModal.score_a, selectedGameForModal.score_b, selectedGameForModal.round) || 0;
                   }
 
-                  const pointsColor = displayPoints === 10 ? 'text-yellow-400' : displayPoints >= 5 ? 'text-green-400' : 'text-gray-500';
+                  // A cor dos pontos no Modal ajustada para ficar legível em 0 pts
+                  const pointsColor = displayPoints > 0 ? 'text-green-400' : 'text-gray-500';
 
                   return (
                     <div key={idx} className="flex items-center justify-between bg-gray-900 p-3 rounded-lg border border-gray-700">
-                      {/* Avatar e Nome */}
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {bet.profiles?.avatar_url ? (
                           <img src={bet.profiles.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
@@ -400,14 +424,12 @@ export default function CentralDeJogos() {
                         <span className="text-sm font-semibold text-gray-200 truncate">{bet.profiles?.nickname || 'Sem nome'}</span>
                       </div>
 
-                      {/* Palpite do Usuário */}
                       <div className="flex items-center justify-center px-4">
                          <span className="text-md font-bold tracking-widest text-white">
                            {bet.guess_score_a} <span className="text-gray-500 mx-1">:</span> {bet.guess_score_b}
                          </span>
                       </div>
 
-                      {/* Pontuação */}
                       <div className="w-12 text-right">
                          <div className={`bg-gray-800 rounded px-2 py-1 text-xs font-bold ${pointsColor}`}>
                            {hasMatchData ? displayPoints : '-'}
@@ -419,7 +441,6 @@ export default function CentralDeJogos() {
               )}
             </div>
             
-            {/* Fecha botão mobile */}
             <div className="p-4 border-t border-gray-700 sm:hidden">
                 <button onClick={() => setIsModalOpen(false)} className="w-full py-3 bg-gray-700 rounded-lg text-white font-bold hover:bg-gray-600">Fechar</button>
             </div>

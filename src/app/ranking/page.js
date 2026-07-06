@@ -590,7 +590,7 @@ export default function Ranking() {
                            </div>
                         </div>
 
-                        {/* Placar Real em Destaque com Adendo de Prorrogação */}
+                        {/* Placar Real em Destaque com Adendo de Prorrogação Formatado */}
                         {bet.games.score_a !== null && (
                            <div className="mt-1 bg-gray-900/80 rounded py-1.5 px-3 flex flex-col border border-gray-700/50">
                               
@@ -605,15 +605,18 @@ export default function Ranking() {
                                   </div>
                               </div>
                               
-                              {/* Mostra prorrogação / pênaltis se houver */}
+                              {/* Mostra prorrogação / pênaltis se houver somado */}
                               {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && (
-                                 <div className="mt-1.5 flex justify-end gap-3 text-[10px] font-mono text-gray-400">
-                                    <span className="uppercase text-yellow-500/80 mr-auto">Result. Final:</span>
+                                 <div className="mt-2 pt-2 flex flex-col items-center gap-1 text-[9px] font-mono text-gray-400 border-t border-gray-700/50">
                                     {bet.games.score_a_ext !== null && (
-                                      <span>PRO: {bet.games.score_a_ext}x{bet.games.score_b_ext}</span>
+                                      <span className="text-yellow-400 font-bold uppercase tracking-wider text-center">
+                                        Placar Final c/ Prorrogação: {Number(bet.games.score_a) + Number(bet.games.score_a_ext)} x {Number(bet.games.score_b) + Number(bet.games.score_b_ext)}
+                                      </span>
                                     )}
                                     {bet.games.score_a_pen !== null && (
-                                      <span className="text-blue-400">PÊN: {bet.games.score_a_pen}x{bet.games.score_b_pen}</span>
+                                      <span className="text-blue-300 font-bold uppercase tracking-wider text-center">
+                                        Pênaltis: {bet.games.score_a_pen} x {bet.games.score_b_pen}
+                                      </span>
                                     )}
                                  </div>
                               )}
