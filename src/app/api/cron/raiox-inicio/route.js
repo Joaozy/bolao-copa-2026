@@ -65,7 +65,7 @@ export async function GET(request) {
       
       1. ⚔️ SANGUE NA ARENA: Anuncie o início do jogo criando um clima absurdo de tensão. Lembre a todos, em tom de esporro, que para o bolão SÓ CONTA O PLACAR DOS 90 MINUTOS (prorrogação e pênaltis não dão ponto pra ninguém).
       
-      2. 📊 O VAR DAS APOSTAS: Analise as estatísticas que te passei. Zombe da galera que apostou no azarão (cite 1 ou 2 nomes reais passados nos dados). Se muita gente apostou no empate, chame-os de "covardes que ficaram em cima do muro esperando os pênaltis". Se tiver um lado muito favorito, diga que a galera foi "Maria vai com as outras".
+      2. 📊 O VAR DAS APOSTAS: Analise as estatísticas que te passei. Zombe da galera que apostou no azarão (cite 1 ou 2 nomes reais passados nos dados). Se muita gente apostou no empate, chame-os de "covardes que ficaram em cima do muro esperando os pênaltis" (var). Se tiver um lado muito favorito, diga que a galera foi "Maria vai com as outras".
       
       3. 🕵️ RAIO-X DO CONFRONTO: Faça uma análise tática de botequim. Aponte quem é o verdadeiro favorito, cite 1 ou 2 jogadores destaques reais de cada país que podem decidir o jogo, e lembre a todos o que tá em jogo (Ex: Quem vencer hoje sobrevive pra pegar uma pedreira nas Quartas de Final).
       
