@@ -26,31 +26,70 @@ export async function GET(request) {
     const placarReal = `${mandante} ${gols_mandante} x ${gols_visitante} ${visitante}`;
     const palpitesDoJogo = palpites.filter(p => p.game_id === gameId);
 
+    // --- 1. CÁLCULO INDEPENDENTE (Evita atraso do banco de dados) ---
     const cravadas = [];
     const iludidos = [];
     
     palpitesDoJogo.forEach(p => {
         const nome = p.nickname || p.nome_exibicao || p.nome || 'Alguém';
-        const pts = p.points_awarded || 0;
-        
-        if (pts >= 10) cravadas.push(nome);
-        else if (pts === 0) iludidos.push(nome); 
+        const pA = p.guess_score_a;
+        const pB = p.guess_score_b;
+        const rA = gols_mandante;
+        const rB = gols_visitante;
+
+        // Videntes: Acertou na mosca (independente se os pontos já foram processados)
+        if (pA === rA && pB === rB) {
+            cravadas.push(nome);
+            p.pontos_calculados = 10; 
+        } 
+        else {
+            const acertouVencedor = Math.sign(pA - pB) === Math.sign(rA - rB);
+            const acertouGol = pA === rA || pB === rB;
+            
+            // Iludidos: Errou quem ganhou e não acertou o gol de ninguém
+            if (!acertouVencedor && !acertouGol) {
+                // ADICIONA O PLACAR ERRADO PARA A PIADA FICAR BOA
+                iludidos.push(`${nome} (apostou ${pA}x${pB})`);
+                p.pontos_calculados = 0;
+            } else {
+                // Pontuou alguma coisa intermediária (2, 5 ou 7)
+                if (acertouVencedor) {
+                    if (acertouGol || (pA - pB) === (rA - rB)) p.pontos_calculados = 7;
+                    else p.pontos_calculados = 5;
+                } else {
+                    p.pontos_calculados = 2;
+                }
+            }
+        }
     });
 
+    // --- 2. A MONTANHA RUSSA DO RANKING (Calculada em tempo real) ---
     const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).single();
     let rankingStats = "";
     
     if (activeComp) {
+        // Pega o multiplicador da rodada para aplicar no salto do ranking
+        const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).single();
+        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round).single();
+        const multiplier = roundSetting?.multiplier || 1;
+
         const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
         
         if (leaderboard && leaderboard.length > 0) {
             const usersData = leaderboard.map(user => {
                 const palpiteJogo = palpitesDoJogo.find(p => p.user_id === user.user_id);
-                const pontosGanhos = palpiteJogo ? (palpiteJogo.points_awarded || 0) : 0;
+                
+                // Se o banco já calculou, usamos o do banco. Se não, usamos o nosso cálculo forçado.
+                const pontosDoJogo = palpiteJogo 
+                    ? (palpiteJogo.points_awarded !== null ? palpiteJogo.points_awarded : (palpiteJogo.pontos_calculados * multiplier)) 
+                    : 0;
+
+                const bancoJaSomou = palpiteJogo && palpiteJogo.points_awarded !== null;
+                
                 return {
                     nome: user.nome_exibicao,
-                    pontosAtuais: user.total_pontos,
-                    pontosAntes: user.total_pontos - pontosGanhos
+                    pontosAtuais: bancoJaSomou ? user.total_pontos : user.total_pontos + pontosDoJogo,
+                    pontosAntes: bancoJaSomou ? user.total_pontos - pontosDoJogo : user.total_pontos
                 };
             });
 
@@ -70,8 +109,8 @@ export async function GET(request) {
             });
 
             rankingStats = `
-              MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} subiu ${maiorSalto.posicoes} posições!` : 'Nenhum salto relevante.'}
-              MAIOR QUEDA: ${maiorQueda.posicoes < 0 ? `${maiorQueda.nome} despencou ${Math.abs(maiorQueda.posicoes)} posições!` : 'Nenhuma queda dramática.'}
+              MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!` : 'Nenhum salto relevante.'}
+              MAIOR QUEDA: ${maiorQueda.posicoes < 0 ? `${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!` : 'Nenhuma queda dramática.'}
             `;
         }
     }
@@ -84,18 +123,19 @@ export async function GET(request) {
       Fim de papo na arena! O placar final cravado nos 90 minutos foi: *${placarReal}*.
       
       📊 DADOS TRATADOS:
-      - Videntes que CRAVARAM o placar: ${cravadas.length > 0 ? cravadas.join(', ') : 'Nenhum mito cravou!'}
-      - Iludidos que ZERARAM (erraram tudo): ${iludidos.length > 0 ? iludidos.slice(0, 3).join(', ') + (iludidos.length > 3 ? ' e mais alguns azarados' : '') : 'Todo mundo pontuou algo!'}
+      - Videntes que CRAVARAM o placar exato: ${cravadas.length > 0 ? cravadas.join(', ') : 'Nenhum mito conseguiu cravar!'}
+      - Iludidos que ZERARAM no jogo: ${iludidos.length > 0 ? iludidos.slice(0, 3).join(', ') + (iludidos.length > 3 ? ' e mais alguns azarados' : '') : 'Milagrosamente, todo mundo pontuou algo!'}
       
-      🎢 A MONTANHA RUSSA DO RANKING:
+      🎢 A MONTANHA RUSSA DO RANKING (DADOS EXATOS - NÃO ALTERE OS NÚMEROS):
       ${rankingStats}
       
       SUA MISSÃO - Crie uma resenha curta, debochada e épica com os seguintes blocos (PROIBIDO usar markdown de listas como asteriscos ou traços, pule linhas duplas entre blocos e use negrito MAIÚSCULO nos títulos):
       
       1. 🏁 FIM DE PAPO: Informe o placar final como um verdadeiro decreto.
       2. 🔮 OS VIDENTES: Se alguém cravou, trate-os como Deuses intocáveis. Se ninguém cravou, diga que o bolão tá cheio de mortais fracassados.
-      3. 🤡 OS ILUDIDOS: Zombe pesadamente de apenas 1 ou 2 nomes da lista de Iludidos. (Lembrando: você SÓ PODE zombar da lista de iludidos).
-      4. 🎢 A MONTANHA RUSSA: Anuncie quem deu o Maior Salto na tabela e elogie. Anuncie quem teve a Maior Queda e dê seus pêsames sarcásticos.
+      3. 🤡 OS ILUDIDOS: Zombe pesadamente de apenas 1 ou 2 nomes da lista de Iludidos. USE O PLACAR QUE ELES APOSTARAM PARA FAZER A PIADA (ex: "O fulano achou que ia ser 3x0, deve ter assistido de olhos fechados").
+      4. 🎢 A MONTANHA RUSSA: Use ESTRITAMENTE os nomes e números fornecidos na variável "MONTANHA RUSSA DO RANKING" acima. Não invente nomes nem recálcule posições. Apenas pegue quem deu o Maior Salto e faça um elogio exagerado, e pegue quem teve a Maior Queda e dê seus pêsames sarcásticos. (Comente tambem o quanto foi o salto ou queda. EX: Subiu incriveis 15 posicoes. Pisou na Casca de Banana e caiu 8 Posicoes. Seja Criativo e Varie sempre as piadas.)
+      5. Seja Bastante Criativo e Varie bastante as piadas para que mensagens passadas ou futuras nao fiquem repetitivas. 
     `;
 
     const textoResenha = (await model.generateContent(systemPrompt)).response.text()
