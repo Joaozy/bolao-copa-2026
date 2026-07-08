@@ -21,6 +21,13 @@ const RULE_ORDER = {
   top_scorer: 5
 }
 
+// Palavras-chave para identificar rodadas do Mata-Mata
+const KNOCKOUT_KEYWORDS = [
+  'round of 32', 'round of 16', 'quarter-finals', 'semi-finals', 
+  '3rd place final', 'final', '16avos', 'oitavas', 'quartas', 
+  'semis', 'finais', 'grande final', 'disputa de 3º lugar'
+]
+
 // Função inteligente para abreviar nomes de times (Ignora "Time", "Clube", etc)
 function formatTeamName(name) {
     if(!name) return '---'
@@ -92,8 +99,8 @@ export default function Ranking() {
   const fetchData = async () => {
     setLoading(true)
     
-    // A. Busca Rodadas disponíveis
-    if (selectedRound === 'Geral') {
+    // A. Busca Rodadas disponíveis (Mantém em cache se já carregado)
+    if (rounds.length === 0) {
         const { data: games } = await supabase
             .from('games')
             .select('round')
@@ -106,9 +113,9 @@ export default function Ranking() {
         }
     }
 
-    // B. Lógica de Busca (View vs Cálculo Manual)
+    // B. Filtros de Exibição de Ranking
     if (selectedRound === 'Geral' && !filtroBrasil) {
-        // --- MODO GERAL (Usa a View do Banco, super rápido) ---
+        // --- MODO GERAL DA VIEW (Fast Load) ---
         const { data, error } = await supabase
             .from('leaderboard')
             .select('*')
@@ -122,31 +129,62 @@ export default function Ranking() {
         if (!error) setUsers(data || [])
         setLoading(false)
 
-    } else {
-        // --- MODO RODADA ESPECÍFICA OU FILTRO DO BRASIL (Cálculo Manual) ---
-        
-        // 1. Busca inscritos da competição de forma segura
-        const { data: enrolls } = await supabase
-            .from('enrollments')
-            .select('user_id')
-            .eq('competition_id', selectedCompId)
-
-        if (!enrolls || enrolls.length === 0) {
-            setUsers([])
-            setLoading(false)
-            return
-        }
+    } else if (selectedRound === 'Extras') {
+        // --- MODO NOVO: APENAS PALPITES EXTRAS SOMA EXCLUSIVA ---
+        const { data: enrolls } = await supabase.from('enrollments').select('user_id').eq('competition_id', selectedCompId)
+        if (!enrolls || enrolls.length === 0) { setUsers([]); setLoading(false); return; }
 
         const userIds = enrolls.map(e => e.user_id)
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, nickname, full_name, email, avatar_url')
-            .in('id', userIds)
-            
+        const { data: profiles } = await supabase.from('profiles').select('id, nickname, full_name, email, avatar_url').in('id', userIds)
         const profilesMap = {}
         profiles?.forEach(p => profilesMap[p.id] = p)
 
-        // 2. Busca apostas (COM PAGINAÇÃO PARA DRIBLAR O LIMITE DE 1000)
+        const { data: rules } = await supabase.from('special_rules').select('id').eq('competition_id', selectedCompId)
+        const ruleIds = rules?.map(r => r.id) || []
+
+        let specialBets = []
+        if (ruleIds.length > 0) {
+            const { data: sBets } = await supabase.from('special_bets').select('user_id, points_awarded').in('special_rule_id', ruleIds)
+            specialBets = sBets || []
+        }
+
+        const stats = {}
+        specialBets.forEach(sb => {
+            const uid = sb.user_id
+            if (!stats[uid]) stats[uid] = { total: 0 }
+            stats[uid].total += (sb.points_awarded || 0)
+        })
+
+        const rankingExtras = enrolls.map(enroll => {
+            const uid = enroll.user_id
+            const p = profilesMap[uid] || {}
+            return {
+                user_id: uid,
+                nome_exibicao: p.nickname || p.full_name || p.email || 'Anônimo',
+                avatar_url: p.avatar_url,
+                total_pontos: stats[uid]?.total || 0,
+                qtd_cv: '-',
+                text_mode: true,
+                qtd_vsg: '-',
+                qtd_av: '-',
+                is_paid: true
+            }
+        })
+
+        rankingExtras.sort((a, b) => b.total_pontos - a.total_pontos || (a.nome_exibicao || "").localeCompare(b.nome_exibicao || ""))
+        setUsers(rankingExtras)
+        setLoading(false)
+
+    } else {
+        // --- MODO MANUAL: RODADA ESPECÍFICA, FILTRO BRASIL OU MATA-MATA ---
+        const { data: enrolls } = await supabase.from('enrollments').select('user_id').eq('competition_id', selectedCompId)
+        if (!enrolls || enrolls.length === 0) { setUsers([]) ;setLoading(false); return; }
+
+        const userIds = enrolls.map(e => e.user_id)
+        const { data: profiles } = await supabase.from('profiles').select('id, nickname, full_name, email, avatar_url').in('id', userIds)
+        const profilesMap = {}
+        profiles?.forEach(p => profilesMap[p.id] = p)
+
         let allBets = []
         let fetchMore = true
         let from = 0
@@ -156,52 +194,46 @@ export default function Ranking() {
             let query = supabase
                 .from('bets')
                 .select(`
-                    points_awarded, 
-                    user_id, 
-                    guess_score_a, 
-                    guess_score_b,
+                    points_awarded, user_id, guess_score_a, guess_score_b,
                     games!inner(
                         competition_id, round, score_a, score_b,
-                        team_a:teams!team_a_id(name),
-                        team_b:teams!team_b_id(name)
+                        team_a:teams!team_a_id(name), team_b:teams!team_b_id(name)
                     )
                 `)
                 .eq('games.competition_id', selectedCompId)
                 .range(from, from + step - 1)
 
-            // Se for uma rodada específica, aplica o filtro da rodada
-            if (selectedRound !== 'Geral') {
+            if (selectedRound !== 'Geral' && selectedRound !== 'MataMata') {
                 query = query.eq('games.round', selectedRound)
             }
 
             const { data: betsChunk, error } = await query
-
-            if (error) {
-                console.error("Erro buscando palpites:", error)
-                break
-            }
+            if (error) { console.error(error); break; }
 
             if (betsChunk && betsChunk.length > 0) {
                 allBets = [...allBets, ...betsChunk]
                 from += step
-                // Se retornou menos de 1000, é porque não tem mais nada na próxima página
-                if (betsChunk.length < step) {
-                    fetchMore = false
-                }
+                if (betsChunk.length < step) fetchMore = false
             } else {
                 fetchMore = false
             }
         }
 
-        // 3. Calcula os pontos na memória (Aplicando filtro Brasil se necessário)
         const stats = {}
         allBets.forEach(bet => {
-            // Filtro Brasil Inteligente
+            const rName = (bet.games?.round || '').toLowerCase()
+
+            // Filtro dinâmico exclusivo do Geral do Mata-Mata
+            if (selectedRound === 'MataMata') {
+                const isKo = KNOCKOUT_KEYWORDS.some(k => rName.includes(k))
+                if (!isKo) return
+            }
+
             if (filtroBrasil) {
                 const teamA = bet.games.team_a?.name?.toLowerCase() || ''
                 const teamB = bet.games.team_b?.name?.toLowerCase() || ''
                 const isBrazilGame = teamA.includes('brasil') || teamA.includes('brazil') || teamB.includes('brasil') || teamB.includes('brazil')
-                if (!isBrazilGame) return // Pula se não for jogo do Brasil
+                if (!isBrazilGame) return
             }
 
             const uid = bet.user_id
@@ -217,19 +249,14 @@ export default function Ranking() {
             if (pA !== null && rA !== null) {
                 if (pA === rA && pB === rB) {
                     stats[uid].cv++ 
-                } 
-                else if (Math.sign(pA - pB) === Math.sign(rA - rB)) {
-                    if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) {
-                        stats[uid].vsg++
-                    } else {
-                        stats[uid].av++
-                    }
+                } else if (Math.sign(pA - pB) === Math.sign(rA - rB)) {
+                    if (pA === rA || pB === rB || (pA - pB) === (rA - rB)) stats[uid].vsg++
+                    else stats[uid].av++
                 }
             }
         })
 
-        // 4. Monta a lista final mesclando Inscritos + Pontos
-        const rankingRodada = enrolls.map(enroll => {
+        const rankingCalculado = enrolls.map(enroll => {
             const uid = enroll.user_id
             const p = profilesMap[uid] || {}
             return {
@@ -244,16 +271,17 @@ export default function Ranking() {
             }
         })
 
-        // 5. Ordena (Pontos > CV > VSG > AV > Nome)
-        rankingRodada.sort((a, b) => {
+        rankingCalculado.sort((a, b) => {
              if (b.total_pontos !== a.total_pontos) return b.total_pontos - a.total_pontos
-             if (b.qtd_cv !== a.qtd_cv) return b.qtd_cv - a.qtd_cv
-             if (b.qtd_vsg !== a.qtd_vsg) return b.qtd_vsg - a.qtd_vsg
-             if (b.qtd_av !== a.qtd_av) return b.qtd_av - a.qtd_av
+             if (typeof b.qtd_cv === 'number' && typeof a.qtd_cv === 'number') {
+                 if (b.qtd_cv !== a.qtd_cv) return b.qtd_cv - a.qtd_cv
+                 if (b.qtd_vsg !== a.qtd_vsg) return b.qtd_vsg - a.qtd_vsg
+                 if (b.qtd_av !== a.qtd_av) return b.qtd_av - a.qtd_av
+             }
              return (a.nome_exibicao || "").localeCompare(b.nome_exibicao || "")
         })
         
-        setUsers(rankingRodada)
+        setUsers(rankingCalculado)
         setLoading(false)
     }
   }
@@ -262,20 +290,17 @@ export default function Ranking() {
   const handleUserClick = async (user) => {
     setSelectedUser(user)
     setLoadingBets(true)
-    setModalTab('games') 
+    setModalTab(selectedRound === 'Extras' ? 'extras' : 'games') 
     setUserBets([])
     setUserSpecialBets([])
 
-    // Busca o nome completo do usuário no banco para exibir entre parênteses
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.user_id).single()
-    
-    // Salva o usuário selecionado já com o nome completo junto
     setSelectedUser({ ...user, full_name: profile?.full_name })
 
     const agora = new Date()
 
     try {
-        // 1. Busca Palpites de JOGOS (Passados) - Agora traz os placares extras!
+        // 1. Busca Palpites de JOGOS
         const { data: gamesData } = await supabase
           .from('bets')
           .select(`
@@ -292,8 +317,10 @@ export default function Ranking() {
           .lt('games.start_time', agora.toISOString()) 
           .order('games(start_time)', { ascending: false })
         
-        // Se o filtro Brasil estiver ativo, mostra só os palpites dos jogos do Brasil no Modal
         let filteredGamesData = gamesData || [];
+        if (selectedRound === 'MataMata') {
+             filteredGamesData = filteredGamesData.filter(bet => KNOCKOUT_KEYWORDS.some(k => (bet.games?.round || '').toLowerCase().includes(k)))
+        }
         if (filtroBrasil) {
              filteredGamesData = filteredGamesData.filter(bet => {
                  const tA = bet.games.team_a?.name?.toLowerCase() || '';
@@ -304,20 +331,11 @@ export default function Ranking() {
         setUserBets(filteredGamesData)
 
         // 2. Busca Palpites EXTRAS
-        const { data: rawSpecialBets } = await supabase
-            .from('special_bets')
-            .select(`
-                picked_value, points_awarded, picked_team_id, special_rule_id
-            `)
-            .eq('user_id', user.user_id)
+        const { data: rawSpecialBets } = await supabase.from('special_bets').select('picked_value, points_awarded, picked_team_id, special_rule_id').eq('user_id', user.user_id)
 
         if (rawSpecialBets && rawSpecialBets.length > 0) {
             const ruleIds = rawSpecialBets.map(b => b.special_rule_id)
-            const { data: rules } = await supabase
-                .from('special_rules')
-                .select('*')
-                .in('id', ruleIds)
-                .eq('competition_id', selectedCompId)
+            const { data: rules } = await supabase.from('special_rules').select('*').in('id', ruleIds).eq('competition_id', selectedCompId)
 
             const teamIds = rawSpecialBets.map(b => b.picked_team_id).filter(Boolean)
             let teamsMap = {}
@@ -331,14 +349,8 @@ export default function Ranking() {
 
             const visibleSpecials = rawSpecialBets.map(bet => {
                 const rule = rulesMap[bet.special_rule_id]
-                if (!rule) return null 
-                
-                // SISTEMA ANTI-COLA: Só exibe se o prazo já passou
-                if (!rule.deadline) return null 
-                const deadline = new Date(rule.deadline)
-                const passouDoPrazo = agora.getTime() > deadline.getTime()
-                
-                if (!passouDoPrazo) return null 
+                if (!rule || !rule.deadline) return null 
+                if (agora.getTime() <= new Date(rule.deadline).getTime()) return null 
 
                 return {
                     picked_value: bet.picked_value,
@@ -348,30 +360,16 @@ export default function Ranking() {
                 }
             }).filter(Boolean)
 
-            // CORREÇÃO: Aplica a ordenação fixa definida lá em cima!
-            visibleSpecials.sort((a, b) => {
-                const weightA = RULE_ORDER[a.rule.type] || 99;
-                const weightB = RULE_ORDER[b.rule.type] || 99;
-                return weightA - weightB;
-            });
-
+            visibleSpecials.sort((a, b) => (RULE_ORDER[a.rule.type] || 99) - (RULE_ORDER[b.rule.type] || 99))
             setUserSpecialBets(visibleSpecials)
         }
-
-    } catch (e) {
-        console.error("Erro ao carregar detalhes:", e)
-    } finally {
-        setLoadingBets(false)
-    }
+    } catch (e) { console.error(e) } finally { setLoadingBets(false) }
   }
 
-  const filteredUsers = users.filter(user => 
-    (user.nome_exibicao || '').toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredUsers = users.filter(user => (user.nome_exibicao || '').toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-2 md:p-4 flex flex-col items-center pb-24">
-      
       <div className="flex flex-col items-center mb-6 mt-4 text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">🏆 Classificação</h1>
         <p className="text-xs text-green-400 animate-pulse mt-1">● Atualização em Tempo Real</p>
@@ -384,9 +382,7 @@ export default function Ranking() {
               key={comp.id}
               onClick={() => { setSelectedCompId(comp.id); setSelectedRound('Geral'); setFiltroBrasil(false); }}
               className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all border
-                ${selectedCompId === comp.id 
-                  ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' 
-                  : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}
+                ${selectedCompId === comp.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg scale-105' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}
               `}
             >
               {comp.name}
@@ -395,34 +391,32 @@ export default function Ranking() {
         </div>
       </div>
       
-      {/* BANNER AQUI */}
       <SponsorBanner />
 
-      {/* CONTROLES E FILTROS */}
       <div className="w-full max-w-3xl flex flex-col gap-3 mb-4">
-        
-        {/* Botão Filtro Brasil */}
-        <div className="flex justify-end">
-            <button
-                onClick={() => setFiltroBrasil(!filtroBrasil)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 border ${
-                    filtroBrasil 
-                    ? 'bg-yellow-500 text-black border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105' 
-                    : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'
-                }`}
-            >
-                <span className="text-base">🇧🇷</span> 
-                {filtroBrasil ? 'Mostrando apenas Seleção Brasileira' : 'Filtrar jogos do Brasil'}
-            </button>
-        </div>
+        {selectedRound !== 'Extras' && (
+          <div className="flex justify-end">
+              <button
+                  onClick={() => setFiltroBrasil(!filtroBrasil)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 border ${
+                      filtroBrasil ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg scale-105' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'
+                  }`}
+              >
+                  <span className="text-base">🇧🇷</span> 
+                  {filtroBrasil ? 'Mostrando apenas Seleção Brasileira' : 'Filtrar jogos do Brasil'}
+              </button>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-3">
             <select 
                 className="p-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none focus:border-yellow-500 font-bold"
                 value={selectedRound}
-                onChange={(e) => setSelectedRound(e.target.value)}
+                onChange={(e) => { setSelectedRound(e.target.value); if(e.target.value === 'Extras') setFiltroBrasil(false); }}
             >
                 <option value="Geral">🌍 Classificação Geral</option>
+                <option value="MataMata">⚔️ Geral do Mata-Mata</option>
+                <option value="Extras">🏆 Apenas Palpites Extras</option>
                 {rounds.map(r => <option key={r} value={r}>📍 {r}</option>)}
             </select>
 
@@ -453,8 +447,6 @@ export default function Ranking() {
               <tr><td colSpan="6" className="p-8 text-center text-gray-400">Carregando classificação...</td></tr>
             ) : filteredUsers.length > 0 ? (
               filteredUsers.map((user) => {
-                
-                // Descobre a posição real baseada na lista completa
                 const posicaoReal = users.findIndex(u => u.user_id === user.user_id) + 1;
 
                 return (
@@ -463,17 +455,11 @@ export default function Ranking() {
                     onClick={() => handleUserClick(user)}
                     className={`border-b border-gray-700 cursor-pointer hover:bg-gray-700/80 transition active:bg-gray-600 ${posicaoReal <= 3 && !searchTerm && selectedRound === 'Geral' && !filtroBrasil ? 'bg-gray-700/20' : ''}`}
                   >
-                    <td className="p-3 text-center font-bold text-lg text-gray-400">
-                      {posicaoReal}º
-                    </td>
+                    <td className="p-3 text-center font-bold text-lg text-gray-400">{posicaoReal}º</td>
                     <td className="p-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex-shrink-0 border border-gray-500 relative">
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover"/>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs">👤</div>
-                          )}
+                          {user.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-xs">👤</div>}
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-sm text-gray-200">{user.nome_exibicao || 'Anônimo'}</span>
@@ -481,25 +467,20 @@ export default function Ranking() {
                         </div>
                       </div>
                     </td>
-                    <td className="p-3 text-center font-mono text-yellow-200/80">{user.qtd_cv}</td>
-                    <td className="p-3 text-center font-mono text-blue-200/80">{user.qtd_vsg}</td>
-                    <td className="p-3 text-center font-mono text-green-200/80">{user.qtd_av}</td>
+                    <td className="p-3 text-center font-mono text-gray-400">{user.qtd_cv}</td>
+                    <td className="p-3 text-center font-mono text-gray-400">{user.qtd_vsg}</td>
+                    <td className="p-3 text-center font-mono text-gray-400">{user.qtd_av}</td>
                     <td className="p-3 text-center font-bold text-yellow-400 text-xl">{user.total_pontos}</td>
                   </tr>
                 );
               }) 
             ) : (
-              <tr>
-                <td colSpan="6" className="p-8 text-center text-gray-500">
-                  {users.length === 0 ? "Nenhum participante pontuou neste filtro." : "Nenhum participante com esse nome."}
-                </td>
-              </tr>
+              <tr><td colSpan="6" className="p-8 text-center text-gray-500">{users.length === 0 ? "Nenhum participante pontuou neste filtro." : "Nenhum participante com esse nome."}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* LEGENDA NO RODAPÉ */}
       <div className="w-full max-w-3xl mt-4 px-2 text-[10px] text-gray-500 flex flex-wrap gap-4 justify-center">
          <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-400 rounded-full"></span> <b>CV:</b> Cravada (Placar Exato)</span>
          <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-400 rounded-full"></span> <b>VSG:</b> Vitória + Saldo/Gols</span>
@@ -510,8 +491,6 @@ export default function Ranking() {
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedUser(null)}>
           <div className="bg-gray-800 w-full max-w-md max-h-[85vh] rounded-2xl border border-gray-600 shadow-2xl flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            
-            {/* CABEÇALHO MODAL */}
             <div className="p-4 bg-gray-700 flex justify-between items-center border-b border-gray-600">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden border border-gray-400 relative flex-shrink-0">
@@ -520,104 +499,54 @@ export default function Ranking() {
                 <div>
                   <h3 className="font-bold text-white flex flex-wrap items-baseline gap-1">
                     <span>{selectedUser.nome_exibicao || 'Anônimo'}</span>
-                    
-                    {/* Exibe o nome completo entre parênteses */}
-                    {selectedUser.full_name && selectedUser.full_name !== selectedUser.nome_exibicao && (
-                      <span className="text-gray-400 font-normal text-sm">
-                        ({selectedUser.full_name})
-                      </span>
-                    )}
+                    {selectedUser.full_name && selectedUser.full_name !== selectedUser.nome_exibicao && <span className="text-gray-400 font-normal text-sm">({selectedUser.full_name})</span>}
                   </h3>
                   <p className="text-xs text-gray-400 flex items-center gap-1">
-                    {filtroBrasil && <span title="Filtrado pelo Brasil">🇧🇷</span>}
-                    {selectedRound === 'Geral' ? 'Histórico Geral' : selectedRound}
+                    {filtroBrasil && <span>🇧🇷</span>}
+                    {selectedRound === 'Geral' ? 'Histórico Geral' : selectedRound === 'MataMata' ? 'Fase Eliminatória' : selectedRound === 'Extras' ? 'Palpites Especiais' : selectedRound}
                   </p>
                 </div>
               </div>
               <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-white text-2xl ml-2">&times;</button>
             </div>
 
-            {/* ABAS DENTRO DO MODAL */}
             <div className="flex border-b border-gray-600 bg-gray-800">
-                <button 
-                    className={`flex-1 py-3 text-sm font-bold transition ${modalTab === 'games' ? 'text-yellow-400 border-b-2 border-yellow-400 bg-gray-700/50' : 'text-gray-400 hover:text-white'}`}
-                    onClick={() => setModalTab('games')}
-                >
-                    ⚽ Jogos ({userBets.length})
-                </button>
-                <button 
-                    className={`flex-1 py-3 text-sm font-bold transition ${modalTab === 'extras' ? 'text-purple-400 border-b-2 border-purple-400 bg-gray-700/50' : 'text-gray-400 hover:text-white'}`}
-                    onClick={() => setModalTab('extras')}
-                >
-                    🏆 Extras ({userSpecialBets.length})
-                </button>
+                <button className={`flex-1 py-3 text-sm font-bold transition ${modalTab === 'games' ? 'text-yellow-400 border-b-2 border-yellow-400 bg-gray-700/50' : 'text-gray-400 hover:text-white'}`} onClick={() => setModalTab('games')}>⚽ Jogos ({userBets.length})</button>
+                <button className={`flex-1 py-3 text-sm font-bold transition ${modalTab === 'extras' ? 'text-purple-400 border-b-2 border-purple-400 bg-gray-700/50' : 'text-gray-400 hover:text-white'}`} onClick={() => setModalTab('extras')}>🏆 Extras ({userSpecialBets.length})</button>
             </div>
 
-            {/* CONTEÚDO SCROLLÁVEL */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900/30">
               {loadingBets ? (
                 <div className="text-center py-8 text-gray-500">Carregando palpites...</div>
               ) : (
                 <>
-                  {/* LISTA DE JOGOS */}
                   {modalTab === 'games' && (
                     userBets.length > 0 ? userBets.map((bet, idx) => (
                       <div key={idx} className="bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col shadow-sm">
-                        
                         <div className="flex justify-between items-center w-full mb-2">
                            <div className="flex items-center gap-2 text-sm">
-                             <span className="font-bold text-gray-300 w-10 text-right truncate" title={bet.games.team_a.name}>
-                               {formatTeamName(bet.games.team_a.name)}
-                             </span>
+                             <span className="font-bold text-gray-300 w-10 text-right truncate" title={bet.games.team_a.name}>{formatTeamName(bet.games.team_a.name)}</span>
                              <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_a}</span>
                              <span className="text-gray-600">x</span>
                              <span className="text-yellow-400 font-mono text-lg font-bold">{bet.guess_score_b}</span>
-                             <span className="font-bold text-gray-300 w-10 truncate" title={bet.games.team_b.name}>
-                               {formatTeamName(bet.games.team_b.name)}
-                             </span>
+                             <span className="font-bold text-gray-300 w-10 truncate" title={bet.games.team_b.name}>{formatTeamName(bet.games.team_b.name)}</span>
                            </div>
-                           
                            <div className="text-right flex-shrink-0">
-                             {bet.points_awarded !== null ? (
-                               <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm
-                                 ${bet.points_awarded === 10 ? 'bg-yellow-500 text-black' : 
-                                   bet.points_awarded >= 5 ? 'bg-green-600 text-white' : 
-                                   'bg-red-900/50 text-red-400 border border-red-900/50'}
-                               `}>
-                                 +{bet.points_awarded} pts
-                               </span>
-                             ) : <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Aguardando</span>}
+                             {bet.points_awarded !== null ? <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm ${bet.points_awarded === 10 ? 'bg-yellow-500 text-black' : bet.points_awarded >= 5 ? 'bg-green-600 text-white' : 'bg-red-900/50 text-red-400 border border-red-900/50'}`}>+{bet.points_awarded} pts</span> : <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Aguardando</span>}
                            </div>
                         </div>
-
-                        {/* Placar Real em Destaque com Adendo de Prorrogação Formatado */}
                         {bet.games.score_a !== null && (
                            <div className="mt-1 bg-gray-900/80 rounded py-1.5 px-3 flex flex-col border border-gray-700/50">
-                              
                               <div className="flex items-center justify-between">
-                                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                     Placar Real {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && '(90 Min)'}:
-                                  </span>
+                                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Placar Real {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && '(90 Min)'}:</span>
                                   <div className="flex flex-col items-end">
-                                      <span className="text-sm font-bold text-white font-mono tracking-widest bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
-                                         {bet.games.score_a} <span className="text-gray-500 font-sans text-xs mx-1">x</span> {bet.games.score_b}
-                                      </span>
+                                      <span className="text-sm font-bold text-white font-mono tracking-widest bg-gray-800 px-2 py-0.5 rounded border border-gray-700">{bet.games.score_a} x {bet.games.score_b}</span>
                                   </div>
                               </div>
-                              
-                              {/* Mostra prorrogação / pênaltis se houver somado */}
                               {(bet.games.score_a_ext !== null || bet.games.score_a_pen !== null) && (
                                  <div className="mt-2 pt-2 flex flex-col items-center gap-1 text-[9px] font-mono text-gray-400 border-t border-gray-700/50">
-                                    {bet.games.score_a_ext !== null && (
-                                      <span className="text-yellow-400 font-bold uppercase tracking-wider text-center">
-                                        Placar Final c/ Prorrogação: {Number(bet.games.score_a) + Number(bet.games.score_a_ext)} x {Number(bet.games.score_b) + Number(bet.games.score_b_ext)}
-                                      </span>
-                                    )}
-                                    {bet.games.score_a_pen !== null && (
-                                      <span className="text-blue-300 font-bold uppercase tracking-wider text-center">
-                                        Pênaltis: {bet.games.score_a_pen} x {bet.games.score_b_pen}
-                                      </span>
-                                    )}
+                                    {bet.games.score_a_ext !== null && <span className="text-yellow-400 font-bold uppercase tracking-wider text-center">Placar Final c/ Prorrogação: {Number(bet.games.score_a) + Number(bet.games.score_a_ext)} x {Number(bet.games.score_b) + Number(bet.games.score_b_ext)}</span>}
+                                    {bet.games.score_a_pen !== null && <span className="text-blue-300 font-bold uppercase tracking-wider text-center">Pênaltis: {bet.games.score_a_pen} x {bet.games.score_b_pen}</span>}
                                  </div>
                               )}
                            </div>
@@ -626,42 +555,21 @@ export default function Ranking() {
                     )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite visível para os filtros selecionados.</div>
                   )}
 
-                  {/* LISTA DE EXTRAS */}
                   {modalTab === 'extras' && (
                     userSpecialBets.length > 0 ? userSpecialBets.map((sBet, idx) => (
                       <div key={idx} className="bg-gray-800 p-3 rounded-lg border border-gray-700 flex justify-between items-center shadow-sm">
                         <div>
-                            <div className="text-[10px] text-purple-400 uppercase font-bold tracking-wide">
-                                {RULE_LABELS[sBet.rule.type] || sBet.rule.label || sBet.rule.type}
-                            </div>
-                            
+                            <div className="text-[10px] text-purple-400 uppercase font-bold tracking-wide">{RULE_LABELS[sBet.rule.type] || sBet.rule.label || sBet.rule.type}</div>
                             <div className="font-bold text-white text-sm mt-1 flex items-center gap-2">
-                                {sBet.picked_team && (
-                                    <img src={sBet.picked_team.badge_url} alt="" className="w-5 h-5 object-contain" />
-                                )}
+                                {sBet.picked_team && <img src={sBet.picked_team.badge_url} alt="" className="w-5 h-5 object-contain" />}
                                 {sBet.rule.type === 'top_scorer' ? sBet.picked_value : (sBet.picked_team?.name || sBet.picked_value)}
                             </div>
                         </div>
-                        
                         <div className="text-right flex-shrink-0">
-                           {sBet.points_awarded !== null && sBet.points_awarded > 0 ? (
-                                <span className="text-xs font-bold px-2 py-1 rounded bg-yellow-500 text-black shadow-lg">
-                                    +{sBet.points_awarded} pts
-                                </span>
-                           ) : sBet.points_awarded === 0 ? (
-                                <span className="text-xs font-bold px-2 py-1 rounded bg-red-900/50 text-red-400 border border-red-900/50">
-                                    0 pts
-                                </span>
-                           ) : (
-                               <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">
-                                   Valendo {sBet.rule.points}
-                               </span>
-                           )}
+                           {sBet.points_awarded !== null && sBet.points_awarded > 0 ? <span className="text-xs font-bold px-2 py-1 rounded bg-yellow-500 text-black shadow-lg">+{sBet.points_awarded} pts</span> : sBet.points_awarded === 0 ? <span className="text-xs font-bold px-2 py-1 rounded bg-red-900/50 text-red-400 border border-red-900/50">0 pts</span> : <span className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Valendo {sBet.rule.points}</span>}
                         </div>
                       </div>
-                    )) : <div className="text-center py-8 text-gray-500 text-sm">
-                        Nenhum palpite extra visível (ou o prazo ainda não encerrou).
-                    </div>
+                    )) : <div className="text-center py-8 text-gray-500 text-sm">Nenhum palpite extra visível (ou o prazo ainda não encerrou).</div>
                   )}
                 </>
               )}

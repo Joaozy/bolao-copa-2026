@@ -185,7 +185,6 @@ export default function CentralDeJogos() {
       else if (pA === rA || pB === rB) basePoints = 2;
     }
 
-    // Aplica o peso da rodada encontrado no banco (ou 1 se não houver peso especial)
     const multiplier = roundMultipliers[roundName] || 1;
     return basePoints * multiplier;
   }
@@ -200,6 +199,17 @@ export default function CentralDeJogos() {
   const abrirModalPalpites = async (game) => {
     setSelectedGameForModal(game);
     setIsModalOpen(true);
+
+    // SISTEMA ANTI-CÓPIA: Verifica se o jogo ainda não começou
+    const isNotStarted = notStartedStatuses.includes(game.status_short) || (!game.status_short && new Date(game.start_time) > new Date());
+    
+    if (isNotStarted) {
+      // Se não começou, garante que a lista de palpites estará vazia e não faz a consulta no banco
+      setGameBets([]);
+      setLoadingBets(false);
+      return; 
+    }
+
     setLoadingBets(true);
 
     const { data, error } = await supabase
@@ -265,7 +275,7 @@ export default function CentralDeJogos() {
         {filteredGames.map((game) => {
           const palpiteValues = userBetsMap[game.id] || { scoreA: '', scoreB: '' }
           
-          const isNotStarted = notStartedStatuses.includes(game.status_short)
+          const isNotStarted = notStartedStatuses.includes(game.status_short) || (!game.status_short && new Date(game.start_time) > new Date())
 
           const hasMatchData = !isNotStarted && (
              (game.status_short && game.status_short !== 'NS') || 
@@ -312,7 +322,6 @@ export default function CentralDeJogos() {
               {/* BLOCO DE INFORMAÇÕES EXTRAS E PONTUAÇÃO */}
               <div className="flex flex-col items-center w-[90%] mx-auto mt-[-12px] z-0 relative">
                 
-                {/* Placares de Prorrogação e Pênaltis somados corretamente */}
                 {hasExtraScores && (
                   <div className="w-full pt-4 pb-2 px-2 bg-gray-800/95 border-x border-b border-gray-700 rounded-b-xl flex flex-col items-center text-[10px] font-mono text-gray-400">
                     <div className="flex flex-col items-center gap-1">
@@ -330,7 +339,6 @@ export default function CentralDeJogos() {
                   </div>
                 )}
 
-                {/* Caixa de Pontuação do Usuário (Agora com o multiplicador em tempo real) */}
                 {hasMatchData && livePoints !== null && (
                   <div className={`
                     w-full text-center py-1 px-6 text-[10px] font-bold uppercase tracking-wider shadow-lg border-x border-b transform transition-all
@@ -343,7 +351,7 @@ export default function CentralDeJogos() {
               </div>
               
               <div className="absolute top-2 right-2 z-20 bg-gray-800 text-gray-400 text-[10px] px-2 py-1 rounded border border-gray-600 opacity-80">
-                  Ver palpites 👁️
+                  {isNotStarted ? '🔒 Oculto' : 'Ver palpites 👁️'}
               </div>
             </div>
           )
@@ -373,16 +381,15 @@ export default function CentralDeJogos() {
                 <span className="text-gray-200">{traducoesPaises[selectedGameForModal.team_b?.name] || selectedGameForModal.team_b?.name}</span>
               </div>
               
-              {/* Exibe Prorrogação/Pênaltis no Modal formatado bonito */}
               {(selectedGameForModal.score_a_ext !== null || selectedGameForModal.score_a_pen !== null) && (
                 <div className="mt-3 flex flex-col items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-700">
                   {selectedGameForModal.score_a_ext !== null && (
-                    <span className="text-yellow-400 font-bold uppercase tracking-wider">
+                    <span className="text-yellow-400 font-bold uppercase tracking-wider text-center">
                        Placar Final c/ Prorrogação: {Number(selectedGameForModal.score_a) + Number(selectedGameForModal.score_a_ext)} x {Number(selectedGameForModal.score_b) + Number(selectedGameForModal.score_b_ext)}
                     </span>
                   )}
                   {selectedGameForModal.score_a_pen !== null && (
-                    <span className="text-blue-300 font-bold uppercase tracking-wider">
+                    <span className="text-blue-300 font-bold uppercase tracking-wider text-center">
                        Pênaltis: {selectedGameForModal.score_a_pen} x {selectedGameForModal.score_b_pen}
                     </span>
                   )}
@@ -395,7 +402,16 @@ export default function CentralDeJogos() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
-              {loadingBets ? (
+              {/* TELA DE BLOQUEIO PARA JOGOS NÃO INICIADOS */}
+              {(notStartedStatuses.includes(selectedGameForModal.status_short) || (!selectedGameForModal.status_short && new Date(selectedGameForModal.start_time) > new Date())) ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <span className="text-5xl mb-4">🔒</span>
+                  <p className="font-bold text-lg text-gray-300">Palpites Ocultos!</p>
+                  <p className="text-xs text-center mt-2 px-4 leading-relaxed">
+                    Para evitar cópias, os palpites da galera só serão revelados quando a partida começar.
+                  </p>
+                </div>
+              ) : loadingBets ? (
                 <div className="text-center text-gray-400 py-10">Buscando palpites da galera...</div>
               ) : gameBets.length === 0 ? (
                 <div className="text-center text-gray-400 py-10">Ninguém palpitou neste jogo ainda.</div>
@@ -408,7 +424,6 @@ export default function CentralDeJogos() {
                      displayPoints = calcularPontosAoVivo(bet.guess_score_a, bet.guess_score_b, selectedGameForModal.score_a, selectedGameForModal.score_b, selectedGameForModal.round) || 0;
                   }
 
-                  // A cor dos pontos no Modal ajustada para ficar legível em 0 pts
                   const pointsColor = displayPoints > 0 ? 'text-green-400' : 'text-gray-500';
 
                   return (
