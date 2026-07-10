@@ -63,11 +63,11 @@ export async function GET(request) {
       
       2. 📊 O VAR DAS APOSTAS: SEJA CURTO E DIRETO. Zombe da falta de criatividade de quem apostou no placar mais repetido (cite 1 ou 2 nomes). Pegue o placar menos votado da lista e brinque com a ilusão (ou genialidade) desses apostadores.
       
-      3. 🕵️ RAIO-X DO CONFRONTO: Faça uma análise tática rápida de botequim. Aponte quem é o verdadeiro favorito, cite 1 ou 2 craques reais do confronto, e lembre que quem passar sobrevive para a próxima pedreira.
+      3. 🕵️ RAIO-X DO CONFRONTO: Faça uma análise tática rápida de botequim. Aponte quem é o verdadeiro favorito, cite 1 ou 2 craques reais do confronto, e lembre que quem passar sobrevive para a próxima pedreira. Faca uma analise levando em conta Copa do Mundo de 2026. Cuidado para nao confundir confrontos ou jogadores de outras copas.
       
       4. 🧠 CULTURA INÚTIL: Solte uma curiosidade aleatória, histórica e curiosa sobre o país ${mandante} e outra sobre ${visitante}.
       
-      ATENÇÃO PARA O FINAL: Encerre o último bloco com uma despedida MUITO LEVE, amigável e em clima de festa (Ex: "Aproveitem pra pegar aquele kit churrasco e uma gelada no Mota Supermercado, sentem no sofá e boa sorte!"). É ESTRITAMENTE PROIBIDO usar xingamentos irritados.
+      ATENÇÃO PARA O FINAL: Encerre o último bloco com uma despedida MUITO LEVE, amigável e em clima de festa. 
 
       Use parágrafos curtos. Pule sempre uma linha em branco entre os blocos. Os títulos devem estar em NEGRITO e MAIÚSCULO com emojis.
     `;

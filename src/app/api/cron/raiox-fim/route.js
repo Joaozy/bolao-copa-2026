@@ -63,46 +63,69 @@ export async function GET(request) {
         }
     });
 
-    // --- 2. A MONTANHA RUSSA DO RANKING (Calculada em tempo real) ---
-    const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).single();
-    let rankingStats = "";
+    // --- 2. A MONTANHA RUSSA DO RANKING (Cálculo Refinado e Seguro) ---
+    const { data: activeComp, error: compError } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
+    let rankingStats = "Sem dados de ranking para analisar.";
     
     if (activeComp) {
-        // Pega o multiplicador da rodada para aplicar no salto do ranking
-        const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).single();
-        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round).single();
+        // Usa maybeSingle() para evitar que o código quebre caso não exista multiplicador cadastrado
+        const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).maybeSingle();
+        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier')
+            .eq('competition_id', activeComp.id)
+            .eq('round_name', gameData?.round || '')
+            .maybeSingle();
+        
         const multiplier = roundSetting?.multiplier || 1;
 
-        const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
+        const { data: leaderboard, error: leadError } = await supabase.from('leaderboard')
+            .select('user_id, nome_exibicao, total_pontos')
+            .eq('competition_id', activeComp.id);
         
+        if (leadError) console.error("Erro ao buscar leaderboard:", leadError);
+
         if (leaderboard && leaderboard.length > 0) {
             const usersData = leaderboard.map(user => {
                 const palpiteJogo = palpitesDoJogo.find(p => p.user_id === user.user_id);
                 
-                // Se o banco já calculou, usamos o do banco. Se não, usamos o nosso cálculo forçado.
-                const pontosDoJogo = palpiteJogo 
-                    ? (palpiteJogo.points_awarded !== null ? palpiteJogo.points_awarded : (palpiteJogo.pontos_calculados * multiplier)) 
-                    : 0;
+                let pontosDoJogo = 0;
+                let bancoJaSomou = false;
 
-                const bancoJaSomou = palpiteJogo && palpiteJogo.points_awarded !== null;
-                
+                if (palpiteJogo) {
+                    if (palpiteJogo.points_awarded !== null && palpiteJogo.points_awarded !== undefined) {
+                        pontosDoJogo = Number(palpiteJogo.points_awarded);
+                        bancoJaSomou = true;
+                    } else {
+                        pontosDoJogo = Number(palpiteJogo.pontos_calculados || 0) * multiplier;
+                    }
+                }
+
+                // Força a conversão para número para evitar o risco de "10" + "5" = "105"
+                const totalPontosDB = Number(user.total_pontos || 0);
+
                 return {
-                    nome: user.nome_exibicao,
-                    pontosAtuais: bancoJaSomou ? user.total_pontos : user.total_pontos + pontosDoJogo,
-                    pontosAntes: bancoJaSomou ? user.total_pontos - pontosDoJogo : user.total_pontos
+                    nome: user.nome_exibicao || 'Anônimo',
+                    pontosAtuais: bancoJaSomou ? totalPontosDB : totalPontosDB + pontosDoJogo,
+                    pontosAntes: bancoJaSomou ? totalPontosDB - pontosDoJogo : totalPontosDB
                 };
             });
 
-            const rankAntes = [...usersData].sort((a, b) => b.pontosAntes - a.pontosAntes);
-            const rankDepois = [...usersData].sort((a, b) => b.pontosAtuais - a.pontosAtuais);
+            // FUNÇÃO DE ORDENAÇÃO COM DESEMPATE (CRÍTICO)
+            // Se as pontuações forem iguais, desempata pela ordem alfabética do nome para manter a estabilidade do ranking.
+            const sortRanking = (key) => (a, b) => {
+                if (b[key] !== a[key]) return b[key] - a[key]; 
+                return a.nome.localeCompare(b.nome); 
+            };
+
+            const rankAntes = [...usersData].sort(sortRanking('pontosAntes'));
+            const rankDepois = [...usersData].sort(sortRanking('pontosAtuais'));
 
             let maiorSalto = { nome: '', posicoes: 0 };
-            let maiorQueda = { nome: '', posicoes: 0 };
+            let maiorQueda = { nome: '', posicoes: 0 }; 
 
             usersData.forEach(user => {
                 const posAntes = rankAntes.findIndex(u => u.nome === user.nome) + 1;
                 const posDepois = rankDepois.findIndex(u => u.nome === user.nome) + 1;
-                const diff = posAntes - posDepois; 
+                const diff = posAntes - posDepois; // Positivo = subiu, Negativo = caiu
 
                 if (diff > maiorSalto.posicoes) maiorSalto = { nome: user.nome, posicoes: diff };
                 if (diff < maiorQueda.posicoes) maiorQueda = { nome: user.nome, posicoes: diff };
