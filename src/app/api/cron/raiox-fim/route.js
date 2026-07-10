@@ -70,59 +70,71 @@ export async function GET(request) {
     if (activeComp) {
         const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).maybeSingle();
         const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round || '').maybeSingle();
+        
+        // Pega o multiplicador (nas Quartas, será 4). Se o banco falhar, garante no mínimo 1.
         const multiplier = roundSetting?.multiplier || 1;
 
         const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
         
         if (leaderboard && leaderboard.length > 0) {
             
-            // O GRANDE SEGREDO ESTÁ AQUI: Descobrir se o banco já rodou o trigger de pontos
-            let dbProcessado = true;
-            palpitesDoJogo.forEach(p => {
-                const ptCalc = Number(p.pontos_calculados || 0) * multiplier;
-                const ptDB = p.points_awarded === null ? 0 : Number(p.points_awarded);
-                
-                // Se a nossa matemática diz que o cara pontuou, mas o banco diz que é 0, o banco está atrasado!
-                if (ptCalc > 0 && ptDB === 0) {
-                    dbProcessado = false;
-                }
-            });
-
-            // Função auxiliar de ordenação e desempate alfabético
+            // Função auxiliar de ordenação com desempate alfabético estável (Crítico para não dar zero saltos por acaso)
             const sortRanking = (key) => (a, b) => {
                 if (b[key] !== a[key]) return b[key] - a[key]; 
                 return (a.nome || '').localeCompare(b.nome || ''); 
             };
 
-            // Mapeia os usuários usando ESTRITAMENTE a matemática da API para evitar o bug do "zero default"
-            const usersCalculados = leaderboard.map(user => {
+            // Prepara a base de usuários ignorando o Banco de Dados para os pontos da partida atual.
+            // Usamos ESTRITAMENTE o cálculo do seu Passo 1 (10, 7, 5, 2) vezes o Multiplicador (4x).
+            const baseUsersData = leaderboard.map(user => {
                 const p = palpitesDoJogo.find(p => p.user_id === user.user_id);
+                // Calcula os pontos reais da rodada (ex: 10 * 4 = 40 pontos)
                 const pontosDoJogo = p ? (Number(p.pontos_calculados || 0) * multiplier) : 0;
-                const totalDB = Number(user.total_pontos || 0);
 
                 return {
                     user_id: user.user_id,
                     nome: user.nome_exibicao || 'Anônimo',
-                    // Se o DB já processou, o totalDB é o ATUAL. Se o DB tá atrasado, o totalDB é o ANTES.
-                    pontosAntes: dbProcessado ? totalDB - pontosDoJogo : totalDB,
-                    pontosAtuais: dbProcessado ? totalDB : totalDB + pontosDoJogo
+                    totalPontosDB: Number(user.total_pontos || 0),
+                    pontosDoJogo: pontosDoJogo
                 };
             });
 
-            const rankAntes = [...usersCalculados].sort(sortRanking('pontosAntes'));
-            const rankDepois = [...usersCalculados].sort(sortRanking('pontosAtuais'));
+            // Motor de cálculo encapsulado que resolve o problema de dessincronização
+            const calcularSaltos = (assumirBancoJaSomou) => {
+                const usersCalculados = baseUsersData.map(u => ({
+                    user_id: u.user_id,
+                    nome: u.nome,
+                    pontosAtuais: assumirBancoJaSomou ? u.totalPontosDB : u.totalPontosDB + u.pontosDoJogo,
+                    pontosAntes: assumirBancoJaSomou ? u.totalPontosDB - u.pontosDoJogo : u.totalPontosDB
+                }));
 
-            let maiorSalto = { nome: '', posicoes: 0 };
-            let maiorQueda = { nome: '', posicoes: 0 }; 
+                const rankAntes = [...usersCalculados].sort(sortRanking('pontosAntes'));
+                const rankDepois = [...usersCalculados].sort(sortRanking('pontosAtuais'));
 
-            usersCalculados.forEach(user => {
-                const posAntes = rankAntes.findIndex(u => u.user_id === user.user_id) + 1;
-                const posDepois = rankDepois.findIndex(u => u.user_id === user.user_id) + 1;
-                const diff = posAntes - posDepois; 
+                let maiorSalto = { nome: '', posicoes: 0 };
+                let maiorQueda = { nome: '', posicoes: 0 }; 
 
-                if (diff > maiorSalto.posicoes) maiorSalto = { nome: user.nome, posicoes: diff };
-                if (diff < maiorQueda.posicoes) maiorQueda = { nome: user.nome, posicoes: diff };
-            });
+                usersCalculados.forEach(user => {
+                    const posAntes = rankAntes.findIndex(u => u.user_id === user.user_id) + 1;
+                    const posDepois = rankDepois.findIndex(u => u.user_id === user.user_id) + 1;
+                    const diff = posAntes - posDepois; // Positivo = subiu, Negativo = caiu
+
+                    if (diff > maiorSalto.posicoes) maiorSalto = { nome: user.nome, posicoes: diff };
+                    if (diff < maiorQueda.posicoes) maiorQueda = { nome: user.nome, posicoes: diff };
+                });
+
+                return { maiorSalto, maiorQueda };
+            };
+
+            // TENTATIVA 1: O Ranking do banco de dados ainda é o "Antes" do jogo.
+            let resultadoSaltos = calcularSaltos(false);
+
+            // TENTATIVA 2 (Segurança máxima): Se ninguém moveu posição, é porque o banco foi mais rápido e já somou os pontos na view.
+            if (resultadoSaltos.maiorSalto.posicoes === 0 && resultadoSaltos.maiorQueda.posicoes === 0) {
+                resultadoSaltos = calcularSaltos(true);
+            }
+
+            const { maiorSalto, maiorQueda } = resultadoSaltos;
 
             rankingStats = `
               MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!` : 'Nenhum salto relevante.'}
