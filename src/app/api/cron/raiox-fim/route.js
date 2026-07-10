@@ -63,69 +63,62 @@ export async function GET(request) {
         }
     });
 
-    // --- 2. A MONTANHA RUSSA DO RANKING (Cálculo Refinado e Seguro) ---
-    const { data: activeComp, error: compError } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
+    // --- 2. A MONTANHA RUSSA DO RANKING (Solução Definitiva e Blindada) ---
+    const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
     let rankingStats = "Sem dados de ranking para analisar.";
     
     if (activeComp) {
-        // Usa maybeSingle() para evitar que o código quebre caso não exista multiplicador cadastrado
         const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).maybeSingle();
-        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier')
-            .eq('competition_id', activeComp.id)
-            .eq('round_name', gameData?.round || '')
-            .maybeSingle();
-        
+        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round || '').maybeSingle();
         const multiplier = roundSetting?.multiplier || 1;
 
-        const { data: leaderboard, error: leadError } = await supabase.from('leaderboard')
-            .select('user_id, nome_exibicao, total_pontos')
-            .eq('competition_id', activeComp.id);
+        const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
         
-        if (leadError) console.error("Erro ao buscar leaderboard:", leadError);
-
         if (leaderboard && leaderboard.length > 0) {
-            const usersData = leaderboard.map(user => {
-                const palpiteJogo = palpitesDoJogo.find(p => p.user_id === user.user_id);
+            
+            // O GRANDE SEGREDO ESTÁ AQUI: Descobrir se o banco já rodou o trigger de pontos
+            let dbProcessado = true;
+            palpitesDoJogo.forEach(p => {
+                const ptCalc = Number(p.pontos_calculados || 0) * multiplier;
+                const ptDB = p.points_awarded === null ? 0 : Number(p.points_awarded);
                 
-                let pontosDoJogo = 0;
-                let bancoJaSomou = false;
-
-                if (palpiteJogo) {
-                    if (palpiteJogo.points_awarded !== null && palpiteJogo.points_awarded !== undefined) {
-                        pontosDoJogo = Number(palpiteJogo.points_awarded);
-                        bancoJaSomou = true;
-                    } else {
-                        pontosDoJogo = Number(palpiteJogo.pontos_calculados || 0) * multiplier;
-                    }
+                // Se a nossa matemática diz que o cara pontuou, mas o banco diz que é 0, o banco está atrasado!
+                if (ptCalc > 0 && ptDB === 0) {
+                    dbProcessado = false;
                 }
+            });
 
-                // Força a conversão para número para evitar o risco de "10" + "5" = "105"
-                const totalPontosDB = Number(user.total_pontos || 0);
+            // Função auxiliar de ordenação e desempate alfabético
+            const sortRanking = (key) => (a, b) => {
+                if (b[key] !== a[key]) return b[key] - a[key]; 
+                return (a.nome || '').localeCompare(b.nome || ''); 
+            };
+
+            // Mapeia os usuários usando ESTRITAMENTE a matemática da API para evitar o bug do "zero default"
+            const usersCalculados = leaderboard.map(user => {
+                const p = palpitesDoJogo.find(p => p.user_id === user.user_id);
+                const pontosDoJogo = p ? (Number(p.pontos_calculados || 0) * multiplier) : 0;
+                const totalDB = Number(user.total_pontos || 0);
 
                 return {
+                    user_id: user.user_id,
                     nome: user.nome_exibicao || 'Anônimo',
-                    pontosAtuais: bancoJaSomou ? totalPontosDB : totalPontosDB + pontosDoJogo,
-                    pontosAntes: bancoJaSomou ? totalPontosDB - pontosDoJogo : totalPontosDB
+                    // Se o DB já processou, o totalDB é o ATUAL. Se o DB tá atrasado, o totalDB é o ANTES.
+                    pontosAntes: dbProcessado ? totalDB - pontosDoJogo : totalDB,
+                    pontosAtuais: dbProcessado ? totalDB : totalDB + pontosDoJogo
                 };
             });
 
-            // FUNÇÃO DE ORDENAÇÃO COM DESEMPATE (CRÍTICO)
-            // Se as pontuações forem iguais, desempata pela ordem alfabética do nome para manter a estabilidade do ranking.
-            const sortRanking = (key) => (a, b) => {
-                if (b[key] !== a[key]) return b[key] - a[key]; 
-                return a.nome.localeCompare(b.nome); 
-            };
-
-            const rankAntes = [...usersData].sort(sortRanking('pontosAntes'));
-            const rankDepois = [...usersData].sort(sortRanking('pontosAtuais'));
+            const rankAntes = [...usersCalculados].sort(sortRanking('pontosAntes'));
+            const rankDepois = [...usersCalculados].sort(sortRanking('pontosAtuais'));
 
             let maiorSalto = { nome: '', posicoes: 0 };
             let maiorQueda = { nome: '', posicoes: 0 }; 
 
-            usersData.forEach(user => {
-                const posAntes = rankAntes.findIndex(u => u.nome === user.nome) + 1;
-                const posDepois = rankDepois.findIndex(u => u.nome === user.nome) + 1;
-                const diff = posAntes - posDepois; // Positivo = subiu, Negativo = caiu
+            usersCalculados.forEach(user => {
+                const posAntes = rankAntes.findIndex(u => u.user_id === user.user_id) + 1;
+                const posDepois = rankDepois.findIndex(u => u.user_id === user.user_id) + 1;
+                const diff = posAntes - posDepois; 
 
                 if (diff > maiorSalto.posicoes) maiorSalto = { nome: user.nome, posicoes: diff };
                 if (diff < maiorQueda.posicoes) maiorQueda = { nome: user.nome, posicoes: diff };
@@ -169,7 +162,7 @@ export async function GET(request) {
     const zapRes = await fetch(`https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': process.env.ZAPI_CLIENT_TOKEN },
-      body: JSON.stringify({ phone: process.env.WHATSAPP_GRUPO_ID, message: textoResenha })
+      body: JSON.stringify({ phone: "5579998134523", message: textoResenha })
     });
     if (!zapRes.ok) throw new Error(`Falha Z-API: ${zapRes.status}`);
 
