@@ -40,12 +40,29 @@ export async function GET(request) {
     if (!comp) return new Response(JSON.stringify({ message: 'Nenhuma competição ativa.' }), { status: 200 });
     
     // A MÁGICA DO RETRY: Se já mandou hoje, cancela a operação silenciosamente
-    if (comp.last_bulletin_date === hojeDataStr) {
-        return new Response(JSON.stringify({ message: 'Boletim de hoje já foi enviado com sucesso mais cedo. Dormindo...' }), { status: 200 });
-    }
+    // if (comp.last_bulletin_date === hojeDataStr) {
+    //    return new Response(JSON.stringify({ message: 'Boletim de hoje já foi enviado com sucesso mais cedo. Dormindo...' }), { status: 200 });
+    //}
 
-    // 3. RANKING GERAL (Necessário para pegar os nomes da galera)
-    const { data: leaderboard } = await supabase.from('leaderboard').select('*').eq('competition_id', comp.id).order('total_pontos', { ascending: false });
+    // 3. RANKING GERAL (Ordenação Oficial e Desempate Rigoroso)
+    const { data: rawLeaderboard } = await supabase
+        .from('leaderboard')
+        .select('user_id, nome_exibicao, total_pontos, qtd_cv, qtd_vsg, qtd_av')
+        .eq('competition_id', comp.id);
+
+    let leaderboard = [];
+    if (rawLeaderboard && rawLeaderboard.length > 0) {
+        leaderboard = rawLeaderboard.sort((a, b) => {
+            if (Number(b.total_pontos) !== Number(a.total_pontos)) return Number(b.total_pontos) - Number(a.total_pontos);
+            if (Number(b.qtd_cv) !== Number(a.qtd_cv)) return Number(b.qtd_cv) - Number(a.qtd_cv);
+            if (Number(b.qtd_vsg) !== Number(a.qtd_vsg)) return Number(b.qtd_vsg) - Number(a.qtd_vsg);
+            if (Number(b.qtd_av) !== Number(a.qtd_av)) return Number(b.qtd_av) - Number(a.qtd_av);
+            
+            const nomeA = (a.nome_exibicao || '').toLowerCase().trim();
+            const nomeB = (b.nome_exibicao || '').toLowerCase().trim();
+            return nomeA.localeCompare(nomeB);
+        });
+    }
 
     // 4. ANÁLISE DE ONTEM (Quem mitou e quem afundou)
     const { data: gamesOntem } = await supabase.from('games').select('id').eq('competition_id', comp.id).gte('start_time', inicioOntem).lte('start_time', fimOntem);
@@ -142,7 +159,7 @@ export async function GET(request) {
     const zapResponse = await fetch(zapUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': process.env.ZAPI_CLIENT_TOKEN },
-      body: JSON.stringify({ phone: process.env.WHATSAPP_GRUPO_ID, message: textoBoletim })
+      body: JSON.stringify({ phone: "5579998134523", message: textoBoletim })
     });
 
     if (!zapResponse.ok) throw new Error(`Falha Z-API. Status: ${zapResponse.status}`);

@@ -203,7 +203,7 @@ export async function GET(request) {
       1. 🏁 FIM DE PAPO: Informe o placar final como um verdadeiro decreto.
       2. 🔮 OS VIDENTES: Se alguém cravou, trate-os como Deuses intocáveis. Se ninguém cravou, diga que o bolão tá cheio de mortais fracassados.
       3. 🤡 OS ILUDIDOS: Zombe pesadamente de apenas 1 ou 2 nomes da lista de Iludidos. USE O PLACAR QUE ELES APOSTARAM PARA FAZER A PIADA.
-      4. 🎢 A MONTANHA RUSSA: Use ESTRITAMENTE a lista de nomes fornecida no bloco "[OS 2 MAIORES SALTOS]" e "[AS 2 MAIORES QUEDAS]". Se tiver nomes lá, comente quantas posições eles subiram ou desceram e faça piadas humilhando ou enaltecendo. Se disser que não teve, aí sim você pode dizer que congelou. 
+      4. 🎢 A MONTANHA RUSSA: Use ESTRITAMENTE a lista de nomes fornecida no bloco "[OS 2 MAIORES SALTOS]" e "[AS 2 MAIORES QUEDAS]". Se tiver nomes lá, comente quantas posições eles subiram ou desceram e faça piadas humilhando ou enaltecendo. MANTENHA A GRAFIA EXATA DOS NOMES (não confunda homônimos). Se disser que não teve salto/queda, aí sim você pode dizer que congelou. 
       5. Seja Bastante Criativo e Varie bastante as piadas para que mensagens passadas ou futuras não fiquem repetitivas. 
     `;
 
@@ -215,7 +215,7 @@ export async function GET(request) {
     const zapRes = await fetch(`https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': process.env.ZAPI_CLIENT_TOKEN },
-      body: JSON.stringify({ phone: "5579998134523", message: textoResenha })
+      body: JSON.stringify({ phone: process.env.WHATSAPP_GRUPO_ID, message: textoResenha })
     });
     if (!zapRes.ok) throw new Error(`Falha Z-API: ${zapRes.status}`);
 
