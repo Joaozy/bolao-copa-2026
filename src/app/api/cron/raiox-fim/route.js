@@ -63,12 +63,11 @@ export async function GET(request) {
         }
     });
 
-    // --- 2. A MONTANHA RUSSA DO RANKING (LÓGICA EXATA DO NOTIFICA-RESULTADOS) ---
+    // --- 2. A MONTANHA RUSSA DO RANKING (NOVA ARQUITETURA - MAPA COMPLETO) ---
     const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
     let rankingStats = "Sem dados de ranking para analisar.";
     
     if (activeComp) {
-        // Busca o ranking com TODOS os critérios de desempate oficiais
         const { data: ranking } = await supabase
             .from('leaderboard')
             .select('user_id, nome_exibicao, total_pontos, qtd_cv, qtd_vsg, qtd_av') 
@@ -81,39 +80,49 @@ export async function GET(request) {
                 nicknameMap[r.user_id] = (r.nome_exibicao || '').toLowerCase().trim();
             });
 
-            // Constrói o ranking Anterior usando o mesmo esquema: pontos atuais MENOS os pontos_awarded deste jogo
-            const rankingAnterior = ranking.map(userRank => {
-                const palpiteDesteUser = palpitesDoJogo.find(p => p.user_id === userRank.user_id);
-                const pontosGanhos = palpiteDesteUser?.points_awarded || 0; 
+            // 1. TRATAMENTO DO DELAY DO BANCO: O gatilho do Supabase já rodou?
+            const dbAtualizado = palpitesDoJogo.some(p => p.points_awarded !== null);
+
+            // 2. ISOLAR A MATEMÁTICA: Criamos a base de dados exata para o ranking Antes vs Depois
+            const rankingCompleto = ranking.map(r => {
+                const palpite = palpitesDoJogo.find(p => p.user_id === r.user_id);
                 
+                // Se DB tá lento, usamos os pontos que a própria API calculou no Passo 1
+                const pontosManual = Number(palpite?.pontos_calculados || 0);
+                const pontosBanco = Number(palpite?.points_awarded || 0);
+                const ganhos = dbAtualizado ? pontosBanco : pontosManual;
+                
+                const totalBanco = Number(r.total_pontos || 0);
+
                 return {
-                    user_id: userRank.user_id,
-                    pontos_anteriores: Number(userRank.total_pontos) - Number(pontosGanhos),
-                    cv: Number(userRank.qtd_cv),
-                    vsg: Number(userRank.qtd_vsg),
-                    av: Number(userRank.qtd_av)
+                    user_id: r.user_id,
+                    nome: r.nome_exibicao || 'Anônimo',
+                    // Se o DB já foi atualizado, totalBanco é o Atual. Se não, totalBanco é o Anterior.
+                    pontosAtuais: dbAtualizado ? totalBanco : totalBanco + ganhos,
+                    pontosAnteriores: dbAtualizado ? totalBanco - ganhos : totalBanco,
+                    cv: Number(r.qtd_cv || 0),
+                    vsg: Number(r.qtd_vsg || 0),
+                    av: Number(r.qtd_av || 0)
                 };
             });
 
-            let maiorSalto = { nome: '', posicoes: 0 };
-            let maiorQueda = { nome: '', posicoes: 0 };
+            const relatorioMovimentos = [];
 
-            // O JUÍZO FINAL: Compara a posição de CADA usuário antes e depois usando as regras estritas
-            ranking.forEach(usuario => {
+            // 3. O LOOP DO JUÍZO FINAL: Filtra todos os usuários, exatamente como no notifica-resultados
+            rankingCompleto.forEach(usuario => {
                 const nomeAtual = nicknameMap[usuario.user_id] || '';
 
-                // --- POSIÇÃO ATUAL ---
-                const statsAtual = ranking.find(r => r.user_id === usuario.user_id);
-                const posicaoAtual = ranking.filter(r => {
+                // --- CALCULA POSIÇÃO ATUAL ---
+                const posicaoAtual = rankingCompleto.filter(r => {
                     if (r.user_id === usuario.user_id) return false;
-                    if (r.total_pontos > statsAtual.total_pontos) return true;
-                    if (r.total_pontos === statsAtual.total_pontos) {
-                        if (r.qtd_cv > statsAtual.qtd_cv) return true;
-                        if (r.qtd_cv === statsAtual.qtd_cv) {
-                            if (r.qtd_vsg > statsAtual.qtd_vsg) return true;
-                            if (r.qtd_vsg === statsAtual.qtd_vsg) {
-                                if (r.qtd_av > statsAtual.qtd_av) return true;
-                                if (r.qtd_av === statsAtual.qtd_av) {
+                    if (r.pontosAtuais > usuario.pontosAtuais) return true;
+                    if (r.pontosAtuais === usuario.pontosAtuais) {
+                        if (r.cv > usuario.cv) return true;
+                        if (r.cv === usuario.cv) {
+                            if (r.vsg > usuario.vsg) return true;
+                            if (r.vsg === usuario.vsg) {
+                                if (r.av > usuario.av) return true;
+                                if (r.av === usuario.av) {
                                     const nomeR = nicknameMap[r.user_id] || '';
                                     if (nomeR.localeCompare(nomeAtual) < 0) return true;
                                 }
@@ -123,18 +132,17 @@ export async function GET(request) {
                     return false;
                 }).length + 1;
 
-                // --- POSIÇÃO ANTERIOR ---
-                const statsAnterior = rankingAnterior.find(r => r.user_id === usuario.user_id);
-                const posicaoAnterior = rankingAnterior.filter(r => {
+                // --- CALCULA POSIÇÃO ANTERIOR ---
+                const posicaoAnterior = rankingCompleto.filter(r => {
                     if (r.user_id === usuario.user_id) return false;
-                    if (r.pontos_anteriores > statsAnterior.pontos_anteriores) return true;
-                    if (r.pontos_anteriores === statsAnterior.pontos_anteriores) {
-                        if (r.cv > statsAnterior.cv) return true;
-                        if (r.cv === statsAnterior.cv) {
-                            if (r.vsg > statsAnterior.vsg) return true;
-                            if (r.vsg === statsAnterior.vsg) {
-                                if (r.av > statsAnterior.av) return true;
-                                if (r.av === statsAnterior.av) {
+                    if (r.pontosAnteriores > usuario.pontosAnteriores) return true;
+                    if (r.pontosAnteriores === usuario.pontosAnteriores) {
+                        if (r.cv > usuario.cv) return true;
+                        if (r.cv === usuario.cv) {
+                            if (r.vsg > usuario.vsg) return true;
+                            if (r.vsg === usuario.vsg) {
+                                if (r.av > usuario.av) return true;
+                                if (r.av === usuario.av) {
                                     const nomeR = nicknameMap[r.user_id] || '';
                                     if (nomeR.localeCompare(nomeAtual) < 0) return true;
                                 }
@@ -144,17 +152,35 @@ export async function GET(request) {
                     return false;
                 }).length + 1;
 
-                // --- CÁLCULO DO SALTO/QUEDA ---
-                const diff = posicaoAnterior - posicaoAtual; // Positivo = Subiu, Negativo = Caiu
-
-                if (diff > maiorSalto.posicoes) maiorSalto = { nome: usuario.nome_exibicao, posicoes: diff };
-                if (diff < maiorQueda.posicoes) maiorQueda = { nome: usuario.nome_exibicao, posicoes: diff };
+                // ARMAZENA O MOVIMENTO
+                const diff = posicaoAnterior - posicaoAtual; 
+                
+                if (diff !== 0) {
+                    relatorioMovimentos.push({
+                        nome: usuario.nome,
+                        variacao: diff,
+                        posAnterior: posicaoAnterior,
+                        posAtual: posicaoAtual
+                    });
+                }
             });
 
-            rankingStats = `
-              MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!` : 'Nenhum salto relevante.'}
-              MAIOR QUEDA: ${maiorQueda.posicoes < 0 ? `${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!` : 'Nenhuma queda dramática.'}
-            `;
+            // 4. EXTRAIR OS 2 MAIORES DE CADA LADO
+            relatorioMovimentos.sort((a, b) => b.variacao - a.variacao);
+
+            const maioresSaltos = relatorioMovimentos.filter(m => m.variacao > 0).slice(0, 2);
+            const maioresQuedas = relatorioMovimentos.filter(m => m.variacao < 0).slice(-2).reverse();
+
+            // 5. EMBALAR OS DADOS CRUS PARA A IA LER COM FACILIDADE
+            const txtSaltos = maioresSaltos.length > 0 
+                ? maioresSaltos.map(m => `${m.nome} (Subiu ${m.variacao} posições: foi de ${m.posAnterior}º para ${m.posAtual}º lugar)`).join(' | ')
+                : 'Nenhum salto relevante registrado.';
+
+            const txtQuedas = maioresQuedas.length > 0
+                ? maioresQuedas.map(m => `${m.nome} (Caiu ${Math.abs(m.variacao)} posições: despencou de ${m.posAnterior}º para ${m.posAtual}º lugar)`).join(' | ')
+                : 'Nenhuma queda dramática registrada.';
+
+            rankingStats = `[TOP 2 SUBIDAS]\n${txtSaltos}\n\n[TOP 2 QUEDAS]\n${txtQuedas}`;
         }
     }
 
@@ -169,15 +195,15 @@ export async function GET(request) {
       - Videntes que CRAVARAM o placar exato: ${cravadas.length > 0 ? cravadas.join(', ') : 'Nenhum mito conseguiu cravar!'}
       - Iludidos que ZERARAM no jogo: ${iludidos.length > 0 ? iludidos.slice(0, 3).join(', ') + (iludidos.length > 3 ? ' e mais alguns azarados' : '') : 'Milagrosamente, todo mundo pontuou algo!'}
       
-      🎢 A MONTANHA RUSSA DO RANKING (DADOS EXATOS - NÃO ALTERE OS NÚMEROS):
+      🎢 ESTATÍSTICAS DA MONTANHA RUSSA DO RANKING:
       ${rankingStats}
       
       SUA MISSÃO - Crie uma resenha curta, debochada e épica com os seguintes blocos (PROIBIDO usar markdown de listas como asteriscos ou traços, pule linhas duplas entre blocos e use negrito MAIÚSCULO nos títulos):
       
       1. 🏁 FIM DE PAPO: Informe o placar final como um verdadeiro decreto.
       2. 🔮 OS VIDENTES: Se alguém cravou, trate-os como Deuses intocáveis. Se ninguém cravou, diga que o bolão tá cheio de mortais fracassados.
-      3. 🤡 OS ILUDIDOS: Zombe pesadamente de apenas 1 ou 2 nomes da lista de Iludidos. USE O PLACAR QUE ELES APOSTARAM PARA FAZER A PIADA (ex: "O fulano achou que ia ser 3x0, deve ter assistido de olhos fechados").
-      4. 🎢 A MONTANHA RUSSA: Use ESTRITAMENTE os nomes e números fornecidos na variável "MONTANHA RUSSA DO RANKING" acima. Não invente nomes nem recálcule posições. Apenas pegue quem deu o Maior Salto e faça um elogio exagerado, e pegue quem teve a Maior Queda e dê seus pêsames sarcásticos. (Comente tambem o quanto foi o salto ou queda. EX: Subiu incriveis 15 posicoes. Pisou na Casca de Banana e caiu 8 Posicoes. Seja Criativo e Varie sempre as piadas.)
+      3. 🤡 OS ILUDIDOS: Zombe pesadamente de apenas 1 ou 2 nomes da lista de Iludidos. USE O PLACAR QUE ELES APOSTARAM PARA FAZER A PIADA.
+      4. 🎢 A MONTANHA RUSSA: Use ESTRITAMENTE as estatísticas fornecidas em "ESTATÍSTICAS DA MONTANHA RUSSA". Comente EXPLÍCITAMENTE os números e posições. Elogie exageradamente os 2 usuários que mais subiram e zombe pesadamente dos 2 usuários que mais caíram.
       5. Seja Bastante Criativo e Varie bastante as piadas para que mensagens passadas ou futuras nao fiquem repetitivas. 
     `;
 
