@@ -63,97 +63,98 @@ export async function GET(request) {
         }
     });
 
-    // --- 2. A MONTANHA RUSSA DO RANKING (Lógica Pura e Blindada) ---
+    // --- 2. A MONTANHA RUSSA DO RANKING (LÓGICA EXATA DO NOTIFICA-RESULTADOS) ---
     const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
     let rankingStats = "Sem dados de ranking para analisar.";
     
     if (activeComp) {
-        const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).maybeSingle();
-        const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round || '').maybeSingle();
-        const multiplier = roundSetting?.multiplier || 1;
+        // Busca o ranking com TODOS os critérios de desempate oficiais
+        const { data: ranking } = await supabase
+            .from('leaderboard')
+            .select('user_id, nome_exibicao, total_pontos, qtd_cv, qtd_vsg, qtd_av') 
+            .eq('competition_id', activeComp.id);
 
-        const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
-        
-        if (leaderboard && leaderboard.length > 0) {
+        if (ranking && ranking.length > 0) {
             
-            // 1. Criar um mapa exato dos pontos da rodada convertendo tudo para NÚMEROS
-            const mapPontos = new Map();
-            let dbJaProcessou = false;
-
-            palpitesDoJogo.forEach(p => {
-                const pA = Number(p.guess_score_a);
-                const pB = Number(p.guess_score_b);
-                const rA = Number(gols_mandante);
-                const rB = Number(gols_visitante);
-                
-                let pts = 0;
-                if (pA === rA && pB === rB) {
-                    pts = 10;
-                } else {
-                    const acertouVencedor = Math.sign(pA - pB) === Math.sign(rA - rB);
-                    const acertouGol = (pA === rA) || (pB === rB);
-                    const acertouSaldo = (pA - pB) === (rA - rB);
-                    
-                    if (acertouVencedor) {
-                        pts = (acertouGol || acertouSaldo) ? 7 : 5;
-                    } else if (acertouGol) {
-                        pts = 2;
-                    }
-                }
-                
-                mapPontos.set(p.user_id, pts * multiplier);
-                
-                // Marca se o Supabase já rodou a trigger no banco
-                if (p.points_awarded !== null && p.points_awarded !== undefined) {
-                    dbJaProcessou = true;
-                }
+            const nicknameMap = {};
+            ranking.forEach(r => {
+                nicknameMap[r.user_id] = (r.nome_exibicao || '').toLowerCase().trim();
             });
 
-            // 2. Calcula as duas realidades (Rank Antes vs Rank Depois)
-            const usersCalculados = leaderboard.map(u => {
-                const pontosDoJogo = mapPontos.get(u.user_id) || 0;
-                const totalDB = Number(u.total_pontos || 0);
+            // Constrói o ranking Anterior usando o mesmo esquema: pontos atuais MENOS os pontos_awarded deste jogo
+            const rankingAnterior = ranking.map(userRank => {
+                const palpiteDesteUser = palpitesDoJogo.find(p => p.user_id === userRank.user_id);
+                const pontosGanhos = palpiteDesteUser?.points_awarded || 0; 
                 
                 return {
-                    id: u.user_id,
-                    nome: u.nome_exibicao || 'Anônimo',
-                    // Se o DB já processou, o atual é o DB e o antigo é DB - pontos.
-                    pAntes: dbJaProcessou ? (totalDB - pontosDoJogo) : totalDB,
-                    pAtuais: dbJaProcessou ? totalDB : (totalDB + pontosDoJogo)
+                    user_id: userRank.user_id,
+                    pontos_anteriores: Number(userRank.total_pontos) - Number(pontosGanhos),
+                    cv: Number(userRank.qtd_cv),
+                    vsg: Number(userRank.qtd_vsg),
+                    av: Number(userRank.qtd_av)
                 };
             });
 
-            // 3. Ordenação com desempate alfabético estrito (impede falsos zeros)
-            const sortFn = (key) => (a, b) => {
-                if (b[key] !== a[key]) return b[key] - a[key];
-                return a.nome.localeCompare(b.nome);
-            };
-
-            const rankAntes = [...usersCalculados].sort(sortFn('pAntes'));
-            const rankDepois = [...usersCalculados].sort(sortFn('pAtuais'));
-
             let maiorSalto = { nome: '', posicoes: 0 };
-            let maiorQueda = { nome: '', posicoes: 0 }; 
+            let maiorQueda = { nome: '', posicoes: 0 };
 
-            // 4. Mede a diferença EXATA de posições
-            usersCalculados.forEach(u => {
-                const posAntes = rankAntes.findIndex(x => x.id === u.id) + 1;
-                const posDepois = rankDepois.findIndex(x => x.id === u.id) + 1;
-                const diff = posAntes - posDepois; // Positivo = subiu
+            // O JUÍZO FINAL: Compara a posição de CADA usuário antes e depois usando as regras estritas
+            ranking.forEach(usuario => {
+                const nomeAtual = nicknameMap[usuario.user_id] || '';
 
-                if (diff > maiorSalto.posicoes) maiorSalto = { nome: u.nome, posicoes: diff };
-                if (diff < maiorQueda.posicoes) maiorQueda = { nome: u.nome, posicoes: diff };
+                // --- POSIÇÃO ATUAL ---
+                const statsAtual = ranking.find(r => r.user_id === usuario.user_id);
+                const posicaoAtual = ranking.filter(r => {
+                    if (r.user_id === usuario.user_id) return false;
+                    if (r.total_pontos > statsAtual.total_pontos) return true;
+                    if (r.total_pontos === statsAtual.total_pontos) {
+                        if (r.qtd_cv > statsAtual.qtd_cv) return true;
+                        if (r.qtd_cv === statsAtual.qtd_cv) {
+                            if (r.qtd_vsg > statsAtual.qtd_vsg) return true;
+                            if (r.qtd_vsg === statsAtual.qtd_vsg) {
+                                if (r.qtd_av > statsAtual.qtd_av) return true;
+                                if (r.qtd_av === statsAtual.qtd_av) {
+                                    const nomeR = nicknameMap[r.user_id] || '';
+                                    if (nomeR.localeCompare(nomeAtual) < 0) return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }).length + 1;
+
+                // --- POSIÇÃO ANTERIOR ---
+                const statsAnterior = rankingAnterior.find(r => r.user_id === usuario.user_id);
+                const posicaoAnterior = rankingAnterior.filter(r => {
+                    if (r.user_id === usuario.user_id) return false;
+                    if (r.pontos_anteriores > statsAnterior.pontos_anteriores) return true;
+                    if (r.pontos_anteriores === statsAnterior.pontos_anteriores) {
+                        if (r.cv > statsAnterior.cv) return true;
+                        if (r.cv === statsAnterior.cv) {
+                            if (r.vsg > statsAnterior.vsg) return true;
+                            if (r.vsg === statsAnterior.vsg) {
+                                if (r.av > statsAnterior.av) return true;
+                                if (r.av === statsAnterior.av) {
+                                    const nomeR = nicknameMap[r.user_id] || '';
+                                    if (nomeR.localeCompare(nomeAtual) < 0) return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }).length + 1;
+
+                // --- CÁLCULO DO SALTO/QUEDA ---
+                const diff = posicaoAnterior - posicaoAtual; // Positivo = Subiu, Negativo = Caiu
+
+                if (diff > maiorSalto.posicoes) maiorSalto = { nome: usuario.nome_exibicao, posicoes: diff };
+                if (diff < maiorQueda.posicoes) maiorQueda = { nome: usuario.nome_exibicao, posicoes: diff };
             });
 
-            // 5. O Árbitro Final
-            if (maiorSalto.posicoes === 0 && maiorQueda.posicoes === 0) {
-                rankingStats = `O ranking congelou! A galera cravou tão igual que o pelotão andou junto e ninguém ultrapassou ninguém na tabela. Um verdadeiro empate técnico no movimento das posições.`;
-            } else {
-                rankingStats = `
-                  MAIOR SALTO: ${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!
-                  MAIOR QUEDA: ${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!
-                `;
-            }
+            rankingStats = `
+              MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!` : 'Nenhum salto relevante.'}
+              MAIOR QUEDA: ${maiorQueda.posicoes < 0 ? `${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!` : 'Nenhuma queda dramática.'}
+            `;
         }
     }
 
