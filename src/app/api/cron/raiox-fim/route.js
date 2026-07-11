@@ -63,83 +63,97 @@ export async function GET(request) {
         }
     });
 
-    // --- 2. A MONTANHA RUSSA DO RANKING (Solução Definitiva e Blindada) ---
+    // --- 2. A MONTANHA RUSSA DO RANKING (Lógica Pura e Blindada) ---
     const { data: activeComp } = await supabase.from('competitions').select('id').eq('is_active', true).maybeSingle();
     let rankingStats = "Sem dados de ranking para analisar.";
     
     if (activeComp) {
         const { data: gameData } = await supabase.from('games').select('round').eq('id', gameId).maybeSingle();
         const { data: roundSetting } = await supabase.from('round_settings').select('multiplier').eq('competition_id', activeComp.id).eq('round_name', gameData?.round || '').maybeSingle();
-        
-        // Pega o multiplicador (nas Quartas, será 4). Se o banco falhar, garante no mínimo 1.
         const multiplier = roundSetting?.multiplier || 1;
 
         const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, nome_exibicao, total_pontos').eq('competition_id', activeComp.id);
         
         if (leaderboard && leaderboard.length > 0) {
             
-            // Função auxiliar de ordenação com desempate alfabético estável (Crítico para não dar zero saltos por acaso)
-            const sortRanking = (key) => (a, b) => {
-                if (b[key] !== a[key]) return b[key] - a[key]; 
-                return (a.nome || '').localeCompare(b.nome || ''); 
-            };
+            // 1. Criar um mapa exato dos pontos da rodada convertendo tudo para NÚMEROS
+            const mapPontos = new Map();
+            let dbJaProcessou = false;
 
-            // Prepara a base de usuários ignorando o Banco de Dados para os pontos da partida atual.
-            // Usamos ESTRITAMENTE o cálculo do seu Passo 1 (10, 7, 5, 2) vezes o Multiplicador (4x).
-            const baseUsersData = leaderboard.map(user => {
-                const p = palpitesDoJogo.find(p => p.user_id === user.user_id);
-                // Calcula os pontos reais da rodada (ex: 10 * 4 = 40 pontos)
-                const pontosDoJogo = p ? (Number(p.pontos_calculados || 0) * multiplier) : 0;
+            palpitesDoJogo.forEach(p => {
+                const pA = Number(p.guess_score_a);
+                const pB = Number(p.guess_score_b);
+                const rA = Number(gols_mandante);
+                const rB = Number(gols_visitante);
+                
+                let pts = 0;
+                if (pA === rA && pB === rB) {
+                    pts = 10;
+                } else {
+                    const acertouVencedor = Math.sign(pA - pB) === Math.sign(rA - rB);
+                    const acertouGol = (pA === rA) || (pB === rB);
+                    const acertouSaldo = (pA - pB) === (rA - rB);
+                    
+                    if (acertouVencedor) {
+                        pts = (acertouGol || acertouSaldo) ? 7 : 5;
+                    } else if (acertouGol) {
+                        pts = 2;
+                    }
+                }
+                
+                mapPontos.set(p.user_id, pts * multiplier);
+                
+                // Marca se o Supabase já rodou a trigger no banco
+                if (p.points_awarded !== null && p.points_awarded !== undefined) {
+                    dbJaProcessou = true;
+                }
+            });
 
+            // 2. Calcula as duas realidades (Rank Antes vs Rank Depois)
+            const usersCalculados = leaderboard.map(u => {
+                const pontosDoJogo = mapPontos.get(u.user_id) || 0;
+                const totalDB = Number(u.total_pontos || 0);
+                
                 return {
-                    user_id: user.user_id,
-                    nome: user.nome_exibicao || 'Anônimo',
-                    totalPontosDB: Number(user.total_pontos || 0),
-                    pontosDoJogo: pontosDoJogo
+                    id: u.user_id,
+                    nome: u.nome_exibicao || 'Anônimo',
+                    // Se o DB já processou, o atual é o DB e o antigo é DB - pontos.
+                    pAntes: dbJaProcessou ? (totalDB - pontosDoJogo) : totalDB,
+                    pAtuais: dbJaProcessou ? totalDB : (totalDB + pontosDoJogo)
                 };
             });
 
-            // Motor de cálculo encapsulado que resolve o problema de dessincronização
-            const calcularSaltos = (assumirBancoJaSomou) => {
-                const usersCalculados = baseUsersData.map(u => ({
-                    user_id: u.user_id,
-                    nome: u.nome,
-                    pontosAtuais: assumirBancoJaSomou ? u.totalPontosDB : u.totalPontosDB + u.pontosDoJogo,
-                    pontosAntes: assumirBancoJaSomou ? u.totalPontosDB - u.pontosDoJogo : u.totalPontosDB
-                }));
-
-                const rankAntes = [...usersCalculados].sort(sortRanking('pontosAntes'));
-                const rankDepois = [...usersCalculados].sort(sortRanking('pontosAtuais'));
-
-                let maiorSalto = { nome: '', posicoes: 0 };
-                let maiorQueda = { nome: '', posicoes: 0 }; 
-
-                usersCalculados.forEach(user => {
-                    const posAntes = rankAntes.findIndex(u => u.user_id === user.user_id) + 1;
-                    const posDepois = rankDepois.findIndex(u => u.user_id === user.user_id) + 1;
-                    const diff = posAntes - posDepois; // Positivo = subiu, Negativo = caiu
-
-                    if (diff > maiorSalto.posicoes) maiorSalto = { nome: user.nome, posicoes: diff };
-                    if (diff < maiorQueda.posicoes) maiorQueda = { nome: user.nome, posicoes: diff };
-                });
-
-                return { maiorSalto, maiorQueda };
+            // 3. Ordenação com desempate alfabético estrito (impede falsos zeros)
+            const sortFn = (key) => (a, b) => {
+                if (b[key] !== a[key]) return b[key] - a[key];
+                return a.nome.localeCompare(b.nome);
             };
 
-            // TENTATIVA 1: O Ranking do banco de dados ainda é o "Antes" do jogo.
-            let resultadoSaltos = calcularSaltos(false);
+            const rankAntes = [...usersCalculados].sort(sortFn('pAntes'));
+            const rankDepois = [...usersCalculados].sort(sortFn('pAtuais'));
 
-            // TENTATIVA 2 (Segurança máxima): Se ninguém moveu posição, é porque o banco foi mais rápido e já somou os pontos na view.
-            if (resultadoSaltos.maiorSalto.posicoes === 0 && resultadoSaltos.maiorQueda.posicoes === 0) {
-                resultadoSaltos = calcularSaltos(true);
+            let maiorSalto = { nome: '', posicoes: 0 };
+            let maiorQueda = { nome: '', posicoes: 0 }; 
+
+            // 4. Mede a diferença EXATA de posições
+            usersCalculados.forEach(u => {
+                const posAntes = rankAntes.findIndex(x => x.id === u.id) + 1;
+                const posDepois = rankDepois.findIndex(x => x.id === u.id) + 1;
+                const diff = posAntes - posDepois; // Positivo = subiu
+
+                if (diff > maiorSalto.posicoes) maiorSalto = { nome: u.nome, posicoes: diff };
+                if (diff < maiorQueda.posicoes) maiorQueda = { nome: u.nome, posicoes: diff };
+            });
+
+            // 5. O Árbitro Final
+            if (maiorSalto.posicoes === 0 && maiorQueda.posicoes === 0) {
+                rankingStats = `O ranking congelou! A galera cravou tão igual que o pelotão andou junto e ninguém ultrapassou ninguém na tabela. Um verdadeiro empate técnico no movimento das posições.`;
+            } else {
+                rankingStats = `
+                  MAIOR SALTO: ${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!
+                  MAIOR QUEDA: ${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!
+                `;
             }
-
-            const { maiorSalto, maiorQueda } = resultadoSaltos;
-
-            rankingStats = `
-              MAIOR SALTO: ${maiorSalto.posicoes > 0 ? `${maiorSalto.nome} voou e subiu ${maiorSalto.posicoes} posições na tabela!` : 'Nenhum salto relevante.'}
-              MAIOR QUEDA: ${maiorQueda.posicoes < 0 ? `${maiorQueda.nome} escorregou feio e despencou ${Math.abs(maiorQueda.posicoes)} posições!` : 'Nenhuma queda dramática.'}
-            `;
         }
     }
 
