@@ -40,9 +40,9 @@ export async function GET(request) {
     if (!comp) return new Response(JSON.stringify({ message: 'Nenhuma competição ativa.' }), { status: 200 });
     
     // A MÁGICA DO RETRY: Se já mandou hoje, cancela a operação silenciosamente
-    // if (comp.last_bulletin_date === hojeDataStr) {
-    //    return new Response(JSON.stringify({ message: 'Boletim de hoje já foi enviado com sucesso mais cedo. Dormindo...' }), { status: 200 });
-    //}
+     if (comp.last_bulletin_date === hojeDataStr) {
+        return new Response(JSON.stringify({ message: 'Boletim de hoje já foi enviado com sucesso mais cedo. Dormindo...' }), { status: 200 });
+    }
 
     // 3. RANKING GERAL (Ordenação Oficial e Desempate Rigoroso)
     const { data: rawLeaderboard } = await supabase
@@ -159,7 +159,7 @@ export async function GET(request) {
     const zapResponse = await fetch(zapUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': process.env.ZAPI_CLIENT_TOKEN },
-      body: JSON.stringify({ phone: "5579998134523", message: textoBoletim })
+      body: JSON.stringify({ phone: process.env.WHATSAPP_GRUPO_ID, message: textoBoletim })
     });
 
     if (!zapResponse.ok) throw new Error(`Falha Z-API. Status: ${zapResponse.status}`);
